@@ -23,8 +23,6 @@ const FeatureCard = ({ icon, title, description }: FeatureCardProps) => {
       <div className="relative z-10">
         <div className="text-5xl mb-6 group-hover:scale-110 transition-transform duration-300 relative">
           {icon}
-          {/* Small decorative dot */}
-          <div className="absolute -top-1 -right-1 w-3 h-3 bg-forge-orange rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse"></div>
         </div>
         <h3 className="text-xl font-semibold text-forge-dark mb-4 group-hover:text-forge-orange transition-colors duration-200">
           {title}
