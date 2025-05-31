@@ -26,15 +26,15 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-12">
+          <div className="hidden md:flex items-center space-x-4">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`text-sm font-medium transition-all duration-200 ${
+                className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 ${
                   location.pathname === item.path
-                    ? 'text-forge-orange'
-                    : 'text-forge-dark hover:text-forge-orange'
+                    ? 'bg-white text-forge-dark shadow-sm border border-forge-cream'
+                    : 'text-forge-dark hover:bg-forge-orange hover:text-white'
                 }`}
               >
                 {item.label}
@@ -61,10 +61,10 @@ const Navbar = () => {
                 key={item.path}
                 to={item.path}
                 onClick={() => setIsOpen(false)}
-                className={`block py-3 text-base font-medium transition-colors ${
+                className={`block py-3 px-4 mx-2 mb-2 rounded-full text-base font-medium transition-colors ${
                   location.pathname === item.path
-                    ? 'text-forge-orange'
-                    : 'text-forge-dark hover:text-forge-orange'
+                    ? 'bg-white text-forge-dark shadow-sm border border-forge-cream'
+                    : 'text-forge-dark hover:bg-forge-orange hover:text-white'
                 }`}
               >
                 {item.label}
