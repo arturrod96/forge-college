@@ -33,7 +33,7 @@ const Navbar = () => {
                 to={item.path}
                 className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 ${
                   location.pathname === item.path
-                    ? 'bg-white text-forge-dark shadow-sm border border-forge-cream'
+                    ? 'bg-forge-dark text-white shadow-sm'
                     : 'text-forge-dark hover:bg-forge-orange hover:text-white'
                 }`}
               >
@@ -63,7 +63,7 @@ const Navbar = () => {
                 onClick={() => setIsOpen(false)}
                 className={`block py-3 px-4 mx-2 mb-2 rounded-full text-base font-medium transition-colors ${
                   location.pathname === item.path
-                    ? 'bg-white text-forge-dark shadow-sm border border-forge-cream'
+                    ? 'bg-forge-dark text-white shadow-sm'
                     : 'text-forge-dark hover:bg-forge-orange hover:text-white'
                 }`}
               >
