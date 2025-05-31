@@ -55,23 +55,23 @@ const Companies = () => {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       <Hero
         title="Build the Future Workforce"
         subtitle="Sponsor high-potential Web3 developers and shape their training"
         description="Partner with Forge College to create a direct pipeline of skilled Web3 developers trained on your projects and technologies."
         ctaText="Sponsor the Next Cohort"
         onCtaClick={() => setShowForm(true)}
-        gradient="bg-gradient-to-br from-emerald-600 via-blue-600 to-purple-600"
+        gradient=""
       />
 
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 tracking-tight">
               Why Partner with Forge College?
             </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Transform your hiring strategy by investing in talent development while solving real business challenges.
             </p>
           </div>
@@ -89,37 +89,37 @@ const Companies = () => {
         </div>
       </section>
 
-      <section className="py-16 bg-gradient-to-r from-gray-50 to-blue-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
+              <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-8 tracking-tight">
                 Partnership Tiers
               </h2>
               <div className="space-y-6">
-                <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Project Partner</h3>
-                  <p className="text-gray-600 mb-4">Submit projects for students to work on and get early access to hiring pipeline.</p>
-                  <ul className="text-sm text-gray-600 space-y-1">
+                <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">Project Partner</h3>
+                  <p className="text-gray-600 mb-6 leading-relaxed">Submit projects for students to work on and get early access to hiring pipeline.</p>
+                  <ul className="text-gray-600 space-y-2">
                     <li>• 2-3 project submissions per cohort</li>
                     <li>• Access to student portfolios</li>
                     <li>• Hiring pipeline access</li>
                   </ul>
                 </div>
-                <div className="bg-white rounded-lg p-6 shadow-sm border border-blue-200 border-2">
-                  <h3 className="text-xl font-semibold text-blue-600 mb-2">Curriculum Sponsor</h3>
-                  <p className="text-gray-600 mb-4">Co-design curriculum modules and sponsor student salaries while they work on your projects.</p>
-                  <ul className="text-sm text-gray-600 space-y-1">
+                <div className="bg-white rounded-3xl p-8 shadow-sm border-2 border-orange-200">
+                  <h3 className="text-xl font-semibold text-orange-500 mb-3">Curriculum Sponsor</h3>
+                  <p className="text-gray-600 mb-6 leading-relaxed">Co-design curriculum modules and sponsor student salaries while they work on your projects.</p>
+                  <ul className="text-gray-600 space-y-2">
                     <li>• Curriculum influence</li>
                     <li>• Sponsor 3-5 students</li>
                     <li>• Dedicated hiring events</li>
                     <li>• Brand partnership benefits</li>
                   </ul>
                 </div>
-                <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Ecosystem Partner</h3>
-                  <p className="text-gray-600 mb-4">Comprehensive partnership including curriculum design, student sponsorship, and exclusive hiring rights.</p>
-                  <ul className="text-sm text-gray-600 space-y-1">
+                <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">Ecosystem Partner</h3>
+                  <p className="text-gray-600 mb-6 leading-relaxed">Comprehensive partnership including curriculum design, student sponsorship, and exclusive hiring rights.</p>
+                  <ul className="text-gray-600 space-y-2">
                     <li>• Full curriculum partnership</li>
                     <li>• Sponsor entire cohort track</li>
                     <li>• Exclusive hiring window</li>
@@ -128,43 +128,43 @@ const Companies = () => {
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-2xl p-8 shadow-lg">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Partnership Benefits</h3>
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-green-100 rounded-full w-8 h-8 flex items-center justify-center">
-                    <span className="text-green-600 font-bold">✓</span>
+            <div className="bg-white rounded-3xl p-10 shadow-lg border border-gray-100">
+              <h3 className="text-3xl font-bold text-gray-900 mb-8 text-center">Partnership Benefits</h3>
+              <div className="space-y-6">
+                <div className="flex items-center space-x-4">
+                  <div className="bg-orange-100 rounded-2xl w-10 h-10 flex items-center justify-center">
+                    <span className="text-orange-500 font-bold text-lg">✓</span>
                   </div>
                   <span className="text-gray-700">Direct access to top 5% Web3 talent</span>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <div className="bg-green-100 rounded-full w-8 h-8 flex items-center justify-center">
-                    <span className="text-green-600 font-bold">✓</span>
+                <div className="flex items-center space-x-4">
+                  <div className="bg-orange-100 rounded-2xl w-10 h-10 flex items-center justify-center">
+                    <span className="text-orange-500 font-bold text-lg">✓</span>
                   </div>
                   <span className="text-gray-700">Real project outcomes and IP</span>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <div className="bg-green-100 rounded-full w-8 h-8 flex items-center justify-center">
-                    <span className="text-green-600 font-bold">✓</span>
+                <div className="flex items-center space-x-4">
+                  <div className="bg-orange-100 rounded-2xl w-10 h-10 flex items-center justify-center">
+                    <span className="text-orange-500 font-bold text-lg">✓</span>
                   </div>
                   <span className="text-gray-700">Reduced recruitment costs</span>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <div className="bg-green-100 rounded-full w-8 h-8 flex items-center justify-center">
-                    <span className="text-green-600 font-bold">✓</span>
+                <div className="flex items-center space-x-4">
+                  <div className="bg-orange-100 rounded-2xl w-10 h-10 flex items-center justify-center">
+                    <span className="text-orange-500 font-bold text-lg">✓</span>
                   </div>
                   <span className="text-gray-700">Brand exposure to Web3 community</span>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <div className="bg-green-100 rounded-full w-8 h-8 flex items-center justify-center">
-                    <span className="text-green-600 font-bold">✓</span>
+                <div className="flex items-center space-x-4">
+                  <div className="bg-orange-100 rounded-2xl w-10 h-10 flex items-center justify-center">
+                    <span className="text-orange-500 font-bold text-lg">✓</span>
                   </div>
                   <span className="text-gray-700">Advisory role in program development</span>
                 </div>
               </div>
               <button
                 onClick={() => setShowForm(true)}
-                className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors mt-6"
+                className="w-full bg-gray-900 text-white py-4 rounded-2xl font-semibold hover:bg-gray-800 transition-all duration-200 transform hover:scale-[1.02] mt-8"
               >
                 Become a Partner
               </button>
@@ -173,25 +173,25 @@ const Companies = () => {
         </div>
       </section>
 
-      <section className="py-16 bg-gray-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold mb-8">
+      <section className="py-20 bg-gray-900 text-white">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center">
+          <h2 className="text-4xl lg:text-5xl font-bold mb-8 tracking-tight">
             Trusted by Leading Web3 Companies
           </h2>
-          <p className="text-lg text-gray-300 mb-12 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-300 mb-16 max-w-3xl mx-auto">
             Join innovative companies that are already building the future workforce through Forge College partnerships.
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center opacity-60">
-            <div className="bg-white/10 rounded-lg p-6 h-20 flex items-center justify-center">
+            <div className="bg-white/5 rounded-3xl p-8 h-24 flex items-center justify-center border border-white/10">
               <span className="text-lg font-semibold">Partner Logo</span>
             </div>
-            <div className="bg-white/10 rounded-lg p-6 h-20 flex items-center justify-center">
+            <div className="bg-white/5 rounded-3xl p-8 h-24 flex items-center justify-center border border-white/10">
               <span className="text-lg font-semibold">Partner Logo</span>
             </div>
-            <div className="bg-white/10 rounded-lg p-6 h-20 flex items-center justify-center">
+            <div className="bg-white/5 rounded-3xl p-8 h-24 flex items-center justify-center border border-white/10">
               <span className="text-lg font-semibold">Partner Logo</span>
             </div>
-            <div className="bg-white/10 rounded-lg p-6 h-20 flex items-center justify-center">
+            <div className="bg-white/5 rounded-3xl p-8 h-24 flex items-center justify-center border border-white/10">
               <span className="text-lg font-semibold">Partner Logo</span>
             </div>
           </div>

@@ -8,23 +8,22 @@ interface HeroProps {
   gradient: string;
 }
 
-const Hero = ({ title, subtitle, description, ctaText, onCtaClick, gradient }: HeroProps) => {
+const Hero = ({ title, subtitle, description, ctaText, onCtaClick }: HeroProps) => {
   return (
-    <section className={`relative py-20 lg:py-32 ${gradient}`}>
-      <div className="absolute inset-0 bg-black/10"></div>
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h1 className="text-4xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+    <section className="relative py-24 lg:py-32 bg-gradient-to-br from-gray-50 to-orange-50/30">
+      <div className="max-w-6xl mx-auto px-6 lg:px-8 text-center">
+        <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 mb-8 leading-[1.1] tracking-tight">
           {title}
         </h1>
-        <p className="text-xl lg:text-2xl text-white/90 mb-4 font-medium">
+        <p className="text-xl lg:text-2xl text-gray-600 mb-6 font-medium max-w-4xl mx-auto">
           {subtitle}
         </p>
-        <p className="text-lg text-white/80 mb-10 max-w-3xl mx-auto leading-relaxed">
+        <p className="text-lg text-gray-500 mb-12 max-w-3xl mx-auto leading-relaxed">
           {description}
         </p>
         <button
           onClick={onCtaClick}
-          className="bg-white text-gray-900 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-gray-100 transition-all duration-200 transform hover:scale-105 shadow-lg"
+          className="bg-gray-900 text-white px-8 py-4 rounded-2xl text-lg font-semibold hover:bg-gray-800 transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
         >
           {ctaText}
         </button>

@@ -55,23 +55,23 @@ const Professionals = () => {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       <Hero
         title="Get Paid to Learn Web3"
         subtitle="Master blockchain development while earning USDC/USDT"
         description="Join the only Web3 education program where you earn while you learn. Work on real projects, get mentored by industry experts, and access our exclusive hiring network."
         ctaText="Apply to Join the Next Cohort"
         onCtaClick={() => setShowForm(true)}
-        gradient="bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800"
+        gradient=""
       />
 
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 tracking-tight">
               Why Choose Forge College?
             </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               We've reimagined education for the Web3 era, where learning is an investment in your future, not a burden.
             </p>
           </div>
@@ -89,57 +89,59 @@ const Professionals = () => {
         </div>
       </section>
 
-      <section className="py-16 bg-gray-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-3xl lg:text-4xl font-bold mb-6">
+              <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-8 tracking-tight">
                 The Future of Education is Here
               </h2>
-              <div className="space-y-6">
-                <div className="flex items-start space-x-4">
-                  <div className="bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-white font-bold text-sm">1</span>
+              <div className="space-y-8">
+                <div className="flex items-start space-x-6">
+                  <div className="bg-orange-500 rounded-2xl w-12 h-12 flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-bold text-lg">1</span>
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-2">Apply & Get Accepted</h3>
-                    <p className="text-gray-300">Submit your application and go through our selection process designed to identify high-potential candidates.</p>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-3">Apply & Get Accepted</h3>
+                    <p className="text-gray-600 leading-relaxed">Submit your application and go through our selection process designed to identify high-potential candidates.</p>
                   </div>
                 </div>
-                <div className="flex items-start space-x-4">
-                  <div className="bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-white font-bold text-sm">2</span>
+                <div className="flex items-start space-x-6">
+                  <div className="bg-orange-500 rounded-2xl w-12 h-12 flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-bold text-lg">2</span>
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-2">Learn While Earning</h3>
-                    <p className="text-gray-300">Start your 6-month journey, receiving monthly payments while mastering Web3 development on real projects.</p>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-3">Learn While Earning</h3>
+                    <p className="text-gray-600 leading-relaxed">Start your 6-month journey, receiving monthly payments while mastering Web3 development on real projects.</p>
                   </div>
                 </div>
-                <div className="flex items-start space-x-4">
-                  <div className="bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-white font-bold text-sm">3</span>
+                <div className="flex items-start space-x-6">
+                  <div className="bg-orange-500 rounded-2xl w-12 h-12 flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-bold text-lg">3</span>
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-2">Land Your Dream Job</h3>
-                    <p className="text-gray-300">Graduate with a strong portfolio and get connected to our network of hiring partners actively seeking talent.</p>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-3">Land Your Dream Job</h3>
+                    <p className="text-gray-600 leading-relaxed">Graduate with a strong portfolio and get connected to our network of hiring partners actively seeking talent.</p>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-8 text-center">
-              <h3 className="text-2xl font-bold mb-4">Next Cohort Starts</h3>
-              <p className="text-4xl font-bold mb-2">March 2024</p>
-              <p className="text-lg mb-6">Limited to 30 students</p>
-              <div className="bg-white/20 rounded-lg p-4 mb-6">
-                <p className="text-sm font-medium">Monthly Payment During Program</p>
-                <p className="text-3xl font-bold">$3,000 USDC</p>
+            <div className="bg-white rounded-3xl p-10 shadow-lg border border-gray-100">
+              <div className="text-center">
+                <h3 className="text-3xl font-bold text-gray-900 mb-4">Next Cohort Starts</h3>
+                <p className="text-5xl font-bold text-orange-500 mb-3">March 2024</p>
+                <p className="text-lg text-gray-600 mb-8">Limited to 30 students</p>
+                <div className="bg-gray-50 rounded-2xl p-6 mb-8">
+                  <p className="text-sm font-medium text-gray-600 uppercase tracking-wide mb-2">Monthly Payment During Program</p>
+                  <p className="text-4xl font-bold text-gray-900">$3,000 USDC</p>
+                </div>
+                <button
+                  onClick={() => setShowForm(true)}
+                  className="w-full bg-gray-900 text-white px-8 py-4 rounded-2xl font-semibold hover:bg-gray-800 transition-all duration-200 transform hover:scale-[1.02]"
+                >
+                  Secure Your Spot
+                </button>
               </div>
-              <button
-                onClick={() => setShowForm(true)}
-                className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-              >
-                Secure Your Spot
-              </button>
             </div>
           </div>
         </div>
