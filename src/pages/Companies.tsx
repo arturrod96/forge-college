@@ -11,46 +11,46 @@ const Companies = () => {
   const features = [
     {
       icon: '🎯',
-      title: 'Shape the Curriculum',
-      description: 'Submit real projects and influence what students learn to match your exact hiring needs.'
-    },
-    {
-      icon: '🔍',
-      title: 'Pre-Vetted Talent',
-      description: 'Access a pipeline of rigorously selected and trained Web3 developers ready to contribute from day one.'
+      title: 'Qualified Talent Pool',
+      description: 'Access developers who have completed real Web3 projects and proven their skills through hands-on experience.'
     },
     {
       icon: '⚡',
-      title: 'Reduced Hiring Risk',
-      description: 'Evaluate candidates through their work on your actual projects before making hiring decisions.'
+      title: 'Fast Hiring Process',
+      description: 'Streamlined recruitment with pre-vetted candidates who are ready to contribute from day one.'
     },
     {
-      icon: '⏰',
-      title: 'Faster Onboarding',
-      description: 'Hire developers who already understand your tech stack and have worked on similar projects.'
+      icon: '💼',
+      title: 'Project-Based Vetting',
+      description: 'Our graduates have worked on actual Web3 projects, giving you confidence in their practical abilities.'
+    },
+    {
+      icon: '🤝',
+      title: 'Ongoing Partnership',
+      description: 'Build long-term relationships with our institution and get priority access to top graduates.'
     }
   ];
 
   const faqs = [
     {
-      question: 'How does project submission work?',
-      answer: 'Companies submit real-world projects that align with their tech stack and business needs. Our curriculum team works with you to structure these into effective learning experiences while ensuring students deliver real value.'
+      question: 'How are students vetted before joining the program?',
+      answer: 'We have a rigorous selection process including technical assessments, portfolio reviews, and interviews to ensure only committed, high-potential candidates enter our program.'
     },
     {
-      question: 'What level of involvement is required from our team?',
-      answer: 'Minimal but impactful. You\'ll provide initial project briefings, periodic check-ins, and final reviews. Most communication happens through our platform with dedicated support from our team.'
+      question: 'What skill level can we expect from graduates?',
+      answer: 'Our graduates complete 6 months of intensive training with real Web3 projects, equivalent to 1-2 years of practical experience in blockchain development.'
     },
     {
-      question: 'How do we evaluate students for potential hiring?',
-      answer: 'You\'ll have access to student portfolios, project work, peer reviews, and can participate in final presentations. We also facilitate technical interviews and trial periods.'
+      question: 'How does the hiring process work?',
+      answer: 'We provide you with profiles of graduating students, facilitate interviews, and support the hiring process. You get first access to top performers.'
     },
     {
-      question: 'What are the sponsorship costs and benefits?',
-      answer: 'Sponsorship costs vary based on involvement level and number of students sponsored. Benefits include hiring pipeline access, project outcomes, brand exposure to Web3 talent, and potential tax advantages.'
+      question: 'Can we sponsor specific students during the program?',
+      answer: 'Yes, we offer sponsorship opportunities where companies can support students during their learning journey and get priority hiring rights.'
     },
     {
-      question: 'Can we hire students before they graduate?',
-      answer: 'Yes! We encourage early hiring. Students can transition to part-time roles or internships during the program, with full-time positions starting upon graduation.'
+      question: 'What technologies do graduates specialize in?',
+      answer: 'Our curriculum covers Solidity, Web3.js, React, DeFi protocols, NFTs, DAOs, and popular blockchain frameworks used in modern Web3 development.'
     }
   ];
 
@@ -58,55 +58,52 @@ const Companies = () => {
     <div className="min-h-screen bg-white relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-32 right-10 w-40 h-40 bg-forge-orange/5 rounded-full blur-3xl"></div>
-        <div className="absolute top-96 left-20 w-56 h-56 bg-forge-cream/80 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-60 right-1/4 w-32 h-32 bg-forge-orange/10 rounded-full blur-2xl"></div>
+        <div className="absolute top-20 left-10 w-32 h-32 bg-forge-orange/5 rounded-full blur-3xl"></div>
+        <div className="absolute top-60 right-20 w-48 h-48 bg-forge-cream/80 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-40 left-1/4 w-40 h-40 bg-forge-orange/10 rounded-full blur-2xl"></div>
       </div>
 
-      {/* Enhanced Hero Section */}
+      {/* Custom hero section for companies */}
       <section className="relative py-24 lg:py-32 bg-gradient-to-br from-forge-cream to-forge-cream/50">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8 relative">
-          {/* Decorative elements */}
-          <div className="absolute top-10 left-10 opacity-10">
-            <Blocks size={60} className="text-forge-orange" />
-          </div>
-          <div className="absolute top-20 right-10 opacity-10">
-            <Layers size={80} className="text-forge-orange" />
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left side - Text content */}
-            <div className="text-center lg:text-left">
-              <div className="flex items-center justify-center lg:justify-start gap-3 mb-8">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Left side - Content */}
+            <div className="text-left relative">
+              {/* Decorative flame icon */}
+              <div className="absolute -top-8 -left-4 opacity-10">
+                <Flame size={80} className="text-forge-orange" />
+              </div>
+              
+              <div className="flex items-center gap-3 mb-6">
                 <div className="flex items-center gap-2 bg-forge-orange/10 px-4 py-2 rounded-full">
                   <Flame size={20} className="text-forge-orange" />
-                  <span className="text-sm font-semibold text-forge-orange">Partner with Innovation</span>
+                  <span className="text-sm font-semibold text-forge-orange">Partner with Excellence</span>
                 </div>
               </div>
 
               <h1 className="text-5xl lg:text-7xl font-bold text-forge-dark mb-8 leading-[1.1] tracking-tight">
-                Build the Future Workforce
+                Hire Web3 Talent That's Ready to Build
               </h1>
               <p className="text-xl lg:text-2xl text-forge-gray mb-6 font-medium">
-                Sponsor high-potential Web3 developers and shape their training
+                Access skilled developers from our intensive 6-month program
               </p>
               <p className="text-lg text-forge-gray/80 mb-12 leading-relaxed">
-                Partner with Forge College to create a direct pipeline of skilled Web3 developers trained on your projects and technologies.
+                Partner with Forge College to hire developers who have proven their skills on real Web3 projects. Our graduates are job-ready from day one.
               </p>
-
+              
               {/* Feature highlights */}
-              <div className="flex items-center justify-center lg:justify-start gap-8 mb-12">
+              <div className="flex items-center gap-6 mb-8">
                 <div className="flex items-center gap-2">
                   <BookOpen size={20} className="text-forge-orange" />
-                  <span className="text-sm text-forge-gray">Project-Based Learning</span>
+                  <span className="text-sm text-forge-gray">Pre-vetted Talent</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Blocks size={20} className="text-forge-orange" />
-                  <span className="text-sm text-forge-gray">Pre-Vetted Talent</span>
+                  <span className="text-sm text-forge-gray">Project Experience</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Layers size={20} className="text-forge-orange" />
-                  <span className="text-sm text-forge-gray">Direct Pipeline</span>
+                  <span className="text-sm text-forge-gray">Web3 Specialists</span>
                 </div>
               </div>
 
@@ -114,36 +111,39 @@ const Companies = () => {
                 onClick={() => setShowForm(true)}
                 className="bg-forge-orange text-white px-8 py-4 rounded-2xl text-lg font-semibold hover:bg-forge-orange-light transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl relative group overflow-hidden"
               >
-                <span className="relative z-10">Sponsor the Next Cohort</span>
+                <span className="relative z-10">Partner With Us</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-forge-orange to-forge-orange-light opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
               </button>
             </div>
 
-            {/* Right side - Image with enhanced background */}
-            <div className="flex justify-center lg:justify-end">
-              <div className="relative">
-                {/* Multi-layered background elements */}
-                <div className="absolute inset-0 bg-gradient-to-br from-forge-dark/20 to-forge-gray/20 rounded-3xl transform rotate-6 scale-110"></div>
-                <div className="absolute inset-0 bg-gradient-to-tl from-forge-dark/10 to-forge-cream rounded-3xl transform -rotate-3 scale-105"></div>
-                <div className="absolute inset-0 bg-gradient-to-br from-forge-cream to-forge-gray/30 rounded-3xl transform rotate-1"></div>
-                
-                {/* Main image */}
+            {/* Right side - Image with professional background styling */}
+            <div className="relative">
+              <div className="bg-forge-dark rounded-3xl p-8 shadow-2xl border-2 border-forge-orange/20 relative overflow-hidden">
+                {/* Subtle background pattern overlay */}
                 <img 
                   src="/lovable-uploads/176191fb-e3a7-447a-b0ce-90fe372c60d1.png" 
                   alt="Partnership illustration" 
-                  className="relative z-10 w-full max-w-md h-auto rounded-3xl shadow-2xl"
+                  className="w-full h-auto rounded-2xl relative z-10"
                 />
-                
-                {/* Additional decorative glow effects */}
-                <div className="absolute inset-0 bg-gradient-to-br from-forge-orange/10 to-transparent rounded-3xl blur-xl z-0"></div>
-                <div className="absolute -inset-4 bg-gradient-to-r from-forge-dark/5 via-forge-gray/5 to-forge-dark/5 rounded-3xl blur-2xl z-0"></div>
+              </div>
+              <div className="absolute -top-4 -right-4 bg-forge-orange text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg flex items-center gap-2">
+                <Flame size={16} />
+                Ready to Deploy
+              </div>
+              
+              {/* Floating elements */}
+              <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl p-4 shadow-lg border border-forge-cream">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm font-medium text-forge-dark">Job Ready</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Enhanced features section */}
+      {/* Features section */}
       <section className="py-20 bg-white relative">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-20 relative">
@@ -176,7 +176,7 @@ const Companies = () => {
         </div>
       </section>
 
-      {/* Enhanced partnership tiers section */}
+      {/* Process section */}
       <section className="py-20 bg-forge-cream/30 relative">
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-5">
@@ -341,7 +341,7 @@ const Companies = () => {
       <ApplicationForm
         isOpen={showForm}
         onClose={() => setShowForm(false)}
-        title="Partner with Forge College"
+        title="Partner With Forge College"
         formType="company"
       />
     </div>
