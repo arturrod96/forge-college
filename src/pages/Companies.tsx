@@ -66,7 +66,7 @@ const Companies = () => {
 
       {/* Enhanced Hero Section */}
       <section className="relative py-24 lg:py-32 bg-gradient-to-br from-forge-cream to-forge-cream/50">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8 text-center relative">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8 relative">
           {/* Decorative elements */}
           <div className="absolute top-10 left-10 opacity-10">
             <Blocks size={60} className="text-forge-orange" />
@@ -75,46 +75,64 @@ const Companies = () => {
             <Layers size={80} className="text-forge-orange" />
           </div>
 
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <div className="flex items-center gap-2 bg-forge-orange/10 px-4 py-2 rounded-full">
-              <Flame size={20} className="text-forge-orange" />
-              <span className="text-sm font-semibold text-forge-orange">Partner with Innovation</span>
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left side - Text content */}
+            <div className="text-center lg:text-left">
+              <div className="flex items-center justify-center lg:justify-start gap-3 mb-8">
+                <div className="flex items-center gap-2 bg-forge-orange/10 px-4 py-2 rounded-full">
+                  <Flame size={20} className="text-forge-orange" />
+                  <span className="text-sm font-semibold text-forge-orange">Partner with Innovation</span>
+                </div>
+              </div>
+
+              <h1 className="text-5xl lg:text-7xl font-bold text-forge-dark mb-8 leading-[1.1] tracking-tight">
+                Build the Future Workforce
+              </h1>
+              <p className="text-xl lg:text-2xl text-forge-gray mb-6 font-medium">
+                Sponsor high-potential Web3 developers and shape their training
+              </p>
+              <p className="text-lg text-forge-gray/80 mb-12 leading-relaxed">
+                Partner with Forge College to create a direct pipeline of skilled Web3 developers trained on your projects and technologies.
+              </p>
+
+              {/* Feature highlights */}
+              <div className="flex items-center justify-center lg:justify-start gap-8 mb-12">
+                <div className="flex items-center gap-2">
+                  <BookOpen size={20} className="text-forge-orange" />
+                  <span className="text-sm text-forge-gray">Project-Based Learning</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Blocks size={20} className="text-forge-orange" />
+                  <span className="text-sm text-forge-gray">Pre-Vetted Talent</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Layers size={20} className="text-forge-orange" />
+                  <span className="text-sm text-forge-gray">Direct Pipeline</span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowForm(true)}
+                className="bg-forge-orange text-white px-8 py-4 rounded-2xl text-lg font-semibold hover:bg-forge-orange-light transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl relative group overflow-hidden"
+              >
+                <span className="relative z-10">Sponsor the Next Cohort</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-forge-orange to-forge-orange-light opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+              </button>
+            </div>
+
+            {/* Right side - Image */}
+            <div className="flex justify-center lg:justify-end">
+              <div className="relative">
+                <img 
+                  src="/lovable-uploads/176191fb-e3a7-447a-b0ce-90fe372c60d1.png" 
+                  alt="Partnership illustration" 
+                  className="w-full max-w-md h-auto rounded-3xl shadow-lg"
+                />
+                {/* Decorative glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-forge-orange/10 to-transparent rounded-3xl blur-xl"></div>
+              </div>
             </div>
           </div>
-
-          <h1 className="text-5xl lg:text-7xl font-bold text-forge-dark mb-8 leading-[1.1] tracking-tight">
-            Build the Future Workforce
-          </h1>
-          <p className="text-xl lg:text-2xl text-forge-gray mb-6 font-medium max-w-4xl mx-auto">
-            Sponsor high-potential Web3 developers and shape their training
-          </p>
-          <p className="text-lg text-forge-gray/80 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Partner with Forge College to create a direct pipeline of skilled Web3 developers trained on your projects and technologies.
-          </p>
-
-          {/* Feature highlights */}
-          <div className="flex items-center justify-center gap-8 mb-12">
-            <div className="flex items-center gap-2">
-              <BookOpen size={20} className="text-forge-orange" />
-              <span className="text-sm text-forge-gray">Project-Based Learning</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Blocks size={20} className="text-forge-orange" />
-              <span className="text-sm text-forge-gray">Pre-Vetted Talent</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Layers size={20} className="text-forge-orange" />
-              <span className="text-sm text-forge-gray">Direct Pipeline</span>
-            </div>
-          </div>
-
-          <button
-            onClick={() => setShowForm(true)}
-            className="bg-forge-orange text-white px-8 py-4 rounded-2xl text-lg font-semibold hover:bg-forge-orange-light transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl relative group overflow-hidden"
-          >
-            <span className="relative z-10">Sponsor the Next Cohort</span>
-            <div className="absolute inset-0 bg-gradient-to-r from-forge-orange to-forge-orange-light opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-          </button>
         </div>
       </section>
 
