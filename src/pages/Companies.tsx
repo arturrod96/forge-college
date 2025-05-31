@@ -116,16 +116,25 @@ const Companies = () => {
               </button>
             </div>
 
-            {/* Right side - Image with professional background styling */}
+            {/* Right side - Image with updated styling */}
             <div className="relative">
-              <div className="bg-forge-dark rounded-3xl p-8 shadow-2xl border-2 border-forge-orange/20 relative overflow-hidden">
-                {/* Subtle background pattern overlay */}
-                <img 
-                  src="/lovable-uploads/176191fb-e3a7-447a-b0ce-90fe372c60d1.png" 
-                  alt="Partnership illustration" 
-                  className="w-full h-auto rounded-2xl relative z-10"
-                />
+              <div className="relative">
+                {/* Green background layer */}
+                <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-green-600 rounded-3xl shadow-2xl transform rotate-1"></div>
+                
+                {/* Grey intermediate layer */}
+                <div className="absolute inset-0 bg-[#6B7280] rounded-3xl shadow-xl transform rotate-0.5 opacity-90"></div>
+                
+                {/* Image container */}
+                <div className="relative bg-white rounded-3xl p-6 shadow-lg border border-forge-cream overflow-hidden">
+                  <img 
+                    src="/lovable-uploads/176191fb-e3a7-447a-b0ce-90fe372c60d1.png" 
+                    alt="Partnership illustration" 
+                    className="w-3/4 h-auto rounded-2xl mx-auto relative z-10"
+                  />
+                </div>
               </div>
+              
               <div className="absolute -top-4 -right-4 bg-forge-orange text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg flex items-center gap-2">
                 <Flame size={16} />
                 Ready to Deploy
