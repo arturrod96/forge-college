@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Flame, BookOpen, Blocks, Layers } from 'lucide-react';
 import FeatureCard from '../components/FeatureCard';
@@ -116,14 +115,6 @@ const Professionals = () => {
             <div className="relative">
               <div className="bg-forge-dark rounded-3xl p-8 shadow-2xl border-2 border-forge-orange/20 relative overflow-hidden">
                 {/* Subtle blockchain pattern overlay */}
-                <div className="absolute inset-0 opacity-5">
-                  <div className="grid grid-cols-8 grid-rows-8 h-full w-full">
-                    {Array.from({ length: 64 }).map((_, i) => (
-                      <div key={i} className="border border-forge-orange/20"></div>
-                    ))}
-                  </div>
-                </div>
-                
                 <img 
                   src="/lovable-uploads/fbcd41bd-99fb-4e15-9ea4-37fb6139005e.png" 
                   alt="Forge College Smart Contract Code" 
