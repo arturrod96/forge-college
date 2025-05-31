@@ -23,6 +23,14 @@ export default {
 				sans: ['Inter', 'sans-serif'],
 			},
 			colors: {
+				// Custom palette colors
+				forge: {
+					dark: '#2D3A2E',     // Dark green
+					cream: '#F5F2E8',    // Light cream/beige
+					orange: '#E87A47',   // Main orange
+					'orange-light': '#F4A261', // Light orange
+					gray: '#8E8E8E',     // Gray
+				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',

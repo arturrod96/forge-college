@@ -68,10 +68,10 @@ const Professionals = () => {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-20">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 tracking-tight">
+            <h2 className="text-4xl lg:text-5xl font-bold text-forge-dark mb-6 tracking-tight">
               Why Choose Forge College?
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-forge-gray max-w-3xl mx-auto">
               We've reimagined education for the Web3 era, where learning is an investment in your future, not a burden.
             </p>
           </div>
@@ -89,55 +89,55 @@ const Professionals = () => {
         </div>
       </section>
 
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-forge-cream/30">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-8 tracking-tight">
+              <h2 className="text-4xl lg:text-5xl font-bold text-forge-dark mb-8 tracking-tight">
                 The Future of Education is Here
               </h2>
               <div className="space-y-8">
                 <div className="flex items-start space-x-6">
-                  <div className="bg-orange-500 rounded-2xl w-12 h-12 flex items-center justify-center flex-shrink-0">
+                  <div className="bg-forge-orange rounded-2xl w-12 h-12 flex items-center justify-center flex-shrink-0">
                     <span className="text-white font-bold text-lg">1</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-3">Apply & Get Accepted</h3>
-                    <p className="text-gray-600 leading-relaxed">Submit your application and go through our selection process designed to identify high-potential candidates.</p>
+                    <h3 className="text-xl font-semibold text-forge-dark mb-3">Apply & Get Accepted</h3>
+                    <p className="text-forge-gray leading-relaxed">Submit your application and go through our selection process designed to identify high-potential candidates.</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-6">
-                  <div className="bg-orange-500 rounded-2xl w-12 h-12 flex items-center justify-center flex-shrink-0">
+                  <div className="bg-forge-orange rounded-2xl w-12 h-12 flex items-center justify-center flex-shrink-0">
                     <span className="text-white font-bold text-lg">2</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-3">Learn While Earning</h3>
-                    <p className="text-gray-600 leading-relaxed">Start your 6-month journey, receiving monthly payments while mastering Web3 development on real projects.</p>
+                    <h3 className="text-xl font-semibold text-forge-dark mb-3">Learn While Earning</h3>
+                    <p className="text-forge-gray leading-relaxed">Start your 6-month journey, receiving monthly payments while mastering Web3 development on real projects.</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-6">
-                  <div className="bg-orange-500 rounded-2xl w-12 h-12 flex items-center justify-center flex-shrink-0">
+                  <div className="bg-forge-orange rounded-2xl w-12 h-12 flex items-center justify-center flex-shrink-0">
                     <span className="text-white font-bold text-lg">3</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-3">Land Your Dream Job</h3>
-                    <p className="text-gray-600 leading-relaxed">Graduate with a strong portfolio and get connected to our network of hiring partners actively seeking talent.</p>
+                    <h3 className="text-xl font-semibold text-forge-dark mb-3">Land Your Dream Job</h3>
+                    <p className="text-forge-gray leading-relaxed">Graduate with a strong portfolio and get connected to our network of hiring partners actively seeking talent.</p>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-3xl p-10 shadow-lg border border-gray-100">
+            <div className="bg-white rounded-3xl p-10 shadow-lg border border-forge-cream">
               <div className="text-center">
-                <h3 className="text-3xl font-bold text-gray-900 mb-4">Next Cohort Starts</h3>
-                <p className="text-5xl font-bold text-orange-500 mb-3">March 2024</p>
-                <p className="text-lg text-gray-600 mb-8">Limited to 30 students</p>
-                <div className="bg-gray-50 rounded-2xl p-6 mb-8">
-                  <p className="text-sm font-medium text-gray-600 uppercase tracking-wide mb-2">Monthly Payment During Program</p>
-                  <p className="text-4xl font-bold text-gray-900">$3,000 USDC</p>
+                <h3 className="text-3xl font-bold text-forge-dark mb-4">Next Cohort Starts</h3>
+                <p className="text-5xl font-bold text-forge-orange mb-3">March 2024</p>
+                <p className="text-lg text-forge-gray mb-8">Limited to 30 students</p>
+                <div className="bg-forge-cream/50 rounded-2xl p-6 mb-8">
+                  <p className="text-sm font-medium text-forge-gray uppercase tracking-wide mb-2">Monthly Payment During Program</p>
+                  <p className="text-4xl font-bold text-forge-dark">$3,000 USDC</p>
                 </div>
                 <button
                   onClick={() => setShowForm(true)}
-                  className="w-full bg-gray-900 text-white px-8 py-4 rounded-2xl font-semibold hover:bg-gray-800 transition-all duration-200 transform hover:scale-[1.02]"
+                  className="w-full bg-forge-dark text-white px-8 py-4 rounded-2xl font-semibold hover:bg-forge-dark/90 transition-all duration-200 transform hover:scale-[1.02]"
                 >
                   Secure Your Spot
                 </button>

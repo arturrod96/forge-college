@@ -14,7 +14,7 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-white/80 backdrop-blur-xl border-b border-gray-100 sticky top-0 z-50">
+    <nav className="bg-forge-cream/90 backdrop-blur-xl border-b border-forge-cream sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <Link to="/" className="flex items-center space-x-3">
@@ -33,8 +33,8 @@ const Navbar = () => {
                 to={item.path}
                 className={`text-sm font-medium transition-all duration-200 ${
                   location.pathname === item.path
-                    ? 'text-orange-500'
-                    : 'text-gray-700 hover:text-orange-500'
+                    ? 'text-forge-orange'
+                    : 'text-forge-dark hover:text-forge-orange'
                 }`}
               >
                 {item.label}
@@ -46,7 +46,7 @@ const Navbar = () => {
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-gray-700 hover:text-orange-500 transition-colors p-2"
+              className="text-forge-dark hover:text-forge-orange transition-colors p-2"
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -55,7 +55,7 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden border-t border-gray-100 py-6 bg-white/95 backdrop-blur-xl">
+          <div className="md:hidden border-t border-forge-cream py-6 bg-forge-cream/95 backdrop-blur-xl">
             {navItems.map((item) => (
               <Link
                 key={item.path}
@@ -63,8 +63,8 @@ const Navbar = () => {
                 onClick={() => setIsOpen(false)}
                 className={`block py-3 text-base font-medium transition-colors ${
                   location.pathname === item.path
-                    ? 'text-orange-500'
-                    : 'text-gray-700 hover:text-orange-500'
+                    ? 'text-forge-orange'
+                    : 'text-forge-dark hover:text-forge-orange'
                 }`}
               >
                 {item.label}
