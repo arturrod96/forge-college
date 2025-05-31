@@ -56,14 +56,41 @@ const Professionals = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <Hero
-        title="Get Paid to Learn Web3"
-        subtitle="Master blockchain development while earning USDC/USDT"
-        description="Join the only Web3 education program where you earn while you learn. Work on real projects, get mentored by industry experts, and access our exclusive hiring network."
-        ctaText="Apply to Join the Next Cohort"
-        onCtaClick={() => setShowForm(true)}
-        gradient=""
-      />
+      <section className="relative py-24 lg:py-32 bg-gradient-to-br from-forge-cream to-forge-cream/50">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="text-left">
+              <h1 className="text-5xl lg:text-7xl font-bold text-forge-dark mb-8 leading-[1.1] tracking-tight">
+                Get Paid to Learn Web3
+              </h1>
+              <p className="text-xl lg:text-2xl text-forge-gray mb-6 font-medium">
+                Master blockchain development while earning USDC/USDT
+              </p>
+              <p className="text-lg text-forge-gray/80 mb-12 leading-relaxed">
+                Join the only Web3 education program where you earn while you learn. Work on real projects, get mentored by industry experts, and access our exclusive hiring network.
+              </p>
+              <button
+                onClick={() => setShowForm(true)}
+                className="bg-forge-orange text-white px-8 py-4 rounded-2xl text-lg font-semibold hover:bg-forge-orange-light transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
+              >
+                Apply to Join the Next Cohort
+              </button>
+            </div>
+            <div className="relative">
+              <div className="bg-forge-dark rounded-3xl p-8 shadow-2xl border-2 border-forge-orange/20">
+                <img 
+                  src="/lovable-uploads/fbcd41bd-99fb-4e15-9ea4-37fb6139005e.png" 
+                  alt="Forge College Smart Contract Code" 
+                  className="w-full h-auto rounded-2xl"
+                />
+              </div>
+              <div className="absolute -top-4 -right-4 bg-forge-orange text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg">
+                Learn by Building
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
