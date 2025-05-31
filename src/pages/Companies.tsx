@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Flame, BookOpen, Blocks, Layers } from 'lucide-react';
 import Hero from '../components/Hero';
@@ -120,16 +119,24 @@ const Companies = () => {
               </button>
             </div>
 
-            {/* Right side - Image */}
+            {/* Right side - Image with enhanced background */}
             <div className="flex justify-center lg:justify-end">
               <div className="relative">
+                {/* Multi-layered background elements */}
+                <div className="absolute inset-0 bg-gradient-to-br from-forge-dark/20 to-forge-gray/20 rounded-3xl transform rotate-6 scale-110"></div>
+                <div className="absolute inset-0 bg-gradient-to-tl from-forge-dark/10 to-forge-cream rounded-3xl transform -rotate-3 scale-105"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-forge-cream to-forge-gray/30 rounded-3xl transform rotate-1"></div>
+                
+                {/* Main image */}
                 <img 
                   src="/lovable-uploads/176191fb-e3a7-447a-b0ce-90fe372c60d1.png" 
                   alt="Partnership illustration" 
-                  className="w-full max-w-md h-auto rounded-3xl shadow-lg"
+                  className="relative z-10 w-full max-w-md h-auto rounded-3xl shadow-2xl"
                 />
-                {/* Decorative glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-forge-orange/10 to-transparent rounded-3xl blur-xl"></div>
+                
+                {/* Additional decorative glow effects */}
+                <div className="absolute inset-0 bg-gradient-to-br from-forge-orange/10 to-transparent rounded-3xl blur-xl z-0"></div>
+                <div className="absolute -inset-4 bg-gradient-to-r from-forge-dark/5 via-forge-gray/5 to-forge-dark/5 rounded-3xl blur-2xl z-0"></div>
               </div>
             </div>
           </div>
