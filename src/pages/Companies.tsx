@@ -318,22 +318,8 @@ const Companies = () => {
 
       {/* Enhanced trusted companies section */}
       <section className="py-20 bg-forge-dark text-white relative overflow-hidden">
-        {/* Decorative background */}
-        <div className="absolute inset-0">
-          <div className="absolute top-10 left-10 opacity-5">
-            <Blocks size={120} className="text-white" />
-          </div>
-          <div className="absolute bottom-10 right-10 opacity-5">
-            <Layers size={100} className="text-white" />
-          </div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-3">
-            <Flame size={200} className="text-white" />
-          </div>
-        </div>
-
         <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center relative z-10">
           <div className="flex items-center justify-center gap-3 mb-8">
-            <Flame size={32} className="text-forge-orange" />
             <h2 className="text-4xl lg:text-5xl font-bold tracking-tight">
               Trusted by Leading Web3 Companies
             </h2>
@@ -345,7 +331,6 @@ const Companies = () => {
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="bg-white/5 rounded-3xl p-8 h-24 flex items-center justify-center border border-white/10 hover:border-forge-orange/30 transition-colors group">
                 <div className="flex items-center gap-2">
-                  <Blocks size={20} className="text-forge-orange opacity-60 group-hover:opacity-100 transition-opacity" />
                   <span className="text-lg font-semibold">Partner Logo</span>
                 </div>
               </div>
