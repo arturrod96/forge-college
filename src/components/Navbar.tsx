@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
@@ -19,9 +18,10 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-20">
           <Link to="/" className="flex items-center space-x-3">
             <img 
-              src="/lovable-uploads/1138977d-21a9-493b-8da2-9ec7f244135f.png" 
+              src="/lovable-uploads/Forge College Logo.png" 
               alt="Forge College" 
-              className="h-10 w-auto"
+              className="h-12 w-auto max-h-16"
+              style={{ minWidth: '90px' }}
             />
           </Link>
 
