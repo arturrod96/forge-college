@@ -61,6 +61,13 @@ const Investors = () => {
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="text-left">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="flex items-center gap-2 bg-forge-orange/10 px-4 py-2 rounded-full">
+                  <Flame size={20} className="text-forge-orange" />
+                  <span className="text-sm font-semibold text-forge-orange">Investment Opportunity</span>
+                </div>
+              </div>
+              
               <h1 className="text-5xl lg:text-7xl font-bold text-forge-dark mb-8 leading-[1.1] tracking-tight">
                 Invest in Human Capital
               </h1>
@@ -90,7 +97,6 @@ const Investors = () => {
                 Investment Analytics
               </div>
               
-              {/* Floating elements */}
               <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl p-4 shadow-lg border border-forge-cream">
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
