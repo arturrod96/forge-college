@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import Hero from '../components/Hero';
 import FeatureCard from '../components/FeatureCard';
@@ -64,7 +63,7 @@ const Investors = () => {
               <div className="flex items-center gap-3 mb-6">
                 <div className="flex items-center gap-2 bg-forge-orange/10 px-4 py-2 rounded-full">
                   <Flame size={20} className="text-forge-orange" />
-                  <span className="text-sm font-semibold text-forge-orange">Investment Opportunity</span>
+                  <span className="text-sm font-semibold text-forge-orange">Invest with Excellence</span>
                 </div>
               </div>
               
