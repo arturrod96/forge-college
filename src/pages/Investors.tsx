@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import Hero from '../components/Hero';
 import FeatureCard from '../components/FeatureCard';
@@ -188,32 +187,32 @@ const Investors = () => {
         </div>
       </section>
 
-      <section className="py-16 bg-forge-cream">
+      <section className="py-16 bg-forge-dark text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-forge-dark mb-4">
+            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
               Market Opportunity
             </h2>
-            <p className="text-lg text-forge-gray max-w-3xl mx-auto">
+            <p className="text-lg text-forge-cream/80 max-w-3xl mx-auto">
               The Web3 talent shortage creates unprecedented opportunity for investors backing education innovation.
             </p>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white rounded-3xl p-8 shadow-sm border border-forge-cream hover:shadow-lg hover:border-forge-orange/20 transition-all duration-300 text-center">
-              <div className="text-4xl font-bold text-blue-500 mb-2">$1.2T</div>
-              <div className="text-lg font-semibold text-forge-dark mb-2">Web3 Market Cap</div>
-              <p className="text-forge-gray">Total value locked across DeFi and Web3 protocols</p>
+            <div className="bg-white/10 rounded-3xl p-8 shadow-sm border border-white/20 hover:bg-white/15 hover:border-forge-orange/30 transition-all duration-300 text-center">
+              <div className="text-4xl font-bold text-blue-400 mb-2">$1.2T</div>
+              <div className="text-lg font-semibold text-white mb-2">Web3 Market Cap</div>
+              <p className="text-forge-cream/70">Total value locked across DeFi and Web3 protocols</p>
             </div>
-            <div className="bg-white rounded-3xl p-8 shadow-sm border border-forge-cream hover:shadow-lg hover:border-forge-orange/20 transition-all duration-300 text-center">
-              <div className="text-4xl font-bold text-purple-500 mb-2">3.7M</div>
-              <div className="text-lg font-semibold text-forge-dark mb-2">Developer Shortage</div>
-              <p className="text-forge-gray">Unfilled Web3 developer positions globally</p>
+            <div className="bg-white/10 rounded-3xl p-8 shadow-sm border border-white/20 hover:bg-white/15 hover:border-forge-orange/30 transition-all duration-300 text-center">
+              <div className="text-4xl font-bold text-purple-400 mb-2">3.7M</div>
+              <div className="text-lg font-semibold text-white mb-2">Developer Shortage</div>
+              <p className="text-forge-cream/70">Unfilled Web3 developer positions globally</p>
             </div>
-            <div className="bg-white rounded-3xl p-8 shadow-sm border border-forge-cream hover:shadow-lg hover:border-forge-orange/20 transition-all duration-300 text-center">
-              <div className="text-4xl font-bold text-green-500 mb-2">$140K</div>
-              <div className="text-lg font-semibold text-forge-dark mb-2">Average Salary</div>
-              <p className="text-forge-gray">Starting salary for Web3 developers</p>
+            <div className="bg-white/10 rounded-3xl p-8 shadow-sm border border-white/20 hover:bg-white/15 hover:border-forge-orange/30 transition-all duration-300 text-center">
+              <div className="text-4xl font-bold text-green-400 mb-2">$140K</div>
+              <div className="text-lg font-semibold text-white mb-2">Average Salary</div>
+              <p className="text-forge-cream/70">Starting salary for Web3 developers</p>
             </div>
           </div>
         </div>
