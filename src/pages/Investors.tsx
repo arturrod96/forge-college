@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import Hero from '../components/Hero';
 import FeatureCard from '../components/FeatureCard';
@@ -79,8 +80,8 @@ const Investors = () => {
             <div className="relative">
               <div className="bg-forge-dark rounded-3xl p-8 shadow-2xl border-2 border-forge-orange/20 relative overflow-hidden">
                 <img 
-                  src="/lovable-uploads/3ef539ce-b669-48a6-84f5-7ec5234c4830.png" 
-                  alt="Investment Dashboard" 
+                  src="/lovable-uploads/929881cd-df3f-4b5c-93c8-ca91501dfcf4.png" 
+                  alt="Investment Analytics" 
                   className="w-full h-auto rounded-2xl relative z-10"
                 />
               </div>
