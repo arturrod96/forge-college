@@ -61,10 +61,10 @@ const Investors = () => {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="text-left">
               <div className="flex items-center gap-3 mb-6">
-                <div className="flex items-center gap-2 bg-forge-orange/10 px-4 py-2 rounded-full">
+                <div className="relative flex items-center gap-2 bg-forge-orange/10 px-4 py-2 rounded-full overflow-hidden">
                   <Flame size={20} className="text-forge-orange" />
                   <span className="text-sm font-semibold text-forge-orange">Invest with Excellence</span>
-                  <Flame size={20} className="text-forge-orange" />
+                  <Flame size={32} className="absolute right-1 top-1/2 transform -translate-y-1/2 text-forge-orange/20 opacity-30" />
                 </div>
               </div>
               
