@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import Hero from '../components/Hero';
 import FeatureCard from '../components/FeatureCard';
@@ -187,13 +188,13 @@ const Investors = () => {
         </div>
       </section>
 
-      <section className="py-16 bg-gray-900 text-white">
+      <section className="py-16 bg-forge-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">
+            <h2 className="text-3xl lg:text-4xl font-bold text-forge-dark mb-4">
               Market Opportunity
             </h2>
-            <p className="text-lg text-gray-300 max-w-3xl mx-auto">
+            <p className="text-lg text-forge-gray max-w-3xl mx-auto">
               The Web3 talent shortage creates unprecedented opportunity for investors backing education innovation.
             </p>
           </div>
