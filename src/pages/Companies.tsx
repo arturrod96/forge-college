@@ -116,22 +116,31 @@ const Companies = () => {
               </button>
             </div>
 
-            {/* Right side - Image with updated styling */}
+            {/* Right side - Image with updated styling similar to the reference */}
             <div className="relative">
               <div className="relative">
-                {/* Green background layer */}
-                <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-green-600 rounded-3xl shadow-2xl transform rotate-1"></div>
-                
-                {/* Grey intermediate layer */}
-                <div className="absolute inset-0 bg-[#6B7280] rounded-3xl shadow-xl transform rotate-0.5 opacity-90"></div>
-                
-                {/* Image container */}
-                <div className="relative bg-white rounded-3xl p-6 shadow-lg border border-forge-cream overflow-hidden">
-                  <img 
-                    src="/lovable-uploads/176191fb-e3a7-447a-b0ce-90fe372c60d1.png" 
-                    alt="Partnership illustration" 
-                    className="w-3/4 h-auto rounded-2xl mx-auto relative z-10"
-                  />
+                {/* Outer dark green container with pattern */}
+                <div className="bg-forge-dark rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+                  {/* Grid pattern background */}
+                  <div className="absolute inset-0 opacity-10">
+                    <div className="grid grid-cols-8 grid-rows-8 h-full w-full">
+                      {Array.from({ length: 64 }).map((_, i) => (
+                        <div key={i} className="border border-forge-cream/20"></div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Cream/beige inner container */}
+                  <div className="bg-forge-cream rounded-2xl p-6 relative overflow-hidden">
+                    {/* Inner white frame */}
+                    <div className="bg-white rounded-xl p-4 shadow-inner relative">
+                      <img 
+                        src="/lovable-uploads/176191fb-e3a7-447a-b0ce-90fe372c60d1.png" 
+                        alt="Partnership illustration" 
+                        className="w-full h-auto rounded-lg relative z-10"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
               
