@@ -105,10 +105,10 @@ const Investors = () => {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl lg:text-4xl font-bold text-forge-dark mb-4">
               A New Asset Class is Born
             </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg text-forge-gray max-w-3xl mx-auto">
               Web3 has created new opportunities for yield generation. Human capital represents the next evolution of Real World Assets.
             </p>
           </div>
@@ -126,60 +126,60 @@ const Investors = () => {
         </div>
       </section>
 
-      <section className="py-16 bg-gradient-to-r from-purple-50 to-pink-50">
+      <section className="py-16 bg-forge-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
+              <h2 className="text-3xl lg:text-4xl font-bold text-forge-dark mb-6">
                 Investment Performance
               </h2>
               <div className="space-y-6">
-                <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                <div className="bg-white rounded-3xl p-6 shadow-sm border border-forge-cream hover:shadow-lg hover:border-forge-orange/20 transition-all duration-300">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-gray-600">Target IRR</span>
+                    <span className="text-forge-gray">Target IRR</span>
                     <span className="text-2xl font-bold text-green-600">8-12%</span>
                   </div>
-                  <p className="text-sm text-gray-500">Based on Web3 salary growth trends</p>
+                  <p className="text-sm text-forge-gray/80">Based on Web3 salary growth trends</p>
                 </div>
-                <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                <div className="bg-white rounded-3xl p-6 shadow-sm border border-forge-cream hover:shadow-lg hover:border-forge-orange/20 transition-all duration-300">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-gray-600">Avg. Payback Period</span>
+                    <span className="text-forge-gray">Avg. Payback Period</span>
                     <span className="text-2xl font-bold text-blue-600">3-5 years</span>
                   </div>
-                  <p className="text-sm text-gray-500">Capped at 10% of income annually</p>
+                  <p className="text-sm text-forge-gray/80">Capped at 10% of income annually</p>
                 </div>
-                <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                <div className="bg-white rounded-3xl p-6 shadow-sm border border-forge-cream hover:shadow-lg hover:border-forge-orange/20 transition-all duration-300">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-gray-600">Job Placement Rate</span>
+                    <span className="text-forge-gray">Job Placement Rate</span>
                     <span className="text-2xl font-bold text-purple-600">92%</span>
                   </div>
-                  <p className="text-sm text-gray-500">Within 6 months of graduation</p>
+                  <p className="text-sm text-forge-gray/80">Within 6 months of graduation</p>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-2xl p-8 shadow-lg">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Investment Structure</h3>
+            <div className="bg-white rounded-3xl p-8 shadow-lg border border-forge-cream">
+              <h3 className="text-2xl font-bold text-forge-dark mb-6 text-center">Investment Structure</h3>
               <div className="space-y-4">
-                <div className="border-l-4 border-purple-500 pl-4">
-                  <h4 className="font-semibold text-gray-900">Minimum Investment</h4>
-                  <p className="text-gray-600">$10,000 USDC/USDT</p>
+                <div className="border-l-4 border-forge-orange pl-4">
+                  <h4 className="font-semibold text-forge-dark">Minimum Investment</h4>
+                  <p className="text-forge-gray">$10,000 USDC/USDT</p>
                 </div>
                 <div className="border-l-4 border-blue-500 pl-4">
-                  <h4 className="font-semibold text-gray-900">Fund Duration</h4>
-                  <p className="text-gray-600">7-year fund life with extension options</p>
+                  <h4 className="font-semibold text-forge-dark">Fund Duration</h4>
+                  <p className="text-forge-gray">7-year fund life with extension options</p>
                 </div>
                 <div className="border-l-4 border-green-500 pl-4">
-                  <h4 className="font-semibold text-gray-900">Distribution Schedule</h4>
-                  <p className="text-gray-600">Quarterly distributions based on collections</p>
+                  <h4 className="font-semibold text-forge-dark">Distribution Schedule</h4>
+                  <p className="text-forge-gray">Quarterly distributions based on collections</p>
                 </div>
-                <div className="border-l-4 border-orange-500 pl-4">
-                  <h4 className="font-semibold text-gray-900">Management Fee</h4>
-                  <p className="text-gray-600">2% annually + 20% performance fee</p>
+                <div className="border-l-4 border-purple-500 pl-4">
+                  <h4 className="font-semibold text-forge-dark">Management Fee</h4>
+                  <p className="text-forge-gray">2% annually + 20% performance fee</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowForm(true)}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-200 mt-6"
+                className="w-full bg-forge-orange text-white py-3 rounded-2xl font-semibold hover:bg-forge-orange-light transition-all duration-200 mt-6 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
               >
                 Join the Investment Round
               </button>
