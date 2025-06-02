@@ -64,6 +64,7 @@ const Investors = () => {
                 <div className="flex items-center gap-2 bg-forge-orange/10 px-4 py-2 rounded-full">
                   <Flame size={20} className="text-forge-orange" />
                   <span className="text-sm font-semibold text-forge-orange">Invest with Excellence</span>
+                  <Flame size={20} className="text-forge-orange" />
                 </div>
               </div>
               
