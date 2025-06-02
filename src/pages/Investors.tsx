@@ -1,9 +1,9 @@
-
 import { useState } from 'react';
 import Hero from '../components/Hero';
 import FeatureCard from '../components/FeatureCard';
 import FAQ from '../components/FAQ';
 import ApplicationForm from '../components/ApplicationForm';
+import { Flame } from 'lucide-react';
 
 const Investors = () => {
   const [showForm, setShowForm] = useState(false);
@@ -56,14 +56,50 @@ const Investors = () => {
 
   return (
     <div className="min-h-screen">
-      <Hero
-        title="Invest in Human Capital"
-        subtitle="The next frontier of Real World Assets"
-        description="Generate stable returns by investing in the future of Web3 talent through innovative stablecoin-backed Income Share Agreements."
-        ctaText="Earn with the Next Cohort"
-        onCtaClick={() => setShowForm(true)}
-        gradient="bg-gradient-to-br from-purple-600 via-pink-600 to-orange-600"
-      />
+      <section className="relative py-24 lg:py-32 bg-gradient-to-br from-forge-cream to-forge-cream/50">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="text-left">
+              <h1 className="text-5xl lg:text-7xl font-bold text-forge-dark mb-8 leading-[1.1] tracking-tight">
+                Invest in Human Capital
+              </h1>
+              <p className="text-xl lg:text-2xl text-forge-gray mb-6 font-medium">
+                The next frontier of Real World Assets
+              </p>
+              <p className="text-lg text-forge-gray/80 mb-12 leading-relaxed">
+                Generate stable returns by investing in the future of Web3 talent through innovative stablecoin-backed Income Share Agreements.
+              </p>
+              <button
+                onClick={() => setShowForm(true)}
+                className="bg-forge-orange text-white px-8 py-4 rounded-2xl text-lg font-semibold hover:bg-forge-orange-light transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
+              >
+                Earn with the Next Cohort
+              </button>
+            </div>
+            <div className="relative">
+              <div className="bg-forge-dark rounded-3xl p-8 shadow-2xl border-2 border-forge-orange/20 relative overflow-hidden">
+                <img 
+                  src="/lovable-uploads/63868466-8a6e-45dc-a0ca-18f169f0d263.png" 
+                  alt="Investment Dashboard" 
+                  className="w-full h-auto rounded-2xl relative z-10"
+                />
+              </div>
+              <div className="absolute -top-4 -right-4 bg-forge-orange text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg flex items-center gap-2">
+                <Flame size={16} />
+                Investment Analytics
+              </div>
+              
+              {/* Floating elements */}
+              <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl p-4 shadow-lg border border-forge-cream">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm font-medium text-forge-dark">Live Returns</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
