@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import Hero from '../components/Hero';
 import FeatureCard from '../components/FeatureCard';
@@ -200,20 +199,20 @@ const Investors = () => {
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-blue-400 mb-2">$1.2T</div>
-              <div className="text-lg font-semibold mb-2">Web3 Market Cap</div>
-              <p className="text-gray-300">Total value locked across DeFi and Web3 protocols</p>
+            <div className="bg-white rounded-3xl p-8 shadow-sm border border-forge-cream hover:shadow-lg hover:border-forge-orange/20 transition-all duration-300 text-center">
+              <div className="text-4xl font-bold text-blue-500 mb-2">$1.2T</div>
+              <div className="text-lg font-semibold text-forge-dark mb-2">Web3 Market Cap</div>
+              <p className="text-forge-gray">Total value locked across DeFi and Web3 protocols</p>
             </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-purple-400 mb-2">3.7M</div>
-              <div className="text-lg font-semibold mb-2">Developer Shortage</div>
-              <p className="text-gray-300">Unfilled Web3 developer positions globally</p>
+            <div className="bg-white rounded-3xl p-8 shadow-sm border border-forge-cream hover:shadow-lg hover:border-forge-orange/20 transition-all duration-300 text-center">
+              <div className="text-4xl font-bold text-purple-500 mb-2">3.7M</div>
+              <div className="text-lg font-semibold text-forge-dark mb-2">Developer Shortage</div>
+              <p className="text-forge-gray">Unfilled Web3 developer positions globally</p>
             </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-green-400 mb-2">$140K</div>
-              <div className="text-lg font-semibold mb-2">Average Salary</div>
-              <p className="text-gray-300">Starting salary for Web3 developers</p>
+            <div className="bg-white rounded-3xl p-8 shadow-sm border border-forge-cream hover:shadow-lg hover:border-forge-orange/20 transition-all duration-300 text-center">
+              <div className="text-4xl font-bold text-green-500 mb-2">$140K</div>
+              <div className="text-lg font-semibold text-forge-dark mb-2">Average Salary</div>
+              <p className="text-forge-gray">Starting salary for Web3 developers</p>
             </div>
           </div>
         </div>
