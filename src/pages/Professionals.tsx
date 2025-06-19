@@ -234,7 +234,7 @@ const Professionals = () => {
                   </h3>
                 </div>
                 <p className="text-5xl font-bold text-forge-orange mb-3">
-                  March 2024
+                  March 2025
                 </p>
                 <p className="text-lg text-forge-gray mb-8">
                   Limited to 30 students
