@@ -233,7 +233,7 @@ const Professionals = () => {
                   March 2025
                 </p>
                 <p className="text-lg text-forge-gray mb-8">
-                  Limited to 30 students
+                  Limited to 10 students
                 </p>
                 <div className="bg-forge-cream/50 rounded-2xl p-6 mb-8 relative">
                   <div className="absolute top-2 right-2 opacity-20">
