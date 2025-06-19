@@ -111,38 +111,36 @@ const Professionals = () => {
       />
 
       {/* Enhanced features section with decorative elements */}
-      <section className="py-20 bg-white relative">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-20 relative">
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-8">
-              <div className="flex items-center gap-2 opacity-20">
-                <Blocks size={24} className="text-forge-orange" />
-                <Blocks size={32} className="text-forge-orange" />
-                <Blocks size={24} className="text-forge-orange" />
-              </div>
+      <Section variant="content">
+        <div className="text-center mb-20 relative">
+          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-8">
+            <div className="flex items-center gap-2 opacity-20">
+              <Blocks size={24} className="text-forge-orange" />
+              <Blocks size={32} className="text-forge-orange" />
+              <Blocks size={24} className="text-forge-orange" />
             </div>
-
-            <h2 className="text-4xl lg:text-5xl font-bold text-forge-dark mb-6 tracking-tight">
-              Why Choose Forge College?
-            </h2>
-            <p className="text-xl text-forge-gray max-w-3xl mx-auto">
-              We've reimagined education for the Web3 era, where learning is an
-              investment in your future, not a burden.
-            </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <FeatureCard
-                key={index}
-                icon={feature.icon}
-                title={feature.title}
-                description={feature.description}
-              />
-            ))}
-          </div>
+          <h2 className="text-4xl lg:text-5xl font-bold text-forge-dark mb-6 tracking-tight">
+            Why Choose Forge College?
+          </h2>
+          <p className="text-xl text-forge-gray max-w-3xl mx-auto">
+            We've reimagined education for the Web3 era, where learning is an
+            investment in your future, not a burden.
+          </p>
         </div>
-      </section>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {features.map((feature, index) => (
+            <FeatureCard
+              key={index}
+              icon={feature.icon}
+              title={feature.title}
+              description={feature.description}
+            />
+          ))}
+        </div>
+      </Section>
 
       {/* Enhanced process section */}
       <section className="py-20 bg-forge-cream/30 relative">
