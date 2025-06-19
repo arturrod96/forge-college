@@ -98,7 +98,7 @@ const Professionals = () => {
         ctaText="Apply to Join the Next Cohort"
         onCtaClick={() => setShowForm(true)}
         image={{
-          src: "/lovable-uploads/fbcd41bd-99fb-4e15-9ea4-37fb6139005e.png",
+          src: "https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/screenshot-2025-06-18-at-19.37.32-7bf99c?format=webp&width=800",
           alt: "Forge College Smart Contract Code",
         }}
         floatingBadge={{
