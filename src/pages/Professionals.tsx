@@ -87,12 +87,12 @@ const Professionals = () => {
             text: "6-Month Program",
           },
           {
-            icon: <Blocks size={20} className="text-forge-orange" />,
-            text: "Real Projects",
+            icon: <DollarSign size={20} className="text-forge-orange" />,
+            text: "6-Month Salary",
           },
           {
             icon: <Layers size={20} className="text-forge-orange" />,
-            text: "Web3 Focus",
+            text: "Land a Web3 Job",
           },
         ]}
         ctaText="Apply to Join the Next Cohort"
