@@ -133,13 +133,13 @@ const HeroSection = ({
 
               {/* Grey intermediate layer */}
               <div
-                className="rounded-2xl p-6 relative overflow-hidden"
+                className="rounded-2xl py-6 relative overflow-hidden"
                 style={{ backgroundColor: designTokens.colors.forge.greyLayer }}
               >
                 <img
                   src={image.src}
                   alt={image.alt}
-                  className="w-3/4 h-auto rounded-lg mx-auto relative z-10"
+                  className="w-3/4 h-auto rounded-lg mx-auto relative z-10 pl-px"
                 />
               </div>
             </div>
