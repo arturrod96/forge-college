@@ -114,11 +114,7 @@ const Professionals = () => {
       <Section variant="content">
         <div className="text-center mb-20 relative">
           <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-8">
-            <div className="flex items-center gap-2 opacity-20">
-              <Blocks size={24} className="text-forge-orange" />
-              <Blocks size={32} className="text-forge-orange" />
-              <Blocks size={24} className="text-forge-orange" />
-            </div>
+            <div className="flex items-center gap-2 opacity-20"></div>
           </div>
 
           <h2 className="text-4xl lg:text-5xl font-bold text-forge-dark mb-6 tracking-tight">
