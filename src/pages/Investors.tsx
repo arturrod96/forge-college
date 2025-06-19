@@ -175,8 +175,8 @@ const Investors = () => {
         badge={{
           text: "Invest with Excellence",
         }}
-        title="Invest in Human Capital"
-        subtitle="The next frontier of Real World Assets"
+        title="Invest in the Next Generation of Web3 Builders"
+        subtitle="RWA Meets ROI: Invest in Human Capital"
         description="Generate stable returns by investing in the future of Web3 talent through innovative stablecoin-backed Income Share Agreements."
         features={[
           {
