@@ -195,8 +195,8 @@ const Investors = () => {
         ctaText="Earn with the Next Cohort"
         onCtaClick={() => setShowForm(true)}
         image={{
-          src: "/lovable-uploads/929881cd-df3f-4b5c-93c8-ca91501dfcf4.png",
-          alt: "Investment Analytics Dashboard",
+          src: "https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/screenshot-2025-06-18-at-19.03.17-ae9e74?format=webp&width=800",
+          alt: "Human Capital Network Investment Illustration",
         }}
         floatingBadge={{
           text: "Investment Analytics",
