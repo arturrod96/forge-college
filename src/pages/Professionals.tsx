@@ -79,7 +79,7 @@ const Professionals = () => {
           text: "Forge Your Future",
         }}
         title="Get Paid to Learn Web3"
-        subtitle="Master blockchain development while earning USDC/USDT"
+        subtitle="Master blockchain development, earn 6 months of salary to learn, and only pay us if we find you a job in Web3!"
         description="Join the only Web3 education program where you earn while you learn. Work on real projects, get mentored by industry experts, and access our exclusive hiring network."
         features={[
           {
