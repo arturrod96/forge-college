@@ -173,7 +173,7 @@ const Investors = () => {
 
       <HeroSection
         badge={{
-          text: "Invest with Excellence",
+          text: "Profit with Impact",
         }}
         title="Invest in the Next Generation of Web3 Builders"
         subtitle="RWA Meets ROI: Invest in Human Capital"
