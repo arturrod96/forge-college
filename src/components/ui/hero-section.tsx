@@ -133,14 +133,11 @@ const HeroSection = ({
 
               {/* Grey intermediate layer */}
               <div className="bg-gray-500 rounded-2xl p-6 relative overflow-hidden">
-                {/* Inner container for smaller image */}
-                <div className="bg-white rounded-xl p-4 shadow-inner relative">
-                  <img
-                    src={image.src}
-                    alt={image.alt}
-                    className="w-3/4 h-auto rounded-lg mx-auto relative z-10"
-                  />
-                </div>
+                <img
+                  src={image.src}
+                  alt={image.alt}
+                  className="w-3/4 h-auto rounded-lg mx-auto relative z-10"
+                />
               </div>
             </div>
           </div>
