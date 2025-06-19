@@ -134,7 +134,7 @@ const HeroSection = ({
               {/* Grey intermediate layer */}
               <div
                 className="rounded-2xl p-6 relative overflow-hidden"
-                style={{ backgroundColor: "rgba(38, 36, 32, 1)" }}
+                style={{ backgroundColor: designTokens.colors.forge.greyLayer }}
               >
                 <img
                   src={image.src}
