@@ -241,7 +241,7 @@ const Investors = () => {
         steps={investmentSteps}
         calloutCard={{
           title: "Next Investment Round",
-          highlight: "March 2024",
+          highlight: "March 2025",
           subtitle: "Limited to qualified investors",
           description: "Minimum Investment",
           ctaText: "Join the Investment Round",
