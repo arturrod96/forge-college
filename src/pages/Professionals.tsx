@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Flame, BookOpen, Blocks, Layers } from "lucide-react";
+import { Flame, BookOpen, Blocks, Layers, DollarSign } from "lucide-react";
 import FeatureCard from "../components/FeatureCard";
 import FAQ from "../components/FAQ";
 import ApplicationForm from "../components/ApplicationForm";
