@@ -132,7 +132,10 @@ const HeroSection = ({
               </div>
 
               {/* Grey intermediate layer */}
-              <div className="bg-gray-500 rounded-2xl p-6 relative overflow-hidden">
+              <div
+                className="rounded-2xl p-6 relative overflow-hidden"
+                style={{ backgroundColor: "rgba(38, 36, 32, 1)" }}
+              >
                 <img
                   src={image.src}
                   alt={image.alt}
