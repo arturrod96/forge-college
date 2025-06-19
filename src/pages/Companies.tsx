@@ -162,8 +162,8 @@ const Companies = () => {
                     }}
                   >
                     <img
-                      src="/lovable-uploads/176191fb-e3a7-447a-b0ce-90fe372c60d1.png"
-                      alt="Partnership illustration"
+                      src="https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/screenshot-2025-06-18-at-22.06.01-7c933a?format=webp&width=800"
+                      alt="Partnership and collaboration illustration"
                       className={designTokens.patterns.heroImage.imageSize}
                     />
                   </div>
@@ -350,7 +350,7 @@ const Companies = () => {
                   <div className="flex items-center space-x-4 group">
                     <div className="bg-forge-orange/10 rounded-2xl w-10 h-10 flex items-center justify-center group-hover:bg-forge-orange/20 transition-colors">
                       <span className="text-forge-orange font-bold text-lg">
-                        ✓
+                        ��
                       </span>
                     </div>
                     <span className="text-forge-gray">
