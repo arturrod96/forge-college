@@ -218,9 +218,7 @@ const Professionals = () => {
             </div>
             <div className="bg-white rounded-3xl p-10 shadow-lg border border-forge-cream relative overflow-hidden">
               {/* Decorative elements */}
-              <div className="absolute top-4 right-4 opacity-10">
-                <Layers size={48} className="text-forge-orange" />
-              </div>
+              <div className="absolute top-4 right-4 opacity-10"></div>
 
               <div className="text-center relative z-10">
                 <div className="flex items-center justify-center gap-2 mb-4">
