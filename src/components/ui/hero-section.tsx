@@ -119,12 +119,30 @@ const HeroSection = ({
         </div>
 
         <div className="relative">
-          <div className="bg-forge-dark rounded-3xl p-8 shadow-2xl border-2 border-forge-orange/20 relative overflow-hidden">
-            <img
-              src={image.src}
-              alt={image.alt}
-              className="w-full h-auto rounded-2xl relative z-10"
-            />
+          <div className="relative">
+            {/* Outer dark green container */}
+            <div className="bg-forge-dark rounded-3xl p-8 shadow-2xl border-2 border-forge-orange/20 relative overflow-hidden">
+              {/* Grid pattern background */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="grid grid-cols-8 grid-rows-8 h-full w-full">
+                  {Array.from({ length: 64 }).map((_, i) => (
+                    <div key={i} className="border border-forge-cream/20"></div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Grey intermediate layer */}
+              <div className="bg-gray-500 rounded-2xl p-6 relative overflow-hidden">
+                {/* Inner container for smaller image */}
+                <div className="bg-white rounded-xl p-4 shadow-inner relative">
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    className="w-3/4 h-auto rounded-lg mx-auto relative z-10"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
           {floatingBadge && (
