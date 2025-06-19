@@ -121,7 +121,7 @@ const HeroSection = ({
         <div className="relative">
           <div className="relative">
             {/* Outer dark green container */}
-            <div className="bg-forge-dark rounded-3xl p-8 shadow-2xl border-2 border-forge-orange/20 relative overflow-hidden">
+            <div className="bg-forge-dark rounded-3xl p-4 shadow-2xl border-2 border-forge-orange/20 relative overflow-hidden">
               {/* Grid pattern background */}
               <div className="absolute inset-0 opacity-10">
                 <div className="grid grid-cols-8 grid-rows-8 h-full w-full">
@@ -131,9 +131,9 @@ const HeroSection = ({
                 </div>
               </div>
 
-              {/* Grey intermediate layer */}
+              {/* Grey intermediate layer - full width to match image */}
               <div
-                className="rounded-2xl relative overflow-hidden"
+                className="w-full rounded-2xl relative overflow-hidden"
                 style={{
                   backgroundColor: designTokens.colors.forge.greyLayer,
                   padding: "24px 0 24px 1px",
@@ -142,7 +142,7 @@ const HeroSection = ({
                 <img
                   src={image.src}
                   alt={image.alt}
-                  className="w-5/6 h-auto rounded-lg mx-auto relative z-10"
+                  className="w-11/12 h-auto rounded-lg mx-auto relative z-10"
                 />
               </div>
             </div>
