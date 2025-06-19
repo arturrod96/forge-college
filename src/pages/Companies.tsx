@@ -136,13 +136,13 @@ const Companies = () => {
               </button>
             </div>
 
-            {/* Right side - Image with updated styling similar to the reference */}
+            {/* Right side - Image with standardized three-layer pattern */}
             <div className="relative">
               <div className="relative">
-                {/* Outer dark green container with pattern */}
-                <div className="bg-forge-dark rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+                {/* Outer dark green container */}
+                <div className={designTokens.patterns.heroImage.outerContainer}>
                   {/* Grid pattern background */}
-                  <div className="absolute inset-0 opacity-10">
+                  <div className={designTokens.patterns.heroImage.gridPattern}>
                     <div className="grid grid-cols-8 grid-rows-8 h-full w-full">
                       {Array.from({ length: 64 }).map((_, i) => (
                         <div
@@ -153,16 +153,19 @@ const Companies = () => {
                     </div>
                   </div>
 
-                  {/* Cream/beige inner container */}
-                  <div className="bg-forge-cream rounded-2xl p-6 relative overflow-hidden">
-                    {/* Inner white frame */}
-                    <div className="bg-white rounded-xl p-4 shadow-inner relative">
-                      <img
-                        src="/lovable-uploads/176191fb-e3a7-447a-b0ce-90fe372c60d1.png"
-                        alt="Partnership illustration"
-                        className="w-full h-auto rounded-lg relative z-10"
-                      />
-                    </div>
+                  {/* Grey intermediate layer */}
+                  <div
+                    className={designTokens.patterns.heroImage.greyLayer}
+                    style={{
+                      backgroundColor: designTokens.colors.forge.greyLayer,
+                      padding: designTokens.patterns.heroImage.greyLayerPadding,
+                    }}
+                  >
+                    <img
+                      src="/lovable-uploads/176191fb-e3a7-447a-b0ce-90fe372c60d1.png"
+                      alt="Partnership illustration"
+                      className={designTokens.patterns.heroImage.imageSize}
+                    />
                   </div>
                 </div>
               </div>
