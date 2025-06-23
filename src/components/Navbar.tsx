@@ -18,14 +18,10 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-20">
           <Link to="/" className="flex items-center space-x-3">
             <img
-              src="/lovable-uploads/Forge College Logo.png"
+              src="https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/forgecollege-2c35f0?format=webp&width=800"
               alt="Forge College"
               className="h-12 w-auto max-h-16"
-              style={{
-                minWidth: "90px",
-                mixBlendMode: "multiply",
-                filter: "contrast(1.2) brightness(1.1)",
-              }}
+              style={{ minWidth: "90px" }}
             />
           </Link>
 
