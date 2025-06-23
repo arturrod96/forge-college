@@ -4,7 +4,7 @@ import Hero from "../components/Hero";
 import FeatureCard from "../components/FeatureCard";
 import FAQ from "../components/FAQ";
 import ApplicationForm from "../components/ApplicationForm";
-import { designTokens } from "../lib/design-system";
+import { designTokens } from "@/lib/design-system";
 
 const Companies = () => {
   const [showForm, setShowForm] = useState(false);

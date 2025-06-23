@@ -15,7 +15,7 @@ import HeroSection from "../components/ui/hero-section";
 import Section from "../components/ui/section";
 import ProcessSection from "../components/ui/process-section";
 import StatsSection from "../components/ui/stats-section";
-import { designTokens } from "../lib/design-system";
+import { designTokens } from "@/lib/design-system";
 
 const Investors = () => {
   const [showForm, setShowForm] = useState(false);
