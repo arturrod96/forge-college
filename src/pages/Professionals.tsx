@@ -184,7 +184,7 @@ const Professionals = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-forge-dark mb-3 flex items-center gap-2">
-                      Learn While Earning
+                      Earn While Learning
                       <Flame
                         size={20}
                         className="text-forge-orange opacity-60"
@@ -228,7 +228,7 @@ const Professionals = () => {
                   </h3>
                 </div>
                 <p className="text-5xl font-bold text-forge-orange mb-3">
-                  March 2025
+                  April 2026
                 </p>
                 <p className="text-lg text-forge-gray mb-8">
                   Limited to 10 students
@@ -241,7 +241,7 @@ const Professionals = () => {
                     Monthly Payment During Program
                   </p>
                   <p className="text-4xl font-bold text-forge-dark">
-                    $3,000 USDC
+                    up to $6,000 USDC
                   </p>
                 </div>
                 <button
