@@ -241,12 +241,11 @@ const Investors = () => {
         steps={investmentSteps}
         calloutCard={{
           title: "Next Investment Round",
-          highlight: "March 2025",
+          highlight: "April 2026",
           subtitle: "Limited to qualified investors",
           description: "Minimum Investment",
           ctaText: "Join the Investment Round",
           onCtaClick: () => setShowForm(true),
-          decorativeIcon: <Layers size={48} className="text-forge-orange" />,
         }}
       />
 
