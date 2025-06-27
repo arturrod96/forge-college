@@ -223,7 +223,7 @@ const Investors = () => {
           </p>
         </div>
 
-        <div className={designTokens.patterns.layout.featureGrid}>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
             <FeatureCard
               key={index}
