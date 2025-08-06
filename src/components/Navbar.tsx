@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
 
   const navItems = [
     { path: "/", label: "For Professionals" },
@@ -40,6 +42,15 @@ const Navbar = () => {
                 {item.label}
               </Link>
             ))}
+            {user ? (
+              <Link to="/dashboard" className="px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 bg-forge-orange text-white">
+                Dashboard
+              </Link>
+            ) : (
+              <Link to="/login" className="px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 bg-forge-orange text-white">
+                Login
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}
