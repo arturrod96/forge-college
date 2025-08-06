@@ -28,7 +28,12 @@ export function SignUp() {
       if (error) throw error;
       setMessage('Check your email for the confirmation link!');
     } catch (error: any) {
-      setError(error.message);
+      // Check if it's a network error due to placeholder credentials
+      if (error.message.includes('fetch') || error.message.includes('network')) {
+        setError('Authentication service not configured. Please contact the administrator.');
+      } else {
+        setError(error.message);
+      }
     } finally {
       setLoading(false);
     }

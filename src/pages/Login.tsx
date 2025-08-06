@@ -21,7 +21,12 @@ export function Login() {
       if (error) throw error;
       // Redirect logic will be handled by the AuthProvider
     } catch (error: any) {
-      setError(error.message);
+      // Check if it's a network error due to placeholder credentials
+      if (error.message.includes('fetch') || error.message.includes('network')) {
+        setError('Authentication service not configured. Please contact the administrator.');
+      } else {
+        setError(error.message);
+      }
     } finally {
       setLoading(false);
     }
