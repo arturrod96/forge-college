@@ -2,17 +2,26 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
+import { ProfileDropdown } from "./ProfileDropdown";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
 
-  const navItems = [
+  const landingPageNavItems = [
     { path: "/", label: "For Professionals" },
     { path: "/companies", label: "For Companies" },
     { path: "/investors", label: "For Investors" },
   ];
+
+  const dashboardNavItems = [
+    { path: "/dashboard", label: "Dashboard" },
+    { path: "/dashboard/my-paths", label: "My Paths" },
+    { path: "/dashboard/explore", label: "Explore" },
+  ];
+
+  const navItems = user ? dashboardNavItems : landingPageNavItems;
 
   return (
     <nav className="bg-forge-cream/90 backdrop-blur-xl border-b border-forge-cream sticky top-0 z-50">
@@ -43,9 +52,7 @@ const Navbar = () => {
               </Link>
             ))}
             {user ? (
-              <Link to="/dashboard" className="px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 bg-forge-orange text-white">
-                Dashboard
-              </Link>
+              <ProfileDropdown />
             ) : (
               <Link to="/login" className="px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 bg-forge-orange text-white">
                 Login
@@ -81,6 +88,19 @@ const Navbar = () => {
                 {item.label}
               </Link>
             ))}
+            {user ? (
+              <div className="pt-4 border-t border-gray-200">
+                <ProfileDropdown />
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                onClick={() => setIsOpen(false)}
+                className="block text-center w-full py-3 px-4 mt-4 rounded-full text-base font-medium transition-all duration-200 bg-forge-orange text-white"
+              >
+                Login
+              </Link>
+            )}
           </div>
         )}
       </div>

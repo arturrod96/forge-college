@@ -19,7 +19,7 @@ export function Login() {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      // Redirect logic will be handled by the AuthProvider
+      // No redirect logic needed here, AuthProvider handles it
     } catch (error: any) {
       setError(error.message);
     } finally {
