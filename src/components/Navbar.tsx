@@ -9,8 +9,11 @@ const Navbar = () => {
   const location = useLocation();
   const { user } = useAuth();
   
-
-
+  const isDashboardRoute = location.pathname.startsWith("/dashboard");
+  if (user && isDashboardRoute) {
+    return null;
+  }
+  
   const landingPageNavItems = [
     { path: "/", label: "For Professionals" },
     { path: "/companies", label: "For Companies" },
