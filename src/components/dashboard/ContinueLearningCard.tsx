@@ -69,7 +69,7 @@ export function ContinueLearningCard() {
         <p className="text-xl font-semibold pt-2">{recentCourse.title}</p>
       </CardHeader>
       <CardContent>
-        <Link to={`/learn/course/${recentCourse.id}`}>
+        <Link to={`/dashboard/learn/course/${recentCourse.id}`}>
           <Button size="lg" className="w-full md:w-auto">Continue Learning</Button>
         </Link>
       </CardContent>

@@ -107,7 +107,7 @@ export function MyLearningPaths() {
     <div className="mb-8">
       <div className="grid gap-4 md:grid-cols-2">
         {myPaths.map(path => (
-          <Link to={`/learn/path/${path.id}`} key={path.id}>
+          <Link to={`/dashboard/learn/path/${path.id}`} key={path.id}>
             <Card className="hover:bg-gray-50 transition-colors">
               <CardHeader>
                 <CardTitle>{path.title}</CardTitle>

@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
-import { BookOpen, Users } from 'lucide-react';
+import { BookOpen, Users, Flame } from 'lucide-react';
+import EnhancedButton from '@/components/ui/enhanced-button';
 
 interface LearningPath {
   id: string;
@@ -126,43 +127,45 @@ export function AvailablePaths() {
     <div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {paths.map((path) => (
-          <Card key={path.id} className={`relative ${path.isEnrolled ? 'ring-2 ring-green-500' : ''}`}>
+          <Card key={path.id} className={`relative border-forge-cream hover:shadow-md transition-shadow ${path.isEnrolled ? 'ring-1 ring-forge-orange/20' : ''}`}>
             {path.isEnrolled && (
-              <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-                Enrolled
+              <div className="absolute top-2 right-2 bg-forge-orange text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                <Flame className="h-3 w-3" /> Matriculado
               </div>
             )}
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-forge-dark">
+                <BookOpen className="h-5 w-5 text-forge-orange" />
                 {path.title}
               </CardTitle>
-              <CardDescription>{path.description}</CardDescription>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Users className="h-4 w-4" />
-                {path.courseCount} course{path.courseCount !== 1 ? 's' : ''}
+              <CardDescription className="text-forge-gray">{path.description}</CardDescription>
+              <div className="flex items-center gap-2 text-sm text-forge-gray">
+                <Users className="h-4 w-4 text-forge-orange" />
+                {path.courseCount} curso{path.courseCount !== 1 ? 's' : ''}
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
               {path.isEnrolled ? (
-                <Link to={`/learn/path/${path.id}`}>
-                  <Button className="w-full">Continue Learning</Button>
+                <Link to={`/dashboard/learn/path/${path.id}`}>
+                  <EnhancedButton className="w-full" withGradient>
+                    Continuar aprendendo
+                  </EnhancedButton>
                 </Link>
               ) : (
                 <>
-                  <Button 
+                  <EnhancedButton 
                     onClick={() => handleEnroll(path.id)}
                     disabled={enrollingId === path.id || !user}
                     className="w-full"
                     variant="outline"
                   >
-                    {enrollingId === path.id ? 'Enrolling...' : 'Enroll'}
-                  </Button>
+                    {enrollingId === path.id ? 'Matriculando...' : 'Matricular'}
+                  </EnhancedButton>
                   {user && (
-                    <Link to={`/learn/path/${path.id}`}>
-                      <Button variant="ghost" size="sm" className="w-full">
-                        View Details
-                      </Button>
+                    <Link to={`/dashboard/learn/path/${path.id}`}>
+                      <EnhancedButton variant="ghost" size="sm" className="w-full">
+                        Ver detalhes
+                      </EnhancedButton>
                     </Link>
                   )}
                 </>
