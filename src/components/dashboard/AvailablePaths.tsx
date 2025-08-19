@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { BookOpen, Users, Flame } from 'lucide-react';
 import EnhancedButton from '@/components/ui/enhanced-button';
+import { DASHBOARD_LEARN_PATH } from '@/routes/paths';
+import { DASHBOARD_STRINGS } from '@/strings/dashboard';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface LearningPath {
   id: string;
@@ -16,105 +19,93 @@ interface LearningPath {
   courseCount?: number;
 }
 
-export function AvailablePaths() {
+type AvailablePathsProps = {
+  limit?: number;
+  className?: string;
+};
+
+export function AvailablePaths({ limit, className }: AvailablePathsProps) {
   const { user } = useAuth();
-  const [paths, setPaths] = useState<LearningPath[]>([]);
-  const [loading, setLoading] = useState(true);
   const [enrollingId, setEnrollingId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchPaths = async () => {
-      setLoading(true);
-      try {
-        // Buscar todos os learning paths com contagem de cursos
-        const { data: pathsData, error: pathsError } = await supabase
-          .from('learning_paths')
-          .select(`
-            id, title, description,
-            courses!inner(id)
-          `);
+  const { data: paths = [], isLoading } = useQuery<LearningPath[]>({
+    queryKey: ['availablePaths', user?.id],
+    queryFn: async (): Promise<LearningPath[]> => {
+      const { data: pathsData, error: pathsError } = await supabase
+        .from('learning_paths')
+        .select(`
+          id, title, description,
+          courses!inner(id)
+        `);
+      if (pathsError) throw pathsError;
 
-        if (pathsError) throw pathsError;
-
-        // Se usuário logado, verificar matrículas
-        let enrolledPaths: string[] = [];
-        if (user) {
-          const { data: enrollments, error: enrollmentError } = await supabase
-            .from('user_enrollments')
-            .select('learning_path_id')
-            .eq('user_id', user.id)
-            .eq('is_active', true);
-
-          if (enrollmentError) {
-            console.error('Error fetching enrollments:', enrollmentError);
-          } else {
-            enrolledPaths = enrollments.map(e => e.learning_path_id);
-          }
+      let enrolledPaths: string[] = [];
+      if (user) {
+        const { data: enrollments, error: enrollmentError } = await supabase
+          .from('user_enrollments')
+          .select('learning_path_id')
+          .eq('user_id', user.id)
+          .eq('is_active', true);
+        if (enrollmentError) {
+          console.error('Error fetching enrollments:', enrollmentError);
+        } else {
+          enrolledPaths = (enrollments || []).map((e: any) => e.learning_path_id);
         }
-
-        // Mapear dados com informações de matrícula
-        const pathsWithEnrollment = pathsData.map(path => ({
-          id: path.id,
-          title: path.title,
-          description: path.description,
-          isEnrolled: enrolledPaths.includes(path.id),
-          courseCount: path.courses.length
-        }));
-
-        setPaths(pathsWithEnrollment);
-      } catch (error) {
-        console.error('Error fetching learning paths:', error);
-        toast.error('Error loading learning paths');
       }
-      setLoading(false);
-    };
 
-    fetchPaths();
-  }, [user]);
+      return (pathsData || []).map((path: any) => ({
+        id: path.id,
+        title: path.title,
+        description: path.description,
+        isEnrolled: enrolledPaths.includes(path.id),
+        courseCount: path.courses.length,
+      }));
+    },
+  });
+
+  const enrollMutation = useMutation({
+    mutationFn: async (pathId: string) => {
+      if (!user) throw new Error('Not authenticated');
+      const { error } = await supabase
+        .from('user_enrollments')
+        .insert({ user_id: user.id, learning_path_id: pathId });
+      if (error) throw error;
+      return pathId;
+    },
+    onMutate: (pathId) => {
+      setEnrollingId(pathId);
+    },
+    onSuccess: () => {
+      toast.success(DASHBOARD_STRINGS.availablePaths.enrollSuccess);
+      queryClient.invalidateQueries({ queryKey: ['availablePaths'] });
+      queryClient.invalidateQueries({ queryKey: ['myPaths'] });
+    },
+    onError: (error) => {
+      console.error('Error enrolling:', error);
+      toast.error(DASHBOARD_STRINGS.availablePaths.enrollError);
+    },
+    onSettled: () => setEnrollingId(null),
+  });
 
   const handleEnroll = async (pathId: string) => {
     if (!user) {
-      toast.error('You need to be logged in to enroll');
+      toast.error(DASHBOARD_STRINGS.availablePaths.mustLoginToEnroll);
       return;
     }
-
-    setEnrollingId(pathId);
-    try {
-      const { error } = await supabase
-        .from('user_enrollments')
-        .insert({
-          user_id: user.id,
-          learning_path_id: pathId
-        });
-
-      if (error) throw error;
-
-      toast.success('Enrollment successful!');
-      
-      // Atualizar estado local
-      setPaths(paths.map(path => 
-        path.id === pathId 
-          ? { ...path, isEnrolled: true }
-          : path
-      ));
-    } catch (error) {
-      console.error('Error enrolling:', error);
-      toast.error('Error enrolling');
-    } finally {
-      setEnrollingId(null);
-    }
+    enrollMutation.mutate(pathId);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="space-y-4">
-        {[...Array(3)].map((_, i) => (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {[...Array(limit || 3)].map((_, i) => (
           <Card key={i}>
             <CardContent className="p-6">
-              <div className="animate-pulse">
-                <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded mb-4"></div>
-                <div className="h-8 bg-gray-200 rounded"></div>
+              <div className="animate-pulse space-y-2">
+                <div className="h-6 bg-gray-200 rounded" />
+                <div className="h-4 bg-gray-200 rounded" />
+                <div className="h-8 bg-gray-200 rounded mt-4" />
               </div>
             </CardContent>
           </Card>
@@ -123,32 +114,39 @@ export function AvailablePaths() {
     );
   }
 
+  const visiblePaths = typeof limit === 'number' && limit > 0 ? paths.slice(0, limit) : paths;
+
   return (
-    <div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {paths.map((path) => (
-          <Card key={path.id} className={`relative border-forge-cream hover:shadow-md transition-shadow ${path.isEnrolled ? 'ring-1 ring-forge-orange/20' : ''}`}>
+    <div className={className}>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 items-stretch">
+        {visiblePaths.map((path) => (
+          <Card
+            key={path.id}
+            className={`relative border-forge-cream/80 hover:shadow-md transition-shadow h-full min-h-[300px] flex flex-col ${path.isEnrolled ? 'ring-1 ring-forge-orange/20' : ''}`}
+          >
             {path.isEnrolled && (
-              <div className="absolute top-2 right-2 bg-forge-orange text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                <Flame className="h-3 w-3" /> Matriculado
+              <div className="absolute top-2 right-2 bg-forge-orange text-white px-1.5 py-0.5 rounded-full text-[10px] font-medium flex items-center gap-1 shadow-sm">
+                <Flame className="h-3 w-3" />{DASHBOARD_STRINGS.availablePaths.enrolledBadge}
               </div>
             )}
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-forge-dark">
-                <BookOpen className="h-5 w-5 text-forge-orange" />
-                {path.title}
+            <CardHeader className="space-y-2">
+              <CardTitle className="flex items-start gap-2 text-forge-dark tracking-normal text-lg md:text-xl leading-tight line-clamp-2 break-words">
+                <BookOpen className="h-4 w-4 mt-0.5 text-forge-orange shrink-0" />
+                <span>{path.title}</span>
               </CardTitle>
-              <CardDescription className="text-forge-gray">{path.description}</CardDescription>
-              <div className="flex items-center gap-2 text-sm text-forge-gray">
-                <Users className="h-4 w-4 text-forge-orange" />
-                {path.courseCount} curso{path.courseCount !== 1 ? 's' : ''}
+              <CardDescription className="text-[13px] text-forge-gray line-clamp-3 min-h-[3.75rem]">
+                {path.description}
+              </CardDescription>
+              <div className="flex items-center gap-2 text-xs text-forge-gray">
+                <Users className="h-3.5 w-3.5 text-forge-orange" />
+                {DASHBOARD_STRINGS.availablePaths.courses(path.courseCount || 0)}
               </div>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="space-y-2 mt-auto">
               {path.isEnrolled ? (
-                <Link to={`/dashboard/learn/path/${path.id}`}>
-                  <EnhancedButton className="w-full" withGradient>
-                    Continuar aprendendo
+                <Link to={DASHBOARD_LEARN_PATH(path.id)}>
+                  <EnhancedButton className="w-full text-sm py-2" size="sm" withGradient>
+                    {DASHBOARD_STRINGS.availablePaths.continueLearning}
                   </EnhancedButton>
                 </Link>
               ) : (
@@ -156,15 +154,16 @@ export function AvailablePaths() {
                   <EnhancedButton 
                     onClick={() => handleEnroll(path.id)}
                     disabled={enrollingId === path.id || !user}
-                    className="w-full"
+                    className="w-full text-sm py-2"
                     variant="outline"
+                    size="sm"
                   >
-                    {enrollingId === path.id ? 'Matriculando...' : 'Matricular'}
+                    {enrollingId === path.id ? DASHBOARD_STRINGS.availablePaths.enrolling : DASHBOARD_STRINGS.availablePaths.enroll}
                   </EnhancedButton>
                   {user && (
-                    <Link to={`/dashboard/learn/path/${path.id}`}>
+                    <Link to={DASHBOARD_LEARN_PATH(path.id)}>
                       <EnhancedButton variant="ghost" size="sm" className="w-full">
-                        Ver detalhes
+                        {DASHBOARD_STRINGS.availablePaths.viewDetails}
                       </EnhancedButton>
                     </Link>
                   )}

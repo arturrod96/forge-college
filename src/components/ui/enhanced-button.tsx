@@ -11,6 +11,7 @@ interface EnhancedButtonProps
   icon?: React.ReactNode;
   withGradient?: boolean;
   withIcon?: boolean;
+  asChild?: boolean;
 }
 
 const EnhancedButton = ({
@@ -21,6 +22,7 @@ const EnhancedButton = ({
   withGradient = false,
   withIcon = false,
   className,
+  asChild = false,
   ...props
 }: EnhancedButtonProps) => {
   const gradientOverlay = withGradient && (
@@ -30,11 +32,32 @@ const EnhancedButton = ({
   const defaultIcon = withIcon && !icon && <Flame size={16} />;
   const displayIcon = icon || defaultIcon;
 
+  if (asChild && React.isValidElement(children)) {
+    const childElement = children as React.ReactElement<any>;
+    const mergedClassName = cn(
+      getButtonClasses(variant, size),
+      childElement.props?.className,
+      className
+    );
+
+    return React.cloneElement(
+      childElement,
+      {
+        ...props,
+        className: mergedClassName,
+      },
+      <>
+        <span className="relative z-10 flex items-center gap-2">
+          {displayIcon}
+          {childElement.props?.children}
+        </span>
+        {gradientOverlay}
+      </>
+    );
+  }
+
   return (
-    <button
-      className={cn(getButtonClasses(variant, size), className)}
-      {...props}
-    >
+    <button className={cn(getButtonClasses(variant, size), className)} {...props}>
       <span className="relative z-10 flex items-center gap-2">
         {displayIcon}
         {children}

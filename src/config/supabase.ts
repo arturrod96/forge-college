@@ -14,7 +14,7 @@ export const getSupabaseConfig = (): SupabaseConfig => {
   
   if (!url || !anonKey) {
     throw new Error(
-      'Missing Supabase configuration. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.'
+      'Configuração do Supabase ausente. Defina as variáveis de ambiente VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY.'
     );
   }
   

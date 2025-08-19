@@ -1,327 +1,169 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
-import { supabase } from '@/lib/supabaseClient'
-import { useAuth } from '@/hooks/useAuth'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { toast } from 'sonner'
-import { BookOpen, Clock, HelpCircle, PlayCircle, Trophy, Users, Flame } from 'lucide-react'
-import EnhancedButton from '@/components/ui/enhanced-button'
-import { designTokens } from '@/lib/design-system'
+import { useParams, Link } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabaseClient';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import EnhancedButton from '@/components/ui/enhanced-button';
+import { DASHBOARD_LEARN_COURSE } from '@/routes/paths';
+import { DASHBOARD_STRINGS } from '@/strings/dashboard';
+import { toast } from 'sonner';
 
-type Lesson = {
-  id: string
-  title: string
-  lesson_type: 'text' | 'video' | 'quiz'
-  xp_value: number | null
-  order: number
+interface CourseSummary {
+  id: string;
+  title: string;
+  description: string | null;
 }
 
-type Module = {
-  id: string
-  title: string
-  order: number
-  lessons: Lesson[]
+interface LearningPathDetail {
+  id: string;
+  title: string;
+  description: string | null;
+  courses: CourseSummary[];
 }
-
-type Course = {
-  id: string
-  title: string
-  description: string | null
-  order: number
-  modules: Module[]
-}
-
-type LearningPath = {
-  id: string
-  title: string
-  description: string | null
-  courses: Course[]
-}
-
-type ProgressStatus = 'not_started' | 'in_progress' | 'completed'
 
 export function PathOverview() {
-  const { pathId } = useParams<{ pathId: string }>()
-  const { user } = useAuth()
-  const navigate = useNavigate()
+  const { pathId } = useParams();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
-  const [loading, setLoading] = useState(true)
-  const [enrolling, setEnrolling] = useState(false)
-  const [isEnrolled, setIsEnrolled] = useState<boolean>(false)
-  const [expandedDesc, setExpandedDesc] = useState(false)
-  const [path, setPath] = useState<LearningPath | null>(null)
-  const [progressMap, setProgressMap] = useState<Record<string, ProgressStatus>>({})
+  const { data, isLoading } = useQuery<{ path: LearningPathDetail; isEnrolled: boolean } | null>({
+    queryKey: ['pathOverview', pathId, user?.id],
+    enabled: Boolean(pathId),
+    queryFn: async () => {
+      // Load path + courses
+      const { data: pathData, error: pathError } = await supabase
+        .from('learning_paths')
+        .select('id, title, description, courses(id, title, description)')
+        .eq('id', pathId)
+        .single();
+      if (pathError) throw pathError;
 
-  useEffect(() => {
-    const load = async () => {
-      if (!pathId) return
-      setLoading(true)
-      try {
-        const { data, error } = await supabase
-          .from('learning_paths')
-          .select(`
-            id, title, description,
-            courses (
-              id, title, description, order,
-              modules (
-                id, title, order,
-                lessons ( id, title, lesson_type, xp_value, order )
-              )
-            )
-          `)
-          .eq('id', pathId)
-          .single()
+      const path: LearningPathDetail = {
+        id: pathData.id,
+        title: pathData.title,
+        description: pathData.description,
+        courses: (pathData.courses || []).map((c: any) => ({
+          id: c.id,
+          title: c.title,
+          description: c.description,
+        })),
+      };
 
-        if (error) throw error
-
-        // Ordenação para experiência consistente
-        data.courses.sort((a: Course, b: Course) => a.order - b.order)
-        data.courses.forEach((c: Course) => {
-          c.modules.sort((a, b) => a.order - b.order)
-          c.modules.forEach((m) => m.lessons.sort((a, b) => a.order - b.order))
-        })
-
-        setPath(data as LearningPath)
-
-        // Verificar matrícula
-        if (user) {
-          const { data: enr, error: enrErr } = await supabase
-            .from('user_enrollments')
-            .select('id')
-            .eq('user_id', user.id)
-            .eq('learning_path_id', data.id)
-            .eq('is_active', true)
-            .maybeSingle()
-
-          if (enrErr) {
-            console.error(enrErr)
-          } else {
-            setIsEnrolled(!!enr)
-          }
-        }
-
-        // Progresso do usuário
-        const allLessonIds: string[] = data.courses.flatMap((c: Course) =>
-          c.modules.flatMap((m: Module) => m.lessons.map((l: Lesson) => l.id))
-        )
-
-        if (user && allLessonIds.length) {
-          const { data: prog, error: progErr } = await supabase
-            .from('user_progress')
-            .select('lesson_id, status')
-            .eq('user_id', user.id)
-            .in('lesson_id', allLessonIds)
-
-          if (progErr) throw progErr
-
-          const map: Record<string, ProgressStatus> = {}
-          allLessonIds.forEach((id) => (map[id] = 'not_started'))
-          ;(prog || []).forEach((p: any) => {
-            map[p.lesson_id] = p.status as ProgressStatus
-          })
-          setProgressMap(map)
-        } else {
-          setProgressMap({})
-        }
-      } catch (e) {
-        console.error(e)
-        toast.error('Erro ao carregar a trilha.')
-      } finally {
-        setLoading(false)
+      let isEnrolled = false;
+      if (user) {
+        const { data: enroll, error: enrollErr } = await supabase
+          .from('user_enrollments')
+          .select('learning_path_id')
+          .eq('user_id', user.id)
+          .eq('learning_path_id', pathId)
+          .eq('is_active', true)
+          .maybeSingle();
+        if (!enrollErr) isEnrolled = Boolean(enroll);
       }
-    }
 
-    load()
-  }, [pathId, user])
+      return { path, isEnrolled };
+    },
+  });
 
-  const metrics = useMemo(() => {
-    if (!path) return null
+  const enrollMutation = useMutation({
+    mutationFn: async () => {
+      if (!user || !pathId) throw new Error('Not authenticated');
+      const { error } = await supabase
+        .from('user_enrollments')
+        .insert({ user_id: user.id, learning_path_id: pathId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(DASHBOARD_STRINGS.pathOverview.continue);
+      queryClient.invalidateQueries({ queryKey: ['availablePaths'] });
+      queryClient.invalidateQueries({ queryKey: ['myPaths'] });
+      queryClient.invalidateQueries({ queryKey: ['pathOverview'] });
+    },
+    onError: () => toast.error(DASHBOARD_STRINGS.availablePaths.enrollError),
+  });
 
-    const lessons = path.courses.flatMap((c) => c.modules.flatMap((m) => m.lessons))
-    const totalLessons = lessons.length
-    const completed = lessons.filter((l) => progressMap[l.id] === 'completed').length
-    const videos = lessons.filter((l) => l.lesson_type === 'video').length
-    const quizzes = lessons.filter((l) => l.lesson_type === 'quiz').length
-    const totalXP = lessons.reduce((acc, l) => acc + (l.xp_value || 0), 0)
-
-    const hours = Math.max(1, Math.round((totalLessons * 10) / 60))
-
-    const findNextCourseId = (): string | null => {
-      for (const course of path.courses) {
-        const clessons = course.modules.flatMap((m) => m.lessons)
-        const done = clessons.filter((l) => progressMap[l.id] === 'completed').length
-        if (done < clessons.length) return course.id
-      }
-      return path.courses[0]?.id || null
-    }
-
-    const coursesProgress = path.courses.map((course) => {
-      const clessons = course.modules.flatMap((m) => m.lessons)
-      const done = clessons.filter((l) => progressMap[l.id] === 'completed').length
-      const pct = clessons.length ? Math.round((done / clessons.length) * 100) : 0
-      return { courseId: course.id, percent: pct, completed: done, total: clessons.length }
-    })
-
-    return {
-      totalLessons,
-      completed,
-      videos,
-      quizzes,
-      totalXP,
-      hours,
-      nextCourseId: findNextCourseId(),
-      coursesProgress
-    }
-  }, [path, progressMap])
-
-  const handleEnroll = async () => {
-    if (!user) {
-      toast.error('Você precisa estar logado para se matricular.')
-      return
-    }
-    if (!path) return
-    try {
-      setEnrolling(true)
-      const { error } = await supabase.from('user_enrollments').insert({
-        user_id: user.id,
-        learning_path_id: path.id
-      })
-      if (error) throw error
-      setIsEnrolled(true)
-      toast.success('Matrícula realizada com sucesso!')
-    } catch (e) {
-      console.error(e)
-      toast.error('Erro ao realizar matrícula.')
-    } finally {
-      setEnrolling(false)
-    }
-  }
-
-  const handleContinue = () => {
-    if (!isEnrolled) {
-      toast.error('Matricule-se para começar.')
-      return
-    }
-    if (metrics?.nextCourseId) {
-      navigate(`/dashboard/learn/course/${metrics.nextCourseId}`)
-    } else {
-      toast.info('Nada para continuar no momento.')
-    }
-  }
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="animate-pulse text-gray-500">Carregando trilha...</div>
+      <div className="space-y-4">
+        {[...Array(2)].map((_, i) => (
+          <Card key={i}>
+            <CardContent className="p-6">
+              <div className="animate-pulse">
+                <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded mb-4"></div>
+                <div className="h-20 bg-gray-100 rounded"></div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
-    )
+    );
   }
 
-  if (!path) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="text-gray-600">Trilha não encontrada.</div>
-      </div>
-    )
+  if (!data) {
+    return <div className="text-gray-500">{DASHBOARD_STRINGS.pathOverview.notFound}</div>;
   }
+
+  const { path, isEnrolled } = data;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 relative">
-      {/* Decorative background like landing page */}
-      <div className="absolute inset-0 -z-10 pointer-events-none">
-        <div className="absolute -top-10 -left-6 w-40 h-40 bg-forge-orange/10 rounded-full blur-3xl"></div>
-        <div className="absolute top-20 right-10 w-56 h-56 bg-forge-cream/80 rounded-full blur-3xl"></div>
-      </div>
-
-      {/* Header */}
-      <div className="mb-8 rounded-3xl overflow-hidden border border-forge-cream bg-gradient-to-br from-forge-cream to-forge-cream/50">
-        <div className="p-6 md:p-8 relative">
-          <div className="absolute -top-4 -left-4 opacity-10"><Flame className="text-forge-orange" size={72} /></div>
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <div className="inline-flex items-center gap-2 bg-white/70 backdrop-blur px-3 py-1 rounded-xl text-xs font-medium text-forge-dark border border-forge-cream">
-                <BookOpen className="h-4 w-4 text-forge-orange" /> Trilha
-              </div>
-              <h1 className="mt-3 text-forge-dark font-bold text-3xl md:text-4xl tracking-tight">{path.title}</h1>
-              <p className="mt-2 text-forge-gray md:max-w-3xl">
-                {expandedDesc ? path.description : (path.description || '').slice(0, 180)}
-                {path.description && path.description.length > 180 && (
-                  <>
-                    {!expandedDesc && '... '}
-                    <button className="text-forge-orange hover:underline ml-1" onClick={() => setExpandedDesc((v) => !v)}>
-                      {expandedDesc ? 'Ler menos' : 'Ler mais'}
-                    </button>
-                  </>
-                )}
-              </p>
-            </div>
-
-            <div className="flex gap-3">
-              <EnhancedButton onClick={handleContinue} disabled={!isEnrolled} size="lg" variant={isEnrolled ? 'primary' : 'secondary'} withGradient>
-                {isEnrolled ? 'Continuar' : 'Matricule-se para começar'}
-              </EnhancedButton>
-              {!isEnrolled && (
-                <EnhancedButton variant="outline" size="lg" onClick={handleEnroll} disabled={enrolling}>
-                  {enrolling ? 'Matriculando...' : 'Matricular'}
-                </EnhancedButton>
-              )}
-            </div>
-          </div>
-
-          {metrics && (
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-6">
-              <div className="flex items-center gap-2 bg-white/70 backdrop-blur rounded-xl px-3 py-2 text-sm text-forge-dark border border-forge-cream"><HelpCircle className="h-4 w-4 text-forge-orange" />Básico</div>
-              <div className="flex items-center gap-2 bg-white/70 backdrop-blur rounded-xl px-3 py-2 text-sm text-forge-dark border border-forge-cream"><Clock className="h-4 w-4 text-forge-orange" />{metrics.hours} h</div>
-              <div className="flex items-center gap-2 bg-white/70 backdrop-blur rounded-xl px-3 py-2 text-sm text-forge-dark border border-forge-cream"><PlayCircle className="h-4 w-4 text-forge-orange" />{metrics.videos} vídeos</div>
-              <div className="flex items-center gap-2 bg-white/70 backdrop-blur rounded-xl px-3 py-2 text-sm text-forge-dark border border-forge-cream"><BookOpen className="h-4 w-4 text-forge-orange" />{metrics.quizzes} exercícios</div>
-              <div className="flex items-center gap-2 bg-white/70 backdrop-blur rounded-xl px-3 py-2 text-sm text-forge-dark border border-forge-cream"><Trophy className="h-4 w-4 text-forge-orange" />{metrics.totalXP} XP</div>
-            </div>
-          )}
+    <div className="space-y-6">
+      <header>
+        <div className="inline-flex items-center px-2 py-1 rounded bg-forge-orange/10 text-forge-orange text-xs font-medium">
+          {DASHBOARD_STRINGS.pathOverview.badge}
         </div>
-      </div>
+        <h1 className="text-3xl font-bold mt-2 text-forge-dark">{path.title}</h1>
+        {path.description && (
+          <p className="mt-2 text-forge-gray">{path.description}</p>
+        )}
+      </header>
 
-      <div className="space-y-4">
-        {path.courses.map((course) => {
-          const cp = metrics?.coursesProgress.find((p) => p.courseId === course.id) || {
-            percent: 0,
-            completed: 0,
-            total: course.modules.reduce((acc, m) => acc + m.lessons.length, 0)
-          }
-          return (
-            <Card key={course.id} className={`border-forge-cream hover:shadow-md transition-shadow ${cp.percent > 0 && cp.percent < 100 ? 'ring-1 ring-forge-orange/20' : ''}`}>
-              <CardHeader className="flex gap-2">
-                <CardTitle className="text-lg text-forge-dark">{course.title}</CardTitle>
-                {course.description && <CardDescription className="text-forge-gray">{course.description}</CardDescription>}
+      {!isEnrolled ? (
+        <div>
+          <EnhancedButton
+            onClick={() => enrollMutation.mutate()}
+            disabled={!user || enrollMutation.isPending}
+            withGradient
+          >
+            {enrollMutation.isPending ? DASHBOARD_STRINGS.pathOverview.enrolling : DASHBOARD_STRINGS.pathOverview.enroll}
+          </EnhancedButton>
+        </div>
+      ) : (
+        <div>
+          <EnhancedButton asChild withGradient>
+            <Link to={path.courses[0] ? DASHBOARD_LEARN_COURSE(path.courses[0].id) : '#'}>
+              {DASHBOARD_STRINGS.pathOverview.continue}
+            </Link>
+          </EnhancedButton>
+        </div>
+      )}
+
+      <section className="space-y-3">
+        <h2 className="text-xl font-semibold">Courses</h2>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {path.courses.map((course) => (
+            <Card key={course.id} className="border-forge-cream">
+              <CardHeader>
+                <CardTitle className="text-forge-dark">{course.title}</CardTitle>
+                {course.description && (
+                  <CardDescription className="text-forge-gray">{course.description}</CardDescription>
+                )}
               </CardHeader>
-              <CardContent className="space-y-3">
-                <Progress value={cp.percent} />
-                <div className="text-sm text-forge-gray">{cp.percent}% concluído • {cp.completed}/{cp.total} lições</div>
-                <div className="flex flex-wrap gap-2">
-                  <Link to={`/dashboard/learn/course/${course.id}`}>
-                    <EnhancedButton variant="ghost">Ver curso</EnhancedButton>
+              <CardContent>
+                <EnhancedButton asChild variant="outline" className="w-full">
+                  <Link to={DASHBOARD_LEARN_COURSE(course.id)}>
+                    {DASHBOARD_STRINGS.availablePaths.viewDetails}
                   </Link>
-                  {cp.percent < 100 && (
-                    <EnhancedButton onClick={() => navigate(`/dashboard/learn/course/${course.id}`)}>
-                      Continuar
-                    </EnhancedButton>
-                  )}
-                </div>
+                </EnhancedButton>
               </CardContent>
             </Card>
-          )
-        })}
-      </div>
-
-      <div className="mt-10 text-sm text-forge-gray flex items-center gap-2">
-        <Users className="h-4 w-4 text-forge-orange" />
-        Milhares de participantes já estão aprendendo nesta trilha.
-      </div>
+          ))}
+        </div>
+      </section>
     </div>
-  )
+  );
 }
 
-export default PathOverview
+export default PathOverview;
 
 

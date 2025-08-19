@@ -1,75 +1,64 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/hooks/useAuth';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Link } from 'react-router-dom';
+import { DASHBOARD_LEARN_PATH } from '@/routes/paths';
+import { DASHBOARD_STRINGS } from '@/strings/dashboard';
+import { useQuery } from '@tanstack/react-query';
+import EnhancedButton from '@/components/ui/enhanced-button';
 
 interface InProgressPath {
   id: string;
   title: string;
+  description?: string;
   // We'll calculate this in the future
   progress: number; 
 }
 
 export function MyLearningPaths() {
   const { user } = useAuth();
-  const [myPaths, setMyPaths] = useState<InProgressPath[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user) return;
-
-    const fetchMyPaths = async () => {
-      setLoading(true);
+  const { data: myPaths = [], isLoading } = useQuery<InProgressPath[]>({
+    queryKey: ['myPaths', user?.id],
+    enabled: !!user?.id,
+    queryFn: async (): Promise<InProgressPath[]> => {
       try {
-        // Buscar apenas learning paths onde o usuário está matriculado
         const { data: enrollments, error: enrollmentError } = await supabase
           .from('user_enrollments')
           .select(`
             learning_path_id,
-            learning_paths!inner(id, title)
+            learning_paths!inner(id, title, description)
           `)
-          .eq('user_id', user.id)
+          .eq('user_id', user!.id)
           .eq('is_active', true);
-
         if (enrollmentError) throw enrollmentError;
 
         const pathsWithProgress = await Promise.all(
-          enrollments.map(async (enrollment) => {
+          (enrollments || []).map(async (enrollment: any) => {
             const path = enrollment.learning_paths;
-            
-            // Get user progress for this path usando nova função
             const { data: progress, error: progressError } = await supabase
-              .rpc('get_enrolled_path_progress', {
+              .rpc('get_path_progress', {
                 path_id: path.id,
-                user_id: user.id
+                user_id: user!.id,
               });
-
             if (progressError) {
-              console.error('Error fetching progress for path:', path.id, progressError);
+              console.error('Erro ao buscar progresso da trilha:', path.id, progressError);
               return { ...path, progress: 0 };
             }
-
-            return {
-              ...path,
-              progress: progress || 0
-            };
+            return { ...path, progress: progress || 0 };
           })
         );
-
-        setMyPaths(pathsWithProgress);
+        return pathsWithProgress;
       } catch (error) {
-        console.error('Error fetching user paths:', error);
-        setMyPaths([]);
+        console.error('Erro ao buscar trilhas do usuário:', error);
+        return [];
       }
-      setLoading(false);
-    };
+    },
+  });
 
-    fetchMyPaths();
-  }, [user]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="mb-8">
         <div className="grid gap-4 md:grid-cols-2">
@@ -94,8 +83,8 @@ export function MyLearningPaths() {
         <Card>
           <CardContent className="p-6 text-center">
             <div className="text-gray-500">
-              <p className="mb-2">You are not yet enrolled in any path.</p>
-              <p className="text-sm">Explore the available paths and enroll to get started!</p>
+              <p className="mb-2">{DASHBOARD_STRINGS.myLearningPaths.emptyTitle}</p>
+              <p className="text-sm">{DASHBOARD_STRINGS.myLearningPaths.emptySubtitle}</p>
             </div>
           </CardContent>
         </Card>
@@ -103,21 +92,38 @@ export function MyLearningPaths() {
     );
   }
 
+  const progressColor = (value: number) => {
+    if (value >= 80) return 'from-green-50 to-green-100 text-green-700';
+    if (value >= 40) return 'from-yellow-50 to-yellow-100 text-yellow-700';
+    return 'from-gray-50 to-gray-100 text-gray-700';
+  };
+
   return (
     <div className="mb-8">
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         {myPaths.map(path => (
-          <Link to={`/dashboard/learn/path/${path.id}`} key={path.id}>
-            <Card className="hover:bg-gray-50 transition-colors">
-              <CardHeader>
-                <CardTitle>{path.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Progress value={path.progress} />
-                <p className="text-sm text-gray-600 mt-2">{path.progress}% complete</p>
-              </CardContent>
-            </Card>
-          </Link>
+          <Card
+            key={path.id}
+            className={`h-full flex flex-col transition-shadow hover:shadow-md border-forge-cream/80 ${path.progress > 0 ? 'ring-1 ring-forge-orange/10' : ''}`}
+          >
+            <CardHeader>
+              <CardTitle className="tracking-tight">{path.title}</CardTitle>
+              {path.description && (
+                <CardDescription className="line-clamp-2 text-forge-gray">{path.description}</CardDescription>
+              )}
+            </CardHeader>
+            <CardContent className="mt-auto">
+              <div className="flex items-center justify-between mb-2">
+                <div className={`text-xs rounded-full px-2 py-1 bg-gradient-to-br ${progressColor(path.progress)} inline-block`}>{path.progress}{DASHBOARD_STRINGS.myLearningPaths.progressSuffix}</div>
+                <Link to={DASHBOARD_LEARN_PATH(path.id)}>
+                  <EnhancedButton size="sm" withGradient>
+                    {DASHBOARD_STRINGS.pathOverview.continue}
+                  </EnhancedButton>
+                </Link>
+              </div>
+              <Progress value={path.progress} />
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>

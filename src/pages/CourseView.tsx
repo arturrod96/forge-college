@@ -1,15 +1,18 @@
-import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
 import { CourseTableOfContents } from '@/components/dashboard/CourseTableOfContents';
 import { LessonViewer } from '@/components/dashboard/LessonViewer';
 
-// Define types for our data structure
+export type LessonType = 'text' | 'video' | 'quiz';
+
 export interface Lesson {
   id: string;
   title: string;
-  content: any; // Can be text, video URL, quiz data, etc.
-  lesson_type: 'text' | 'video' | 'quiz';
+  content: unknown;
+  lesson_type: LessonType;
+  xp_value: number;
 }
 
 export interface Module {
@@ -26,75 +29,71 @@ export interface Course {
 }
 
 export function CourseView() {
-  const { courseId } = useParams<{ courseId: string }>();
-  const [course, setCourse] = useState<Course | null>(null);
+  const { courseId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!courseId) return;
-
-    const fetchCourse = async () => {
-      setLoading(true);
-      // This is a complex query to fetch a course and its nested modules and lessons.
-      // Supabase's RPC functions might be more efficient for this in the long run.
-      const { data, error } = await supabase
+  const { data: course, isLoading } = useQuery<Course | null>({
+    queryKey: ['courseView', courseId],
+    enabled: Boolean(courseId),
+    queryFn: async () => {
+      const { data: courseData, error } = await supabase
         .from('courses')
         .select(`
           id, title, description,
-          modules ( id, title, order, lessons ( id, title, content, lesson_type, order ) )
+          modules:modules(id, title, order,
+            lessons:lessons(id, title, content, lesson_type, order, xp_value)
+          )
         `)
         .eq('id', courseId)
         .single();
+      if (error) throw error;
 
-      if (error) {
-        console.error('Error fetching course:', error);
-        setCourse(null);
-      } else {
-        // Sort modules and lessons by their order
-        data.modules.sort((a, b) => a.order - b.order);
-        data.modules.forEach(module => {
-          module.lessons.sort((a, b) => a.order - b.order);
-        });
-        setCourse(data as Course);
-        // Set the first lesson as the current one by default
-        if (data.modules[0]?.lessons[0]) {
-          setCurrentLesson(data.modules[0].lessons[0]);
-        }
+      const normalized: Course = {
+        id: courseData.id,
+        title: courseData.title,
+        description: courseData.description,
+        modules: (courseData.modules || []).map((m: any) => ({
+          id: m.id,
+          title: m.title,
+          lessons: (m.lessons || []).map((l: any) => ({
+            id: l.id,
+            title: l.title,
+            content: l.content,
+            lesson_type: l.lesson_type,
+            xp_value: l.xp_value ?? 0,
+          })),
+        })),
+      };
+
+      // pick first lesson by default
+      if (normalized.modules.length && normalized.modules[0].lessons.length) {
+        setCurrentLesson(normalized.modules[0].lessons[0]);
       }
-      setLoading(false);
-    };
 
-    fetchCourse();
-  }, [courseId]);
-
-  if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading course...</div>;
-  }
-
-  if (!course) {
-    return <div className="flex justify-center items-center h-screen">Course not found.</div>;
-  }
+      return normalized;
+    },
+  });
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Left Sidebar - Table of Contents */}
-      <div className="w-1/4 bg-white border-r overflow-y-auto">
-        <CourseTableOfContents 
-          course={course} 
-          currentLessonId={currentLesson?.id}
-          onLessonClick={(lesson) => setCurrentLesson(lesson)}
-        />
+    <div className="flex gap-6">
+      <div className="w-80 shrink-0 border rounded-md bg-white">
+        {isLoading || !course ? (
+          <div className="p-4 text-gray-500">Loading course...</div>
+        ) : (
+          <CourseTableOfContents
+            course={course}
+            currentLessonId={currentLesson?.id}
+            onLessonClick={setCurrentLesson}
+          />
+        )}
       </div>
-
-      {/* Right Content - Lesson Viewer */}
-      <div className="w-3/4 flex flex-col">
-        <LessonViewer 
-          lesson={currentLesson} 
-          course={course}
-          onLessonChange={(lesson) => setCurrentLesson(lesson)}
-        />
+      <div className="flex-1 border rounded-md bg-white min-h-[60vh]">
+        <LessonViewer lesson={currentLesson} course={course ?? null} onLessonChange={setCurrentLesson} />
       </div>
     </div>
   );
 }
+
+export default CourseView;
+
+

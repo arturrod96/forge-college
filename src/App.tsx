@@ -2,7 +2,6 @@ import { AuthProvider } from './hooks/useAuth';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Professionals from "./pages/Professionals";
 import Companies from "./pages/Companies";
@@ -11,53 +10,58 @@ import NotFound from "./pages/NotFound";
 import { Login } from './pages/Login';
 import { SignUp } from './pages/SignUp';
 import { ForgotPassword } from './pages/ForgotPassword';
-import { Dashboard } from './pages/Dashboard';
+import DashboardLayout from './pages/dashboard/Layout';
 import { UpdatePassword } from './pages/UpdatePassword';
-import { CourseView } from './pages/CourseView';
-import { PathOverview } from './pages/PathOverview';
+import CourseView from './pages/dashboard/CourseView';
+import PathOverview from './pages/dashboard/PathOverview';
 import { AvailablePaths } from './components/dashboard/AvailablePaths';
 import { PublicLayout } from './pages/PublicLayout';
-import { DashboardHome } from './pages/DashboardHome';
+import DashboardHome from './pages/dashboard/DashboardHome';
 import { MyLearningPaths } from './components/dashboard/MyLearningPaths';
-
-const queryClient = new QueryClient();
+import RequireAuth from '@/routes/RequireAuth';
+import * as R from '@/routes/paths';
 
 const App = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AuthProvider>
-            <Routes>
-              {/* Public routes with Navbar */}
-              <Route element={<PublicLayout />}>
-                <Route path="/" element={<Professionals />} />
-                <Route path="/companies" element={<Companies />} />
-                <Route path="/investors" element={<Investors />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<SignUp />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/update-password" element={<UpdatePassword />} />
-              </Route>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            {/* Public routes with Navbar */}
+            <Route element={<PublicLayout />}>
+              <Route path={R.ROOT} element={<Professionals />} />
+              <Route path={R.COMPANIES} element={<Companies />} />
+              <Route path={R.INVESTORS} element={<Investors />} />
+              <Route path={R.LOGIN} element={<Login />} />
+              <Route path={R.SIGNUP} element={<SignUp />} />
+              <Route path={R.FORGOT_PASSWORD} element={<ForgotPassword />} />
+              <Route path={R.UPDATE_PASSWORD} element={<UpdatePassword />} />
+            </Route>
 
-              {/* Private routes with Sidebar */}
-              <Route path="/dashboard" element={<Dashboard />}>
-                <Route index element={<DashboardHome />} />
-                <Route path="my-paths" element={<MyLearningPaths />} />
-                <Route path="explore" element={<AvailablePaths />} />
-                <Route path="learn/course/:courseId" element={<CourseView />} />
-                <Route path="learn/path/:pathId" element={<PathOverview />} />
-              </Route>
+            {/* Private routes with Sidebar */}
+            <Route
+              path={R.DASHBOARD}
+              element={
+                <RequireAuth>
+                  <DashboardLayout />
+                </RequireAuth>
+              }
+            >
+              <Route index element={<DashboardHome />} />
+              <Route path="my-paths" element={<MyLearningPaths />} />
+              <Route path="explore" element={<AvailablePaths />} />
+              <Route path="learn/course/:courseId" element={<CourseView />} />
+              <Route path="learn/path/:pathId" element={<PathOverview />} />
+            </Route>
 
-              {/* Not Found Route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+            {/* Not Found Route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
+    </TooltipProvider>
   );
 };
 

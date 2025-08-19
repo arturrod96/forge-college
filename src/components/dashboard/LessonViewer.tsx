@@ -21,7 +21,7 @@ export function LessonViewer({ lesson, course, onLessonChange }: Props) {
   if (!lesson) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <p>Selecione uma lição para começar.</p>
+        <p>Select a lesson to begin.</p>
       </div>
     );
   }
@@ -39,7 +39,7 @@ export function LessonViewer({ lesson, course, onLessonChange }: Props) {
 
   const markAsComplete = async () => {
     if (!user) {
-      toast.error('Você precisa estar logado para marcar progresso');
+      toast.error('You need to be logged in to track progress');
       return;
     }
 
@@ -59,7 +59,7 @@ export function LessonViewer({ lesson, course, onLessonChange }: Props) {
 
       if (error) throw error;
 
-      toast.success('Lição marcada como concluída!');
+      toast.success('Lesson marked as completed!');
       
       // Auto navigate to next lesson if available
       if (nextLesson) {
@@ -67,7 +67,7 @@ export function LessonViewer({ lesson, course, onLessonChange }: Props) {
       }
     } catch (error) {
       console.error('Error marking lesson as complete:', error);
-      toast.error('Erro ao marcar lição como concluída');
+      toast.error('Error marking lesson as completed');
     } finally {
       setIsCompleting(false);
     }
@@ -82,7 +82,7 @@ export function LessonViewer({ lesson, course, onLessonChange }: Props) {
       case 'quiz':
         return <QuizLesson quizData={typeof lesson.content === 'string' ? JSON.parse(lesson.content) : lesson.content} />;
       default:
-        return <div className="text-red-500">Tipo de lição não suportado: {lesson.lesson_type}</div>;
+        return <div className="text-red-500">Unsupported lesson type: {lesson.lesson_type}</div>;
     }
   };
 
@@ -91,7 +91,7 @@ export function LessonViewer({ lesson, course, onLessonChange }: Props) {
       <header className="mb-6">
         <h1 className="text-3xl font-bold">{lesson.title}</h1>
         <div className="text-sm text-gray-500 mt-2">
-          Lição {currentIndex + 1} de {allLessons.length} • {lesson.xp_value} XP
+          Lesson {currentIndex + 1} of {allLessons.length} • {lesson.xp_value} XP
         </div>
       </header>
       
@@ -105,13 +105,13 @@ export function LessonViewer({ lesson, course, onLessonChange }: Props) {
           onClick={() => previousLesson && onLessonChange(previousLesson)}
           disabled={!previousLesson}
         >
-          Lição Anterior
+          Previous lesson
         </Button>
         <Button 
           onClick={markAsComplete}
           disabled={isCompleting}
         >
-          {isCompleting ? 'Salvando...' : nextLesson ? 'Concluir e Continuar' : 'Marcar como Concluída'}
+          {isCompleting ? 'Saving...' : nextLesson ? 'Complete and Continue' : 'Mark as Completed'}
         </Button>
       </footer>
     </div>

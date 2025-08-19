@@ -1,3 +1,2 @@
-import { useToast, toast } from "@/hooks/use-toast";
-
-export { useToast, toast };
+// Public re-export for toast API
+export { useToast, toast } from "@/hooks/use-toast";

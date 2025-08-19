@@ -4,7 +4,8 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { DASHBOARD } from '@/routes/paths';
 
 export function Login() {
   const [email, setEmail] = useState('');
@@ -12,6 +13,7 @@ export function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,8 +26,9 @@ export function Login() {
         throw error;
       }
       
-      // Redirect to dashboard after successful login
-      navigate('/dashboard');
+      // Redirect to previous location if present, otherwise dashboard
+      const from = (location.state as any)?.from?.pathname || DASHBOARD;
+      navigate(from, { replace: true });
     } catch (error: any) {
       // Check if it's a network error due to placeholder credentials
       if (error.message.includes('fetch') || error.message.includes('network')) {

@@ -30,21 +30,17 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 
-export function Dashboard() {
+export function DashboardLayout() {
   const { user } = useAuth();
   const location = useLocation();
 
-  // Breadcrumb items based on current location
   const breadcrumbItems = useMemo(() => {
     const segments = location.pathname.split('/').filter(Boolean);
     const items: { label: string; to?: string }[] = [];
 
-    // Always start from Dashboard
     items.push({ label: ROUTE_LABELS[DASHBOARD_PATH], to: DASHBOARD_PATH });
+    if (segments.length <= 1) return items;
 
-    if (segments.length <= 1) return items; // only /dashboard
-
-    // Map top-level after dashboard
     const second = segments[1];
     if (second === 'explore') {
       items.push({ label: ROUTE_LABELS[DASHBOARD_EXPLORE] });
@@ -67,8 +63,6 @@ export function Dashboard() {
 
     return items;
   }, [location.pathname]);
-
-  if (!user) return null;
 
   const isDashboard = location.pathname === DASHBOARD_PATH;
   const isExplore = location.pathname.startsWith(DASHBOARD_EXPLORE);
@@ -153,7 +147,6 @@ export function Dashboard() {
           </Breadcrumb>
         </div>
         <div className="px-4 py-6 md:px-8 relative">
-          {/* Decorative background similar to landing */}
           <div className="absolute inset-0 -z-10 pointer-events-none">
             <div className="absolute -top-6 right-6 w-32 h-32 bg-forge-cream rounded-full blur-2xl"></div>
             <div className="absolute bottom-0 left-10 w-24 h-24 bg-forge-orange/10 rounded-full blur-2xl"></div>
@@ -164,3 +157,7 @@ export function Dashboard() {
     </SidebarProvider>
   );
 }
+
+export default DashboardLayout
+
+

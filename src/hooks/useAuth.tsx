@@ -6,36 +6,36 @@ import { useNavigate } from 'react-router-dom';
 export const AuthContext = createContext<{ 
   session: Session | null;
   user: User | null;
-}>({ session: null, user: null });
+  initialized: boolean;
+}>({ session: null, user: null, initialized: false });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const navigate = useNavigate();
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (event === 'SIGNED_IN') {
-        navigate('/dashboard');
-      }
     });
 
     // Fetch initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      setInitialized(true);
     });
 
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, []);
 
   const value = {
     session,
     user,
+    initialized,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
