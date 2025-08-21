@@ -1,263 +1,226 @@
 import { useState } from "react";
-import { Flame, BookOpen, Blocks, Layers, DollarSign } from "lucide-react";
-import FeatureCard from "../components/FeatureCard";
-import FAQ from "../components/FAQ";
+import { ArrowRight, Code, DollarSign, Flame, Users, Briefcase } from "lucide-react";
 import ApplicationForm from "../components/ApplicationForm";
-import HeroSection from "../components/ui/hero-section";
-import Section from "../components/ui/section";
-import ProcessSection from "../components/ui/process-section";
 
 const Professionals = () => {
   const [showForm, setShowForm] = useState(false);
 
-  const features = [
-    {
-      icon: "💰",
-      title: "Get Paid to Learn",
-      description:
-        "Receive salaries in USDC/USDT while you learn cutting-edge Web3 development skills.",
-    },
-    {
-      icon: "🚀",
-      title: "Real-World Projects",
-      description:
-        "Work on actual Web3 projects from leading companies, building your portfolio while learning.",
-    },
-    {
-      icon: "🎯",
-      title: "No Upfront Cost",
-      description:
-        "Income Share Agreement means you only pay after landing your dream Web3 job.",
-    },
-    {
-      icon: "🌐",
-      title: "Hiring Network",
-      description:
-        "Access our curated network of Web3 companies actively seeking talented developers.",
-    },
+  const stats = [
+    { value: "6", label: "Month Program", suffix: "" },
+    { value: "$6K", label: "Monthly Salary", suffix: "/mo" },
+    { value: "95%", label: "Job Placement", suffix: "" },
   ];
 
-  const faqs = [
+  const features = [
     {
-      question: 'How does the "get paid to learn" model work?',
-      answer:
-        "Students receive monthly payments in USDC/USDT during the program to cover living expenses while focusing on intensive learning. This is funded through our Income Share Agreement model.",
+      icon: <DollarSign className="w-6 h-6" />,
+      title: "Get Paid to Learn",
+      description: "Receive $6,000 USDC monthly while mastering Web3 development"
     },
     {
-      question: "What is an Income Share Agreement (ISA)?",
-      answer:
-        "An ISA means you pay nothing upfront. After completing the program and landing a job, you pay back a percentage of your income for a fixed period, only when you're earning above a minimum threshold.",
+      icon: <Code className="w-6 h-6" />,
+      title: "Real Projects",
+      description: "Build actual DeFi protocols, NFT platforms, and blockchain infrastructure"
     },
     {
-      question: "What kind of projects will I work on?",
-      answer:
-        "You'll work on real Web3 projects submitted by our partner companies, including DeFi protocols, NFT platforms, DAOs, and blockchain infrastructure projects.",
-    },
-    {
-      question: "How long is the program?",
-      answer:
-        "The intensive program runs for 6 months, combining theoretical learning with hands-on project work and mentorship from industry experts.",
-    },
-    {
-      question: "What if I don't find a job after the program?",
-      answer:
-        "If you don't secure a qualifying job within 12 months of graduation, you owe nothing under the ISA. We're invested in your success.",
-    },
+      icon: <Briefcase className="w-6 h-6" />,
+      title: "Guaranteed Placement",
+      description: "Access our exclusive network of Web3 companies hiring developers"
+    }
   ];
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-forge-orange/5 rounded-full blur-3xl"></div>
-        <div className="absolute top-60 right-20 w-48 h-48 bg-forge-cream/80 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-40 left-1/4 w-40 h-40 bg-forge-orange/10 rounded-full blur-2xl"></div>
-      </div>
-
-      <HeroSection
-        badge={{
-          text: "Forge Your Future",
-        }}
-        title="Get Paid to Learn Web3"
-        subtitle="Master blockchain development, earn 6 months of salary to learn, and only pay us if we find you a job in Web3!"
-        description="Join the only Web3 education program where you earn while you learn. Work on real projects, get mentored by industry experts, and access our exclusive hiring network."
-        features={[
-          {
-            icon: <BookOpen size={20} className="text-forge-orange" />,
-            text: "6-Month Program",
-          },
-          {
-            icon: <DollarSign size={20} className="text-forge-orange" />,
-            text: "6-Month Salary",
-          },
-          {
-            icon: <Layers size={20} className="text-forge-orange" />,
-            text: "Land a Web3 Job",
-          },
-        ]}
-        ctaText="Apply to Join the Next Cohort"
-        onCtaClick={() => setShowForm(true)}
-        image={{
-          src: "https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/screenshot-2025-06-18-at-19.37.32-7bf99c?format=webp&width=800",
-          alt: "Forge College Smart Contract Code",
-        }}
-        floatingBadge={{
-          text: "Learn by Building",
-        }}
-        floatingStatus={{
-          text: "Live Coding",
-          isActive: true,
-        }}
-      />
-
-      {/* Enhanced features section with decorative elements */}
-      <Section variant="content">
-        <div className="text-center mb-20 relative">
-          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-8">
-            <div className="flex items-center gap-2 opacity-20"></div>
+    <div className="min-h-screen bg-white">
+      {/* Hero Section */}
+      <section className="pt-32 pb-20 px-6">
+        <div className="max-w-5xl mx-auto text-center">
+          <div className="mb-8">
+            <span className="text-forge-gray text-lg font-medium">
+              The future of education
+            </span>
           </div>
-
-          <h2 className="text-4xl lg:text-5xl font-bold text-forge-dark mb-6 tracking-tight">
-            Why Choose Forge College?
-          </h2>
-          <p className="text-xl text-forge-gray max-w-3xl mx-auto">
-            We've reimagined education for the Web3 era, where learning is an
-            investment in your future, not a burden.
-          </p>
+          
+          <h1 className="text-7xl lg:text-8xl xl:text-9xl font-bold text-forge-dark mb-12 leading-[0.9] tracking-tight">
+            Get Paid
+            <br />
+            <span className="inline-flex items-center">
+              <Flame className="w-20 h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28 text-forge-orange mx-4" />
+              to Learn.
+            </span>
+          </h1>
+          
+          <button
+            onClick={() => setShowForm(true)}
+            className="inline-flex items-center gap-3 bg-forge-orange text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-forge-orange/90 transition-all duration-200 group"
+          >
+            Apply to Next Cohort
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </button>
         </div>
+      </section>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {features.map((feature, index) => (
-            <FeatureCard
-              key={index}
-              icon={feature.icon}
-              title={feature.title}
-              description={feature.description}
-            />
-          ))}
-        </div>
-      </Section>
-
-      {/* Enhanced process section */}
-      <section className="py-20 bg-forge-cream/30 relative">
-        {/* Background pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="grid grid-cols-12 grid-rows-12 h-full w-full">
-            {Array.from({ length: 144 }).map((_, i) => (
-              <div key={i} className="border border-forge-orange/10"></div>
+      {/* Stats Section */}
+      <section className="py-20 px-6 bg-forge-cream/30">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-12 text-center">
+            {stats.map((stat, index) => (
+              <div key={index} className="space-y-3">
+                <div className="text-5xl lg:text-6xl font-bold text-forge-dark">
+                  {stat.value}
+                  <span className="text-forge-orange text-2xl lg:text-3xl">
+                    {stat.suffix}
+                  </span>
+                </div>
+                <div className="text-lg text-forge-gray font-medium">
+                  {stat.label}
+                </div>
+              </div>
             ))}
           </div>
         </div>
+      </section>
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 relative">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <div className="flex items-center gap-3 mb-8">
-                <Flame size={32} className="text-forge-orange" />
-                <h2 className="text-4xl lg:text-5xl font-bold text-forge-dark tracking-tight">
-                  The Future of Education is Here
-                </h2>
+      {/* How it Works */}
+      <section className="py-32 px-6">
+        <div className="max-w-5xl mx-auto text-center">
+          <h2 className="text-5xl lg:text-6xl font-bold text-forge-dark mb-6 leading-tight">
+            No upfront cost.
+            <br />
+            Pay only when you land a job.
+          </h2>
+          <p className="text-xl text-forge-gray max-w-3xl mx-auto mb-16 leading-relaxed">
+            Our Income Share Agreement means you focus on learning, not debt. 
+            We only succeed when you do.
+          </p>
+          
+          <div className="bg-forge-dark rounded-3xl p-12 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-forge-orange/10 rounded-full blur-3xl"></div>
+            <div className="relative z-10">
+              <h3 className="text-3xl font-bold mb-6">Next Cohort Starts</h3>
+              <div className="text-6xl font-bold text-forge-orange mb-4">
+                April 2026
               </div>
+              <p className="text-xl opacity-80 mb-8">
+                Limited to 10 students
+              </p>
+              <button
+                onClick={() => setShowForm(true)}
+                className="bg-white text-forge-dark px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-colors"
+              >
+                Secure Your Spot
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
 
-              <div className="space-y-8">
-                <div className="flex items-start space-x-6 group">
-                  <div className="bg-forge-orange rounded-2xl w-12 h-12 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
-                    <span className="text-white font-bold text-lg">1</span>
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-forge-dark mb-3 flex items-center gap-2">
-                      Apply & Get Accepted
-                      <BookOpen
-                        size={20}
-                        className="text-forge-orange opacity-60"
-                      />
-                    </h3>
-                    <p className="text-forge-gray leading-relaxed">
-                      Submit your application and go through our selection
-                      process designed to identify high-potential candidates.
-                    </p>
+      {/* Features */}
+      <section className="py-20 px-6 bg-forge-cream/20">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl lg:text-5xl font-bold text-forge-dark text-center mb-16">
+            Why Forge College?
+          </h2>
+          
+          <div className="grid lg:grid-cols-3 gap-12">
+            {features.map((feature, index) => (
+              <div key={index} className="text-center group">
+                <div className="w-16 h-16 bg-forge-orange rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
+                  <div className="text-white">
+                    {feature.icon}
                   </div>
                 </div>
-                <div className="flex items-start space-x-6 group">
-                  <div className="bg-forge-orange rounded-2xl w-12 h-12 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
-                    <span className="text-white font-bold text-lg">2</span>
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-forge-dark mb-3 flex items-center gap-2">
-                      Earn While Learning
-                      <Flame
-                        size={20}
-                        className="text-forge-orange opacity-60"
-                      />
-                    </h3>
-                    <p className="text-forge-gray leading-relaxed">
-                      Start your 6-month journey, receiving monthly payments
-                      while mastering Web3 development on real projects.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-6 group">
-                  <div className="bg-forge-orange rounded-2xl w-12 h-12 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
-                    <span className="text-white font-bold text-lg">3</span>
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-forge-dark mb-3 flex items-center gap-2">
-                      Land Your Dream Job
-                      <Blocks
-                        size={20}
-                        className="text-forge-orange opacity-60"
-                      />
-                    </h3>
-                    <p className="text-forge-gray leading-relaxed">
-                      Graduate with a strong portfolio and get connected to our
-                      network of hiring partners actively seeking talent.
-                    </p>
-                  </div>
-                </div>
+                <h3 className="text-2xl font-bold text-forge-dark mb-4">
+                  {feature.title}
+                </h3>
+                <p className="text-lg text-forge-gray leading-relaxed">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Process */}
+      <section className="py-32 px-6">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-5xl lg:text-6xl font-bold text-forge-dark text-center mb-20">
+            Your Path to Web3
+          </h2>
+          
+          <div className="space-y-16">
+            <div className="flex items-start gap-8 group">
+              <div className="w-12 h-12 bg-forge-orange rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-lg group-hover:scale-110 transition-transform">
+                1
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-forge-dark mb-3">
+                  Apply & Get Accepted
+                </h3>
+                <p className="text-lg text-forge-gray leading-relaxed">
+                  Submit your application and complete our selection process. We look for motivation and potential, not just experience.
+                </p>
               </div>
             </div>
-            <div className="bg-white rounded-3xl p-10 shadow-lg border border-forge-cream relative overflow-hidden">
-              {/* Decorative elements */}
-              <div className="absolute top-4 right-4 opacity-10"></div>
-
-              <div className="text-center relative z-10">
-                <div className="flex items-center justify-center gap-2 mb-4">
-                  <Flame size={24} className="text-forge-orange" />
-                  <h3 className="text-3xl font-bold text-forge-dark">
-                    Next Cohort Starts
-                  </h3>
-                </div>
-                <p className="text-5xl font-bold text-forge-orange mb-3">
-                  April 2026
+            
+            <div className="flex items-start gap-8 group">
+              <div className="w-12 h-12 bg-forge-orange rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-lg group-hover:scale-110 transition-transform">
+                2
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-forge-dark mb-3">
+                  Learn & Earn
+                </h3>
+                <p className="text-lg text-forge-gray leading-relaxed">
+                  Spend 6 months learning Web3 development while receiving $6,000 USDC monthly. Work on real projects from day one.
                 </p>
-                <p className="text-lg text-forge-gray mb-8">
-                  Limited to 10 students
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-8 group">
+              <div className="w-12 h-12 bg-forge-orange rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-lg group-hover:scale-110 transition-transform">
+                3
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-forge-dark mb-3">
+                  Land Your Dream Job
+                </h3>
+                <p className="text-lg text-forge-gray leading-relaxed">
+                  Graduate with a portfolio of real projects and get connected to our network of Web3 companies actively hiring.
                 </p>
-                <div className="bg-forge-cream/50 rounded-2xl p-6 mb-8 relative">
-                  <div className="absolute top-2 right-2 opacity-20">
-                    <Blocks size={20} className="text-forge-orange" />
-                  </div>
-                  <p className="text-sm font-medium text-forge-gray uppercase tracking-wide mb-2">
-                    Monthly Payment During Program
-                  </p>
-                  <p className="text-4xl font-bold text-forge-dark">
-                    up to $6,000 USDC
-                  </p>
-                </div>
-                <button
-                  onClick={() => setShowForm(true)}
-                  className="w-full bg-forge-dark text-white px-8 py-4 rounded-2xl font-semibold hover:bg-forge-dark/90 transition-all duration-200 transform hover:scale-[1.02] relative group overflow-hidden"
-                >
-                  <span className="relative z-10">Secure Your Spot</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-forge-dark to-forge-orange opacity-0 group-hover:opacity-20 transition-opacity duration-200"></div>
-                </button>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <FAQ faqs={faqs} />
+      {/* Final CTA */}
+      <section className="py-32 px-6 bg-forge-dark text-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-5xl lg:text-6xl font-bold mb-8 leading-tight">
+            Ready to forge
+            <br />
+            your future?
+          </h2>
+          <p className="text-xl opacity-80 mb-12 leading-relaxed">
+            Join the next generation of Web3 developers. 
+            <br />
+            Apply now for the April 2026 cohort.
+          </p>
+          
+          <button
+            onClick={() => setShowForm(true)}
+            className="inline-flex items-center gap-3 bg-forge-orange text-white px-12 py-6 rounded-full text-xl font-bold hover:bg-forge-orange/90 transition-all duration-200 group"
+          >
+            Apply Now
+            <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+          </button>
+          
+          <div className="mt-8 text-sm opacity-60">
+            No upfront cost • Pay only when you get hired
+          </div>
+        </div>
+      </section>
 
       <ApplicationForm
         isOpen={showForm}
