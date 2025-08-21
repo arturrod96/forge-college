@@ -151,13 +151,13 @@ contract ForgePartnership {
             Hire Web3 Talent
             <br />
             <span className="inline-flex items-center">
+              Who Are Ready.
               <motion.div
                 animate={{ rotate: [0, 10, -10, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               >
                 <Trophy className="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28 text-forge-orange mx-4" />
               </motion.div>
-              That's Ready.
             </span>
           </motion.h1>
           
