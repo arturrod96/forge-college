@@ -1,414 +1,480 @@
 import { useState } from "react";
-import { Flame, BookOpen, Blocks, Layers } from "lucide-react";
-import Hero from "../components/Hero";
-import FeatureCard from "../components/FeatureCard";
-import FAQ from "../components/FAQ";
+import { ArrowRight, Users, Zap, Target, Briefcase, CheckCircle, Building, Code, Trophy } from "lucide-react";
+import { motion } from "framer-motion";
 import ApplicationForm from "../components/ApplicationForm";
-import { designTokens } from "@/lib/design-system";
+import { Reveal } from "../components/animations/Reveal";
+import { MagneticButton } from "../components/animations/MagneticButton";
+import { Marquee } from "../components/animations/Marquee";
+import { StickyStory } from "../components/animations/StickyStory";
+import { AnimatedBackground } from "../components/animations/AnimatedBackground";
 
 const Companies = () => {
   const [showForm, setShowForm] = useState(false);
 
-  const features = [
-    {
-      icon: "🎯",
-      title: "Qualified Talent Pool",
-      description:
-        "Access developers who have completed real Web3 projects and proven their skills through hands-on experience.",
-    },
-    {
-      icon: "⚡",
-      title: "Fast Hiring Process",
-      description:
-        "Streamlined recruitment with pre-vetted candidates who are ready to contribute from day one.",
-    },
-    {
-      icon: "💼",
-      title: "Project-Based Vetting",
-      description:
-        "Our graduates have worked on actual Web3 projects, giving you confidence in their practical abilities.",
-    },
-    {
-      icon: "🤝",
-      title: "Ongoing Partnership",
-      description:
-        "Build long-term relationships with our institution and get priority access to top graduates.",
-    },
+  const stats = [
+    { value: "95%", label: "Job Placement Rate", suffix: "", icon: <Target className="w-8 h-8" /> },
+    { value: "6", label: "Month Training", suffix: "mo", icon: <Briefcase className="w-8 h-8" /> },
+    { value: "Real", label: "Project Experience", suffix: "", icon: <Code className="w-8 h-8" /> },
   ];
 
-  const faqs = [
+  const features = [
     {
-      question: "How are students vetted before joining the program?",
-      answer:
-        "We have a rigorous selection process including technical assessments, portfolio reviews, and interviews to ensure only committed, high-potential candidates enter our program.",
+      icon: <Target className="w-6 h-6" />,
+      title: "Qualified Talent Pool",
+      description: "Access developers who have completed real Web3 projects and proven their skills through hands-on experience",
+      highlight: "Pre-vetted"
     },
     {
-      question: "What skill level can we expect from graduates?",
-      answer:
-        "Our graduates complete 6 months of intensive training with real Web3 projects, equivalent to 1-2 years of practical experience in blockchain development.",
+      icon: <Zap className="w-6 h-6" />,
+      title: "Fast Hiring Process",
+      description: "Streamlined recruitment with candidates who are ready to contribute from day one",
+      highlight: "Day 1 Ready"
     },
     {
-      question: "How does the hiring process work?",
-      answer:
-        "We provide you with profiles of graduating students, facilitate interviews, and support the hiring process. You get first access to top performers.",
+      icon: <Code className="w-6 h-6" />,
+      title: "Project-Based Vetting",
+      description: "Our graduates have worked on actual Web3 projects, giving you confidence in their practical abilities",
+      highlight: "Proven Skills"
+    }
+  ];
+
+  const partnershipTiers = [
+    {
+      tier: "Project Partner",
+      highlight: "Start Here",
+      features: ["2-3 project submissions per cohort", "Access to student portfolios", "Hiring pipeline access"],
+      cta: "Join as Partner"
     },
     {
-      question: "Can we sponsor specific students during the program?",
-      answer:
-        "Yes, we offer sponsorship opportunities where companies can support students during their learning journey and get priority hiring rights.",
+      tier: "Curriculum Sponsor",
+      highlight: "Most Popular",
+      features: ["Curriculum influence", "Sponsor 3-5 students", "Dedicated hiring events", "Brand partnership benefits"],
+      cta: "Become Sponsor",
+      featured: true
     },
     {
-      question: "What technologies do graduates specialize in?",
-      answer:
-        "Our curriculum covers Solidity, Web3.js, React, DeFi protocols, NFTs, DAOs, and popular blockchain frameworks used in modern Web3 development.",
+      tier: "Ecosystem Partner",
+      highlight: "Full Access",
+      features: ["Full curriculum partnership", "Sponsor entire cohort track", "Exclusive hiring window", "Advisory board seat"],
+      cta: "Join Ecosystem"
+    }
+  ];
+
+  const companies = [
+    "Uniswap", "Chainlink", "Polygon", "Solana", "Ethereum Foundation", 
+    "ConsenSys", "Compound", "Aave", "OpenSea", "Metamask"
+  ];
+
+  const testimonials = [
+    { quote: "\"Hired 3 developers from Forge College. Best hiring decision we made this year.\"", author: "Sarah Kim, CTO at DeFi Protocol" },
+    { quote: "\"The candidates came with real project experience. No training period needed.\"", author: "Marcus Chen, Engineering Lead at Web3 Startup" },
+    { quote: "\"Forge College graduates understand the Web3 ecosystem better than traditional bootcamp grads.\"", author: "Elena Rodriguez, VP Engineering at NFT Platform" }
+  ];
+
+  const codeBlock = `// Partnership Integration Example
+contract ForgePartnership {
+  // Company partnership details
+  struct Partner {
+    address company;
+    uint256 sponsoredStudents;
+    bytes32[] projectIds;
+    bool exclusiveHiring;
+  }
+  
+  // Student project assignments
+  mapping(address => bytes32[]) studentProjects;
+  
+  // Partnership benefits and ROI
+  function sponsorStudent(address student) public {
+    // Fund student salary during learning
+    // Assign real company projects
+    // Track performance metrics
+  }
+  
+  function hireGraduate(address student) public {
+    // Validate project completion
+    // Execute hiring agreement
+    // Activate partnership benefits
+  }
+  
+  // Partnership ROI calculation
+  function calculateROI() public view returns (uint256) {
+    // Hiring success rate
+    // Time to productivity
+    // Cost savings vs traditional recruiting
+  }
+}`;
+
+  const storySteps = [
+    {
+      title: "Real Project Experience",
+      description: "Our students work on actual company projects during their 6-month program. This means they understand your business challenges and have proven their ability to deliver.",
+      highlight: "Business Ready"
     },
+    {
+      title: "Reduced Hiring Risk",
+      description: "Skip the uncertainty of traditional hiring. Our graduates have portfolios of completed projects and verified skills from working with real companies.",
+      highlight: "Zero Risk"
+    },
+    {
+      title: "Faster Time to Value",
+      description: "Candidates hit the ground running from day one. No lengthy onboarding or training periods. They understand Web3 development and your business needs.",
+      highlight: "Immediate Impact"
+    }
   ];
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-forge-orange/5 rounded-full blur-3xl"></div>
-        <div className="absolute top-60 right-20 w-48 h-48 bg-forge-cream/80 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-40 left-1/4 w-40 h-40 bg-forge-orange/10 rounded-full blur-2xl"></div>
-      </div>
-
-      {/* Custom hero section for companies */}
-      <section className="relative py-24 lg:py-32 bg-gradient-to-br from-forge-cream to-forge-cream/50">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Left side - Content */}
-            <div className="text-left relative">
-              {/* Decorative flame icon */}
-              <div className="absolute -top-8 -left-4 opacity-10">
-                <Flame size={80} className="text-forge-orange" />
-              </div>
-
-              <div className="flex items-center gap-3 mb-6">
-                <div className="flex items-center gap-2 bg-forge-orange/10 px-4 py-2 rounded-full">
-                  <Flame size={20} className="text-forge-orange" />
-                  <span className="text-sm font-semibold text-forge-orange">
-                    Partner with Excellence
-                  </span>
-                </div>
-              </div>
-
-              <h1 className="text-5xl lg:text-7xl font-bold text-forge-dark mb-8 leading-[1.1] tracking-tight">
-                Hire Web3 Talent That's Ready to Build
-              </h1>
-              <p className="text-xl lg:text-2xl text-forge-gray mb-6 font-medium">
-                Access skilled developers from our intensive 6-month program
-              </p>
-              <p className="text-lg text-forge-gray/80 mb-12 leading-relaxed">
-                Partner with Forge College to hire developers who have proven
-                their skills on real Web3 projects. Our graduates are job-ready
-                from day one.
-              </p>
-
-              {/* Feature highlights */}
-              <div className="flex items-center gap-6 mb-8">
-                <div className="flex items-center gap-2">
-                  <BookOpen size={20} className="text-forge-orange" />
-                  <span className="text-sm text-forge-gray">
-                    Pre-vetted Talent
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Blocks size={20} className="text-forge-orange" />
-                  <span className="text-sm text-forge-gray">
-                    Project Experience
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Layers size={20} className="text-forge-orange" />
-                  <span className="text-sm text-forge-gray">
-                    Web3 Specialists
-                  </span>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setShowForm(true)}
-                className="bg-forge-orange text-white px-8 py-4 rounded-2xl text-lg font-semibold hover:bg-forge-orange-light transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl relative group overflow-hidden"
+    <div className="min-h-screen bg-forge-cream overflow-x-hidden">
+      {/* Hero Section */}
+      <section className="relative min-h-[90vh] flex items-center justify-center pt-20 pb-10 px-6">
+        <AnimatedBackground variant="hero" />
+        
+        <div className="max-w-6xl mx-auto text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="mb-8"
+          >
+            <span className="inline-flex items-center gap-2 text-forge-gray text-lg font-medium bg-white/50 px-4 py-2 rounded-full backdrop-blur-sm border border-forge-orange/20">
+              <Building className="w-5 h-5 text-forge-orange" />
+              Partner with Excellence
+            </span>
+          </motion.div>
+          
+          <motion.h1
+            initial={{ opacity: 0, y: 30, filter: "blur(8px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-forge-dark mb-8 leading-[0.9] tracking-tight"
+          >
+            Hire Web3 Talent
+            <br />
+            <span className="inline-flex items-center">
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               >
-                <span className="relative z-10">Partner With Us</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-forge-orange to-forge-orange-light opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-              </button>
-            </div>
-
-            {/* Right side - Image with standardized three-layer pattern */}
-            <div className="relative">
-              <div className="relative">
-                {/* Outer dark green container */}
-                <div className={designTokens.patterns.heroImage.outerContainer}>
-                  {/* Grid pattern background */}
-                  <div className={designTokens.patterns.heroImage.gridPattern}>
-                    <div className="grid grid-cols-8 grid-rows-8 h-full w-full">
-                      {Array.from({ length: 64 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className="border border-forge-cream/20"
-                        ></div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Grey intermediate layer */}
-                  <div
-                    className={designTokens.patterns.heroImage.greyLayer}
-                    style={{
-                      backgroundColor: designTokens.colors.forge.greyLayer,
-                      padding: designTokens.patterns.heroImage.greyLayerPadding,
-                    }}
-                  >
-                    <img
-                      src="https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/screenshot-2025-06-18-at-22.06.01-7c933a?format=webp&width=800"
-                      alt="Partnership and collaboration illustration"
-                      className={designTokens.patterns.heroImage.imageSize}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute -top-4 -right-4 bg-forge-orange text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg flex items-center gap-2">
-                <Flame size={16} />
-                Ready to Deploy
-              </div>
-
-              {/* Floating elements */}
-              <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl p-4 shadow-lg border border-forge-cream">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm font-medium text-forge-dark">
-                    Job Ready
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+                <Trophy className="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28 text-forge-orange mx-4" />
+              </motion.div>
+              That's Ready.
+            </span>
+          </motion.h1>
+          
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            className="text-xl lg:text-2xl text-forge-gray max-w-4xl mx-auto mb-12 leading-relaxed"
+          >
+            Access skilled developers from our intensive 6-month program.
+            <br className="hidden md:block" />
+            Pre-vetted, project-tested, and ready to build from day one.
+          </motion.p>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.6 }}
+          >
+            <MagneticButton
+              onClick={() => setShowForm(true)}
+              className="inline-flex items-center gap-3 bg-forge-orange text-white px-8 py-4 rounded-full text-lg font-semibold shadow-xl border-2 border-forge-orange hover:border-forge-orange-light transition-all duration-200"
+            >
+              Partner With Us
+              <ArrowRight className="w-5 h-5" />
+            </MagneticButton>
+          </motion.div>
         </div>
       </section>
 
-      {/* Features section */}
-      <section className="py-20 bg-white relative">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-20 relative">
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-8">
-              <div className="flex items-center gap-2 opacity-20"></div>
-            </div>
-
-            <h2 className="text-4xl lg:text-5xl font-bold text-forge-dark mb-6 tracking-tight">
-              Why Partner with Forge College?
-            </h2>
-            <p className="text-xl text-forge-gray max-w-3xl mx-auto">
-              Transform your hiring strategy by investing in talent development
-              while solving real business challenges.
+      {/* Company Marquee */}
+      <section className="py-12 bg-white/50 backdrop-blur-sm border-y border-forge-orange/10">
+        <div className="max-w-7xl mx-auto px-6">
+          <Reveal>
+            <p className="text-center text-forge-gray font-medium mb-8">
+              Join companies already building the future workforce
             </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <FeatureCard
-                key={index}
-                icon={feature.icon}
-                title={feature.title}
-                description={feature.description}
-              />
+          </Reveal>
+          <Marquee className="text-2xl font-bold text-forge-dark/60">
+            {companies.map((company, i) => (
+              <span key={i} className="mx-8 hover:text-forge-orange transition-colors">
+                {company}
+              </span>
             ))}
-          </div>
+          </Marquee>
         </div>
       </section>
 
-      {/* Process section */}
-      <section className="py-20 bg-forge-cream/30 relative">
-        {/* Background pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="grid grid-cols-16 grid-rows-16 h-full w-full">
-            {Array.from({ length: 256 }).map((_, i) => (
-              <div key={i} className="border border-forge-orange/10"></div>
-            ))}
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 relative">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <div className="flex items-center gap-3 mb-8">
-                <Blocks size={32} className="text-forge-orange" />
-                <h2 className="text-4xl lg:text-5xl font-bold text-forge-dark tracking-tight">
-                  Partnership Tiers
-                </h2>
-              </div>
-
-              <div className="space-y-6">
-                <div className="bg-white rounded-3xl p-8 shadow-sm border border-forge-cream relative overflow-hidden group hover:shadow-lg transition-all duration-200">
-                  <div className="absolute top-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <BookOpen size={32} className="text-forge-orange" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-forge-dark mb-3">
-                    Project Partner
-                  </h3>
-                  <p className="text-forge-gray mb-6 leading-relaxed">
-                    Submit projects for students to work on and get early access
-                    to hiring pipeline.
-                  </p>
-                  <ul className="text-forge-gray space-y-2">
-                    <li>• 2-3 project submissions per cohort</li>
-                    <li>• Access to student portfolios</li>
-                    <li>• Hiring pipeline access</li>
-                  </ul>
-                </div>
-                <div className="bg-white rounded-3xl p-8 shadow-sm border-2 border-forge-orange/30 relative overflow-hidden group hover:shadow-lg transition-all duration-200">
-                  <div className="absolute top-4 right-4 opacity-20 group-hover:opacity-30 transition-opacity">
-                    <Flame size={32} className="text-forge-orange" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-forge-orange mb-3">
-                    Curriculum Sponsor
-                  </h3>
-                  <p className="text-forge-gray mb-6 leading-relaxed">
-                    Co-design curriculum modules and sponsor student salaries
-                    while they work on your projects.
-                  </p>
-                  <ul className="text-forge-gray space-y-2">
-                    <li>• Curriculum influence</li>
-                    <li>• Sponsor 3-5 students</li>
-                    <li>• Dedicated hiring events</li>
-                    <li>• Brand partnership benefits</li>
-                  </ul>
-                </div>
-                <div className="bg-white rounded-3xl p-8 shadow-sm border border-forge-cream relative overflow-hidden group hover:shadow-lg transition-all duration-200">
-                  <div className="absolute top-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <Layers size={32} className="text-forge-orange" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-forge-dark mb-3">
-                    Ecosystem Partner
-                  </h3>
-                  <p className="text-forge-gray mb-6 leading-relaxed">
-                    Comprehensive partnership including curriculum design,
-                    student sponsorship, and exclusive hiring rights.
-                  </p>
-                  <ul className="text-forge-gray space-y-2">
-                    <li>• Full curriculum partnership</li>
-                    <li>• Sponsor entire cohort track</li>
-                    <li>• Exclusive hiring window</li>
-                    <li>• Advisory board seat</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white rounded-3xl p-10 shadow-lg border border-forge-cream relative overflow-hidden">
-              {/* Decorative elements */}
-              <div className="absolute top-4 right-4 opacity-5">
-                <div className="grid grid-cols-4 grid-rows-4 gap-2">
-                  {Array.from({ length: 16 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="w-2 h-2 bg-forge-orange rounded-full"
-                    ></div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-8">
-                  <Flame size={28} className="text-forge-orange" />
-                  <h3 className="text-3xl font-bold text-forge-dark">
-                    Partnership Benefits
-                  </h3>
-                </div>
-                <div className="space-y-6">
-                  <div className="flex items-center space-x-4 group">
-                    <div className="bg-forge-orange/10 rounded-2xl w-10 h-10 flex items-center justify-center group-hover:bg-forge-orange/20 transition-colors">
-                      <span className="text-forge-orange font-bold text-lg">
-                        ✓
-                      </span>
-                    </div>
-                    <span className="text-forge-gray">
-                      Direct access to top 5% Web3 talent
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-4 group">
-                    <div className="bg-forge-orange/10 rounded-2xl w-10 h-10 flex items-center justify-center group-hover:bg-forge-orange/20 transition-colors">
-                      <span className="text-forge-orange font-bold text-lg">
-                        ✓
-                      </span>
-                    </div>
-                    <span className="text-forge-gray">
-                      Real project outcomes and IP
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-4 group">
-                    <div className="bg-forge-orange/10 rounded-2xl w-10 h-10 flex items-center justify-center group-hover:bg-forge-orange/20 transition-colors">
-                      <span className="text-forge-orange font-bold text-lg">
-                        ✓
-                      </span>
-                    </div>
-                    <span className="text-forge-gray">
-                      Reduced recruitment costs
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-4 group">
-                    <div className="bg-forge-orange/10 rounded-2xl w-10 h-10 flex items-center justify-center group-hover:bg-forge-orange/20 transition-colors">
-                      <span className="text-forge-orange font-bold text-lg">
-                        ��
-                      </span>
-                    </div>
-                    <span className="text-forge-gray">
-                      Brand exposure to Web3 community
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-4 group">
-                    <div className="bg-forge-orange/10 rounded-2xl w-10 h-10 flex items-center justify-center group-hover:bg-forge-orange/20 transition-colors">
-                      <span className="text-forge-orange font-bold text-lg">
-                        ✓
-                      </span>
-                    </div>
-                    <span className="text-forge-gray">
-                      Advisory role in program development
-                    </span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowForm(true)}
-                  className="w-full bg-forge-dark text-white py-4 rounded-2xl font-semibold hover:bg-forge-dark/90 transition-all duration-200 transform hover:scale-[1.02] mt-8 relative group overflow-hidden"
-                >
-                  <span className="relative z-10">Become a Partner</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-forge-dark to-forge-orange opacity-0 group-hover:opacity-20 transition-opacity duration-200"></div>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Enhanced trusted companies section */}
-      <section className="py-20 bg-forge-dark text-white relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center relative z-10">
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <h2 className="text-4xl lg:text-5xl font-bold tracking-tight">
-              Trusted by Leading Web3 Companies
+      {/* Stats Section */}
+      <section className="py-20 px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <Reveal className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold text-forge-dark mb-6">
+              Hiring Success Metrics
             </h2>
-          </div>
-          <p className="text-xl text-forge-cream/80 mb-16 max-w-3xl mx-auto">
-            Join innovative companies that are already building the future
-            workforce through Forge College partnerships.
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className="bg-white/5 rounded-3xl p-8 h-24 flex items-center justify-center border border-white/10 hover:border-forge-orange/30 transition-colors group"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-semibold">Partner Logo</span>
-                </div>
-              </div>
+            <p className="text-xl text-forge-gray">
+              Real results from companies who partner with us
+            </p>
+          </Reveal>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {stats.map((stat, index) => (
+              <Reveal key={index} delay={index * 0.1}>
+                <motion.div 
+                  className="text-center bg-forge-cream p-8 rounded-3xl border border-forge-orange/20 group hover:border-forge-orange/40 transition-all duration-300"
+                  whileHover={{ y: -5 }}
+                >
+                  <div className="text-forge-orange mb-4 flex justify-center group-hover:scale-110 transition-transform">
+                    {stat.icon}
+                  </div>
+                  <div className="text-5xl lg:text-6xl font-bold text-forge-dark mb-2">
+                    {stat.value}
+                    <span className="text-forge-orange text-2xl lg:text-3xl">
+                      {stat.suffix}
+                    </span>
+                  </div>
+                  <div className="text-lg text-forge-gray font-medium">
+                    {stat.label}
+                  </div>
+                </motion.div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      <FAQ faqs={faqs} />
+      {/* Sticky Story Section */}
+      <StickyStory
+        title="Why Companies Choose Forge College"
+        codeBlock={codeBlock}
+        steps={storySteps}
+      />
+
+      {/* Features Grid */}
+      <section className="py-20 px-6 bg-forge-cream">
+        <div className="max-w-6xl mx-auto">
+          <Reveal className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold text-forge-dark mb-6">
+              Partnership Benefits
+            </h2>
+            <p className="text-xl text-forge-gray">
+              Transform your hiring strategy by investing in talent development
+            </p>
+          </Reveal>
+          
+          <div className="grid lg:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <Reveal key={index} delay={index * 0.1}>
+                <motion.div 
+                  className="bg-white p-8 rounded-3xl border border-forge-orange/20 hover:border-forge-orange/40 transition-all duration-300 group"
+                  whileHover={{ y: -8 }}
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="w-16 h-16 bg-forge-orange rounded-2xl flex items-center justify-center text-white group-hover:scale-110 group-hover:bg-forge-orange-light transition-all duration-200 shadow-lg">
+                      {feature.icon}
+                    </div>
+                    <span className="text-sm font-bold text-forge-orange bg-forge-orange/10 px-3 py-1 rounded-full">
+                      {feature.highlight}
+                    </span>
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold text-forge-dark mb-4">
+                    {feature.title}
+                  </h3>
+                  <p className="text-lg text-forge-gray leading-relaxed">
+                    {feature.description}
+                  </p>
+                </motion.div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Partnership Tiers */}
+      <section className="py-20 px-6 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <Reveal className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold text-forge-dark mb-6">
+              Partnership Tiers
+            </h2>
+            <p className="text-xl text-forge-gray">
+              Choose the partnership level that fits your hiring needs
+            </p>
+          </Reveal>
+          
+          <div className="grid lg:grid-cols-3 gap-8">
+            {partnershipTiers.map((tier, index) => (
+              <Reveal key={index} delay={index * 0.1}>
+                <motion.div 
+                  className={`p-8 rounded-3xl transition-all duration-300 group relative overflow-hidden ${
+                    tier.featured 
+                      ? "bg-forge-dark text-white border-4 border-forge-orange shadow-xl" 
+                      : "bg-forge-cream border border-forge-orange/20 hover:border-forge-orange/40"
+                  }`}
+                  whileHover={{ y: -8, scale: tier.featured ? 1.02 : 1 }}
+                >
+                  {tier.featured && (
+                    <div className="absolute top-4 right-4">
+                      <span className="bg-forge-orange text-white px-3 py-1 rounded-full text-sm font-bold">
+                        {tier.highlight}
+                      </span>
+                    </div>
+                  )}
+                  
+                  <h3 className={`text-2xl font-bold mb-2 ${tier.featured ? "text-forge-cream" : "text-forge-dark"}`}>
+                    {tier.tier}
+                  </h3>
+                  
+                  <div className="mb-6">
+                    <span className={`text-sm font-medium px-3 py-1 rounded-full ${
+                      tier.featured 
+                        ? "bg-forge-orange/20 text-forge-orange" 
+                        : "bg-forge-orange/10 text-forge-orange"
+                    }`}>
+                      {tier.highlight}
+                    </span>
+                  </div>
+                  
+                  <ul className="space-y-3 mb-8">
+                    {tier.features.map((feature, i) => (
+                      <li key={i} className={`flex items-start gap-3 ${tier.featured ? "text-forge-cream/90" : "text-forge-gray"}`}>
+                        <CheckCircle className="w-5 h-5 text-forge-orange flex-shrink-0 mt-0.5" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  
+                  <MagneticButton
+                    onClick={() => setShowForm(true)}
+                    className={`w-full py-3 rounded-full font-semibold transition-all duration-200 ${
+                      tier.featured 
+                        ? "bg-forge-orange text-white border-2 border-forge-orange hover:border-forge-orange-light" 
+                        : "bg-forge-orange text-white border-2 border-forge-orange hover:border-forge-orange-light"
+                    }`}
+                  >
+                    {tier.cta}
+                  </MagneticButton>
+                </motion.div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Marquee */}
+      <section className="py-16 bg-forge-cream">
+        <div className="max-w-7xl mx-auto px-6">
+          <Reveal className="text-center mb-12">
+            <h3 className="text-2xl font-bold text-forge-dark">
+              What Partner Companies Say
+            </h3>
+          </Reveal>
+          <Marquee speed={35} className="text-lg">
+            {testimonials.map((testimonial, i) => (
+              <div key={i} className="mx-8 max-w-lg">
+                <p className="text-forge-gray italic mb-2">{testimonial.quote}</p>
+                <p className="text-forge-dark font-semibold">— {testimonial.author}</p>
+              </div>
+            ))}
+          </Marquee>
+        </div>
+      </section>
+
+      {/* Partnership CTA */}
+      <section className="py-32 px-6 bg-forge-cream relative overflow-hidden">
+        <AnimatedBackground variant="subtle" />
+        
+        <div className="max-w-5xl mx-auto text-center relative z-10">
+          <Reveal>
+            <h2 className="text-5xl lg:text-6xl font-bold text-forge-dark mb-6 leading-tight">
+              Ready to hire 
+              <br />
+              the best Web3 talent?
+            </h2>
+          </Reveal>
+          
+          <Reveal delay={0.2}>
+            <p className="text-xl text-forge-gray max-w-3xl mx-auto mb-16 leading-relaxed">
+              Join leading Web3 companies who are building their teams 
+              through Forge College partnerships.
+            </p>
+          </Reveal>
+          
+          <Reveal delay={0.4}>
+            <motion.div 
+              className="bg-forge-dark rounded-3xl p-12 text-white relative overflow-hidden border-4 border-forge-orange"
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <AnimatedBackground variant="dark" />
+              
+              <div className="relative z-10">
+                <motion.div
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="inline-flex items-center gap-2 text-forge-orange mb-6"
+                >
+                  <Users className="w-6 h-6" />
+                  <span className="font-medium">Next Hiring Cycle</span>
+                </motion.div>
+                
+                <h3 className="text-4xl font-bold mb-6 text-forge-cream">April 2026</h3>
+                <p className="text-xl text-forge-cream/80 mb-8">
+                  10 graduating developers ready for placement
+                </p>
+                
+                <MagneticButton
+                  onClick={() => setShowForm(true)}
+                  className="bg-forge-orange text-white px-12 py-4 rounded-full font-semibold shadow-xl border-2 border-forge-orange hover:border-forge-orange-light transition-all duration-200"
+                >
+                  Become a Partner
+                </MagneticButton>
+              </div>
+            </motion.div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-32 px-6 bg-forge-dark text-white relative overflow-hidden">
+        <AnimatedBackground variant="dark" />
+        
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <Reveal>
+            <h2 className="text-5xl lg:text-6xl font-bold mb-8 leading-tight text-forge-cream">
+              Let's build the future
+              <br />
+              of Web3 together.
+            </h2>
+          </Reveal>
+          
+          <Reveal delay={0.2}>
+            <p className="text-xl text-forge-cream/80 mb-12 leading-relaxed">
+              Partner with Forge College and get first access 
+              <br />
+              to the most skilled Web3 developers.
+            </p>
+          </Reveal>
+          
+          <Reveal delay={0.4}>
+            <MagneticButton
+              onClick={() => setShowForm(true)}
+              className="inline-flex items-center gap-3 bg-forge-orange text-white px-12 py-6 rounded-full text-xl font-bold shadow-xl border-2 border-forge-orange hover:border-forge-orange-light transition-all duration-200"
+            >
+              Start Partnership
+              <ArrowRight className="w-6 h-6" />
+            </MagneticButton>
+          </Reveal>
+          
+          <Reveal delay={0.6}>
+            <div className="mt-8 text-sm text-forge-cream/60">
+              Pre-vetted talent • Real project experience • Immediate impact
+            </div>
+          </Reveal>
+        </div>
+      </section>
 
       <ApplicationForm
         isOpen={showForm}
