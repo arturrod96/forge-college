@@ -29,37 +29,43 @@ const Navbar = () => {
   const navItems = user ? dashboardNavItems : landingPageNavItems;
 
   return (
-    <nav className="bg-forge-cream/90 backdrop-blur-xl border-b border-forge-cream sticky top-0 z-50">
+    <nav className="bg-white/80 backdrop-blur-lg border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <Link to="/" className="flex items-center space-x-3">
             <img
               src="https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/forgecollege-2c35f0?format=webp&width=800"
               alt="Forge College"
-              className="h-12 w-auto max-h-16"
-              style={{ minWidth: "90px" }}
+              className="h-8 w-auto"
+              style={{ minWidth: "80px" }}
             />
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-1">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   location.pathname === item.path
-                    ? "bg-forge-dark text-white shadow-sm"
-                    : "text-forge-dark hover:bg-forge-orange hover:text-white"
+                    ? "bg-gray-100 text-forge-dark"
+                    : "text-forge-gray hover:text-forge-dark hover:bg-gray-50"
                 }`}
               >
                 {item.label}
               </Link>
             ))}
+          </div>
+
+          <div className="hidden md:flex items-center">
             {user ? (
               <ProfileDropdown />
             ) : (
-              <Link to="/login" className="px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 bg-forge-orange text-white">
+              <Link 
+                to="/login" 
+                className="bg-forge-dark text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-forge-dark/90 transition-colors"
+              >
                 Login
               </Link>
             )}
@@ -78,30 +84,30 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden border-t border-forge-cream py-6 bg-forge-cream/95 backdrop-blur-xl">
+          <div className="md:hidden border-t border-gray-100 py-6 bg-white/95 backdrop-blur-lg">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
                 onClick={() => setIsOpen(false)}
-                className={`block py-3 px-4 mx-2 mb-2 rounded-full text-base font-medium transition-colors ${
+                className={`block py-3 px-4 mx-2 mb-2 rounded-lg text-base font-medium transition-colors ${
                   location.pathname === item.path
-                    ? "bg-forge-dark text-white shadow-sm"
-                    : "text-forge-dark hover:bg-forge-orange hover:text-white"
+                    ? "bg-gray-100 text-forge-dark"
+                    : "text-forge-gray hover:text-forge-dark hover:bg-gray-50"
                 }`}
               >
                 {item.label}
               </Link>
             ))}
             {user ? (
-              <div className="pt-4 border-t border-gray-200">
+              <div className="pt-4 border-t border-gray-100 mt-4">
                 <ProfileDropdown />
               </div>
             ) : (
               <Link
                 to="/login"
                 onClick={() => setIsOpen(false)}
-                className="block text-center w-full py-3 px-4 mt-4 rounded-full text-base font-medium transition-all duration-200 bg-forge-orange text-white"
+                className="block text-center w-full py-3 px-4 mt-4 rounded-full text-base font-medium bg-forge-dark text-white hover:bg-forge-dark/90 transition-colors"
               >
                 Login
               </Link>
