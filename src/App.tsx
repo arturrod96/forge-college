@@ -1,4 +1,5 @@
 import { AuthProvider } from './hooks/useAuth';
+import { useSmoothScroll } from './hooks/useSmoothScroll';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -23,6 +24,8 @@ import RequireAuth from '@/routes/RequireAuth';
 import * as R from '@/routes/paths';
 
 const App = () => {
+  useSmoothScroll();
+
   return (
     <TooltipProvider>
       <Toaster />
