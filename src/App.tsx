@@ -24,6 +24,8 @@ import RequireAuth from '@/routes/RequireAuth';
 import * as R from '@/routes/paths';
 
 const App = () => {
+  useSmoothScroll();
+
   return (
     <TooltipProvider>
       <Toaster />
