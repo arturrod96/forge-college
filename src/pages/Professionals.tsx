@@ -30,9 +30,9 @@ const Professionals = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-forge-cream">
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6">
+      <section className="pt-32 pb-20 px-6 bg-forge-cream">
         <div className="max-w-5xl mx-auto text-center">
           <div className="mb-8">
             <span className="text-forge-gray text-lg font-medium">
@@ -51,7 +51,7 @@ const Professionals = () => {
           
           <button
             onClick={() => setShowForm(true)}
-            className="inline-flex items-center gap-3 bg-forge-orange text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-forge-orange/90 transition-all duration-200 group"
+            className="inline-flex items-center gap-3 bg-forge-orange text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-forge-orange-light transition-all duration-200 group shadow-lg"
           >
             Apply to Next Cohort
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -60,11 +60,11 @@ const Professionals = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 px-6 bg-forge-cream/30">
+      <section className="py-20 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-3 gap-12 text-center">
             {stats.map((stat, index) => (
-              <div key={index} className="space-y-3">
+              <div key={index} className="space-y-3 bg-forge-cream p-8 rounded-3xl border border-forge-orange/10">
                 <div className="text-5xl lg:text-6xl font-bold text-forge-dark">
                   {stat.value}
                   <span className="text-forge-orange text-2xl lg:text-3xl">
@@ -81,7 +81,7 @@ const Professionals = () => {
       </section>
 
       {/* How it Works */}
-      <section className="py-32 px-6">
+      <section className="py-32 px-6 bg-forge-cream">
         <div className="max-w-5xl mx-auto text-center">
           <h2 className="text-5xl lg:text-6xl font-bold text-forge-dark mb-6 leading-tight">
             No upfront cost.
@@ -93,19 +93,19 @@ const Professionals = () => {
             We only succeed when you do.
           </p>
           
-          <div className="bg-forge-dark rounded-3xl p-12 text-white relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-forge-orange/10 rounded-full blur-3xl"></div>
+          <div className="bg-forge-dark rounded-3xl p-12 text-white relative overflow-hidden border-4 border-forge-orange">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-forge-orange/20 rounded-full blur-3xl"></div>
             <div className="relative z-10">
-              <h3 className="text-3xl font-bold mb-6">Next Cohort Starts</h3>
+              <h3 className="text-3xl font-bold mb-6 text-forge-cream">Next Cohort Starts</h3>
               <div className="text-6xl font-bold text-forge-orange mb-4">
                 April 2026
               </div>
-              <p className="text-xl opacity-80 mb-8">
+              <p className="text-xl text-forge-cream/80 mb-8">
                 Limited to 10 students
               </p>
               <button
                 onClick={() => setShowForm(true)}
-                className="bg-white text-forge-dark px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-colors"
+                className="bg-forge-orange text-white px-8 py-4 rounded-full font-semibold hover:bg-forge-orange-light transition-colors shadow-lg"
               >
                 Secure Your Spot
               </button>
@@ -115,7 +115,7 @@ const Professionals = () => {
       </section>
 
       {/* Features */}
-      <section className="py-20 px-6 bg-forge-cream/20">
+      <section className="py-20 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl lg:text-5xl font-bold text-forge-dark text-center mb-16">
             Why Forge College?
@@ -123,8 +123,8 @@ const Professionals = () => {
           
           <div className="grid lg:grid-cols-3 gap-12">
             {features.map((feature, index) => (
-              <div key={index} className="text-center group">
-                <div className="w-16 h-16 bg-forge-orange rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
+              <div key={index} className="text-center group bg-forge-cream p-8 rounded-3xl border border-forge-orange/20 hover:border-forge-orange/40 transition-all duration-200">
+                <div className="w-16 h-16 bg-forge-orange rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-forge-orange-light transition-all duration-200 shadow-lg">
                   <div className="text-white">
                     {feature.icon}
                   </div>
@@ -142,15 +142,15 @@ const Professionals = () => {
       </section>
 
       {/* Process */}
-      <section className="py-32 px-6">
+      <section className="py-32 px-6 bg-forge-cream">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-5xl lg:text-6xl font-bold text-forge-dark text-center mb-20">
             Your Path to Web3
           </h2>
           
           <div className="space-y-16">
-            <div className="flex items-start gap-8 group">
-              <div className="w-12 h-12 bg-forge-orange rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-lg group-hover:scale-110 transition-transform">
+            <div className="flex items-start gap-8 group bg-white p-8 rounded-3xl border border-forge-orange/20 hover:border-forge-orange/40 transition-all duration-200">
+              <div className="w-12 h-12 bg-forge-orange rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-lg group-hover:scale-110 group-hover:bg-forge-orange-light transition-all duration-200 shadow-lg">
                 1
               </div>
               <div>
@@ -163,8 +163,8 @@ const Professionals = () => {
               </div>
             </div>
             
-            <div className="flex items-start gap-8 group">
-              <div className="w-12 h-12 bg-forge-orange rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-lg group-hover:scale-110 transition-transform">
+            <div className="flex items-start gap-8 group bg-white p-8 rounded-3xl border border-forge-orange/20 hover:border-forge-orange/40 transition-all duration-200">
+              <div className="w-12 h-12 bg-forge-orange rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-lg group-hover:scale-110 group-hover:bg-forge-orange-light transition-all duration-200 shadow-lg">
                 2
               </div>
               <div>
@@ -177,8 +177,8 @@ const Professionals = () => {
               </div>
             </div>
             
-            <div className="flex items-start gap-8 group">
-              <div className="w-12 h-12 bg-forge-orange rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-lg group-hover:scale-110 transition-transform">
+            <div className="flex items-start gap-8 group bg-white p-8 rounded-3xl border border-forge-orange/20 hover:border-forge-orange/40 transition-all duration-200">
+              <div className="w-12 h-12 bg-forge-orange rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-lg group-hover:scale-110 group-hover:bg-forge-orange-light transition-all duration-200 shadow-lg">
                 3
               </div>
               <div>
@@ -195,14 +195,18 @@ const Professionals = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="py-32 px-6 bg-forge-dark text-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-5xl lg:text-6xl font-bold mb-8 leading-tight">
+      <section className="py-32 px-6 bg-forge-dark text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-forge-dark via-forge-dark to-forge-dark/80"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-forge-orange/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-forge-orange/5 rounded-full blur-3xl"></div>
+        
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <h2 className="text-5xl lg:text-6xl font-bold mb-8 leading-tight text-forge-cream">
             Ready to forge
             <br />
             your future?
           </h2>
-          <p className="text-xl opacity-80 mb-12 leading-relaxed">
+          <p className="text-xl text-forge-cream/80 mb-12 leading-relaxed">
             Join the next generation of Web3 developers. 
             <br />
             Apply now for the April 2026 cohort.
@@ -210,13 +214,13 @@ const Professionals = () => {
           
           <button
             onClick={() => setShowForm(true)}
-            className="inline-flex items-center gap-3 bg-forge-orange text-white px-12 py-6 rounded-full text-xl font-bold hover:bg-forge-orange/90 transition-all duration-200 group"
+            className="inline-flex items-center gap-3 bg-forge-orange text-white px-12 py-6 rounded-full text-xl font-bold hover:bg-forge-orange-light transition-all duration-200 group shadow-xl border-2 border-forge-orange hover:border-forge-orange-light"
           >
             Apply Now
             <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
           </button>
           
-          <div className="mt-8 text-sm opacity-60">
+          <div className="mt-8 text-sm text-forge-cream/60">
             No upfront cost • Pay only when you get hired
           </div>
         </div>
