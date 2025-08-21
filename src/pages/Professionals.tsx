@@ -125,7 +125,7 @@ contract ForgeCollege {
               to Learn.
               <motion.div
                 animate={{ rotate: [0, 5, -5, 0] }}
-                transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
+                transition={{ duration: 2.38, repeat: Infinity, ease: "easeInOut" }}
               >
                 <Flame className="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28 text-forge-orange mx-4" />
               </motion.div>
