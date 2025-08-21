@@ -18,6 +18,7 @@ import { AvailablePaths } from './components/dashboard/AvailablePaths';
 import { PublicLayout } from './pages/PublicLayout';
 import DashboardHome from './pages/dashboard/DashboardHome';
 import { MyLearningPaths } from './components/dashboard/MyLearningPaths';
+import Profile from './pages/Profile';
 import RequireAuth from '@/routes/RequireAuth';
 import * as R from '@/routes/paths';
 
@@ -52,6 +53,7 @@ const App = () => {
               <Route index element={<DashboardHome />} />
               <Route path="my-paths" element={<MyLearningPaths />} />
               <Route path="explore" element={<AvailablePaths />} />
+              <Route path="profile" element={<Profile />} />
               <Route path="learn/course/:courseId" element={<CourseView />} />
               <Route path="learn/path/:pathId" element={<PathOverview />} />
             </Route>
