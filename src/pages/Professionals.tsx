@@ -164,7 +164,7 @@ contract ForgeCollege {
         <div className="max-w-7xl mx-auto px-6">
           <Reveal>
             <p className="text-center text-forge-gray font-medium mb-8">
-              Our graduates work at leading Web3 companies
+              Aprenda as habilidades para trabalhar em empresas como:
             </p>
           </Reveal>
           <Marquee className="text-2xl font-bold text-forge-dark/60">
