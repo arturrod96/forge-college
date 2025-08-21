@@ -29,7 +29,7 @@ const Navbar = () => {
   const navItems = user ? dashboardNavItems : landingPageNavItems;
 
   return (
-    <nav className="bg-white/80 backdrop-blur-lg border-b border-gray-100 sticky top-0 z-50">
+    <nav className="bg-forge-cream/95 backdrop-blur-lg border-b border-forge-orange/20 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <Link to="/" className="flex items-center space-x-3">
@@ -49,8 +49,8 @@ const Navbar = () => {
                 to={item.path}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   location.pathname === item.path
-                    ? "bg-gray-100 text-forge-dark"
-                    : "text-forge-gray hover:text-forge-dark hover:bg-gray-50"
+                    ? "bg-forge-orange text-white shadow-sm"
+                    : "text-forge-dark hover:text-white hover:bg-forge-orange/80"
                 }`}
               >
                 {item.label}
@@ -64,7 +64,7 @@ const Navbar = () => {
             ) : (
               <Link 
                 to="/login" 
-                className="bg-forge-dark text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-forge-dark/90 transition-colors"
+                className="bg-forge-dark text-forge-cream px-6 py-2.5 rounded-full text-sm font-medium hover:bg-forge-dark/90 transition-colors shadow-lg border border-forge-orange/20"
               >
                 Login
               </Link>
@@ -84,7 +84,7 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden border-t border-gray-100 py-6 bg-white/95 backdrop-blur-lg">
+          <div className="md:hidden border-t border-forge-orange/20 py-6 bg-forge-cream/98 backdrop-blur-lg">
             {navItems.map((item) => (
               <Link
                 key={item.path}
@@ -92,22 +92,22 @@ const Navbar = () => {
                 onClick={() => setIsOpen(false)}
                 className={`block py-3 px-4 mx-2 mb-2 rounded-lg text-base font-medium transition-colors ${
                   location.pathname === item.path
-                    ? "bg-gray-100 text-forge-dark"
-                    : "text-forge-gray hover:text-forge-dark hover:bg-gray-50"
+                    ? "bg-forge-orange text-white shadow-sm"
+                    : "text-forge-dark hover:text-white hover:bg-forge-orange/80"
                 }`}
               >
                 {item.label}
               </Link>
             ))}
             {user ? (
-              <div className="pt-4 border-t border-gray-100 mt-4">
+              <div className="pt-4 border-t border-forge-orange/20 mt-4">
                 <ProfileDropdown />
               </div>
             ) : (
               <Link
                 to="/login"
                 onClick={() => setIsOpen(false)}
-                className="block text-center w-full py-3 px-4 mt-4 rounded-full text-base font-medium bg-forge-dark text-white hover:bg-forge-dark/90 transition-colors"
+                className="block text-center w-full py-3 px-4 mt-4 rounded-full text-base font-medium bg-forge-dark text-forge-cream hover:bg-forge-dark/90 transition-colors shadow-lg"
               >
                 Login
               </Link>
