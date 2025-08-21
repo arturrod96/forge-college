@@ -13,30 +13,19 @@ export const Marquee = ({
   direction = "left",
   className = ""
 }: MarqueeProps) => {
-  const animationDirection = direction === "left" ? "marquee-left" : "marquee-right";
+  const animationClass = direction === "left" ? "animate-marquee-left" : "animate-marquee-right";
   
   return (
     <div 
       className={`overflow-hidden whitespace-nowrap [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)] ${className}`}
     >
       <div 
-        className={`inline-flex gap-10 animate-[${animationDirection}_${speed}s_linear_infinite]`}
+        className={`inline-flex gap-10 ${animationClass}`}
+        style={{ animationDuration: `${speed}s` }}
       >
         {children}
         {children}
       </div>
-      
-      <style jsx>{`
-        @keyframes marquee-left {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        
-        @keyframes marquee-right {
-          0% { transform: translateX(-50%); }
-          100% { transform: translateX(0); }
-        }
-      `}</style>
     </div>
   );
 };
