@@ -95,6 +95,22 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'marquee-left': {
+					'0%': { transform: 'translateX(0%)' },
+					'100%': { transform: 'translateX(-100%)' }
+				},
+				'marquee-right': {
+					'0%': { transform: 'translateX(-100%)' },
+					'100%': { transform: 'translateX(0%)' }
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-20px)' }
+				},
+				'glow': {
+					'0%': { boxShadow: '0 0 20px rgba(232, 122, 71, 0.3)' },
+					'100%': { boxShadow: '0 0 40px rgba(232, 122, 71, 0.6)' }
 				}
 			},
 			animation: {
