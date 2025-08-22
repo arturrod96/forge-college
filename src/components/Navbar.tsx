@@ -90,10 +90,10 @@ const Navbar = () => {
                 key={item.path}
                 to={item.path}
                 onClick={() => setIsOpen(false)}
-                className={`block py-3 px-4 mx-2 mb-2 rounded-lg text-base font-medium transition-colors ${
+                className={`block py-3 px-4 mx-2 mb-2 rounded-full text-base font-medium transition-colors backdrop-blur-sm border ${
                   location.pathname === item.path
-                    ? "bg-forge-orange text-white shadow-sm"
-                    : "text-forge-dark hover:text-white hover:bg-forge-orange/80"
+                    ? "bg-forge-orange text-white shadow-lg border-forge-orange"
+                    : "bg-white/80 text-forge-dark hover:bg-forge-orange hover:text-white border-white/50 hover:border-forge-orange shadow-md"
                 }`}
               >
                 {item.label}
