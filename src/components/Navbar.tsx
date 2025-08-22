@@ -57,7 +57,7 @@ const Navbar = () => {
                     <div className="absolute inset-0 bg-forge-orange rounded-full m-1 -z-10"></div>
                   )}
                   {location.pathname !== item.path && (
-                    <div className="absolute inset-0 bg-forge-dark/20 rounded-full m-1 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 bg-gray-200 rounded-full m-1 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   )}
                   {item.label}
                 </Link>
@@ -66,19 +66,16 @@ const Navbar = () => {
                 )}
               </div>
             ))}
+          </div>
 
-            <div className="h-6 w-px bg-forge-gray/30"></div>
-
+          <div className="hidden md:flex items-center">
             {user ? (
-              <div className="px-6 py-3">
-                <ProfileDropdown />
-              </div>
+              <ProfileDropdown />
             ) : (
               <Link
                 to="/login"
-                className="px-6 py-3 text-sm font-semibold transition-all duration-300 relative group text-forge-gray hover:text-forge-dark"
+                className="bg-forge-dark text-forge-cream px-6 py-3 rounded-2xl text-sm font-semibold hover:bg-forge-dark/80 transition-colors shadow-lg border border-forge-dark"
               >
-                <div className="absolute inset-0 bg-forge-dark/20 rounded-full m-1 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 Login
               </Link>
             )}
@@ -113,7 +110,7 @@ const Navbar = () => {
                     <div className="absolute inset-0 bg-forge-orange rounded-full m-1 -z-10"></div>
                   )}
                   {location.pathname !== item.path && (
-                    <div className="absolute inset-0 bg-forge-dark/20 rounded-full m-1 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 bg-gray-200 rounded-full m-1 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   )}
                   {item.label}
                 </Link>
@@ -122,20 +119,16 @@ const Navbar = () => {
                 )}
               </div>
             ))}
-
-            <div className="h-px bg-forge-gray/30 mx-6"></div>
-
             {user ? (
-              <div className="py-4 px-6">
+              <div className="pt-4 mt-4">
                 <ProfileDropdown />
               </div>
             ) : (
               <Link
                 to="/login"
                 onClick={() => setIsOpen(false)}
-                className="block py-4 px-6 text-base font-semibold transition-colors relative group text-forge-gray hover:text-forge-dark"
+                className="block text-center py-4 px-6 mt-4 text-base font-semibold bg-forge-dark text-forge-cream hover:bg-forge-dark/80 transition-colors border-t border-forge-gray/30"
               >
-                <div className="absolute inset-0 bg-forge-dark/20 rounded-full m-1 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 Login
               </Link>
             )}
