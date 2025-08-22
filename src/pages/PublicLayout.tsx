@@ -5,7 +5,7 @@ export function PublicLayout() {
   return (
     <div>
       <Navbar />
-      <main>
+      <main className="pt-20">
         <Outlet />
       </main>
     </div>
