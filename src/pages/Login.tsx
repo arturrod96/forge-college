@@ -42,16 +42,22 @@ export function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <Card className="w-full max-w-md">
+    <div className="flex items-center justify-center min-h-screen bg-forge-cream relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-20 left-10 w-32 h-32 bg-forge-orange/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-40 right-20 w-48 h-48 bg-forge-orange/10 rounded-full blur-2xl"></div>
+      </div>
+
+      <Card className="w-full max-w-md bg-white/95 backdrop-blur-sm border border-forge-orange/20 shadow-xl relative z-10">
         <CardHeader>
-          <CardTitle>Login</CardTitle>
+          <CardTitle className="text-forge-dark text-2xl font-bold">Login</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin}>
             <div className="grid gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-forge-dark font-medium">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -59,30 +65,36 @@ export function Login() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="border-forge-orange/20 focus:border-forge-orange focus:ring-forge-orange/20"
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
-                <Input 
-                  id="password" 
-                  type="password" 
+                <Label htmlFor="password" className="text-forge-dark font-medium">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="border-forge-orange/20 focus:border-forge-orange focus:ring-forge-orange/20"
                 />
               </div>
-              {error && <p className="text-red-500 text-sm">{error}</p>}
-              <Button type="submit" className="w-full" disabled={loading}>
+              {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg border border-red-200">{error}</p>}
+              <Button
+                type="submit"
+                className="w-full bg-forge-orange text-white hover:bg-forge-orange-light transition-all duration-200 shadow-lg hover:shadow-xl font-semibold py-3 rounded-xl"
+                disabled={loading}
+              >
                 {loading ? 'Loading...' : 'Login'}
               </Button>
               <div className="mt-4 text-center text-sm">
-                Don't have an account?{' '}
-                <Link to="/signup" className="underline">
+                <span className="text-forge-gray">Don't have an account?</span>{' '}
+                <Link to="/signup" className="text-forge-orange hover:text-forge-orange-light font-medium underline transition-colors">
                   Sign up
                 </Link>
               </div>
               <div className="text-center text-sm">
-                <Link to="/forgot-password" className="underline">
+                <Link to="/forgot-password" className="text-forge-orange hover:text-forge-orange-light font-medium underline transition-colors">
                   Forgot your password?
                 </Link>
               </div>
