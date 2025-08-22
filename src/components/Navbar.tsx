@@ -61,7 +61,9 @@ const Navbar = () => {
                   )}
                   {item.label}
                 </Link>
-                <div className="h-6 w-px bg-forge-gray/30"></div>
+                {index < navItems.length - 1 && (
+                  <div className="h-6 w-px bg-forge-gray/30"></div>
+                )}
               </div>
             ))}
 
@@ -113,7 +115,9 @@ const Navbar = () => {
                   )}
                   {item.label}
                 </Link>
-                <div className="h-px bg-forge-gray/30 mx-6"></div>
+                {index < navItems.length - 1 && (
+                  <div className="h-px bg-forge-gray/30 mx-6"></div>
+                )}
               </div>
             ))}
 
