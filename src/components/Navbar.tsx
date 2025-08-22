@@ -42,19 +42,23 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
-                  location.pathname === item.path
-                    ? "bg-forge-orange text-white shadow-lg border-forge-orange"
-                    : "text-forge-dark hover:bg-forge-orange hover:text-white border-forge-dark/20 hover:border-forge-orange shadow-sm"
-                }`}
-              >
-                {item.label}
-              </Link>
+          <div className="hidden md:flex items-center bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden">
+            {navItems.map((item, index) => (
+              <div key={item.path} className="flex items-center">
+                <Link
+                  to={item.path}
+                  className={`px-6 py-3 text-sm font-semibold transition-all duration-300 relative ${
+                    location.pathname === item.path
+                      ? "bg-black text-white"
+                      : "text-gray-700 hover:bg-gray-100 hover:text-black"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+                {index < navItems.length - 1 && (
+                  <div className="h-6 w-px bg-gray-200"></div>
+                )}
+              </div>
             ))}
           </div>
 
@@ -64,7 +68,7 @@ const Navbar = () => {
             ) : (
               <Link
                 to="/login"
-                className="bg-forge-dark text-forge-cream px-6 py-2.5 rounded-full text-sm font-medium hover:bg-forge-dark/90 transition-colors shadow-lg border border-forge-dark"
+                className="bg-black text-white px-6 py-3 rounded-2xl text-sm font-semibold hover:bg-gray-800 transition-colors shadow-lg border border-black"
               >
                 Login
               </Link>
@@ -84,20 +88,24 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden py-6">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setIsOpen(false)}
-                className={`block py-3 px-4 mx-2 mb-2 rounded-full text-base font-medium transition-colors border ${
-                  location.pathname === item.path
-                    ? "bg-forge-orange text-white shadow-lg border-forge-orange"
-                    : "text-forge-dark hover:bg-forge-orange hover:text-white border-forge-dark/20 hover:border-forge-orange shadow-sm"
-                }`}
-              >
-                {item.label}
-              </Link>
+          <div className="md:hidden py-6 bg-white/90 backdrop-blur-sm rounded-2xl mx-4 mt-4 border border-gray-200/50 shadow-lg overflow-hidden">
+            {navItems.map((item, index) => (
+              <div key={item.path}>
+                <Link
+                  to={item.path}
+                  onClick={() => setIsOpen(false)}
+                  className={`block py-4 px-6 text-base font-semibold transition-colors ${
+                    location.pathname === item.path
+                      ? "bg-black text-white"
+                      : "text-gray-700 hover:bg-gray-100 hover:text-black"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+                {index < navItems.length - 1 && (
+                  <div className="h-px bg-gray-200 mx-6"></div>
+                )}
+              </div>
             ))}
             {user ? (
               <div className="pt-4 mt-4">
@@ -107,7 +115,7 @@ const Navbar = () => {
               <Link
                 to="/login"
                 onClick={() => setIsOpen(false)}
-                className="block text-center w-full py-3 px-4 mt-4 rounded-full text-base font-medium bg-forge-dark text-forge-cream hover:bg-forge-dark/90 transition-colors shadow-lg border border-forge-dark"
+                className="block text-center py-4 px-6 mt-4 text-base font-semibold bg-black text-white hover:bg-gray-800 transition-colors border-t border-gray-200"
               >
                 Login
               </Link>
