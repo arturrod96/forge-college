@@ -84,7 +84,7 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden border-t border-forge-orange/20 py-6 bg-forge-cream/98 backdrop-blur-lg">
+          <div className="md:hidden py-6 backdrop-blur-lg bg-white/10">
             {navItems.map((item) => (
               <Link
                 key={item.path}
