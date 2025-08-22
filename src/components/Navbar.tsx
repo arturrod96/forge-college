@@ -62,9 +62,9 @@ const Navbar = () => {
             {user ? (
               <ProfileDropdown />
             ) : (
-              <Link 
-                to="/login" 
-                className="bg-forge-dark text-forge-cream px-6 py-2.5 rounded-full text-sm font-medium hover:bg-forge-dark/90 transition-colors shadow-lg border border-forge-orange/20"
+              <Link
+                to="/login"
+                className="bg-forge-dark text-forge-cream px-6 py-2.5 rounded-full text-sm font-medium hover:bg-forge-dark/90 transition-colors shadow-lg border border-forge-dark backdrop-blur-sm"
               >
                 Login
               </Link>
