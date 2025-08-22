@@ -57,7 +57,7 @@ const Navbar = () => {
                     <div className="absolute inset-0 bg-forge-orange rounded-full m-1 -z-10"></div>
                   )}
                   {location.pathname !== item.path && (
-                    <div className="absolute inset-0 bg-gray-200 rounded-full m-1 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 bg-forge-dark/20 rounded-full m-1 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   )}
                   {item.label}
                 </Link>
@@ -110,7 +110,7 @@ const Navbar = () => {
                     <div className="absolute inset-0 bg-forge-orange rounded-full m-1 -z-10"></div>
                   )}
                   {location.pathname !== item.path && (
-                    <div className="absolute inset-0 bg-gray-200 rounded-full m-1 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 bg-forge-dark/20 rounded-full m-1 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   )}
                   {item.label}
                 </Link>
