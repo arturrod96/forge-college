@@ -8,10 +8,32 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
-  
+
   const isDashboardRoute = location.pathname.startsWith("/dashboard");
+  const isLoginPage = location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/forgot-password";
+
   if (user && isDashboardRoute) {
     return null;
+  }
+
+  // For login/signup pages, show only the logo
+  if (isLoginPage) {
+    return (
+      <nav className="fixed top-4 left-0 right-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="flex justify-start items-center h-20">
+            <Link to="/" className="flex items-center space-x-3">
+              <img
+                src="https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/forgecollege-2c35f0?format=webp&width=800"
+                alt="Forge College"
+                className="h-12 w-auto"
+                style={{ minWidth: "120px" }}
+              />
+            </Link>
+          </div>
+        </div>
+      </nav>
+    );
   }
   
   const landingPageNavItems = [
