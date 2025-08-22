@@ -50,7 +50,7 @@ const Navbar = () => {
                   className={`px-6 py-3 text-sm font-semibold transition-all duration-300 relative ${
                     location.pathname === item.path
                       ? "text-white"
-                      : "text-forge-dark hover:bg-forge-orange-light hover:text-white"
+                      : "text-forge-gray hover:text-forge-dark"
                   }`}
                 >
                   {location.pathname === item.path && (
@@ -100,7 +100,7 @@ const Navbar = () => {
                   className={`block py-4 px-6 text-base font-semibold transition-colors relative ${
                     location.pathname === item.path
                       ? "text-white"
-                      : "text-forge-dark hover:bg-forge-orange-light hover:text-white"
+                      : "text-forge-gray hover:text-forge-dark"
                   }`}
                 >
                   {location.pathname === item.path && (
