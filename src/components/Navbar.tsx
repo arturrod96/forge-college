@@ -107,7 +107,7 @@ const Navbar = () => {
               <Link
                 to="/login"
                 onClick={() => setIsOpen(false)}
-                className="block text-center w-full py-3 px-4 mt-4 rounded-full text-base font-medium bg-forge-dark text-forge-cream hover:bg-forge-dark/90 transition-colors shadow-lg"
+                className="block text-center w-full py-3 px-4 mt-4 rounded-full text-base font-medium bg-forge-dark text-forge-cream hover:bg-forge-dark/90 transition-colors shadow-lg border border-forge-dark backdrop-blur-sm"
               >
                 Login
               </Link>
