@@ -74,7 +74,7 @@ const Navbar = () => {
             ) : (
               <Link
                 to="/login"
-                className="bg-forge-dark text-forge-cream px-6 py-3 rounded-2xl text-sm font-semibold hover:bg-forge-dark/80 transition-colors shadow-lg border border-forge-dark"
+                className="bg-forge-dark text-forge-cream px-6 py-3 rounded-full text-sm font-semibold hover:bg-forge-dark/80 transition-colors shadow-lg border border-forge-dark"
               >
                 Login
               </Link>
