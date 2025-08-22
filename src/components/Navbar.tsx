@@ -113,21 +113,21 @@ const Navbar = () => {
                   )}
                   {item.label}
                 </Link>
-                {index < navItems.length - 1 && (
-                  <div className="h-px bg-forge-gray/30 mx-6"></div>
-                )}
+                <div className="h-px bg-forge-gray/30 mx-6"></div>
               </div>
             ))}
+
             {user ? (
-              <div className="pt-4 mt-4">
+              <div className="py-4 px-6">
                 <ProfileDropdown />
               </div>
             ) : (
               <Link
                 to="/login"
                 onClick={() => setIsOpen(false)}
-                className="block text-center py-4 px-6 mt-4 text-base font-semibold bg-forge-dark text-forge-cream hover:bg-forge-dark/80 transition-colors border-t border-forge-gray/30"
+                className="block py-4 px-6 text-base font-semibold transition-colors relative group text-forge-gray hover:text-forge-dark"
               >
+                <div className="absolute inset-0 bg-forge-dark/20 rounded-full m-1 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 Login
               </Link>
             )}
