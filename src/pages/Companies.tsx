@@ -137,10 +137,10 @@ contract ForgePartnership {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-forge-dark mb-8 leading-[0.9] tracking-tight"
           >
-            Hire Web3 Talent
+            Hire Web3-Ready
             <br />
             <span className="inline-flex items-center">
-              Who Are Ready.
+              Talents.
               <motion.div
                 animate={{ rotate: [0, 10, -10, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
