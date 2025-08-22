@@ -29,7 +29,7 @@ const Navbar = () => {
   const navItems = user ? dashboardNavItems : landingPageNavItems;
 
   return (
-    <nav className="backdrop-blur-sm fixed top-0 left-0 right-0 z-50">
+    <nav className="fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <Link to="/" className="flex items-center space-x-3">
@@ -47,10 +47,10 @@ const Navbar = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 backdrop-blur-sm border ${
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
                   location.pathname === item.path
                     ? "bg-forge-orange text-white shadow-lg border-forge-orange"
-                    : "bg-white/80 text-forge-dark hover:bg-forge-orange hover:text-white border-white/50 hover:border-forge-orange shadow-md"
+                    : "text-forge-dark hover:bg-forge-orange hover:text-white border-forge-dark/20 hover:border-forge-orange shadow-sm"
                 }`}
               >
                 {item.label}
@@ -64,7 +64,7 @@ const Navbar = () => {
             ) : (
               <Link
                 to="/login"
-                className="bg-forge-dark text-forge-cream px-6 py-2.5 rounded-full text-sm font-medium hover:bg-forge-dark/90 transition-colors shadow-lg border border-forge-dark backdrop-blur-sm"
+                className="bg-forge-dark text-forge-cream px-6 py-2.5 rounded-full text-sm font-medium hover:bg-forge-dark/90 transition-colors shadow-lg border border-forge-dark"
               >
                 Login
               </Link>
@@ -84,16 +84,16 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden py-6 backdrop-blur-lg bg-white/10">
+          <div className="md:hidden py-6">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
                 onClick={() => setIsOpen(false)}
-                className={`block py-3 px-4 mx-2 mb-2 rounded-full text-base font-medium transition-colors backdrop-blur-sm border ${
+                className={`block py-3 px-4 mx-2 mb-2 rounded-full text-base font-medium transition-colors border ${
                   location.pathname === item.path
                     ? "bg-forge-orange text-white shadow-lg border-forge-orange"
-                    : "bg-white/80 text-forge-dark hover:bg-forge-orange hover:text-white border-white/50 hover:border-forge-orange shadow-md"
+                    : "text-forge-dark hover:bg-forge-orange hover:text-white border-forge-dark/20 hover:border-forge-orange shadow-sm"
                 }`}
               >
                 {item.label}
@@ -107,7 +107,7 @@ const Navbar = () => {
               <Link
                 to="/login"
                 onClick={() => setIsOpen(false)}
-                className="block text-center w-full py-3 px-4 mt-4 rounded-full text-base font-medium bg-forge-dark text-forge-cream hover:bg-forge-dark/90 transition-colors shadow-lg border border-forge-dark backdrop-blur-sm"
+                className="block text-center w-full py-3 px-4 mt-4 rounded-full text-base font-medium bg-forge-dark text-forge-cream hover:bg-forge-dark/90 transition-colors shadow-lg border border-forge-dark"
               >
                 Login
               </Link>
