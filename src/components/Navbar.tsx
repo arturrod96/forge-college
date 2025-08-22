@@ -61,21 +61,20 @@ const Navbar = () => {
                   )}
                   {item.label}
                 </Link>
-                {index < navItems.length - 1 && (
-                  <div className="h-6 w-px bg-forge-gray/30"></div>
-                )}
+                <div className="h-6 w-px bg-forge-gray/30"></div>
               </div>
             ))}
-          </div>
 
-          <div className="hidden md:flex items-center">
             {user ? (
-              <ProfileDropdown />
+              <div className="px-6 py-3">
+                <ProfileDropdown />
+              </div>
             ) : (
               <Link
                 to="/login"
-                className="bg-forge-dark text-forge-cream px-6 py-3 rounded-2xl text-sm font-semibold hover:bg-forge-dark/80 transition-colors shadow-lg border border-forge-dark"
+                className="px-6 py-3 text-sm font-semibold transition-all duration-300 relative group text-forge-gray hover:text-forge-dark"
               >
+                <div className="absolute inset-0 bg-forge-dark/20 rounded-full m-1 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 Login
               </Link>
             )}
