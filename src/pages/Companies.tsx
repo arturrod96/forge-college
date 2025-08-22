@@ -126,21 +126,10 @@ contract ForgePartnership {
   return (
     <div className="min-h-screen bg-forge-cream overflow-x-hidden">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center pt-20 pb-10 px-6">
+      <section className="relative min-h-screen flex items-center justify-center pt-28 pb-10 px-6">
         <AnimatedBackground variant="hero" />
         
         <div className="max-w-6xl mx-auto text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="mb-8"
-          >
-            <span className="inline-flex items-center gap-2 text-forge-gray text-lg font-medium bg-white/50 px-4 py-2 rounded-full backdrop-blur-sm border border-forge-orange/20">
-              <Building className="w-5 h-5 text-forge-orange" />
-              Partner with Excellence
-            </span>
-          </motion.div>
           
           <motion.h1
             initial={{ opacity: 0, y: 30, filter: "blur(8px)" }}
@@ -148,10 +137,10 @@ contract ForgePartnership {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-forge-dark mb-8 leading-[0.9] tracking-tight"
           >
-            Hire Web3 Talent
+            Hire Web3-Ready
             <br />
             <span className="inline-flex items-center">
-              Who Are Ready.
+              Talents.
               <motion.div
                 animate={{ rotate: [0, 10, -10, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}

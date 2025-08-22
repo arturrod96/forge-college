@@ -132,21 +132,10 @@ contract ForgeISAFund {
   return (
     <div className="min-h-screen bg-forge-cream overflow-x-hidden">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center pt-20 pb-10 px-6">
+      <section className="relative min-h-screen flex items-center justify-center pt-28 pb-10 px-6">
         <AnimatedBackground variant="hero" />
         
         <div className="max-w-6xl mx-auto text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="mb-8"
-          >
-            <span className="inline-flex items-center gap-2 text-forge-gray text-lg font-medium bg-white/50 px-4 py-2 rounded-full backdrop-blur-sm border border-forge-orange/20">
-              <DollarSign className="w-5 h-5 text-forge-orange" />
-              Profit with Impact
-            </span>
-          </motion.div>
           
           <motion.h1
             initial={{ opacity: 0, y: 30, filter: "blur(8px)" }}

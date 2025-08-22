@@ -29,32 +29,42 @@ const Navbar = () => {
   const navItems = user ? dashboardNavItems : landingPageNavItems;
 
   return (
-    <nav className="bg-forge-cream/95 backdrop-blur-lg border-b border-forge-orange/20 sticky top-0 z-50">
+    <nav className="fixed top-4 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <Link to="/" className="flex items-center space-x-3">
             <img
               src="https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/forgecollege-2c35f0?format=webp&width=800"
               alt="Forge College"
-              className="h-8 w-auto"
-              style={{ minWidth: "80px" }}
+              className="h-12 w-auto"
+              style={{ minWidth: "120px" }}
             />
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  location.pathname === item.path
-                    ? "bg-forge-orange text-white shadow-sm"
-                    : "text-forge-dark hover:text-white hover:bg-forge-orange/80"
-                }`}
-              >
-                {item.label}
-              </Link>
+          <div className="hidden md:flex items-center bg-forge-cream/95 backdrop-blur-sm rounded-2xl border border-forge-orange/20 shadow-lg overflow-hidden">
+            {navItems.map((item, index) => (
+              <div key={item.path} className="flex items-center">
+                <Link
+                  to={item.path}
+                  className={`px-6 py-3 text-sm font-semibold transition-all duration-300 relative group ${
+                    location.pathname === item.path
+                      ? "text-white"
+                      : "text-forge-gray hover:text-forge-dark"
+                  }`}
+                >
+                  {location.pathname === item.path && (
+                    <div className="absolute inset-0 bg-forge-orange rounded-full m-1 -z-10"></div>
+                  )}
+                  {location.pathname !== item.path && (
+                    <div className="absolute inset-0 bg-forge-dark/20 rounded-full m-1 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  )}
+                  {item.label}
+                </Link>
+                {index < navItems.length - 1 && (
+                  <div className="h-6 w-px bg-forge-gray/30"></div>
+                )}
+              </div>
             ))}
           </div>
 
@@ -62,9 +72,9 @@ const Navbar = () => {
             {user ? (
               <ProfileDropdown />
             ) : (
-              <Link 
-                to="/login" 
-                className="bg-forge-dark text-forge-cream px-6 py-2.5 rounded-full text-sm font-medium hover:bg-forge-dark/90 transition-colors shadow-lg border border-forge-orange/20"
+              <Link
+                to="/login"
+                className="bg-forge-dark text-forge-cream px-6 py-3 rounded-full text-sm font-semibold hover:bg-forge-dark/80 transition-colors shadow-lg border border-forge-dark"
               >
                 Login
               </Link>
@@ -75,7 +85,7 @@ const Navbar = () => {
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-forge-dark hover:text-forge-orange transition-colors p-2"
+              className="text-forge-dark hover:text-forge-orange transition-colors p-2 bg-forge-cream/95 backdrop-blur-sm rounded-xl border border-forge-orange/20 shadow-lg"
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -84,30 +94,40 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden border-t border-forge-orange/20 py-6 bg-forge-cream/98 backdrop-blur-lg">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setIsOpen(false)}
-                className={`block py-3 px-4 mx-2 mb-2 rounded-lg text-base font-medium transition-colors ${
-                  location.pathname === item.path
-                    ? "bg-forge-orange text-white shadow-sm"
-                    : "text-forge-dark hover:text-white hover:bg-forge-orange/80"
-                }`}
-              >
-                {item.label}
-              </Link>
+          <div className="md:hidden py-6 bg-forge-cream/95 backdrop-blur-sm rounded-2xl mx-4 mt-4 border border-forge-orange/20 shadow-lg overflow-hidden">
+            {navItems.map((item, index) => (
+              <div key={item.path}>
+                <Link
+                  to={item.path}
+                  onClick={() => setIsOpen(false)}
+                  className={`block py-4 px-6 text-base font-semibold transition-colors relative group ${
+                    location.pathname === item.path
+                      ? "text-white"
+                      : "text-forge-gray hover:text-forge-dark"
+                  }`}
+                >
+                  {location.pathname === item.path && (
+                    <div className="absolute inset-0 bg-forge-orange rounded-full m-1 -z-10"></div>
+                  )}
+                  {location.pathname !== item.path && (
+                    <div className="absolute inset-0 bg-forge-dark/20 rounded-full m-1 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  )}
+                  {item.label}
+                </Link>
+                {index < navItems.length - 1 && (
+                  <div className="h-px bg-forge-gray/30 mx-6"></div>
+                )}
+              </div>
             ))}
             {user ? (
-              <div className="pt-4 border-t border-forge-orange/20 mt-4">
+              <div className="pt-4 mt-4">
                 <ProfileDropdown />
               </div>
             ) : (
               <Link
                 to="/login"
                 onClick={() => setIsOpen(false)}
-                className="block text-center w-full py-3 px-4 mt-4 rounded-full text-base font-medium bg-forge-dark text-forge-cream hover:bg-forge-dark/90 transition-colors shadow-lg"
+                className="block text-center py-3 px-6 mt-4 mx-4 rounded-full text-base font-semibold bg-forge-dark text-forge-cream hover:bg-forge-dark/80 transition-colors shadow-lg border border-forge-dark"
               >
                 Login
               </Link>
