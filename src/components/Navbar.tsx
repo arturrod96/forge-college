@@ -42,21 +42,21 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden">
+          <div className="hidden md:flex items-center bg-forge-cream/95 backdrop-blur-sm rounded-2xl border border-forge-orange/20 shadow-lg overflow-hidden">
             {navItems.map((item, index) => (
               <div key={item.path} className="flex items-center">
                 <Link
                   to={item.path}
                   className={`px-6 py-3 text-sm font-semibold transition-all duration-300 relative ${
                     location.pathname === item.path
-                      ? "bg-black text-white"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-black"
+                      ? "bg-forge-orange text-white"
+                      : "text-forge-dark hover:bg-forge-orange-light hover:text-white"
                   }`}
                 >
                   {item.label}
                 </Link>
                 {index < navItems.length - 1 && (
-                  <div className="h-6 w-px bg-gray-200"></div>
+                  <div className="h-6 w-px bg-forge-gray/30"></div>
                 )}
               </div>
             ))}
@@ -68,7 +68,7 @@ const Navbar = () => {
             ) : (
               <Link
                 to="/login"
-                className="bg-black text-white px-6 py-3 rounded-2xl text-sm font-semibold hover:bg-gray-800 transition-colors shadow-lg border border-black"
+                className="bg-forge-dark text-forge-cream px-6 py-3 rounded-2xl text-sm font-semibold hover:bg-forge-dark/80 transition-colors shadow-lg border border-forge-dark"
               >
                 Login
               </Link>
@@ -79,7 +79,7 @@ const Navbar = () => {
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-gray-700 hover:text-black transition-colors p-2 bg-white/90 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-lg"
+              className="text-forge-dark hover:text-forge-orange transition-colors p-2 bg-forge-cream/95 backdrop-blur-sm rounded-xl border border-forge-orange/20 shadow-lg"
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -88,7 +88,7 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden py-6 bg-white/90 backdrop-blur-sm rounded-2xl mx-4 mt-4 border border-gray-200/50 shadow-lg overflow-hidden">
+          <div className="md:hidden py-6 bg-forge-cream/95 backdrop-blur-sm rounded-2xl mx-4 mt-4 border border-forge-orange/20 shadow-lg overflow-hidden">
             {navItems.map((item, index) => (
               <div key={item.path}>
                 <Link
@@ -96,14 +96,14 @@ const Navbar = () => {
                   onClick={() => setIsOpen(false)}
                   className={`block py-4 px-6 text-base font-semibold transition-colors ${
                     location.pathname === item.path
-                      ? "bg-black text-white"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-black"
+                      ? "bg-forge-orange text-white"
+                      : "text-forge-dark hover:bg-forge-orange-light hover:text-white"
                   }`}
                 >
                   {item.label}
                 </Link>
                 {index < navItems.length - 1 && (
-                  <div className="h-px bg-gray-200 mx-6"></div>
+                  <div className="h-px bg-forge-gray/30 mx-6"></div>
                 )}
               </div>
             ))}
@@ -115,7 +115,7 @@ const Navbar = () => {
               <Link
                 to="/login"
                 onClick={() => setIsOpen(false)}
-                className="block text-center py-4 px-6 mt-4 text-base font-semibold bg-black text-white hover:bg-gray-800 transition-colors border-t border-gray-200"
+                className="block text-center py-4 px-6 mt-4 text-base font-semibold bg-forge-dark text-forge-cream hover:bg-forge-dark/80 transition-colors border-t border-forge-gray/30"
               >
                 Login
               </Link>
