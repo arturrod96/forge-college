@@ -123,6 +123,8 @@ const Navbar = () => {
               </div>
             ))}
 
+            <div className="h-px bg-forge-gray/30 mx-6"></div>
+
             {user ? (
               <div className="py-4 px-6">
                 <ProfileDropdown />
