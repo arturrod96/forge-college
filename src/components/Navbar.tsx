@@ -47,10 +47,10 @@ const Navbar = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 backdrop-blur-sm border ${
                   location.pathname === item.path
-                    ? "bg-forge-orange text-white shadow-sm"
-                    : "text-forge-dark hover:text-white hover:bg-forge-orange/80"
+                    ? "bg-forge-orange text-white shadow-lg border-forge-orange"
+                    : "bg-white/80 text-forge-dark hover:bg-forge-orange hover:text-white border-white/50 hover:border-forge-orange shadow-md"
                 }`}
               >
                 {item.label}
