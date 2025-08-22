@@ -97,7 +97,7 @@ contract ForgeCollege {
   return (
     <div className="min-h-screen bg-forge-cream overflow-x-hidden">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center pt-24 pb-10 px-6">
+      <section className="relative min-h-screen flex items-center justify-center pt-28 pb-10 px-6">
         <AnimatedBackground variant="hero" />
         
         <div className="max-w-6xl mx-auto text-center relative z-10">
