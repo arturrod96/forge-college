@@ -100,7 +100,7 @@ const Navbar = () => {
               </Link>
             ))}
             {user ? (
-              <div className="pt-4 border-t border-forge-orange/20 mt-4">
+              <div className="pt-4 mt-4">
                 <ProfileDropdown />
               </div>
             ) : (
