@@ -47,7 +47,7 @@ const Navbar = () => {
               <div key={item.path} className="flex items-center">
                 <Link
                   to={item.path}
-                  className={`px-6 py-3 text-sm font-semibold transition-all duration-300 relative ${
+                  className={`px-6 py-3 text-sm font-semibold transition-all duration-300 relative group ${
                     location.pathname === item.path
                       ? "text-white"
                       : "text-forge-gray hover:text-forge-dark"
@@ -55,6 +55,9 @@ const Navbar = () => {
                 >
                   {location.pathname === item.path && (
                     <div className="absolute inset-0 bg-forge-orange rounded-full m-1 -z-10"></div>
+                  )}
+                  {location.pathname !== item.path && (
+                    <div className="absolute inset-0 bg-gray-200 rounded-full m-1 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   )}
                   {item.label}
                 </Link>
@@ -97,7 +100,7 @@ const Navbar = () => {
                 <Link
                   to={item.path}
                   onClick={() => setIsOpen(false)}
-                  className={`block py-4 px-6 text-base font-semibold transition-colors relative ${
+                  className={`block py-4 px-6 text-base font-semibold transition-colors relative group ${
                     location.pathname === item.path
                       ? "text-white"
                       : "text-forge-gray hover:text-forge-dark"
@@ -105,6 +108,9 @@ const Navbar = () => {
                 >
                   {location.pathname === item.path && (
                     <div className="absolute inset-0 bg-forge-orange rounded-full m-1 -z-10"></div>
+                  )}
+                  {location.pathname !== item.path && (
+                    <div className="absolute inset-0 bg-gray-200 rounded-full m-1 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   )}
                   {item.label}
                 </Link>
