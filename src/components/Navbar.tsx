@@ -49,10 +49,13 @@ const Navbar = () => {
                   to={item.path}
                   className={`px-6 py-3 text-sm font-semibold transition-all duration-300 relative ${
                     location.pathname === item.path
-                      ? "bg-forge-orange text-white"
+                      ? "text-white"
                       : "text-forge-dark hover:bg-forge-orange-light hover:text-white"
                   }`}
                 >
+                  {location.pathname === item.path && (
+                    <div className="absolute inset-0 bg-forge-orange rounded-full m-1 -z-10"></div>
+                  )}
                   {item.label}
                 </Link>
                 {index < navItems.length - 1 && (
