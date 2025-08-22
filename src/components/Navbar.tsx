@@ -79,7 +79,7 @@ const Navbar = () => {
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-forge-dark hover:text-forge-orange transition-colors p-2"
+              className="text-gray-700 hover:text-black transition-colors p-2 bg-white/90 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-lg"
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
