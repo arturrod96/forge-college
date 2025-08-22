@@ -29,7 +29,7 @@ const Navbar = () => {
   const navItems = user ? dashboardNavItems : landingPageNavItems;
 
   return (
-    <nav className="bg-forge-cream/95 backdrop-blur-lg border-b border-forge-orange/20 sticky top-0 z-50">
+    <nav className="backdrop-blur-sm fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <Link to="/" className="flex items-center space-x-3">
