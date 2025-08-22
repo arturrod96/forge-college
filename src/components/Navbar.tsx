@@ -36,8 +36,8 @@ const Navbar = () => {
             <img
               src="https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/forgecollege-2c35f0?format=webp&width=800"
               alt="Forge College"
-              className="h-8 w-auto"
-              style={{ minWidth: "80px" }}
+              className="h-12 w-auto"
+              style={{ minWidth: "120px" }}
             />
           </Link>
 
