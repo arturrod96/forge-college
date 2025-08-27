@@ -1,18 +1,24 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../hooks/useOAuth";
 import { ProfileDropdown } from "./ProfileDropdown";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+
+  // Don't render navbar while auth is loading
+  if (loading) {
+    return null;
+  }
 
   const isDashboardRoute = location.pathname.startsWith("/dashboard");
-  const isLoginPage = location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/forgot-password";
+  const isLoginPage = location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/forgot-password" || location.pathname === "/login-oauth";
 
-  if (user && isDashboardRoute) {
+  // For dashboard routes, don't show navbar (sidebar handles navigation)
+  if (isDashboardRoute) {
     return null;
   }
 
@@ -36,19 +42,12 @@ const Navbar = () => {
     );
   }
   
+  // Always show landing page navigation items for all users (including logged in users)
   const landingPageNavItems = [
     { path: "/", label: "For Professionals" },
     { path: "/companies", label: "For Companies" },
     { path: "/investors", label: "For Investors" },
   ];
-
-  const dashboardNavItems = [
-    { path: "/dashboard", label: "Dashboard" },
-    { path: "/dashboard/my-paths", label: "My Paths" },
-    { path: "/dashboard/explore", label: "Explore" },
-  ];
-
-  const navItems = user ? dashboardNavItems : landingPageNavItems;
 
   return (
     <nav className="fixed top-4 left-0 right-0 z-50">
@@ -63,9 +62,9 @@ const Navbar = () => {
             />
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation - Always show landing page items */}
           <div className="hidden md:flex items-center bg-forge-cream/95 backdrop-blur-sm rounded-2xl border border-forge-orange/20 shadow-lg overflow-hidden">
-            {navItems.map((item, index) => (
+            {landingPageNavItems.map((item, index) => (
               <div key={item.path} className="flex items-center">
                 <Link
                   to={item.path}
@@ -83,23 +82,40 @@ const Navbar = () => {
                   )}
                   {item.label}
                 </Link>
-                {index < navItems.length - 1 && (
+                {index < landingPageNavItems.length - 1 && (
                   <div className="h-6 w-px bg-forge-gray/30"></div>
                 )}
               </div>
             ))}
           </div>
 
-          <div className="hidden md:flex items-center">
+          <div className="hidden md:flex items-center space-x-3">
             {user ? (
-              <ProfileDropdown />
+              <div className="flex items-center space-x-3">
+                {/* Dashboard button for logged in users */}
+                <Link
+                  to="/dashboard"
+                  className="bg-forge-dark text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forge-dark/80 transition-colors shadow-lg"
+                >
+                  Dashboard
+                </Link>
+                <ProfileDropdown />
+              </div>
             ) : (
-              <Link
-                to="/login"
-                className="bg-forge-dark text-forge-cream px-6 py-3 rounded-full text-sm font-semibold hover:bg-forge-dark/80 transition-colors shadow-lg border border-forge-dark"
-              >
-                Login
-              </Link>
+              <>
+                <Link
+                  to="/login"
+                  className="text-forge-orange transition-colors px-4 py-2 rounded-lg text-sm font-medium hover:bg-forge-cream/50"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/signup"
+                  className="bg-forge-orange text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-forge-orange-dark transition-colors shadow-lg border border-forge-orange"
+                >
+                  Sign Up
+                </Link>
+              </>
             )}
           </div>
 
@@ -117,7 +133,7 @@ const Navbar = () => {
         {/* Mobile Navigation */}
         {isOpen && (
           <div className="md:hidden py-6 bg-forge-cream/95 backdrop-blur-sm rounded-2xl mx-4 mt-4 border border-forge-orange/20 shadow-lg overflow-hidden">
-            {navItems.map((item, index) => (
+            {landingPageNavItems.map((item, index) => (
               <div key={item.path}>
                 <Link
                   to={item.path}
@@ -136,23 +152,42 @@ const Navbar = () => {
                   )}
                   {item.label}
                 </Link>
-                {index < navItems.length - 1 && (
+                {index < landingPageNavItems.length - 1 && (
                   <div className="h-px bg-forge-gray/30 mx-6"></div>
                 )}
               </div>
             ))}
             {user ? (
-              <div className="pt-4 mt-4">
-                <ProfileDropdown />
+              <div className="pt-4 mt-4 space-y-3 px-4">
+                {/* Dashboard button for mobile */}
+                <Link
+                  to="/dashboard"
+                  onClick={() => setIsOpen(false)}
+                  className="block text-center py-3 px-6 rounded-lg text-base font-medium bg-forge-dark text-white hover:bg-forge-dark/80 transition-colors shadow-lg"
+                >
+                  Dashboard
+                </Link>
+                <div>
+                  <ProfileDropdown />
+                </div>
               </div>
             ) : (
-              <Link
-                to="/login"
-                onClick={() => setIsOpen(false)}
-                className="block text-center py-3 px-6 mt-4 mx-4 rounded-full text-base font-semibold bg-forge-dark text-forge-cream hover:bg-forge-dark/80 transition-colors shadow-lg border border-forge-dark"
-              >
-                Login
-              </Link>
+              <div className="pt-4 mt-4 space-y-3 px-4">
+                <Link
+                  to="/login"
+                  onClick={() => setIsOpen(false)}
+                  className="block text-center py-3 px-6 rounded-lg text-base font-medium text-forge-orange hover:bg-forge-orange/10 transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/signup"
+                  onClick={() => setIsOpen(false)}
+                  className="block text-center py-3 px-6 rounded-full text-base font-semibold bg-forge-orange text-white hover:bg-forge-orange-dark transition-colors shadow-lg border border-forge-orange"
+                >
+                  Sign Up
+                </Link>
+              </div>
             )}
           </div>
         )}
