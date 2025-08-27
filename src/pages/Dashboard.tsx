@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/useOAuth';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useMemo } from 'react';
 import {
@@ -102,10 +102,10 @@ export function Dashboard() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={isExplore} tooltip="Explore">
+                  <SidebarMenuButton asChild isActive={isExplore} tooltip="Paths">
                     <Link to={DASHBOARD_EXPLORE}>
                       <BookOpen />
-                      <span className="group-data-[collapsible=icon]:hidden">{ROUTE_LABELS[DASHBOARD_EXPLORE]}</span>
+                      <span className="group-data-[collapsible=icon]:hidden">Paths</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

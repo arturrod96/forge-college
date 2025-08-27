@@ -1,9 +1,7 @@
-import { useAuth } from "../hooks/useAuth";
-import { supabase } from "../lib/supabaseClient";
+import { useAuth, useOAuth } from "../hooks/useOAuth";
 import { Button } from "./ui/button";
-import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { injected } from "wagmi/connectors";
-import { useNavigate, Link } from "react-router-dom";
+
+import { Link } from "react-router-dom";
 
 import {
   DropdownMenu,
@@ -14,20 +12,26 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ChevronsUpDown, LogOut, User, Wallet } from "lucide-react";
-import { shortAddress } from "@/lib/utils";
+import { LogOut, User, Wallet } from "lucide-react";
+
 
 export function ProfileDropdown() {
-  const { user, session } = useAuth();
-  const navigate = useNavigate();
-  const { address, isConnected } = useAccount();
-  const { connect } = useConnect();
-  const { disconnect } = useDisconnect();
+  const { user } = useAuth();
+  const { signOut: oAuthSignOut, loading: signOutLoading } = useOAuth();
+  
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    disconnect();
-    navigate('/login');
+    try {
+      // Sign out from OAuth
+      await oAuthSignOut();
+      
+      // The oAuthSignOut function will handle the redirect
+      // No need to navigate here as it's handled in the hook
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Force redirect to home on error
+      window.location.href = '/';
+    }
   };
 
   const getInitials = (email?: string) => {
@@ -35,8 +39,23 @@ export function ProfileDropdown() {
     return email.substring(0, 2).toUpperCase();
   };
 
+  const getUserDisplayName = () => {
+    // Prioridade: full_name > name > email > User
+    if (user?.user_metadata?.full_name) {
+      return user.user_metadata.full_name;
+    }
+    if (user?.user_metadata?.name) {
+      return user.user_metadata.name;
+    }
+    if (user?.email) {
+      return user.email.split('@')[0]; // Primeira parte do email
+    }
+    return 'User';
+  };
 
-  if (!session) return null;
+  if (!user) {
+    return null;
+  }
 
   return (
     <DropdownMenu>
@@ -47,7 +66,9 @@ export function ProfileDropdown() {
             <AvatarFallback>{getInitials(user?.email)}</AvatarFallback>
           </Avatar>
           <div className="hidden flex-col items-start text-left group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-medium">{user?.user_metadata?.full_name ?? 'User'}</span>
+            <span className="text-sm font-medium">
+              {getUserDisplayName()}
+            </span>
             <span className="text-xs text-muted-foreground">{user?.email}</span>
           </div>
         </Button>
@@ -62,22 +83,15 @@ export function ProfileDropdown() {
           </Link>
         </DropdownMenuItem>
         
-        {isConnected ? (
-          <DropdownMenuItem onClick={() => disconnect()}>
-            <Wallet className="mr-2 h-4 w-4" />
-            <span>{shortAddress(address)}</span>
-          </DropdownMenuItem>
-        ) : (
-          <DropdownMenuItem onClick={() => connect({ connector: injected() })}>
-            <Wallet className="mr-2 h-4 w-4" />
-            <span>Connect Wallet</span>
-          </DropdownMenuItem>
-        )}
+        <DropdownMenuItem>
+          <Wallet className="mr-2 h-4 w-4" />
+          <span>Connect Wallet</span>
+        </DropdownMenuItem>
 
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>
+        <DropdownMenuItem onClick={handleLogout} disabled={signOutLoading}>
           <LogOut className="mr-2 h-4 w-4" />
-          <span>Log Out</span>
+          <span>{signOutLoading ? 'Signing out...' : 'Log Out'}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

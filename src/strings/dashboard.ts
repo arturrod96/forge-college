@@ -3,7 +3,7 @@ export const DASHBOARD_STRINGS = {
     badge: 'Welcome back',
     headlineSuffix: ', ready to continue your journey?',
     subheadline: 'Choose where to start today:',
-    exploreCta: 'Explore paths',
+    exploreCta: 'View all paths',
     myPathsCta: 'My paths',
   },
   availablePaths: {

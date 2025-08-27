@@ -1,7 +1,6 @@
 import React from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/useOAuth';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { useMemo } from 'react';
 import {
   SidebarProvider,
   Sidebar,
@@ -20,49 +19,23 @@ import {
 import { LayoutDashboard, BookOpen, Lock } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ProfileDropdown } from '@/components/ProfileDropdown';
-import { DASHBOARD as DASHBOARD_PATH, DASHBOARD_EXPLORE, DASHBOARD_MY_PATHS, ROUTE_LABELS } from '@/routes/paths';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
+import { DASHBOARD as DASHBOARD_PATH, DASHBOARD_EXPLORE, ROUTE_LABELS } from '@/routes/paths';
 
 export function DashboardLayout() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
 
-  const breadcrumbItems = useMemo(() => {
-    const segments = location.pathname.split('/').filter(Boolean);
-    const items: { label: string; to?: string }[] = [];
-
-    items.push({ label: ROUTE_LABELS[DASHBOARD_PATH], to: DASHBOARD_PATH });
-    if (segments.length <= 1) return items;
-
-    const second = segments[1];
-    if (second === 'explore') {
-      items.push({ label: ROUTE_LABELS[DASHBOARD_EXPLORE] });
-    } else if (second === 'my-paths') {
-      items.push({ label: ROUTE_LABELS[DASHBOARD_MY_PATHS] });
-    } else if (second === 'learn') {
-      const third = segments[2];
-      if (third === 'course') {
-        items.push({ label: ROUTE_LABELS.LEARN, to: DASHBOARD_EXPLORE });
-        items.push({ label: ROUTE_LABELS.COURSE });
-      } else if (third === 'path') {
-        items.push({ label: ROUTE_LABELS.LEARN, to: DASHBOARD_EXPLORE });
-        items.push({ label: ROUTE_LABELS.PATH });
-      }
-    } else if (second === 'profile') {
-      items.push({ label: ROUTE_LABELS.PROFILE });
-    } else {
-      items.push({ label: ROUTE_LABELS.PAGE });
-    }
-
-    return items;
-  }, [location.pathname]);
+  // Show loading state while auth is being determined
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-forge-orange mx-auto mb-4"></div>
+          <p className="text-forge-gray">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   const isDashboard = location.pathname === DASHBOARD_PATH;
   const isExplore = location.pathname.startsWith(DASHBOARD_EXPLORE);
@@ -71,18 +44,22 @@ export function DashboardLayout() {
     <SidebarProvider>
       <Sidebar collapsible="icon">
         <SidebarRail />
-        <SidebarHeader className="p-2">
-          <div className="flex items-center gap-2 px-2 py-1.5">
-            <SidebarTrigger className="h-8 w-8" />
-            <Link to="/dashboard" className="flex items-center gap-2">
+        <SidebarHeader className="p-4">
+          <div className="flex items-center justify-between w-full">
+            {/* Logo à esquerda - maior e mais proeminente */}
+            <Link to="/dashboard" className="flex items-center gap-3">
               <img
                 src="https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/forgecollege-2c35f0?format=webp&width=800"
                 alt="Forge College"
-                className="h-7 w-auto"
+                className="h-10 w-auto"
               />
             </Link>
+            
+            {/* Ícone de encolher à direita - estilo mais sutil */}
+            <SidebarTrigger className="h-8 w-8 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-800" />
           </div>
         </SidebarHeader>
+        
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupContent>
@@ -96,10 +73,10 @@ export function DashboardLayout() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={isExplore} tooltip="Explore">
+                  <SidebarMenuButton asChild isActive={isExplore} tooltip="Paths">
                     <Link to={DASHBOARD_EXPLORE}>
                       <BookOpen />
-                      <span className="group-data-[collapsible=icon]:hidden">{ROUTE_LABELS[DASHBOARD_EXPLORE]}</span>
+                      <span className="group-data-[collapsible=icon]:hidden">Paths</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -118,35 +95,28 @@ export function DashboardLayout() {
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
+        
         <SidebarFooter className="p-2">
           <ProfileDropdown />
         </SidebarFooter>
       </Sidebar>
+      
       <SidebarInset>
-        <div className="flex h-14 items-center gap-3 border-b px-4 md:px-6 bg-gradient-to-r from-forge-cream to-white border-forge-cream">
-          <Breadcrumb>
-            <BreadcrumbList>
-              {breadcrumbItems.map((item, index) => {
-                const isLast = index === breadcrumbItems.length - 1;
-                return (
-                  <React.Fragment key={`${item.label}-${index}`}>
-                    <BreadcrumbItem>
-                      {isLast || !item.to ? (
-                        <BreadcrumbPage>{item.label}</BreadcrumbPage>
-                      ) : (
-                        <BreadcrumbLink asChild>
-                          <Link to={item.to}>{item.label}</Link>
-                        </BreadcrumbLink>
-                      )}
-                    </BreadcrumbItem>
-                    {!isLast && <BreadcrumbSeparator />}
-                  </React.Fragment>
-                );
-              })}
-            </BreadcrumbList>
-          </Breadcrumb>
+        {/* Clean header with dynamic page title */}
+        <div className="flex h-16 items-center justify-between px-6 border-b bg-white border-forge-cream">
+          <div className="flex items-center space-x-3">
+            <h1 className="text-2xl font-semibold text-forge-dark">
+              {isDashboard ? 'Dashboard' : isExplore ? 'Paths' : 'Dashboard'}
+            </h1>
+          </div>
+          
+          {/* Right side empty for future use */}
+          <div className="flex items-center space-x-4">
+          </div>
         </div>
-        <div className="px-4 py-6 md:px-8 relative">
+        
+        {/* Main content area */}
+        <div className="px-6 py-8 relative">
           <div className="absolute inset-0 -z-10 pointer-events-none">
             <div className="absolute -top-6 right-6 w-32 h-32 bg-forge-cream rounded-full blur-2xl"></div>
             <div className="absolute bottom-0 left-10 w-24 h-24 bg-forge-orange/10 rounded-full blur-2xl"></div>
@@ -158,6 +128,6 @@ export function DashboardLayout() {
   );
 }
 
-export default DashboardLayout
+export default DashboardLayout;
 
 

@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabaseClient';
+import { createClientBrowser } from '@/lib/supabase';
 import { CourseTableOfContents } from '@/components/dashboard/CourseTableOfContents';
 import { LessonViewer } from '@/components/dashboard/LessonViewer';
 

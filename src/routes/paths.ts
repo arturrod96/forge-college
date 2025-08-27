@@ -12,7 +12,6 @@ export const UPDATE_PASSWORD = "/update-password";
 // Dashboard base
 export const DASHBOARD = "/dashboard";
 export const DASHBOARD_EXPLORE = "/dashboard/explore";
-export const DASHBOARD_MY_PATHS = "/dashboard/my-paths";
 
 // Dashboard learning routes (builders)
 export const DASHBOARD_LEARN_COURSE = (courseId: string) => `/dashboard/learn/course/${courseId}`;
@@ -21,8 +20,7 @@ export const DASHBOARD_LEARN_PATH = (pathId: string) => `/dashboard/learn/path/$
 // Labels for breadcrumbs and UI
 export const ROUTE_LABELS = {
   [DASHBOARD]: "Dashboard",
-  [DASHBOARD_EXPLORE]: "Explore",
-  [DASHBOARD_MY_PATHS]: "My Paths",
+  [DASHBOARD_EXPLORE]: "Paths",
   LEARN: "Learn",
   COURSE: "Course",
   PATH: "Path",

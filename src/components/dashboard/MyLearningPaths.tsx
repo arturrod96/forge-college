@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { supabase } from '@/lib/supabaseClient';
-import { useAuth } from '@/hooks/useAuth';
+import { createClientBrowser } from '@/lib/supabase';
+import { useAuth } from '@/hooks/useOAuth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Link } from 'react-router-dom';

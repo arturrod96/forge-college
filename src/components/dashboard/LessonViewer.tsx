@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import { TextLesson } from '@/components/lessons/TextLesson';
 import { VideoLesson } from '@/components/lessons/VideoLesson';
 import { QuizLesson } from '@/components/lessons/QuizLesson';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/lib/supabaseClient';
+import { useAuth } from '@/hooks/useOAuth';
+import { createClientBrowser } from '@/lib/supabase';
 import { useState } from 'react';
 import { toast } from 'sonner';
 

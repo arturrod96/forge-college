@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/hooks/useOAuth'
 import { LOGIN } from '@/routes/paths'
 
 type RequireAuthProps = {
@@ -8,10 +8,10 @@ type RequireAuthProps = {
 }
 
 export function RequireAuth({ children }: RequireAuthProps) {
-  const { session, initialized } = useAuth()
+  const { user, loading } = useAuth()
   const location = useLocation()
 
-  if (!initialized) {
+  if (loading) {
     return (
       <div className="min-h-[40vh] flex items-center justify-center text-gray-500">
         Loading...
@@ -19,7 +19,7 @@ export function RequireAuth({ children }: RequireAuthProps) {
     )
   }
 
-  if (!session) {
+  if (!user) {
     return <Navigate to={LOGIN} replace state={{ from: location }} />
   }
 

@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { supabase } from '@/lib/supabaseClient';
+import { createClientBrowser } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/useOAuth';
 import { toast } from 'sonner';
 import { BookOpen, Users, Flame } from 'lucide-react';
 import EnhancedButton from '@/components/ui/enhanced-button';
@@ -28,6 +28,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
   const { user } = useAuth();
   const [enrollingId, setEnrollingId] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const supabase = createClientBrowser();
 
   const { data: paths = [], isLoading } = useQuery<LearningPath[]>({
     queryKey: ['availablePaths', user?.id],

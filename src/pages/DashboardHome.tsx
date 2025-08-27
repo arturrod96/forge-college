@@ -1,22 +1,42 @@
 import { ContinueLearningCard } from '@/components/dashboard/ContinueLearningCard';
 import { UserStats } from '@/components/dashboard/UserStats';
-import { MyLearningPaths } from '@/components/dashboard/MyLearningPaths';
 import { AvailablePaths } from '@/components/dashboard/AvailablePaths';
 import { LearningHabits } from '@/components/dashboard/LearningHabits';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/hooks/useOAuth';
 import * as R from '@/routes/paths';
 import { DASHBOARD_STRINGS } from '@/strings/dashboard';
 
 export function DashboardHome() {
+  const { user } = useAuth();
+
+  const getUserDisplayName = () => {
+    // Debug: log user data
+    console.log('User data:', user);
+    console.log('User metadata:', user?.user_metadata);
+    
+    // Prioridade: full_name > name > email > User
+    if (user?.user_metadata?.full_name) {
+      return user.user_metadata.full_name;
+    }
+    if (user?.user_metadata?.name) {
+      return user.user_metadata.name;
+    }
+    if (user?.email) {
+      return user.email.split('@')[0]; // Primeira parte do email
+    }
+    return 'User';
+  };
+
   return (
     <div className="space-y-8">
-      {/* Heading */}
+      {/* Welcome message with user name */}
       <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">{R.ROUTE_LABELS[R.DASHBOARD]}</h1>
         <div className="text-gray-500">
           <span className="inline-flex items-center gap-2 text-sm rounded-full bg-forge-cream text-forge-dark px-2 py-0.5 mr-2">
             {DASHBOARD_STRINGS.dashboardHome.badge}
           </span>
+          <span className="font-medium text-forge-dark">{getUserDisplayName()}</span>
           {DASHBOARD_STRINGS.dashboardHome.headlineSuffix}
         </div>
       </div>
@@ -34,7 +54,6 @@ export function DashboardHome() {
             </div>
           </div>
           <UserStats />
-          <MyLearningPaths />
         </div>
 
         {/* Sidebar */}

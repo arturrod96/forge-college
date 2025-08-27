@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/useOAuth';
 import { useToast } from '@/hooks/use-toast';
 import { StudentProfile } from '@/types/profile';
 import { getProfile, updateProfile } from '@/lib/profile.service';
