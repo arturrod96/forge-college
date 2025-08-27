@@ -22,7 +22,7 @@ export default function LoginOAuth() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${import.meta.env.VITE_SITE_URL || 'http://localhost:8080'}/auth/callback`
+          redirectTo: `${window.location.origin}/auth/callback`
         }
       })
 
