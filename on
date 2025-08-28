@@ -1,0 +1,5 @@
+[33m78c823b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge pull request #15 from arturrod96/fix/oauth-redirect-production
+[33ma12a568[m[33m ([m[1;31morigin/fix/oauth-redirect-production[m[33m, [m[1;31morigin/feature/ui-ux-improvements-v2[m[33m, [m[1;32mfix/oauth-redirect-production[m[33m, [m[1;32mfeature/ui-ux-improvements-v2[m[33m)[m fix: OAuth redirect URL for production - use window.location.origin instead of hardcoded localhost
+[33m4cdedd1[m Merge pull request #14 from arturrod96/feature/ui-ux-improvements-v2
+[33m9bf0352[m feat: UI/UX improvements v2 - Navigation fixes, authentication screens cleanup, dashboard sidebar enhancements, and user experience optimizations
+[33m2ebf318[m Merge pull request #13 from arturrod96/ai_main_1ab78f977696
