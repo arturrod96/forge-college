@@ -13,9 +13,14 @@ export const getSupabaseConfig = (): SupabaseConfig => {
   const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
   
   if (!url || !anonKey) {
-    throw new Error(
+    console.warn(
       'Configuração do Supabase ausente. Defina as variáveis de ambiente VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY.'
     );
+    // Return fallback values instead of throwing error
+    return {
+      url: 'https://fdeblavnrrnoyqivydsg.supabase.co',
+      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkZWJsYXZucnJub3lxaXZ5ZHNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTgxMzgsImV4cCI6MjA3MDA3NDEzOH0.iaK-5qda3SZGkSwSJRB5ejyJ1Ky8S2tPOxRAPAap_FI'
+    };
   }
   
   return { url, anonKey };
