@@ -7,15 +7,29 @@ import type { cookies as CookiesFn } from 'next/headers'
  * Used in client components for authentication
  */
 export function createClientBrowser() {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://fdeblavnrrnoyqivydsg.supabase.co';
+  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkZWJsYXZucnJub3lxaXZ5ZHNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTgxMzgsImV4cCI6MjA3MDA3NDEzOH0.iaK-5qda3SZGkSwSJRB5ejyJ1Ky8S2tPOxRAPAap_FI';
+
   return createClient(
-    import.meta.env.VITE_SUPABASE_URL!,
-    import.meta.env.VITE_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseKey,
     {
       auth: {
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: true,
-        flowType: 'pkce'
+        flowType: 'implicit', // Changed from 'pkce' to 'implicit' for better compatibility
+        debug: process.env.NODE_ENV === 'development'
+      },
+      global: {
+        headers: {
+          'X-Client-Info': 'forge-college-web'
+        }
+      },
+      realtime: {
+        params: {
+          eventsPerSecond: 10
+        }
       }
     }
   )
