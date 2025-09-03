@@ -28,11 +28,18 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
+      outDir: 'dist/client',
       rollupOptions: {
         output: {
-          manualChunks: {
-            vendor: ['react', 'react-dom'],
-            ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
+          manualChunks: (id) => {
+            if (id.includes('node_modules')) {
+              if (id.includes('react') || id.includes('react-dom')) {
+                return 'vendor';
+              }
+              if (id.includes('@radix-ui')) {
+                return 'ui';
+              }
+            }
           },
         },
       },
