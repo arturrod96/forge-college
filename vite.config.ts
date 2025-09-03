@@ -37,5 +37,9 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    ssr: {
+      // Configuração SSR para Vite
+      noExternal: ['@supabase/supabase-js', '@supabase/ssr'],
+    },
   };
 });
