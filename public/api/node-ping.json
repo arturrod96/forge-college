@@ -1,0 +1,6 @@
+{
+  "status": "NODE OK",
+  "timestamp": "2024-01-01T00:00:00.000Z",
+  "runtime": "nodejs",
+  "message": "Node.js runtime test - Static response"
+}
