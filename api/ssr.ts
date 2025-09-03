@@ -7,8 +7,8 @@ let ssrRender: null | ((url: string) => Promise<string>) = null;
 export default async function handler(req: any, res: any) {
   try {
     // DEBUG: comente após testar
-    // res.status(200).send("<h1>SSR BOOT OK</h1>");
-    // return;
+    res.status(200).send("<h1>SSR BOOT OK</h1>");
+    return;
 
     // 1) Carregar template sempre DENTRO do try
     if (!cachedTemplate) {
