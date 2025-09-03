@@ -20,23 +20,52 @@ export function Login() {
     e.preventDefault();
     setError(null);
     setLoading(true);
+
     try {
       const supabase = createClientBrowser();
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      
+
+      // Add a timeout and better error handling
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Authentication timeout')), 10000)
+      );
+
+      const authPromise = supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password
+      });
+
+      const { data, error } = await Promise.race([authPromise, timeoutPromise]) as any;
+
       if (error) {
-        throw error;
+        // Handle specific Supabase error types
+        if (error.message?.includes('Invalid login credentials')) {
+          throw new Error('Invalid email or password. Please check your credentials and try again.');
+        } else if (error.message?.includes('Email not confirmed')) {
+          throw new Error('Please check your email and click the confirmation link before signing in.');
+        } else if (error.message?.includes('Too many requests')) {
+          throw new Error('Too many login attempts. Please wait a moment before trying again.');
+        } else {
+          throw error;
+        }
       }
-      
-      // Redirect to previous location if present, otherwise dashboard
-      const from = (location.state as any)?.from?.pathname || DASHBOARD;
-      navigate(from, { replace: true });
+
+      if (data?.user) {
+        // Redirect to previous location if present, otherwise dashboard
+        const from = (location.state as any)?.from?.pathname || DASHBOARD;
+        navigate(from, { replace: true });
+      }
     } catch (error: any) {
-      // Check if it's a network error due to placeholder credentials
-      if (error.message.includes('fetch') || error.message.includes('network')) {
-        setError('Authentication service not configured. Please contact the administrator.');
+      console.error('Login error:', error);
+
+      // Enhanced error handling
+      if (error.message === 'Authentication timeout') {
+        setError('Authentication request timed out. Please check your internet connection and try again.');
+      } else if (error.message?.includes('fetch') || error.message?.includes('network') || error.message?.includes('body stream')) {
+        setError('Connection error. Please check your internet connection and try again.');
+      } else if (error.message?.includes('Failed to execute')) {
+        setError('Authentication service error. Please try again in a moment.');
       } else {
-        setError(error.message);
+        setError(error.message || 'An unexpected error occurred. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -48,16 +77,21 @@ export function Login() {
       setError(null);
       setLoading(true);
       const supabase = createClientBrowser();
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`
         }
       });
-      
-      if (error) throw error;
+
+      if (error) {
+        console.error('Google OAuth error:', error);
+        throw new Error('Google sign-in failed. Please try again.');
+      }
     } catch (error: any) {
-      setError(error.message);
+      console.error('Google login error:', error);
+      setError(error.message || 'Google sign-in failed. Please try again.');
       setLoading(false);
     }
   };
@@ -67,16 +101,21 @@ export function Login() {
       setError(null);
       setLoading(true);
       const supabase = createClientBrowser();
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`
         }
       });
-      
-      if (error) throw error;
+
+      if (error) {
+        console.error('GitHub OAuth error:', error);
+        throw new Error('GitHub sign-in failed. Please try again.');
+      }
     } catch (error: any) {
-      setError(error.message);
+      console.error('GitHub login error:', error);
+      setError(error.message || 'GitHub sign-in failed. Please try again.');
       setLoading(false);
     }
   };
