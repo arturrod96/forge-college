@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bare SSR Test</title>
+</head>
+<body>
+    <pre>BARE SSR OK: <span id="timestamp"></span></pre>
+    <p>Se você vê este texto, o SSR básico está funcionando.</p>
+    <p>Timestamp: <span id="timestamp2"></span></p>
+    <script>
+        const now = new Date().toISOString();
+        document.getElementById('timestamp').textContent = now;
+        document.getElementById('timestamp2').textContent = new Date().toLocaleString();
+    </script>
+</body>
+</html>

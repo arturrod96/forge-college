@@ -25,6 +25,7 @@ import AuthCallback from './pages/AuthCallback';
 import TestPage from './pages/TestPage';
 import SSRTest from './pages/SSRTest';
 import BarePage from './pages/BarePage';
+import StaticBare from './pages/StaticBare';
 import * as R from '@/routes/paths';
 
 const App = () => {
@@ -55,6 +56,7 @@ const App = () => {
               <Route path="/test" element={<TestPage />} />
               <Route path="/ssr-check" element={<SSRTest />} />
               <Route path="/bare" element={<BarePage />} />
+              <Route path="/static-bare" element={<StaticBare />} />
 
               {/* Private routes with Sidebar */}
               <Route
