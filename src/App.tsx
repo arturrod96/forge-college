@@ -37,7 +37,8 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <OAuthProvider>
+          <AuthErrorBoundary>
+            <OAuthProvider>
             <Routes>
               {/* Public routes with Navbar */}
               <Route element={<PublicLayout />}>
@@ -79,8 +80,9 @@ const App = () => {
 
               {/* Not Found Route */}
               <Route path="*" element={<NotFound />} />
-            </Routes>
-          </OAuthProvider>
+              </Routes>
+            </OAuthProvider>
+          </AuthErrorBoundary>
         </BrowserRouter>
       </TooltipProvider>
     );
