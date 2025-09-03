@@ -6,6 +6,10 @@ let ssrRender: null | ((url: string) => Promise<string>) = null;
 
 export default async function handler(req: any, res: any) {
   try {
+    // DEBUG: comente após testar
+    // res.status(200).send("<h1>SSR BOOT OK</h1>");
+    // return;
+
     // 1) Carregar template sempre DENTRO do try
     if (!cachedTemplate) {
       const htmlPath = join(process.cwd(), "public", "index.html");
@@ -19,9 +23,9 @@ export default async function handler(req: any, res: any) {
 
     // 2) Import SSR bundle DENTRO do try (evita crash em cold start)
     if (!ssrRender) {
-      // verifique a extensão gerada pelo build (js/mjs/cjs)
-      const mod = await import("../dist/client/entry-server.js");
-      ssrRender = mod.render ?? mod.default ?? null;
+      // 👇 **AQUI** precisa apontar para o bundle SSR gerado pelo `vite build --ssr`
+      const mod = await import("../dist/client/entry-server.js"); // ou .mjs conforme seu output
+      ssrRender = mod.render ?? mod.default;
       if (!ssrRender) throw new Error("SSR render() not found in entry-server");
     }
 
