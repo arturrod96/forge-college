@@ -1,18 +1,20 @@
 import { useState } from 'react';
 import { createClientBrowser } from '../lib/supabase';
+import { testSupabaseConnection } from '../lib/supabase-debug';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { DASHBOARD } from '@/routes/paths';
-import { Github, Mail } from 'lucide-react';
+import { Github, Mail, Bug } from 'lucide-react';
 
 export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [testing, setTesting] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -22,19 +24,25 @@ export function Login() {
     setLoading(true);
 
     try {
+      // First, test if we can even reach Supabase
+      console.log('Testing Supabase connection before login...');
+      const connectionTest = await testSupabaseConnection();
+
+      if (!connectionTest.success) {
+        throw new Error(`Supabase connection failed: ${connectionTest.error}`);
+      }
+
+      console.log('Connection test passed, attempting login...');
+
       const supabase = createClientBrowser();
 
-      // Add a timeout and better error handling
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Authentication timeout')), 10000)
-      );
-
-      const authPromise = supabase.auth.signInWithPassword({
+      // Simple login without Promise.race to avoid complications
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password
       });
 
-      const { data, error } = await Promise.race([authPromise, timeoutPromise]) as any;
+      console.log('Login response:', { data: !!data, error: error?.message });
 
       if (error) {
         // Handle specific Supabase error types
@@ -44,12 +52,15 @@ export function Login() {
           throw new Error('Please check your email and click the confirmation link before signing in.');
         } else if (error.message?.includes('Too many requests')) {
           throw new Error('Too many login attempts. Please wait a moment before trying again.');
+        } else if (error.message?.includes('body stream already read')) {
+          throw new Error('Authentication service error. The Supabase instance may not be properly configured.');
         } else {
           throw error;
         }
       }
 
       if (data?.user) {
+        console.log('Login successful, redirecting...');
         // Redirect to previous location if present, otherwise dashboard
         const from = (location.state as any)?.from?.pathname || DASHBOARD;
         navigate(from, { replace: true });
@@ -57,13 +68,15 @@ export function Login() {
     } catch (error: any) {
       console.error('Login error:', error);
 
-      // Enhanced error handling
-      if (error.message === 'Authentication timeout') {
-        setError('Authentication request timed out. Please check your internet connection and try again.');
-      } else if (error.message?.includes('fetch') || error.message?.includes('network') || error.message?.includes('body stream')) {
-        setError('Connection error. Please check your internet connection and try again.');
+      // Enhanced error handling with more specific messages
+      if (error.message?.includes('body stream already read')) {
+        setError('Authentication service configuration error. Please contact support or try connecting to a proper Supabase instance.');
+      } else if (error.message?.includes('fetch') || error.message?.includes('network')) {
+        setError('Network connection error. Please check your internet connection and try again.');
       } else if (error.message?.includes('Failed to execute')) {
-        setError('Authentication service error. Please try again in a moment.');
+        setError('Authentication service error. The Supabase instance may be misconfigured.');
+      } else if (error.message?.includes('Supabase connection failed')) {
+        setError('Cannot connect to authentication service. Please check if Supabase is properly configured.');
       } else {
         setError(error.message || 'An unexpected error occurred. Please try again.');
       }
@@ -229,6 +242,33 @@ export function Login() {
                   Forgot your password?
                 </Link>
               </div>
+
+              {/* Debug button - only show in development */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="text-center">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      setTesting(true);
+                      try {
+                        const result = await testSupabaseConnection();
+                        alert(`Connection test ${result.success ? 'passed' : 'failed'}: ${JSON.stringify(result, null, 2)}`);
+                      } catch (err) {
+                        alert(`Connection test error: ${err}`);
+                      } finally {
+                        setTesting(false);
+                      }
+                    }}
+                    disabled={testing}
+                    className="text-xs"
+                  >
+                    <Bug className="w-3 h-3 mr-1" />
+                    {testing ? 'Testing...' : 'Test Connection'}
+                  </Button>
+                </div>
+              )}
             </div>
           </form>
         </CardContent>
