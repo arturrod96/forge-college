@@ -27,6 +27,7 @@ import SSRTest from './pages/SSRTest';
 import BarePage from './pages/BarePage';
 import StaticBare from './pages/StaticBare';
 import SSRCanary from './pages/SSRCanary';
+import AuthErrorBoundary from './components/auth/AuthErrorBoundary';
 import * as R from '@/routes/paths';
 
 const App = () => {
