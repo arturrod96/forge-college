@@ -24,16 +24,18 @@ import LoginOAuth from './pages/LoginOAuth';
 import AuthCallback from './pages/AuthCallback';
 import TestPage from './pages/TestPage';
 import SSRTest from './pages/SSRTest';
+import BarePage from './pages/BarePage';
 import * as R from '@/routes/paths';
 
 const App = () => {
-  return (
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <OAuthProvider>
-          <Routes>
+  try {
+    return (
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <OAuthProvider>
+            <Routes>
               {/* Public routes with Navbar */}
               <Route element={<PublicLayout />}>
                 <Route path={R.ROOT} element={<Professionals />} />
@@ -52,6 +54,7 @@ const App = () => {
               {/* Test routes */}
               <Route path="/test" element={<TestPage />} />
               <Route path="/ssr-check" element={<SSRTest />} />
+              <Route path="/bare" element={<BarePage />} />
 
               {/* Private routes with Sidebar */}
               <Route
@@ -73,9 +76,30 @@ const App = () => {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </OAuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  );
+        </BrowserRouter>
+      </TooltipProvider>
+    );
+  } catch (error) {
+    console.error('App SSR error:', error);
+    return (
+      <div style={{ 
+        padding: '2rem', 
+        textAlign: 'center', 
+        fontFamily: 'system-ui, sans-serif' 
+      }}>
+        <h1>SSR Error</h1>
+        <p>Erro no App principal: {error instanceof Error ? error.message : 'Erro desconhecido'}</p>
+        <pre style={{ 
+          backgroundColor: '#f5f5f5', 
+          padding: '1rem', 
+          borderRadius: '4px',
+          textAlign: 'left'
+        }}>
+          {error instanceof Error ? error.stack : String(error)}
+        </pre>
+      </div>
+    );
+  }
 };
 
 export default App;
