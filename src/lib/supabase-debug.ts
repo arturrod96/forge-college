@@ -79,29 +79,48 @@ export async function testSupabaseConnection() {
     }
     
     // Try to test auth endpoint specifically
-    const authResponse = await fetch(`${import.meta.env.VITE_SUPABASE_URL || 'https://fdeblavnrrnoyqivydsg.supabase.co'}/auth/v1/signup`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkZWJsYXZucnJub3lxaXZ5ZHNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTgxMzgsImV4cCI6MjA3MDA3NDEzOH0.iaK-5qda3SZGkSwSJRB5ejyJ1Ky8S2tPOxRAPAap_FI'
-      },
-      body: JSON.stringify({
-        email: 'test@example.com',
-        password: 'test123456'
-      })
-    });
-    
-    console.log('Auth endpoint status:', authResponse.status);
-    
-    // Try to read the response
-    const responseText = await authResponse.text();
-    console.log('Auth response:', responseText);
+    let authResponse;
+    let authStatus = 'unknown';
+    let authResponseText = 'Could not read response';
+
+    try {
+      authResponse = await fetch(`${import.meta.env.VITE_SUPABASE_URL || 'https://fdeblavnrrnoyqivydsg.supabase.co'}/auth/v1/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkZWJsYXZucnJub3lxaXZ5ZHNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTgxMzgsImV4cCI6MjA3MDA3NDEzOH0.iaK-5qda3SZGkSwSJRB5ejyJ1Ky8S2tPOxRAPAap_FI'
+        },
+        body: JSON.stringify({
+          email: 'test@example.com',
+          password: 'test123456'
+        })
+      });
+
+      authStatus = authResponse.status.toString();
+      console.log('Auth endpoint status:', authResponse.status);
+
+      // Clone the response to avoid "body stream already read" errors
+      const clonedResponse = authResponse.clone();
+
+      try {
+        authResponseText = await clonedResponse.text();
+        console.log('Auth response:', authResponseText.substring(0, 200));
+      } catch (textError) {
+        console.log('Could not read auth response text:', textError);
+        authResponseText = `Error reading response: ${textError}`;
+      }
+
+    } catch (fetchError) {
+      console.error('Auth endpoint fetch failed:', fetchError);
+      authStatus = 'fetch_failed';
+      authResponseText = `Fetch error: ${fetchError}`;
+    }
     
     return {
       success: true,
       healthStatus: healthResponse.status,
-      authStatus: authResponse.status,
-      authResponse: responseText
+      authStatus: authStatus,
+      authResponse: authResponseText
     };
     
   } catch (error) {
