@@ -23,6 +23,7 @@ import RequireAuth from '@/routes/RequireAuth';
 import LoginOAuth from './pages/LoginOAuth';
 import AuthCallback from './pages/AuthCallback';
 import TestPage from './pages/TestPage';
+import SSRTest from './pages/SSRTest';
 import * as R from '@/routes/paths';
 
 const App = () => {
@@ -48,8 +49,9 @@ const App = () => {
               <Route path="/login-oauth" element={<LoginOAuth />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               
-              {/* Test route */}
+              {/* Test routes */}
               <Route path="/test" element={<TestPage />} />
+              <Route path="/ssr-check" element={<SSRTest />} />
 
               {/* Private routes with Sidebar */}
               <Route
