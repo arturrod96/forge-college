@@ -1,41 +1,39 @@
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import { readFileSync } from "fs";
+import { join } from "path";
 
-let template: string | null = null;
-let render: ((url: string) => Promise<string>) | null = null;
+let cachedTemplate: string | null = null;
+let ssrRender: null | ((url: string) => Promise<string>) = null;
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
   try {
-    // Carrega o template HTML
-    if (!template) {
-      template = readFileSync(join(process.cwd(), 'public/index.html'), 'utf-8');
+    // 1) Carregar template sempre DENTRO do try
+    if (!cachedTemplate) {
+      const htmlPath = join(process.cwd(), "public", "index.html");
+      cachedTemplate = readFileSync(htmlPath, "utf-8");
+      if (!cachedTemplate.includes("<!--ssr-outlet-->")) {
+        // fallback seguro para evitar corpo vazio
+        cachedTemplate =
+          "<!doctype html><html><head><meta charset='utf-8'><title>Forge</title></head><body><!--ssr-outlet--></body></html>";
+      }
     }
-    
-    // Carrega a função de renderização SSR
-    if (!render) {
-      const serverModule = await import('../dist/server/entry-server.js');
-      render = serverModule.render;
+
+    // 2) Import SSR bundle DENTRO do try (evita crash em cold start)
+    if (!ssrRender) {
+      // verifique a extensão gerada pelo build (js/mjs/cjs)
+      const mod = await import("../dist/client/entry-server.js");
+      ssrRender = mod.render ?? mod.default ?? null;
+      if (!ssrRender) throw new Error("SSR render() not found in entry-server");
     }
-    
-    const url = req.url || '/';
-    const appHtml = await render!(url);
-    
-    // Substitui o placeholder pelo HTML renderizado
-    const html = template!.replace('<div id="root"></div>', `<div id="root">${appHtml}</div>`);
-    
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+
+    const url = req.url || "/";
+    const appHtml = await ssrRender(url);
+    const html = cachedTemplate.replace("<!--ssr-outlet-->", appHtml);
+
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.status(200).send(html);
   } catch (e: any) {
-    console.error('SSR handler error:', e);
-    res.status(500).send(`
-      <html>
-        <body>
-          <h1>SSR ERROR</h1>
-          <p>${e?.message ?? String(e)}</p>
-          <pre>${e?.stack ?? ''}</pre>
-        </body>
-      </html>
-    `);
+    // Devolva SEMPRE um corpo de erro visível (evita "0 linhas")
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.status(500).send("SSR ERROR: " + (e?.stack || e?.message || String(e)));
   }
 }
