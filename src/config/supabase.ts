@@ -6,25 +6,40 @@ interface SupabaseConfig {
   anonKey: string;
 }
 
-// Get configuration for current environment
-export const getSupabaseConfig = (): SupabaseConfig => {
-  // Always prefer environment variables for security
-  const url = import.meta.env.VITE_SUPABASE_URL;
-  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-  
-  if (!url || !anonKey) {
-    console.warn(
-      'Configuração do Supabase ausente. Defina as variáveis de ambiente VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY.'
-    );
-    // Return fallback values instead of throwing error
-    return {
-      url: 'https://fdeblavnrrnoyqivydsg.supabase.co',
-      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkZWJsYXZucnJub3lxaXZ5ZHNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTgxMzgsImV4cCI6MjA3MDA3NDEzOH0.iaK-5qda3SZGkSwSJRB5ejyJ1Ky8S2tPOxRAPAap_FI'
-    };
-  }
-  
-  return { url, anonKey };
+// Fallback configuration
+const FALLBACK_CONFIG: SupabaseConfig = {
+  url: 'https://fdeblavnrrnoyqivydsg.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkZWJsYXZucnJub3lxaXZ5ZHNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTgxMzgsImV4cCI6MjA3MDA3NDEzOH0.iaK-5qda3SZGkSwSJRB5ejyJ1Ky8S2tPOxRAPAap_FI'
 };
 
-// Export the configuration
-export const supabaseConfig = getSupabaseConfig(); 
+// Get configuration for current environment
+export const getSupabaseConfig = (): SupabaseConfig => {
+  try {
+    // Always prefer environment variables for security
+    const url = import.meta.env.VITE_SUPABASE_URL;
+    const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    if (!url || !anonKey) {
+      console.warn(
+        'Configuração do Supabase ausente. Usando valores de fallback. Defina as variáveis de ambiente VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY.'
+      );
+      return FALLBACK_CONFIG;
+    }
+    
+    return { url, anonKey };
+  } catch (error) {
+    console.error('Erro ao carregar configuração do Supabase:', error);
+    return FALLBACK_CONFIG;
+  }
+};
+
+// Export the configuration with error handling
+let supabaseConfig: SupabaseConfig;
+try {
+  supabaseConfig = getSupabaseConfig();
+} catch (error) {
+  console.error('Erro crítico na configuração do Supabase:', error);
+  supabaseConfig = FALLBACK_CONFIG;
+}
+
+export { supabaseConfig }; 

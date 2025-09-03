@@ -22,6 +22,7 @@ import Profile from './pages/Profile';
 import RequireAuth from '@/routes/RequireAuth';
 import LoginOAuth from './pages/LoginOAuth';
 import AuthCallback from './pages/AuthCallback';
+import TestPage from './pages/TestPage';
 import * as R from '@/routes/paths';
 
 const App = () => {
@@ -46,6 +47,9 @@ const App = () => {
               <Route path={R.UPDATE_PASSWORD} element={<UpdatePassword />} />
               <Route path="/login-oauth" element={<LoginOAuth />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
+              
+              {/* Test route */}
+              <Route path="/test" element={<TestPage />} />
 
               {/* Private routes with Sidebar */}
               <Route
