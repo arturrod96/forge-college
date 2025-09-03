@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/hooks/useOAuth'
+import { shouldUseMockAuth } from '@/lib/supabase-simple'
 import { LOGIN } from '@/routes/paths'
 
 type RequireAuthProps = {
@@ -11,7 +12,12 @@ export function RequireAuth({ children }: RequireAuthProps) {
   const { user, loading } = useAuth()
   const location = useLocation()
 
-  if (loading) {
+  // Check for mock authentication in development
+  const isMockMode = shouldUseMockAuth()
+  const mockUser = isMockMode ? localStorage.getItem('mock-auth-user') : null
+  const isMockAuthenticated = isMockMode && mockUser
+
+  if (loading && !isMockMode) {
     return (
       <div className="min-h-[40vh] flex items-center justify-center text-gray-500">
         Loading...
@@ -19,7 +25,8 @@ export function RequireAuth({ children }: RequireAuthProps) {
     )
   }
 
-  if (!user) {
+  // Allow access if either real auth or mock auth is valid
+  if (!user && !isMockAuthenticated) {
     return <Navigate to={LOGIN} replace state={{ from: location }} />
   }
 
@@ -27,5 +34,3 @@ export function RequireAuth({ children }: RequireAuthProps) {
 }
 
 export default RequireAuth
-
-
