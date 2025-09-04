@@ -1,4 +1,5 @@
 import React from "react";
+import * as React from "react";
 import { Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getButtonClasses } from "@/lib/design-system";
