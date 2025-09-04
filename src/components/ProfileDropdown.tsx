@@ -1,5 +1,6 @@
 import { useAuth, useOAuth } from "../hooks/useOAuth";
 import { Button } from "./ui/button";
+import { useAuth, useOAuth } from '@/hooks/useOAuth';
 
 import { Link } from "react-router-dom";
 
@@ -65,7 +66,7 @@ export function ProfileDropdown() {
             <AvatarImage src={user?.user_metadata?.avatar_url} />
             <AvatarFallback>{getInitials(user?.email)}</AvatarFallback>
           </Avatar>
-          <div className="hidden flex-col items-start text-left group-data-[collapsible=icon]:hidden">
+          <div className="flex flex-col items-start text-left group-data-[collapsible=icon]:hidden">
             <span className="text-sm font-medium">
               {getUserDisplayName()}
             </span>
