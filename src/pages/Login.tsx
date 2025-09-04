@@ -34,7 +34,7 @@ export function Login() {
         });
 
         if (error) {
-          throw new Error(error.message);
+          throw new Error('Demo mode: use demo@example.com / demo123');
         }
 
         if (data?.user) {
