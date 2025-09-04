@@ -50,7 +50,7 @@ export function UserStats() {
         // 2) Fetch lessons with nested modules -> courses to get path_id
         const { data: lessonsData, error: lessonsError } = await supabase
           .from('lessons')
-          .select('id, xp_value, modules:modules(courses:courses(path_id))')
+          .select('id, xp_value, modules(courses(path_id))')
           .in('id', lessonIds);
 
         if (lessonsError) throw new Error(lessonsError.message || 'Failed to load lessons');
