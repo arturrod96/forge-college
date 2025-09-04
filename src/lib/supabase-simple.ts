@@ -1,14 +1,14 @@
 import { createClient } from '@supabase/supabase-js'
+import { supabaseConfig } from '@/config/supabase'
 
 /**
  * Simple Supabase client for testing without complex authentication flows
  */
 export function createSimpleClient() {
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://fdeblavnrrnoyqivydsg.supabase.co';
-  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkZWJsYXZucnJub3lxaXZ5ZHNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTgxMzgsImV4cCI6MjA3MDA3NDEzOH0.iaK-5qda3SZGkSwSJRB5ejyJ1Ky8S2tPOxRAPAap_FI';
+  const { url, anonKey } = supabaseConfig
   
   // Basic client with minimal configuration
-  return createClient(supabaseUrl, supabaseKey, {
+  return createClient(url, anonKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
@@ -27,10 +27,8 @@ export function createSimpleClient() {
  */
 export const mockAuth = {
   signInWithPassword: async ({ email, password }: { email: string, password: string }) => {
-    // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Mock successful login for demo@example.com
     if (email === 'demo@example.com' && password === 'demo123') {
       return {
         data: {
@@ -50,7 +48,6 @@ export const mockAuth = {
       };
     }
     
-    // Mock error for invalid credentials
     return {
       data: { user: null, session: null },
       error: {
@@ -61,7 +58,6 @@ export const mockAuth = {
   },
   
   signInWithOAuth: async ({ provider }: { provider: string }) => {
-    // Simulate OAuth redirect
     console.log(`Mock OAuth redirect for ${provider}`);
     window.location.href = `/auth/callback?provider=${provider}&mock=true`;
     return { data: null, error: null };
