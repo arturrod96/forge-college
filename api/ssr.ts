@@ -25,7 +25,7 @@ export default async function handler(req: any, res: any) {
     if (!ssrRender) {
       // 👇 **AQUI** precisa apontar para o bundle SSR gerado pelo `vite build --ssr`
       const mod = await import("../dist/client/entry-server.js"); // ou .mjs conforme seu output
-      ssrRender = mod.render ?? mod.default;
+      ssrRender = mod.render;
       if (!ssrRender) throw new Error("SSR render() not found in entry-server");
     }
 
