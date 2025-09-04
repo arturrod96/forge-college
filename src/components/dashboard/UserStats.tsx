@@ -13,6 +13,7 @@ interface UserStats {
 
 export function UserStats() {
   const { user } = useAuth();
+  const supabase = useMemo(() => createClientBrowser(), []);
   const [stats, setStats] = useState<UserStats>({
     totalXP: 0,
     completedLessons: 0,
