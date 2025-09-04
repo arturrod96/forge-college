@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useOAuth';
 import { createClientBrowser } from '@/lib/supabase';
 import { Card, CardContent } from '@/components/ui/card';
