@@ -1,18 +1,18 @@
 import { createClient } from '@supabase/supabase-js'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import type { cookies as CookiesFn } from 'next/headers'
+import { supabaseConfig } from '@/config/supabase'
 
 /**
  * Creates a Supabase client for browser-side operations
  * Used in client components for authentication
  */
 export function createClientBrowser() {
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://fdeblavnrrnoyqivydsg.supabase.co';
-  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkZWJsYXZucnJub3lxaXZ5ZHNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTgxMzgsImV4cCI6MjA3MDA3NDEzOH0.iaK-5qda3SZGkSwSJRB5ejyJ1Ky8S2tPOxRAPAap_FI';
+  const { url, anonKey } = supabaseConfig
 
   return createClient(
-    supabaseUrl,
-    supabaseKey,
+    url,
+    anonKey,
     {
       auth: {
         autoRefreshToken: true,
