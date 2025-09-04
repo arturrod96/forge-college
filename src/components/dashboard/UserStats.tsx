@@ -29,28 +29,38 @@ export function UserStats() {
     const fetchStats = async () => {
       setLoading(true);
       try {
-        // Single joined query for completed and in-progress progress with XP and path
-        const { data: progressData, error: progressError } = await supabase
+        // 1) Fetch user progress (only ids and status)
+        const { data: progressRows, error: progressError } = await supabase
           .from('user_progress')
-          .select(`
-            status,
-            lessons!inner(
-              xp_value,
-              modules!inner(
-                courses!inner(path_id)
-              )
-            )
-          `)
+          .select('lesson_id, status')
           .eq('user_id', user.id)
           .in('status', ['in_progress', 'completed']);
 
-        if (progressError) throw progressError;
+        if (progressError) throw new Error(progressError.message || 'Failed to load user progress');
 
-        const completedLessons = (progressData || []).filter((p: any) => p.status === 'completed').length;
-        const totalXP = (progressData || []).reduce((sum: number, p: any) => sum + (p.lessons?.xp_value || 0), 0);
+        const rows = progressRows || [];
+        const completedLessons = rows.filter((p: any) => p.status === 'completed').length;
+        const lessonIds = Array.from(new Set(rows.map((r: any) => r.lesson_id).filter(Boolean)));
+
+        if (lessonIds.length === 0) {
+          setStats({ totalXP: 0, completedLessons, inProgressPaths: 0, totalTimeSpent: 0 });
+          return;
+        }
+
+        // 2) Fetch lessons with nested modules -> courses to get path_id
+        const { data: lessonsData, error: lessonsError } = await supabase
+          .from('lessons')
+          .select('id, xp_value, modules:courses!inner(path_id), modules:modules(course_id, courses:courses(path_id))')
+          .in('id', lessonIds);
+
+        if (lessonsError) throw new Error(lessonsError.message || 'Failed to load lessons');
+
+        // Normalize nested path_id w/ both possible nesting keys
+        let totalXP = 0;
         const pathIds = new Set<string>();
-        (progressData || []).forEach((p: any) => {
-          const pid = p?.lessons?.modules?.courses?.path_id;
+        (lessonsData || []).forEach((l: any) => {
+          totalXP += l?.xp_value || 0;
+          const pid = l?.modules?.courses?.path_id || l?.modules?.path_id;
           if (pid) pathIds.add(pid);
         });
 
@@ -62,17 +72,12 @@ export function UserStats() {
           inProgressPaths,
           totalTimeSpent: Math.max(0, Math.floor(completedLessons * 15))
         });
-      } catch (error) {
-        console.error('Error fetching user statistics:', error);
-        // Valores de placeholder para demo
-        setStats({
-          totalXP: 150,
-          completedLessons: 12,
-          inProgressPaths: 3,
-          totalTimeSpent: 180
-        });
+      } catch (error: any) {
+        console.error('Error fetching user statistics:', error?.message || error);
+        setStats({ totalXP: 0, completedLessons: 0, inProgressPaths: 0, totalTimeSpent: 0 });
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchStats();
