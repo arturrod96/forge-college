@@ -14,23 +14,21 @@ const FALLBACK_CONFIG: SupabaseConfig = {
 
 // Get configuration for current environment
 export const getSupabaseConfig = (): SupabaseConfig => {
-  try {
-    // Always prefer environment variables for security
-    const url = import.meta.env.VITE_SUPABASE_URL;
-    const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    
-    if (!url || !anonKey) {
-      console.warn(
-        'Configuração do Supabase ausente. Usando valores de fallback. Defina as variáveis de ambiente VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY.'
-      );
-      return FALLBACK_CONFIG;
-    }
-    
+  // Prefer environment variables
+  const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+  const useMock = import.meta.env.VITE_USE_MOCK_AUTH === 'true';
+
+  if (url && anonKey) {
     return { url, anonKey };
-  } catch (error) {
-    console.error('Erro ao carregar configuração do Supabase:', error);
+  }
+
+  if (useMock) {
+    console.warn('Using Supabase fallback config due to VITE_USE_MOCK_AUTH=true');
     return FALLBACK_CONFIG;
   }
+
+  throw new Error('Missing Supabase configuration. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
 };
 
 // Export the configuration with error handling
@@ -38,8 +36,9 @@ let supabaseConfig: SupabaseConfig;
 try {
   supabaseConfig = getSupabaseConfig();
 } catch (error) {
-  console.error('Erro crítico na configuração do Supabase:', error);
-  supabaseConfig = FALLBACK_CONFIG;
+  // Keep throwing so callers can display a helpful message
+  console.error('Supabase config error:', error);
+  throw error;
 }
 
-export { supabaseConfig }; 
+export { supabaseConfig };
