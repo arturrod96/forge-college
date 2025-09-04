@@ -1,16 +1,16 @@
 import { createClient } from '@supabase/supabase-js'
+import { supabaseConfig } from '@/config/supabase'
 
 /**
  * Debug version of Supabase client to investigate connection issues
  */
 export function createDebugClient() {
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://fdeblavnrrnoyqivydsg.supabase.co';
-  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkZWJsYXZucnJub3lxaXZ5ZHNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTgxMzgsImV4cCI6MjA3MDA3NDEzOH0.iaK-5qda3SZGkSwSJRB5ejyJ1Ky8S2tPOxRAPAap_FI';
+  const { url, anonKey } = supabaseConfig
   
-  console.log('Debug: Supabase URL:', supabaseUrl);
-  console.log('Debug: Supabase Key (first 20 chars):', supabaseKey.substring(0, 20) + '...');
+  console.log('Debug: Supabase URL:', url);
+  console.log('Debug: Supabase Key (first 20 chars):', anonKey.substring(0, 20) + '...');
   
-  return createClient(supabaseUrl, supabaseKey, {
+  return createClient(url, anonKey, {
     auth: {
       autoRefreshToken: false, // Disable auto refresh for debugging
       persistSession: false,   // Disable session persistence for debugging
@@ -29,17 +29,15 @@ export function createDebugClient() {
         return fetch(url, {
           ...options,
           headers: {
-            ...options.headers,
+            ...(options as any).headers,
             'User-Agent': 'forge-college-debug/1.0'
           }
         }).then(response => {
           console.log('Debug: Response status:', response.status);
           console.log('Debug: Response headers:', Object.fromEntries(response.headers.entries()));
           
-          // Clone the response to avoid "body stream already read" errors
           const clonedResponse = response.clone();
           
-          // Log response text for debugging (but don't consume the original)
           clonedResponse.text().then(text => {
             console.log('Debug: Response body:', text.substring(0, 200) + (text.length > 200 ? '...' : ''));
           }).catch(err => {
@@ -62,13 +60,14 @@ export function createDebugClient() {
 export async function testSupabaseConnection() {
   try {
     const client = createDebugClient();
+    const { url, anonKey } = supabaseConfig
     
     console.log('Testing Supabase connection...');
     
     // Test with a simple health check first
-    const healthResponse = await fetch(`${import.meta.env.VITE_SUPABASE_URL || 'https://fdeblavnrrnoyqivydsg.supabase.co'}/rest/v1/`, {
+    const healthResponse = await fetch(`${url}/rest/v1/`, {
       headers: {
-        'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkZWJsYXZucnJub3lxaXZ5ZHNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTgxMzgsImV4cCI6MjA3MDA3NDEzOH0.iaK-5qda3SZGkSwSJRB5ejyJ1Ky8S2tPOxRAPAap_FI'
+        'apikey': anonKey
       }
     });
     
@@ -79,16 +78,16 @@ export async function testSupabaseConnection() {
     }
     
     // Try to test auth endpoint specifically
-    let authResponse;
+    let authResponse: Response | undefined;
     let authStatus = 'unknown';
     let authResponseText = 'Could not read response';
 
     try {
-      authResponse = await fetch(`${import.meta.env.VITE_SUPABASE_URL || 'https://fdeblavnrrnoyqivydsg.supabase.co'}/auth/v1/signup`, {
+      authResponse = await fetch(`${url}/auth/v1/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkZWJsYXZucnJub3lxaXZ5ZHNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTgxMzgsImV4cCI6MjA3MDA3NDEzOH0.iaK-5qda3SZGkSwSJRB5ejyJ1Ky8S2tPOxRAPAap_FI'
+          'apikey': anonKey
         },
         body: JSON.stringify({
           email: 'test@example.com',
@@ -99,7 +98,6 @@ export async function testSupabaseConnection() {
       authStatus = authResponse.status.toString();
       console.log('Auth endpoint status:', authResponse.status);
 
-      // Clone the response to avoid "body stream already read" errors
       const clonedResponse = authResponse.clone();
 
       try {
