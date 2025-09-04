@@ -93,14 +93,6 @@ export const mockAuth = {
  * Check if we should use mock authentication
  */
 export function shouldUseMockAuth(): boolean {
-  // Use mock auth if:
-  // 1. We're in development mode AND
-  // 2. No real Supabase URL is configured OR
-  // 3. The URL is the placeholder/demo one
-  
-  const isDev = process.env.NODE_ENV === 'development';
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const isPlaceholderUrl = !supabaseUrl || supabaseUrl.includes('fdeblavnrrnoyqivydsg');
-  
-  return isDev && isPlaceholderUrl;
+  // Explicit opt-in via env flag only
+  return import.meta.env.VITE_USE_MOCK_AUTH === 'true';
 }
