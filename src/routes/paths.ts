@@ -4,6 +4,7 @@
 export const ROOT = "/";
 export const COMPANIES = "/companies";
 export const INVESTORS = "/investors";
+export const OLD_HIDDEN = "/old/hidden/index";
 export const LOGIN = "/login";
 export const SIGNUP = "/signup";
 export const FORGOT_PASSWORD = "/forgot-password";
@@ -27,5 +28,3 @@ export const ROUTE_LABELS = {
   PROFILE: "My Profile",
   PAGE: "Page",
 } as const;
-
-
