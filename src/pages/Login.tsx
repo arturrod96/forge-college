@@ -88,7 +88,7 @@ export function Login() {
           }
           return;
         } else {
-          throw error;
+          throw new Error(error.message || 'Login failed');
         }
       }
 
