@@ -67,6 +67,9 @@ html{font-family:'Inter',sans-serif}body{margin:0;font-family:Inter,system-ui,-a
 @keyframes flameWiggle{0%{transform:rotate(0)}25%{transform:rotate(10deg)}75%{transform:rotate(-10deg)}100%{transform:rotate(0)}}
 .hero-icon{width:1.6em;height:1.6em;margin-left:.35em;object-fit:contain;display:inline-block;filter:drop-shadow(0 0 8px rgba(232,122,71,.45));animation:heroFloat 4s ease-in-out infinite}
 @keyframes heroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+/* Hero flame svg sway + color */
+.hero-flame{width:1.6em;height:1.6em;margin-left:.35em;display:inline-block;color:rgb(232 122 71 / var(--tw-bg-opacity,1));--tw-bg-opacity:1;animation:heroSway 4s ease-in-out infinite}
+@keyframes heroSway{0%{transform:rotate(0deg)}50%{transform:rotate(-8deg)}100%{transform:rotate(0deg)}}
 .lede{max-width:920px;margin:0 auto 20px;font-size:clamp(18px,2.2vw,22px);color:#6b776e}
 .cta{margin-top:6px}
 .hero-glow{position:absolute;inset:0;background:radial-gradient(520px 240px at 50% 0%,rgba(232,122,71,.22),transparent 60%);filter:blur(18px);pointer-events:none}
