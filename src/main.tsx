@@ -5,10 +5,10 @@ import { WagmiProvider } from 'wagmi'
 import { config } from './lib/wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import ErrorBoundary from './components/ErrorBoundary'
+import { BrowserRouter } from 'react-router-dom'
 
 const queryClient = new QueryClient()
 
-// Função para renderizar com tratamento de erro
 const renderApp = () => {
   try {
     const rootElement = document.getElementById('root');
@@ -21,7 +21,9 @@ const renderApp = () => {
       <ErrorBoundary>
         <WagmiProvider config={config}>
           <QueryClientProvider client={queryClient}>
-            <App />
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
           </QueryClientProvider>
         </WagmiProvider>
       </ErrorBoundary>
@@ -43,7 +45,6 @@ const renderApp = () => {
   }
 };
 
-// Só renderiza no cliente
 if (typeof window !== 'undefined') {
   renderApp();
 }
