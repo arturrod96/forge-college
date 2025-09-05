@@ -20,11 +20,13 @@ const renderApp = () => {
 
     createRoot(rootElement).render(
       <ErrorBoundary>
-        <WagmiProvider config={config}>
-          <QueryClientProvider client={queryClient}>
-            <App />
-          </QueryClientProvider>
-        </WagmiProvider>
+        <BrowserRouter>
+          <WagmiProvider config={config}>
+            <QueryClientProvider client={queryClient}>
+              <App />
+            </QueryClientProvider>
+          </WagmiProvider>
+        </BrowserRouter>
       </ErrorBoundary>
     );
   } catch (error) {
@@ -34,7 +36,7 @@ const renderApp = () => {
       rootElement.innerHTML = `
         <div style="padding: 2rem; text-align: center; font-family: system-ui, sans-serif;">
           <h1>Render Error</h1>
-          <p>Erro ao renderizar a aplicação: ${error instanceof Error ? error.message : 'Erro desconhecido'}</p>
+          <p>Erro ao renderizar a aplica��ão: ${error instanceof Error ? error.message : 'Erro desconhecido'}</p>
           <pre style="background: #f5f5f5; padding: 1rem; border-radius: 4px; text-align: left;">
             ${error instanceof Error ? error.stack : String(error)}
           </pre>
