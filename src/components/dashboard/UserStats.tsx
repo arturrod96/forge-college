@@ -21,6 +21,7 @@ export function UserStats() {
     totalTimeSpent: 0
   });
   const [loading, setLoading] = useState(true);
+  const [showSkeleton, setShowSkeleton] = useState(false);
 
   useEffect(() => {
     if (!user) return;
