@@ -53,7 +53,7 @@ export function SignUp() {
         }
       });
       
-      if (error) throw error;
+      if (error) throw new Error(error.message || 'OAuth sign-in failed');
     } catch (error: any) {
       setError(error.message);
       setLoading(false);
@@ -72,7 +72,7 @@ export function SignUp() {
         }
       });
       
-      if (error) throw error;
+      if (error) throw new Error(error.message || 'OAuth sign-in failed');
     } catch (error: any) {
       setError(error.message);
       setLoading(false);
