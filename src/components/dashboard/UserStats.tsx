@@ -27,6 +27,7 @@ export function UserStats() {
     if (!user) return;
 
     const fetchStats = async () => {
+      const start = Date.now();
       setLoading(true);
       try {
         // 1) Fetch user progress (only ids and status)
@@ -76,14 +77,30 @@ export function UserStats() {
         console.error('Error fetching user statistics:', error?.message || error);
         setStats({ totalXP: 0, completedLessons: 0, inProgressPaths: 0, totalTimeSpent: 0 });
       } finally {
-        setLoading(false);
+        const elapsed = Date.now() - start;
+        const MIN_SKELETON_MS = 600;
+        const delay = Math.max(0, MIN_SKELETON_MS - elapsed);
+        setTimeout(() => setLoading(false), delay);
       }
     };
 
     fetchStats();
   }, [user]);
 
-  if (loading) {
+  // Only show skeleton if loading persists beyond a short threshold
+  useEffect(() => {
+    let timer: number | undefined;
+    if (loading) {
+      timer = window.setTimeout(() => setShowSkeleton(true), 250);
+    } else {
+      setShowSkeleton(false);
+    }
+    return () => {
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [loading]);
+
+  if (loading && showSkeleton) {
     return (
       <div className="grid gap-4 md:grid-cols-4">
         {[...Array(4)].map((_, i) => (
