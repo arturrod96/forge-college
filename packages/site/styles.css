@@ -64,7 +64,8 @@
 .inline{display:inline-flex;align-items:center}
 .flame{width:1.6em;height:1.6em;margin-left:.35em;border-radius:30% 70% 50% 50% / 30% 40% 60% 70%;background:conic-gradient(from 0deg,#ffdf8f,#ff9d4d 40%,#ff5a3d 70%,#ffa861);box-shadow:0 0 24px rgba(232,122,71,.6) inset;animation:flameWiggle 4s ease-in-out infinite}
 @keyframes flameWiggle{0%{transform:rotate(0)}25%{transform:rotate(10deg)}75%{transform:rotate(-10deg)}100%{transform:rotate(0)}}
-.hero-icon{width:1.6em;height:1.6em;margin-left:.35em;object-fit:contain;display:inline-block;filter:drop-shadow(0 0 8px rgba(232,122,71,.45))}
+.hero-icon{width:1.6em;height:1.6em;margin-left:.35em;object-fit:contain;display:inline-block;filter:drop-shadow(0 0 8px rgba(232,122,71,.45));animation:heroFloat 4s ease-in-out infinite}
+@keyframes heroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 .lede{max-width:920px;margin:0 auto 20px;font-size:clamp(18px,2.2vw,22px);color:#6b776e}
 .cta{margin-top:6px}
 .hero-glow{position:absolute;inset:0;background:radial-gradient(520px 240px at 50% 0%,rgba(232,122,71,.22),transparent 60%);filter:blur(18px);pointer-events:none}
