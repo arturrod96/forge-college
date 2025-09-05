@@ -1,21 +1,35 @@
 import { createClient } from '@supabase/supabase-js'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import type { cookies as CookiesFn } from 'next/headers'
+import { supabaseConfig } from '@/config/supabase'
 
 /**
  * Creates a Supabase client for browser-side operations
  * Used in client components for authentication
  */
 export function createClientBrowser() {
+  const { url, anonKey } = supabaseConfig
+
   return createClient(
-    import.meta.env.VITE_SUPABASE_URL!,
-    import.meta.env.VITE_SUPABASE_ANON_KEY!,
+    url,
+    anonKey,
     {
       auth: {
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: true,
-        flowType: 'pkce'
+        flowType: 'implicit', // Changed from 'pkce' to 'implicit' for better compatibility
+        debug: process.env.NODE_ENV === 'development'
+      },
+      global: {
+        headers: {
+          'X-Client-Info': 'forge-college-web'
+        }
+      },
+      realtime: {
+        params: {
+          eventsPerSecond: 10
+        }
       }
     }
   )

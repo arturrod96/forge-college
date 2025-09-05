@@ -20,6 +20,9 @@ export default defineConfig(({ mode }) => {
     server: {
       host: "::",
       port: 3000,
+      hmr: {
+        overlay: false,
+      },
     },
     plugins,
     resolve: {

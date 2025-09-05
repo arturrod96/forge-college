@@ -71,7 +71,7 @@ export function PathOverview() {
       const { error } = await supabase
         .from('user_enrollments')
         .insert({ user_id: user.id, learning_path_id: pathId });
-      if (error) throw error;
+      if (error) throw new Error(error.message || 'Failed to enroll');
     },
     onSuccess: () => {
       toast.success(DASHBOARD_STRINGS.pathOverview.continue);
@@ -165,5 +165,3 @@ export function PathOverview() {
 }
 
 export default PathOverview;
-
-

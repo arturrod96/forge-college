@@ -46,7 +46,7 @@ export function CourseView() {
         `)
         .eq('id', courseId)
         .single();
-      if (error) throw error;
+      if (error) throw new Error(error.message || 'Failed to load course');
 
       const normalized: Course = {
         id: courseData.id,
@@ -95,5 +95,3 @@ export function CourseView() {
 }
 
 export default CourseView;
-
-

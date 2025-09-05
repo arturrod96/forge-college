@@ -32,6 +32,10 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
 
   const { data: paths = [], isLoading } = useQuery<LearningPath[]>({
     queryKey: ['availablePaths', user?.id],
+    enabled: true,
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+    keepPreviousData: true,
     queryFn: async (): Promise<LearningPath[]> => {
       const { data: pathsData, error: pathsError } = await supabase
         .from('learning_paths')
@@ -71,7 +75,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
       const { error } = await supabase
         .from('user_enrollments')
         .insert({ user_id: user.id, learning_path_id: pathId });
-      if (error) throw error;
+      if (error) throw new Error(error.message || 'Failed to enroll');
       return pathId;
     },
     onMutate: (pathId) => {
@@ -145,11 +149,11 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
             </CardHeader>
             <CardContent className="space-y-2 mt-auto">
               {path.isEnrolled ? (
-                <Link to={DASHBOARD_LEARN_PATH(path.id)}>
-                  <EnhancedButton className="w-full text-sm py-2" size="sm" withGradient>
+                <EnhancedButton className="w-full text-sm py-2" size="sm" withGradient asChild>
+                  <Link to={DASHBOARD_LEARN_PATH(path.id)}>
                     {DASHBOARD_STRINGS.availablePaths.continueLearning}
-                  </EnhancedButton>
-                </Link>
+                  </Link>
+                </EnhancedButton>
               ) : (
                 <>
                   <EnhancedButton 
@@ -162,11 +166,11 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
                     {enrollingId === path.id ? DASHBOARD_STRINGS.availablePaths.enrolling : DASHBOARD_STRINGS.availablePaths.enroll}
                   </EnhancedButton>
                   {user && (
-                    <Link to={DASHBOARD_LEARN_PATH(path.id)}>
-                      <EnhancedButton variant="ghost" size="sm" className="w-full">
+                    <EnhancedButton variant="ghost" size="sm" className="w-full" asChild>
+                      <Link to={DASHBOARD_LEARN_PATH(path.id)}>
                         {DASHBOARD_STRINGS.availablePaths.viewDetails}
-                      </EnhancedButton>
-                    </Link>
+                      </Link>
+                    </EnhancedButton>
                   )}
                 </>
               )}

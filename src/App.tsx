@@ -27,6 +27,7 @@ import SSRTest from './pages/SSRTest';
 import BarePage from './pages/BarePage';
 import StaticBare from './pages/StaticBare';
 import SSRCanary from './pages/SSRCanary';
+import AuthErrorBoundary from './components/auth/AuthErrorBoundary';
 import * as R from '@/routes/paths';
 
 const App = () => {
@@ -36,7 +37,8 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <OAuthProvider>
+          <AuthErrorBoundary>
+            <OAuthProvider>
             <Routes>
               {/* Public routes with Navbar */}
               <Route element={<PublicLayout />}>
@@ -78,8 +80,9 @@ const App = () => {
 
               {/* Not Found Route */}
               <Route path="*" element={<NotFound />} />
-            </Routes>
-          </OAuthProvider>
+              </Routes>
+            </OAuthProvider>
+          </AuthErrorBoundary>
         </BrowserRouter>
       </TooltipProvider>
     );

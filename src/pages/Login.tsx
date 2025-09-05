@@ -1,18 +1,21 @@
 import { useState } from 'react';
 import { createClientBrowser } from '../lib/supabase';
+import { testSupabaseConnection } from '../lib/supabase-debug';
+import { shouldUseMockAuth, mockAuth } from '../lib/supabase-simple';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { DASHBOARD } from '@/routes/paths';
-import { Github, Mail } from 'lucide-react';
+import { Github, Mail, Bug, AlertTriangle } from 'lucide-react';
 
 export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [testing, setTesting] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -20,23 +23,95 @@ export function Login() {
     e.preventDefault();
     setError(null);
     setLoading(true);
+
     try {
-      const supabase = createClientBrowser();
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      
-      if (error) {
-        throw error;
+      // Check if we should use mock authentication
+      if (shouldUseMockAuth()) {
+        console.log('Using mock authentication for development...');
+        const { data, error } = await mockAuth.signInWithPassword({
+          email: email.trim(),
+          password
+        });
+
+        if (error) {
+          throw new Error('Demo mode: use demo@example.com / demo123');
+        }
+
+        if (data?.user) {
+          console.log('Mock login successful, redirecting...');
+          // Store mock session in localStorage for RequireAuth to work
+          localStorage.setItem('mock-auth-user', JSON.stringify(data.user));
+
+          const from = (location.state as any)?.from?.pathname || DASHBOARD;
+          navigate(from, { replace: true });
+        }
+        return;
       }
-      
-      // Redirect to previous location if present, otherwise dashboard
-      const from = (location.state as any)?.from?.pathname || DASHBOARD;
-      navigate(from, { replace: true });
+
+      // Try real Supabase authentication
+      console.log('Attempting Supabase authentication...');
+
+      const supabase = createClientBrowser();
+
+      // Simple login without Promise.race to avoid complications
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password
+      });
+
+      console.log('Login response:', { data: !!data, error: error?.message });
+
+      if (error) {
+        // Handle specific Supabase error types
+        if (error.message?.includes('Invalid login credentials')) {
+          throw new Error('Invalid email or password. Please check your credentials and try again.');
+        } else if (error.message?.includes('Email not confirmed')) {
+          throw new Error('Please check your email and click the confirmation link before signing in.');
+        } else if (error.message?.includes('Too many requests')) {
+          throw new Error('Too many login attempts. Please wait a moment before trying again.');
+        } else if (error.message?.includes('body stream already read')) {
+          // Fall back to mock auth if Supabase is having issues
+          console.log('Supabase error detected, falling back to mock auth...');
+          const { data: mockData, error: mockError } = await mockAuth.signInWithPassword({
+            email: email.trim(),
+            password
+          });
+
+          if (mockError) {
+            throw new Error(mockError.message);
+          }
+
+          if (mockData?.user) {
+            localStorage.setItem('mock-auth-user', JSON.stringify(mockData.user));
+            const from = (location.state as any)?.from?.pathname || DASHBOARD;
+            navigate(from, { replace: true });
+          }
+          return;
+        } else {
+          throw new Error(error.message || 'Login failed');
+        }
+      }
+
+      if (data?.user) {
+        console.log('Login successful, redirecting...');
+        // Redirect to previous location if present, otherwise dashboard
+        const from = (location.state as any)?.from?.pathname || DASHBOARD;
+        navigate(from, { replace: true });
+      }
     } catch (error: any) {
-      // Check if it's a network error due to placeholder credentials
-      if (error.message.includes('fetch') || error.message.includes('network')) {
-        setError('Authentication service not configured. Please contact the administrator.');
+      console.error('Login error:', error);
+
+      // Enhanced error handling with more specific messages
+      if (error.message?.includes('body stream already read')) {
+        setError('Authentication service configuration error. Using demo mode - try email: demo@example.com, password: demo123');
+      } else if (error.message?.includes('fetch') || error.message?.includes('network')) {
+        setError('Network connection error. Please check your internet connection and try again.');
+      } else if (error.message?.includes('Failed to execute')) {
+        setError('Authentication service error. The Supabase instance may be misconfigured.');
+      } else if (error.message?.includes('Supabase connection failed')) {
+        setError('Cannot connect to authentication service. Please check if Supabase is properly configured.');
       } else {
-        setError(error.message);
+        setError(error.message || 'An unexpected error occurred. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -48,16 +123,21 @@ export function Login() {
       setError(null);
       setLoading(true);
       const supabase = createClientBrowser();
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`
         }
       });
-      
-      if (error) throw error;
+
+      if (error) {
+        console.error('Google OAuth error:', error);
+        throw new Error('Google sign-in failed. Please try again.');
+      }
     } catch (error: any) {
-      setError(error.message);
+      console.error('Google login error:', error);
+      setError(error.message || 'Google sign-in failed. Please try again.');
       setLoading(false);
     }
   };
@@ -67,16 +147,21 @@ export function Login() {
       setError(null);
       setLoading(true);
       const supabase = createClientBrowser();
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`
         }
       });
-      
-      if (error) throw error;
+
+      if (error) {
+        console.error('GitHub OAuth error:', error);
+        throw new Error('GitHub sign-in failed. Please try again.');
+      }
     } catch (error: any) {
-      setError(error.message);
+      console.error('GitHub login error:', error);
+      setError(error.message || 'GitHub sign-in failed. Please try again.');
       setLoading(false);
     }
   };
@@ -94,6 +179,18 @@ export function Login() {
           <CardTitle className="text-forge-dark text-2xl font-bold">Login</CardTitle>
         </CardHeader>
         <CardContent>
+          {shouldUseMockAuth() && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center gap-2 text-blue-700 text-sm">
+                <AlertTriangle className="w-4 h-4" />
+                <span className="font-medium">Demo Mode</span>
+              </div>
+              <p className="text-xs text-blue-600 mt-1">
+                Use demo credentials: <strong>demo@example.com</strong> / <strong>demo123</strong>
+              </p>
+            </div>
+          )}
+
           <form onSubmit={handleLogin}>
             <div className="grid gap-4">
               <div className="grid gap-2">
@@ -101,7 +198,7 @@ export function Login() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder={shouldUseMockAuth() ? "demo@example.com" : "m@example.com"}
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -190,6 +287,33 @@ export function Login() {
                   Forgot your password?
                 </Link>
               </div>
+
+              {/* Debug button - only show in development */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="text-center">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      setTesting(true);
+                      try {
+                        const result = await testSupabaseConnection();
+                        alert(`Connection test ${result.success ? 'passed' : 'failed'}: ${JSON.stringify(result, null, 2)}`);
+                      } catch (err) {
+                        alert(`Connection test error: ${err}`);
+                      } finally {
+                        setTesting(false);
+                      }
+                    }}
+                    disabled={testing}
+                    className="text-xs"
+                  >
+                    <Bug className="w-3 h-3 mr-1" />
+                    {testing ? 'Testing...' : 'Test Connection'}
+                  </Button>
+                </div>
+              )}
             </div>
           </form>
         </CardContent>

@@ -22,7 +22,7 @@ export function ForgotPassword() {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/update-password`,
       });
-      if (error) throw error;
+      if (error) throw new Error(error.message || 'Failed to send reset email');
       setMessage('Check your email for a password reset link.');
     } catch (error: any) {
       setError(error.message);

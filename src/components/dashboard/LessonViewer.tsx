@@ -57,7 +57,7 @@ export function LessonViewer({ lesson, course, onLessonChange }: Props) {
           { onConflict: 'user_id,lesson_id' }
         );
 
-      if (error) throw error;
+      if (error) throw new Error(error.message || 'Failed to save progress');
 
       toast.success('Lesson marked as completed!');
       

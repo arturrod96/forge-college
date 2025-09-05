@@ -26,7 +26,7 @@ export function UpdatePassword() {
     try {
       const supabase = createClientBrowser();
       const { error } = await supabase.auth.updateUser({ password });
-      if (error) throw error;
+      if (error) throw new Error(error.message || 'Failed to update password');
       setMessage('Password updated successfully! Redirecting to login...');
       setTimeout(() => navigate('/login'), 3000);
     } catch (error: any) {

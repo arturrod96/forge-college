@@ -17,10 +17,15 @@ type LearningHabitsProps = {
 
 export function LearningHabits({ className }: LearningHabitsProps) {
   const { user } = useAuth();
+  const supabase = useMemo(() => createClientBrowser(), []);
 
   const { data: completions = [], isLoading } = useQuery<ProgressRow[]>({
     queryKey: ['learningHabits', user?.id],
     enabled: !!user?.id,
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    keepPreviousData: true,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('user_progress')
@@ -30,7 +35,7 @@ export function LearningHabits({ className }: LearningHabitsProps) {
         .not('completed_at', 'is', null)
         .order('completed_at', { ascending: false })
         .limit(200);
-      if (error) throw error;
+      if (error) throw new Error(error.message || 'Failed to load learning habits');
       return data as ProgressRow[];
     },
   });
@@ -124,5 +129,3 @@ export function LearningHabits({ className }: LearningHabitsProps) {
 }
 
 export default LearningHabits;
-
-
