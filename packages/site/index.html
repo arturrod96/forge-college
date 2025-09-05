@@ -1,98 +1,115 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Forge College — Get Paid to Learn</title>
-  <meta name="description" content="Master Web3 development, earn 6,000 USDC monthly for 6 months, and only pay us when we land you a job." />
+  <meta name="description" content="Master Web3 development, earn $6,000 USDC monthly for 6 months, and only pay us when we land you a job." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <div class="page-wrapper">
-    <!-- Animated background -->
-    <div class="bg-animated" aria-hidden="true"></div>
+  <div class="site">
+    <div class="anim-bg hero" aria-hidden="true"></div>
 
-    <!-- Navbar -->
-    <header class="navbar">
-      <div class="container">
-        <a class="brand" href="#">Forge College</a>
+    <header class="nav">
+      <div class="wrap">
+        <a class="logo" href="/">
+          <img src="https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/forgecollege-2c35f0?format=webp&width=800" alt="Forge College" />
+        </a>
 
-        <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle navigation" />
-        <label for="menu-toggle" class="hamburger" aria-hidden="true">
-          <span></span><span></span><span></span>
-        </label>
+        <input id="menu" type="checkbox" class="menu-toggle" aria-label="Abrir menu" />
+        <label for="menu" class="hamburger" aria-hidden="true"><span></span><span></span><span></span></label>
 
-        <nav class="nav-links">
-          <a href="#professionals">For Professionals</a>
-          <a href="#companies">For Companies</a>
-          <a href="#investors">For Investors</a>
+        <nav class="nav-pills">
+          <a href="#/" class="pill active">For Professionals</a>
+          <span class="divider"></span>
+          <a href="#companies" class="pill">For Companies</a>
+          <span class="divider"></span>
+          <a href="#investors" class="pill">For Investors</a>
         </nav>
+
         <div class="nav-cta">
-          <a class="btn ghost" href="#signin">Sign In</a>
-          <a class="btn primary" href="#signup">Sign Up</a>
+          <a class="btn link" href="#signin">Sign In</a>
+          <a class="btn solid" href="#signup">Sign Up</a>
+        </div>
+
+        <div class="nav-mobile">
+          <div class="menu-sheet">
+            <a href="#/" class="sheet-link active">For Professionals</a>
+            <a href="#companies" class="sheet-link">For Companies</a>
+            <a href="#investors" class="sheet-link">For Investors</a>
+            <div class="sheet-actions">
+              <a class="btn link block" href="#signin">Sign In</a>
+              <a class="btn solid block" href="#signup">Sign Up</a>
+            </div>
+          </div>
         </div>
       </div>
     </header>
 
-    <!-- Hero -->
     <main>
-      <section class="section hero" id="home">
-        <div class="container hero-inner">
-          <div class="eyebrow">
-            <span class="icon flame" aria-hidden="true"></span>
-            <span>Get Paid to Learn.</span>
-          </div>
-          <h1 class="title">Get Paid to Learn.</h1>
-          <p class="subtitle">Master Web3 development, earn <strong>$6,000 USDC monthly</strong> for 6 months, and only pay us when we land you a job.</p>
-          <a href="#apply" class="btn magnetic">
-            <span>Apply to Next Cohort</span>
-            <svg class="arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+      <!-- Hero -->
+      <section class="section hero">
+        <div class="wrap center">
+          <h1 class="display">
+            Get Paid
+            <br />
+            <span class="inline">
+              to Learn.
+              <span class="flame" aria-hidden="true"></span>
+            </span>
+          </h1>
+          <p class="lede">
+            Master Web3 development, earn $6,000 USDC monthly for 6 months,
+            <br class="br-md" />
+            and only pay us when we land you a job.
+          </p>
+          <a href="#apply" class="btn solid round cta">
+            Apply to Next Cohort
+            <svg class="icon-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
         </div>
         <div class="hero-glow" aria-hidden="true"></div>
       </section>
 
-      <!-- Marquee -->
+      <!-- Company Marquee -->
       <section class="section marquee">
-        <div class="container">
-          <p class="muted">Learn the skills to work at companies like:</p>
+        <div class="wrap">
+          <p class="muted center">Learn the skills to work at companies like:</p>
         </div>
-        <div class="marquee-track" aria-label="Scrolling companies">
-          <ul class="marquee-row">
+        <div class="marquee-track" aria-label="companies">
+          <ul class="row">
             <li>Uniswap</li><li>Chainlink</li><li>Polygon</li><li>Solana</li><li>Ethereum Foundation</li><li>ConsenSys</li><li>Compound</li><li>Aave</li><li>OpenSea</li><li>Metamask</li>
           </ul>
-          <ul class="marquee-row" aria-hidden="true">
+          <ul class="row" aria-hidden="true">
             <li>Uniswap</li><li>Chainlink</li><li>Polygon</li><li>Solana</li><li>Ethereum Foundation</li><li>ConsenSys</li><li>Compound</li><li>Aave</li><li>OpenSea</li><li>Metamask</li>
           </ul>
         </div>
       </section>
 
       <!-- Program by the Numbers -->
-      <section class="section numbers" id="numbers">
-        <div class="container">
-          <header class="section-head">
+      <section class="section numbers">
+        <div class="wrap">
+          <header class="section-head center">
             <h2>Program by the Numbers</h2>
             <p class="muted">Real outcomes, real careers, real impact</p>
           </header>
-          <div class="card-grid">
+          <div class="grid-3">
             <article class="card">
-              <div class="icon target" aria-hidden="true"></div>
+              <div class="i target"></div>
               <h3>6 Month Program</h3>
               <p>Intensive, structured, and focused on employability.</p>
             </article>
             <article class="card">
-              <div class="icon dollar" aria-hidden="true"></div>
+              <div class="i dollar"></div>
               <h3>$6K/mo Monthly Salary</h3>
               <p>Get paid to learn while building real products.</p>
             </article>
             <article class="card">
-              <div class="icon trend" aria-hidden="true"></div>
+              <div class="i trend"></div>
               <h3>95% Job Placement</h3>
               <p>We win when you win—aligned incentives, real results.</p>
             </article>
@@ -101,55 +118,155 @@
       </section>
 
       <!-- Sticky Story -->
-      <section class="section sticky-story" id="sticky-story">
-        <div class="container">
-          <header class="section-head">
-            <h2>Learn by Building Real Web3 Products</h2>
-            <p class="muted">Smart Contracts • Real Impact</p>
-          </header>
-          <div class="sticky-layout">
-            <div class="sticky-copy">
-              <h3>Smart Contracts</h3>
-              <p>Learn Solidity, security, and gas optimization by shipping production-grade contracts. You’ll design, implement, and audit real-world systems used by companies.</p>
-              <ul class="bullets">
-                <li>Solidity fundamentals and best practices</li>
-                <li>Gas optimization techniques</li>
-                <li>Security patterns and audits</li>
-              </ul>
-            </div>
-            <pre class="code-block"><code>pragma solidity ^0.8.24;
-
+      <section class="section sticky-story">
+        <div class="wrap sticky-grid">
+          <div class="sticky-col">
+            <div class="code-card">
+              <div class="code-head">
+                <span class="dot"></span>
+                <span class="label">Live Code</span>
+              </div>
+              <pre class="code"><code>// Forge College Smart Contract
 contract ForgeCollege {
-    address public owner;
-    mapping(address =&gt; bool) public enrolled;
-
-    event Enrolled(address indexed student);
-
-    constructor() {
-        owner = msg.sender;
-    }
-
-    function enroll() external {
-        require(!enrolled[msg.sender], "Already enrolled");
-        enrolled[msg.sender] = true;
-        emit Enrolled(msg.sender);
-    }
+  // Student program details
+  struct Student {
+    address wallet;
+    uint256 stipendAmount;
+    uint256 completedProjects;
+    bool jobPlaced;
+  }
+  
+  // Company sponsor mapping
+  mapping(address => uint256) sponsors;
+  
+  // ISA terms and repayment logic
+  function startLearning() public {
+    // Begin 6-month program
+    // Receive monthly stipend
+    // Work on real projects
+  }
+  
+  function completeProgram() public {
+    // Portfolio validation
+    // Job matching algorithm
+    // ISA activation only on job placement
+  }
 }
 </code></pre>
+            </div>
           </div>
+          <div class="flow">
+            <h2 class="flow-title">Learn by Building Real Web3 Products</h2>
+            <div class="flow-step">
+              <h3>Smart Contracts <span class="hl">Real Impact</span></h3>
+              <p>Learn to build and deploy smart contracts that power DeFi protocols, NFT marketplaces, and DAOs. Master Solidity, security best practices, and gas optimization.</p>
+            </div>
+            <div class="flow-step">
+              <h3>DeFi Development <span class="hl">$2B+ TVL</span></h3>
+              <p>Build actual trading protocols, yield farming platforms, and lending systems. Work with real liquidity and understand how billions flow through Web3.</p>
+            </div>
+            <div class="flow-step">
+              <h3>Job Guarantee <span class="hl">Zero Risk</span></h3>
+              <p>Our ISA model means we only succeed when you do. Get placed in top Web3 companies or pay nothing. It's that simple.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Why Forge College (Features) -->
+      <section class="section features">
+        <div class="wrap">
+          <header class="section-head center">
+            <h2>Why Forge College?</h2>
+            <p class="muted">The only Web3 education program where you earn while you learn</p>
+          </header>
+          <div class="grid-3">
+            <article class="feat">
+              <div class="feat-head">
+                <div class="feat-icon">$</div>
+                <span class="chip">$36,000</span>
+              </div>
+              <h3>Get Paid to Learn</h3>
+              <p>Receive $6,000 USDC monthly while mastering Web3 development</p>
+            </article>
+            <article class="feat">
+              <div class="feat-head">
+                <div class="feat-icon code">{ }</div>
+                <span class="chip">Live Code</span>
+              </div>
+              <h3>Real Projects</h3>
+              <p>Build actual DeFi protocols, NFT platforms, and blockchain infrastructure</p>
+            </article>
+            <article class="feat">
+              <div class="feat-head">
+                <div class="feat-icon brief"></div>
+                <span class="chip">95% Success</span>
+              </div>
+              <h3>Guaranteed Placement</h3>
+              <p>Access our exclusive network of Web3 companies hiring developers</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Testimonials Marquee -->
+      <section class="section testimonials">
+        <div class="wrap">
+          <h3 class="center t-head">What Our Students Say</h3>
+          <div class="marquee-track" aria-label="quotes">
+            <div class="cards row slow">
+              <div class="tcard"><p class="quote">“Changed my life completely. From zero to Web3 developer in 6 months.”</p><p class="author">— Sarah Chen</p></div>
+              <div class="tcard"><p class="quote">“The ISA model meant I could focus 100% on learning.”</p><p class="author">— Marcus Rodriguez</p></div>
+              <div class="tcard"><p class="quote">“Landed a $120k job right after graduation.”</p><p class="author">— Alex Thompson</p></div>
+            </div>
+            <div class="cards row slow" aria-hidden="true">
+              <div class="tcard"><p class="quote">“Changed my life completely. From zero to Web3 developer in 6 months.”</p><p class="author">— Sarah Chen</p></div>
+              <div class="tcard"><p class="quote">“The ISA model meant I could focus 100% on learning.”</p><p class="author">— Marcus Rodriguez</p></div>
+              <div class="tcard"><p class="quote">“Landed a $120k job right after graduation.”</p><p class="author">— Alex Thompson</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Next Cohort CTA -->
+      <section class="section cta-panel">
+        <div class="anim-bg subtle" aria-hidden="true"></div>
+        <div class="wrap center">
+          <h2 class="display-sm">No upfront cost.<br />Pay only when you land a job.</h2>
+          <p class="lede-sm">Our Income Share Agreement means you focus on learning, not debt. We only succeed when you do.</p>
+
+          <div class="panel-dark">
+            <div class="anim-bg dark" aria-hidden="true"></div>
+            <div class="panel-inner">
+              <div class="chip-line"><span class="zap"></span><span>Next Cohort Starting Soon</span></div>
+              <h3 class="panel-title">April 2026</h3>
+              <p class="panel-sub">Limited to 10 students</p>
+              <a href="#secure" class="btn solid round">Secure Your Spot</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Final CTA -->
+      <section class="section final">
+        <div class="anim-bg dark" aria-hidden="true"></div>
+        <div class="wrap center">
+          <h2 class="display-sm cream">Ready to forge<br />your future?</h2>
+          <p class="lede-sm cream-80">Join the next generation of Web3 developers. Apply now for the April 2026 cohort.</p>
+          <a href="#apply" class="btn solid round big">Apply Now <svg class="icon-arrow" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <div class="fine">No upfront cost • Pay only when you get hired</div>
         </div>
       </section>
     </main>
 
     <footer class="footer">
-      <div class="container">
+      <div class="wrap">
         <p>© <span id="year"></span> Forge College. All rights reserved.</p>
       </div>
     </footer>
   </div>
 
   <script>
-    // Year only; no interactive JS required elsewhere
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
