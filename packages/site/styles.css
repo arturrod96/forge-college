@@ -80,10 +80,12 @@ html{font-family:'Inter',sans-serif}body{margin:0;font-family:Inter,system-ui,-a
 .row li{white-space:nowrap;padding:8px 14px;border:1px solid rgba(45,58,46,.18);border-radius:12px;background:rgba(45,58,46,.02)}
 .row + .row{margin-left:40px}
 @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
-/* Single-line companies list */
-.companies-line{display:flex;gap:40px;justify-content:center;align-items:center;flex-wrap:nowrap;white-space:nowrap;padding:12px 0;color:#33433a;font-weight:800;letter-spacing:.3px}
-.companies-line span{white-space:nowrap;padding:8px 14px;border:1px solid rgba(45,58,46,.18);border-radius:12px;background:rgba(45,58,46,.02)}
-@media (max-width: 960px){.companies-line{overflow-x:auto;justify-content:flex-start;padding-inline:4%;-webkit-overflow-scrolling:touch}}
+/* Companies auto-loop marquee */
+.companies-loop{position:relative;overflow:hidden;-webkit-mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent)}
+.companies-loop .loop-track{display:inline-flex;gap:40px;align-items:center;white-space:nowrap;padding:12px 0;color:#33433a;font-weight:800;letter-spacing:.3px;flex:none;animation:companiesLoop 28s linear infinite}
+.companies-loop span{white-space:nowrap;padding:8px 14px;border:1px solid rgba(45,58,46,.18);border-radius:12px;background:rgba(45,58,46,.02)}
+@keyframes companiesLoop{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+@media (max-width: 960px){.companies-loop{padding-inline:4%}}
 
 /* Numbers */
 .section-head h2{margin:0 0 10px;font-size:clamp(28px,4.6vw,44px);color:var(--forge-dark);font-weight:800}
