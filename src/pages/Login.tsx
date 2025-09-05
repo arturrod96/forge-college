@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { createClientBrowser } from '../lib/supabase';
-import { testSupabaseConnection } from '../lib/supabase-debug';
 import { shouldUseMockAuth, mockAuth } from '../lib/supabase-simple';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -8,14 +7,13 @@ import { Label } from '../components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { DASHBOARD } from '@/routes/paths';
-import { Github, Mail, Bug, AlertTriangle } from 'lucide-react';
+import { Github, AlertTriangle } from 'lucide-react';
 
 export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [testing, setTesting] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -288,32 +286,6 @@ export function Login() {
                 </Link>
               </div>
 
-              {/* Debug button - only show in development */}
-              {process.env.NODE_ENV === 'development' && (
-                <div className="text-center">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={async () => {
-                      setTesting(true);
-                      try {
-                        const result = await testSupabaseConnection();
-                        alert(`Connection test ${result.success ? 'passed' : 'failed'}: ${JSON.stringify(result, null, 2)}`);
-                      } catch (err) {
-                        alert(`Connection test error: ${err}`);
-                      } finally {
-                        setTesting(false);
-                      }
-                    }}
-                    disabled={testing}
-                    className="text-xs"
-                  >
-                    <Bug className="w-3 h-3 mr-1" />
-                    {testing ? 'Testing...' : 'Test Connection'}
-                  </Button>
-                </div>
-              )}
             </div>
           </form>
         </CardContent>
