@@ -75,7 +75,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
       const { error } = await supabase
         .from('user_enrollments')
         .insert({ user_id: user.id, learning_path_id: pathId });
-      if (error) throw error;
+      if (error) throw new Error(error.message || 'Failed to enroll');
       return pathId;
     },
     onMutate: (pathId) => {
