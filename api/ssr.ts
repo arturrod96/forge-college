@@ -1,19 +1,25 @@
 import { readFileSync } from "fs";
 import { join } from "path";
+import { readFileSync, existsSync } from "fs";
+import { pathToFileURL } from "url";
 
 let cachedTemplate: string | null = null;
 let ssrRender: null | ((url: string) => Promise<string>) = null;
 
 export default async function handler(req: any, res: any) {
   try {
-    // DEBUG: comente após testar
-    res.status(200).send("<h1>SSR BOOT OK - Handler está sendo chamado!</h1>");
-    return;
-
     // 1) Carregar template sempre DENTRO do try
     if (!cachedTemplate) {
-      const htmlPath = join(process.cwd(), "public", "index.html");
-      cachedTemplate = readFileSync(htmlPath, "utf-8");
+      const publicDir = join(process.cwd(), "public");
+      const indexPath = join(publicDir, "index.html");
+      const fallbackPath = join(publicDir, "bare.html");
+      if (existsSync(indexPath)) {
+        cachedTemplate = readFileSync(indexPath, "utf-8");
+      } else if (existsSync(fallbackPath)) {
+        cachedTemplate = readFileSync(fallbackPath, "utf-8");
+      } else {
+        cachedTemplate = "";
+      }
       if (!cachedTemplate.includes("<!--ssr-outlet-->")) {
         // fallback seguro para evitar corpo vazio
         cachedTemplate =
@@ -23,8 +29,9 @@ export default async function handler(req: any, res: any) {
 
     // 2) Import SSR bundle DENTRO do try (evita crash em cold start)
     if (!ssrRender) {
-      // 👇 **AQUI** precisa apontar para o bundle SSR gerado pelo `vite build --ssr`
-      const mod = await import("../dist/client/entry-server.js"); // ou .mjs conforme seu output
+      // 👇 Carrega o bundle SSR copiado para /public pelo processo de build
+      const ssrUrl = pathToFileURL(join(process.cwd(), "public", "entry-server.js")).href;
+      const mod = await import(ssrUrl);
       ssrRender = mod.render;
       if (!ssrRender) throw new Error("SSR render() not found in entry-server");
     }
