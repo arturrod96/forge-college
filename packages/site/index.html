@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forge College — Get Paid to Learn</title>
+  <meta name="description" content="Master Web3 development, earn 6,000 USDC monthly for 6 months, and only pay us when we land you a job." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="page-wrapper">
+    <!-- Animated background -->
+    <div class="bg-animated" aria-hidden="true"></div>
+
+    <!-- Navbar -->
+    <header class="navbar">
+      <div class="container">
+        <a class="brand" href="#">Forge College</a>
+
+        <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle navigation" />
+        <label for="menu-toggle" class="hamburger" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </label>
+
+        <nav class="nav-links">
+          <a href="#professionals">For Professionals</a>
+          <a href="#companies">For Companies</a>
+          <a href="#investors">For Investors</a>
+        </nav>
+        <div class="nav-cta">
+          <a class="btn ghost" href="#signin">Sign In</a>
+          <a class="btn primary" href="#signup">Sign Up</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <main>
+      <section class="section hero" id="home">
+        <div class="container hero-inner">
+          <div class="eyebrow">
+            <span class="icon flame" aria-hidden="true"></span>
+            <span>Get Paid to Learn.</span>
+          </div>
+          <h1 class="title">Get Paid to Learn.</h1>
+          <p class="subtitle">Master Web3 development, earn <strong>$6,000 USDC monthly</strong> for 6 months, and only pay us when we land you a job.</p>
+          <a href="#apply" class="btn magnetic">
+            <span>Apply to Next Cohort</span>
+            <svg class="arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </div>
+        <div class="hero-glow" aria-hidden="true"></div>
+      </section>
+
+      <!-- Marquee -->
+      <section class="section marquee">
+        <div class="container">
+          <p class="muted">Learn the skills to work at companies like:</p>
+        </div>
+        <div class="marquee-track" aria-label="Scrolling companies">
+          <ul class="marquee-row">
+            <li>Uniswap</li><li>Chainlink</li><li>Polygon</li><li>Solana</li><li>Ethereum Foundation</li><li>ConsenSys</li><li>Compound</li><li>Aave</li><li>OpenSea</li><li>Metamask</li>
+          </ul>
+          <ul class="marquee-row" aria-hidden="true">
+            <li>Uniswap</li><li>Chainlink</li><li>Polygon</li><li>Solana</li><li>Ethereum Foundation</li><li>ConsenSys</li><li>Compound</li><li>Aave</li><li>OpenSea</li><li>Metamask</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Program by the Numbers -->
+      <section class="section numbers" id="numbers">
+        <div class="container">
+          <header class="section-head">
+            <h2>Program by the Numbers</h2>
+            <p class="muted">Real outcomes, real careers, real impact</p>
+          </header>
+          <div class="card-grid">
+            <article class="card">
+              <div class="icon target" aria-hidden="true"></div>
+              <h3>6 Month Program</h3>
+              <p>Intensive, structured, and focused on employability.</p>
+            </article>
+            <article class="card">
+              <div class="icon dollar" aria-hidden="true"></div>
+              <h3>$6K/mo Monthly Salary</h3>
+              <p>Get paid to learn while building real products.</p>
+            </article>
+            <article class="card">
+              <div class="icon trend" aria-hidden="true"></div>
+              <h3>95% Job Placement</h3>
+              <p>We win when you win—aligned incentives, real results.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sticky Story -->
+      <section class="section sticky-story" id="sticky-story">
+        <div class="container">
+          <header class="section-head">
+            <h2>Learn by Building Real Web3 Products</h2>
+            <p class="muted">Smart Contracts • Real Impact</p>
+          </header>
+          <div class="sticky-layout">
+            <div class="sticky-copy">
+              <h3>Smart Contracts</h3>
+              <p>Learn Solidity, security, and gas optimization by shipping production-grade contracts. You’ll design, implement, and audit real-world systems used by companies.</p>
+              <ul class="bullets">
+                <li>Solidity fundamentals and best practices</li>
+                <li>Gas optimization techniques</li>
+                <li>Security patterns and audits</li>
+              </ul>
+            </div>
+            <pre class="code-block"><code>pragma solidity ^0.8.24;
+
+contract ForgeCollege {
+    address public owner;
+    mapping(address =&gt; bool) public enrolled;
+
+    event Enrolled(address indexed student);
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    function enroll() external {
+        require(!enrolled[msg.sender], "Already enrolled");
+        enrolled[msg.sender] = true;
+        emit Enrolled(msg.sender);
+    }
+}
+</code></pre>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p>© <span id="year"></span> Forge College. All rights reserved.</p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Year only; no interactive JS required elsewhere
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
