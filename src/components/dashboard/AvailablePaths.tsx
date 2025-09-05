@@ -32,6 +32,10 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
 
   const { data: paths = [], isLoading } = useQuery<LearningPath[]>({
     queryKey: ['availablePaths', user?.id],
+    enabled: true,
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+    keepPreviousData: true,
     queryFn: async (): Promise<LearningPath[]> => {
       const { data: pathsData, error: pathsError } = await supabase
         .from('learning_paths')
