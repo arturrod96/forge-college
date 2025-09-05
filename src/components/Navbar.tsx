@@ -44,7 +44,7 @@ const Navbar = () => {
   
   // Always show landing page navigation items for all users (including logged in users)
   const landingPageNavItems = [
-    { path: "/", label: "For Professionals" },
+    { path: "/old/hidden/index", label: "For Professionals" },
     { path: "/companies", label: "For Companies" },
     { path: "/investors", label: "For Investors" },
   ];
