@@ -27,7 +27,7 @@ export function SignUp() {
     try {
       const supabase = createClientBrowser();
       const { error } = await supabase.auth.signUp({ email, password });
-      if (error) throw error;
+      if (error) throw new Error(error.message || 'Sign up failed');
       setMessage('Check your email for the confirmation link!');
     } catch (error: any) {
       // Check if it's a network error due to placeholder credentials
