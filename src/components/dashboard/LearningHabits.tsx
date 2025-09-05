@@ -36,7 +36,7 @@ export function LearningHabits({ className }: LearningHabitsProps) {
         .not('completed_at', 'is', null)
         .order('completed_at', { ascending: false })
         .limit(200);
-      if (error) throw error;
+      if (error) throw new Error(error.message || 'Failed to load learning habits');
       return data as ProgressRow[];
     },
   });
