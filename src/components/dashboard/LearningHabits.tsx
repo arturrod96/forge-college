@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useAuth } from '@/hooks/useOAuth';
 import { createClientBrowser } from '@/lib/supabase';
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -17,10 +18,15 @@ type LearningHabitsProps = {
 
 export function LearningHabits({ className }: LearningHabitsProps) {
   const { user } = useAuth();
+  const supabase = useMemo(() => createClientBrowser(), []);
 
   const { data: completions = [], isLoading } = useQuery<ProgressRow[]>({
     queryKey: ['learningHabits', user?.id],
     enabled: !!user?.id,
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    keepPreviousData: true,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('user_progress')
@@ -124,5 +130,3 @@ export function LearningHabits({ className }: LearningHabitsProps) {
 }
 
 export default LearningHabits;
-
-
