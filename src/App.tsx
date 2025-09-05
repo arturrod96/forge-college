@@ -2,7 +2,7 @@ import { OAuthProvider } from './hooks/useOAuth';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Professionals from "./pages/Professionals";
 import Companies from "./pages/Companies";
 import Investors from "./pages/Investors";
@@ -36,35 +36,29 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <AuthErrorBoundary>
-            <OAuthProvider>
+        <AuthErrorBoundary>
+          <OAuthProvider>
             <Routes>
-              {/* Root redirect to dashboard */}
               <Route path={R.ROOT} element={<Navigate to={R.DASHBOARD} replace />} />
-              {/* Public routes with Navbar */}
               <Route element={<PublicLayout />}>
                 <Route path={R.OLD_HIDDEN} element={<Professionals />} />
                 <Route path={R.COMPANIES} element={<Companies />} />
                 <Route path={R.INVESTORS} element={<Investors />} />
               </Route>
 
-              {/* Authentication routes without Navbar */}
               <Route path={R.LOGIN} element={<Login />} />
               <Route path={R.SIGNUP} element={<SignUp />} />
               <Route path={R.FORGOT_PASSWORD} element={<ForgotPassword />} />
               <Route path={R.UPDATE_PASSWORD} element={<UpdatePassword />} />
               <Route path="/login-oauth" element={<LoginOAuth />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
-              
-              {/* Test routes */}
+
               <Route path="/test" element={<TestPage />} />
               <Route path="/ssr-check" element={<SSRTest />} />
               <Route path="/bare" element={<BarePage />} />
               <Route path="/static-bare" element={<StaticBare />} />
               <Route path="/ssr-canary" element={<SSRCanary />} />
 
-              {/* Private routes with Sidebar */}
               <Route
                 path={R.DASHBOARD}
                 element={
@@ -80,27 +74,25 @@ const App = () => {
                 <Route path="learn/path/:pathId" element={<PathOverview />} />
               </Route>
 
-              {/* Not Found Route */}
               <Route path="*" element={<NotFound />} />
-              </Routes>
-            </OAuthProvider>
-          </AuthErrorBoundary>
-        </BrowserRouter>
+            </Routes>
+          </OAuthProvider>
+        </AuthErrorBoundary>
       </TooltipProvider>
     );
   } catch (error) {
     console.error('App SSR error:', error);
     return (
-      <div style={{ 
-        padding: '2rem', 
-        textAlign: 'center', 
-        fontFamily: 'system-ui, sans-serif' 
+      <div style={{
+        padding: '2rem',
+        textAlign: 'center',
+        fontFamily: 'system-ui, sans-serif'
       }}>
         <h1>SSR Error</h1>
         <p>Erro no App principal: {error instanceof Error ? error.message : 'Erro desconhecido'}</p>
-        <pre style={{ 
-          backgroundColor: '#f5f5f5', 
-          padding: '1rem', 
+        <pre style={{
+          backgroundColor: '#f5f5f5',
+          padding: '1rem',
           borderRadius: '4px',
           textAlign: 'left'
         }}>
