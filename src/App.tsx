@@ -2,7 +2,7 @@ import { OAuthProvider } from './hooks/useOAuth';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Professionals from "./pages/Professionals";
 import Companies from "./pages/Companies";
 import Investors from "./pages/Investors";
@@ -40,9 +40,11 @@ const App = () => {
           <AuthErrorBoundary>
             <OAuthProvider>
             <Routes>
+              {/* Root redirect to dashboard */}
+              <Route path={R.ROOT} element={<Navigate to={R.DASHBOARD} replace />} />
               {/* Public routes with Navbar */}
               <Route element={<PublicLayout />}>
-                <Route path={R.ROOT} element={<Professionals />} />
+                <Route path={R.OLD_HIDDEN} element={<Professionals />} />
                 <Route path={R.COMPANIES} element={<Companies />} />
                 <Route path={R.INVESTORS} element={<Investors />} />
               </Route>
