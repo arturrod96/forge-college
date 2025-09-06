@@ -19,15 +19,19 @@ import {
 import { LayoutDashboard, BookOpen, Lock, Menu } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ProfileDropdown } from '@/components/ProfileDropdown';
+import { useSidebar } from '@/components/ui/sidebar';
 import { DASHBOARD as DASHBOARD_PATH, DASHBOARD_EXPLORE, ROUTE_LABELS } from '@/routes/paths';
 
 function MobileMenuButton() {
-  const { toggleSidebar } = SidebarTrigger as unknown as { toggleSidebar: () => void };
+  const { toggleSidebar } = useSidebar();
   return (
-    <SidebarTrigger
+    <button
       className="md:hidden p-2 rounded-lg border border-forge-orange/20 bg-forge-cream/90 text-forge-dark hover:text-forge-orange shadow-sm"
       aria-label="Open menu"
-    />
+      onClick={toggleSidebar}
+    >
+      <Menu size={22} />
+    </button>
   );
 }
 
