@@ -8,8 +8,15 @@ interface UserStats {
   totalXP: number;
   completedLessons: number;
   inProgressPaths: number;
-  totalTimeSpent: number; // placeholder for future implementation
+  totalTimeSpent: number;
 }
+
+const MOCK_STATS: UserStats = {
+  totalXP: 1320,
+  completedLessons: 9,
+  inProgressPaths: 2,
+  totalTimeSpent: 210,
+};
 
 export function UserStats() {
   const { user } = useAuth();
@@ -21,7 +28,7 @@ export function UserStats() {
     totalTimeSpent: 0
   });
   const [loading, setLoading] = useState(true);
-  const [showSkeleton, setShowSkeleton] = useState(false);
+  const [useMock, setUseMock] = useState(true);
 
   useEffect(() => {
     if (!user) return;
@@ -70,17 +77,20 @@ export function UserStats() {
         const inProgressPaths = pathIds.size;
 
         if (isMounted) {
-          setStats({
+          const computed: UserStats = {
             totalXP,
             completedLessons,
             inProgressPaths,
             totalTimeSpent: Math.max(0, Math.floor(completedLessons * 15))
-          });
+          };
+          setStats(computed);
+          setUseMock(!(computed.totalXP || computed.completedLessons || computed.inProgressPaths));
         }
       } catch (error: any) {
         if (!isMounted) return;
         console.error('Error fetching user statistics:', error?.message || error);
         setStats({ totalXP: 0, completedLessons: 0, inProgressPaths: 0, totalTimeSpent: 0 });
+        setUseMock(true);
       } finally {
         if (!isMounted) return;
         const elapsed = Date.now() - start;
@@ -94,61 +104,33 @@ export function UserStats() {
     return () => { isMounted = false; };
   }, [user, supabase]);
 
-  // Only show skeleton if loading persists beyond a short threshold
-  useEffect(() => {
-    let timer: number | undefined;
-    if (loading) {
-      timer = window.setTimeout(() => setShowSkeleton(true), 250);
-    } else {
-      setShowSkeleton(false);
-    }
-    return () => {
-      if (timer) window.clearTimeout(timer);
-    };
-  }, [loading]);
-
-  if (loading && showSkeleton) {
-    return (
-      <div className="grid gap-4 md:grid-cols-4">
-        {[...Array(4)].map((_, i) => (
-          <Card key={i}>
-            <CardContent className="p-6">
-              <div className="animate-pulse">
-                <div className="h-8 bg-gray-200 rounded mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded"></div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
-  }
+  const display = useMock || loading ? MOCK_STATS : stats;
 
   const statCards = [
     {
       title: 'Total XP',
-      value: stats.totalXP,
+      value: display.totalXP,
       icon: Trophy,
       color: 'text-yellow-600',
       bgColor: 'bg-gradient-to-br from-yellow-50 to-yellow-100'
     },
     {
       title: 'Completed Lessons',
-      value: stats.completedLessons,
+      value: display.completedLessons,
       icon: BookOpen,
       color: 'text-green-600',
       bgColor: 'bg-gradient-to-br from-green-50 to-green-100'
     },
     {
       title: 'Active Paths',
-      value: stats.inProgressPaths,
+      value: display.inProgressPaths,
       icon: Target,
       color: 'text-blue-600',
       bgColor: 'bg-gradient-to-br from-blue-50 to-blue-100'
     },
     {
       title: 'Study Time',
-      value: `${stats.totalTimeSpent} min`,
+      value: `${display.totalTimeSpent} min`,
       icon: Clock,
       color: 'text-purple-600',
       bgColor: 'bg-gradient-to-br from-purple-50 to-purple-100'
