@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build:client": "vite build",
-    "build:ssr": "vite build --ssr src/entry-server.tsx",
+    "build:ssr": "vite build --ssr src/entry-server.tsx --outDir dist/server",
     "build": "npm run build:client && npm run build:ssr && npm run build:copy",
-    "build:copy": "node -e \"const fs=require('fs');const path=require('path');const copyDir=(src,dest)=>{if(!fs.existsSync(src))return;if(!fs.existsSync(dest))fs.mkdirSync(dest,{recursive:true});for(const item of fs.readdirSync(src)){const s=path.join(src,item);const d=path.join(dest,item);const stat=fs.statSync(s);if(stat.isDirectory()){copyDir(s,d);}else{fs.copyFileSync(s,d);}}};if(fs.existsSync('public'))fs.rmSync('public',{recursive:true,force:true});fs.mkdirSync('public',{recursive:true});if(fs.existsSync('dist'))copyDir('dist','public');\"",
+    "build:copy": "node -e \"const fs=require('fs');const path=require('path');const copyDir=(src,dest)=>{if(!fs.existsSync(src))return;if(!fs.existsSync(dest))fs.mkdirSync(dest,{recursive:true});for(const item of fs.readdirSync(src)){const s=path.join(src,item);const d=path.join(dest,item);const stat=fs.statSync(s);if(stat.isDirectory()){copyDir(s,d);}else{fs.copyFileSync(s,d);}}};const copyFile=(s,d)=>{const dir=path.dirname(d);if(!fs.existsSync(dir))fs.mkdirSync(dir,{recursive:true});fs.copyFileSync(s,d);};if(fs.existsSync('public'))fs.rmSync('public',{recursive:true,force:true});fs.mkdirSync('public',{recursive:true});if(fs.existsSync('dist/client')){copyDir('dist/client','public');}else if(fs.existsSync('dist')){copyDir('dist','public');}if(fs.existsSync('dist/server/entry-server.js')){copyFile('dist/server/entry-server.js','public/entry-server.js');}else if(fs.existsSync('dist/entry-server.js')){copyFile('dist/entry-server.js','public/entry-server.js');}\"",
     "build:dev": "vite build --mode development",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
