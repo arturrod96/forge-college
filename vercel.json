@@ -14,5 +14,10 @@
   ],
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/api/ssr" }
-  ]
+  ],
+  "functions": {
+    "api/ssr.ts": {
+      "includeFiles": "public/**"
+    }
+  }
 }
