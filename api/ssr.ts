@@ -25,7 +25,23 @@ export default async function handler(req: any, res: any) {
     }
 
     if (!ssrRender) {
-      const ssrUrl = pathToFileURL(join(process.cwd(), "public", "entry-server.js")).href;
+      const publicDir = join(process.cwd(), "public");
+      const candidates = [
+        join(publicDir, "entry-server.js"),
+        join(publicDir, "entry-server.mjs"),
+        join(publicDir, "server", "entry-server.js"),
+        join(publicDir, "server", "entry-server.mjs"),
+        // fallback: if someone copies it alongside the function during build
+        join(process.cwd(), "api", "entry-server.js"),
+        join(process.cwd(), "api", "entry-server.mjs"),
+      ];
+      const existing = candidates.find((p) => existsSync(p));
+      if (!existing) {
+        throw new Error(
+          `SSR bundle not found. Looked for: ${candidates.join(", ")}`
+        );
+      }
+      const ssrUrl = pathToFileURL(existing).href;
       const mod = await import(ssrUrl);
       ssrRender = mod.render;
       if (!ssrRender) throw new Error("SSR render() not found in entry-server");
