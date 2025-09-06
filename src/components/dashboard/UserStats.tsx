@@ -44,22 +44,19 @@ export function UserStats() {
         const completedLessons = rows.filter((r: any) => r.status === 'completed').length;
         const lessonIds: string[] = Array.from(new Set(rows.map((r: any) => r.lesson_id).filter(Boolean)));
 
-        if (lessonIds.length === 0) {
-          if (isMounted) setStats({ totalXP: 0, completedLessons, inProgressPaths: 0, totalTimeSpent: 0 });
-          return;
-        }
-
         // 2) fetch lessons in chunks to avoid long URLs
         const chunkSize = 50;
         let lessons: any[] = [];
-        for (let i = 0; i < lessonIds.length; i += chunkSize) {
-          const chunk = lessonIds.slice(i, i + chunkSize);
-          const { data: ldata, error: lerr } = await supabase
-            .from('lessons')
-            .select('id, xp_value, modules(courses(path_id))')
-            .in('id', chunk);
-          if (lerr) throw new Error(lerr.message || 'Failed to load lessons');
-          lessons = lessons.concat(ldata || []);
+        if (lessonIds.length > 0) {
+          for (let i = 0; i < lessonIds.length; i += chunkSize) {
+            const chunk = lessonIds.slice(i, i + chunkSize);
+            const { data: ldata, error: lerr } = await supabase
+              .from('lessons')
+              .select('id, xp_value, modules(courses(path_id))')
+              .in('id', chunk);
+            if (lerr) throw new Error(lerr.message || 'Failed to load lessons');
+            lessons = lessons.concat(ldata || []);
+          }
         }
 
         let totalXP = 0;
