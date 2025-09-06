@@ -18,7 +18,7 @@ export function createClientBrowser() {
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: true,
-        flowType: 'implicit', // Changed from 'pkce' to 'implicit' for better compatibility
+        flowType: 'pkce',
         debug: process.env.NODE_ENV === 'development'
       },
       global: {
