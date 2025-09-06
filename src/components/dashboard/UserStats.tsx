@@ -32,22 +32,39 @@ export function UserStats() {
       const start = Date.now();
       if (isMounted) setLoading(true);
       try {
-        // Single joined query to avoid very long URLs from large IN() filters
-        const { data, error } = await supabase
+        // 1) progress rows
+        const { data: progressRows, error: progressError } = await supabase
           .from('user_progress')
-          .select('status, lessons!inner(id, xp_value, modules(courses(path_id)))')
+          .select('lesson_id, status')
           .eq('user_id', user.id)
           .in('status', ['in_progress', 'completed']);
+        if (progressError) throw new Error(progressError.message || 'Failed to load user progress');
 
-        if (error) throw new Error(error.message || 'Failed to load user progress');
-
-        const rows = (data || []) as any[];
+        const rows = (progressRows || []) as any[];
         const completedLessons = rows.filter((r: any) => r.status === 'completed').length;
+        const lessonIds: string[] = Array.from(new Set(rows.map((r: any) => r.lesson_id).filter(Boolean)));
+
+        if (lessonIds.length === 0) {
+          if (isMounted) setStats({ totalXP: 0, completedLessons, inProgressPaths: 0, totalTimeSpent: 0 });
+          return;
+        }
+
+        // 2) fetch lessons in chunks to avoid long URLs
+        const chunkSize = 50;
+        let lessons: any[] = [];
+        for (let i = 0; i < lessonIds.length; i += chunkSize) {
+          const chunk = lessonIds.slice(i, i + chunkSize);
+          const { data: ldata, error: lerr } = await supabase
+            .from('lessons')
+            .select('id, xp_value, modules(courses(path_id))')
+            .in('id', chunk);
+          if (lerr) throw new Error(lerr.message || 'Failed to load lessons');
+          lessons = lessons.concat(ldata || []);
+        }
 
         let totalXP = 0;
         const pathIds = new Set<string>();
-        rows.forEach((r: any) => {
-          const l = r.lessons;
+        lessons.forEach((l: any) => {
           totalXP += l?.xp_value || 0;
           const pid = l?.modules?.courses?.path_id || l?.modules?.path_id;
           if (pid) pathIds.add(pid);
