@@ -16,9 +16,19 @@ export default function AuthCallback() {
      */
     async function handleCallback() {
       try {
-        // Wait for OAuth flow to complete
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
+        // If we have a PKCE authorization code in the URL, exchange it for a session
+        const url = new URL(window.location.href)
+        const code = url.searchParams.get('code')
+        if (code) {
+          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+          if (exchangeError) {
+            throw exchangeError
+          }
+        } else {
+          // Wait briefly to allow implicit flow tokens to be processed
+          await new Promise(resolve => setTimeout(resolve, 1000))
+        }
+
         // Check if we have a session
         const { data: { session }, error } = await supabase.auth.getSession()
         
@@ -65,7 +75,7 @@ export default function AuthCallback() {
     }
 
     handleCallback()
-  }, [navigate, supabase.auth])
+  }, [navigate])
 
   return (
     <div className="min-h-screen bg-forge-cream relative overflow-hidden flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
