@@ -16,7 +16,7 @@
     { "source": "/((?!api/).*)", "destination": "/api/ssr" }
   ],
   "functions": {
-    "api/ssr.ts": {
+    "api/ssr.js": {
       "includeFiles": "public/**"
     }
   }
