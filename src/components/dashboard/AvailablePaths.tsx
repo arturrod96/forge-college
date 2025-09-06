@@ -127,7 +127,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
         {visiblePaths.map((path) => (
           <Card
             key={path.id}
-            className={`relative border-forge-cream/80 hover:shadow-md transition-shadow h-full min-h-[300px] flex flex-col ${path.isEnrolled ? 'ring-1 ring-forge-orange/20' : ''}`}
+            className={`relative overflow-hidden border-forge-cream/80 hover:shadow-md transition-shadow h-full min-h-[300px] flex flex-col ${path.isEnrolled ? 'ring-1 ring-forge-orange/20' : ''}`}
           >
             {path.isEnrolled && (
               <div className="absolute top-2 right-2 bg-forge-orange text-white px-1.5 py-0.5 rounded-full text-[10px] font-medium flex items-center gap-1 shadow-sm">
