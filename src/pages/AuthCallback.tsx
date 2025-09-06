@@ -11,75 +11,54 @@ export default function AuthCallback() {
   const supabase = createClientBrowser()
 
   useEffect(() => {
-        /**
-     * Handle the OAuth callback and session setup
-     */
     async function handleCallback() {
       try {
-        // If we have a PKCE authorization code in the URL, exchange it for a session
+        // First, check if a session already exists (it may be created automatically)
+        const initial = await supabase.auth.getSession()
+        if (initial.data.session?.user) {
+          setStatus('success')
+          setMessage('Authentication successful! Redirecting...')
+          await new Promise(r => setTimeout(r, 800))
+          navigate('/dashboard', { replace: true })
+          return
+        }
+
+        // If no session yet, try PKCE exchange when a code is present
         const url = new URL(window.location.href)
         const code = url.searchParams.get('code')
         if (code) {
           const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
-          if (exchangeError) {
-            throw exchangeError
-          }
+          if (exchangeError) throw exchangeError
         } else {
-          // Wait briefly to allow implicit flow tokens to be processed
-          await new Promise(resolve => setTimeout(resolve, 1000))
+          // Allow time for implicit/fragment-based flows
+          await new Promise(resolve => setTimeout(resolve, 800))
         }
 
-        // Check if we have a session
+        // Verify session after handling the callback
         const { data: { session }, error } = await supabase.auth.getSession()
-        
-        if (error) {
-          throw error
-        }
+        if (error) throw error
 
         if (session?.user) {
           setStatus('success')
           setMessage('Authentication successful! Redirecting...')
-          
-          // Wait a bit more to ensure the session is properly established
-          await new Promise(resolve => setTimeout(resolve, 1000))
-          
-          // Redirect to dashboard after successful authentication
+          await new Promise(r => setTimeout(r, 800))
           navigate('/dashboard', { replace: true })
         } else {
-          // If no session, wait a bit more and try again
-          await new Promise(resolve => setTimeout(resolve, 2000))
-          const { data: { session: retrySession } } = await supabase.auth.getSession()
-          
-          if (retrySession?.user) {
-            setStatus('success')
-            setMessage('Authentication successful! Redirecting...')
-            
-            // Wait a bit more to ensure the session is properly established
-            await new Promise(resolve => setTimeout(resolve, 1000))
-            
-            navigate('/dashboard', { replace: true })
-          } else {
-            throw new Error('No session found after OAuth completion')
-          }
+          throw new Error('No session found after OAuth completion')
         }
       } catch (error) {
         console.error('Auth callback error:', error)
         setStatus('error')
         setMessage('Authentication failed. Please try again.')
-        
-        // Redirect back to login after error
-        setTimeout(() => {
-          navigate('/login')
-        }, 3000)
+        setTimeout(() => navigate('/login'), 3000)
       }
     }
 
     handleCallback()
-  }, [navigate])
+  }, [navigate, supabase])
 
   return (
     <div className="min-h-screen bg-forge-cream relative overflow-hidden flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      {/* Decorative background elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-20 left-10 w-32 h-32 bg-forge-orange/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-40 right-20 w-48 h-48 bg-forge-orange/10 rounded-full blur-2xl"></div>
@@ -87,7 +66,6 @@ export default function AuthCallback() {
 
       <div className="max-w-md w-full space-y-8 bg-white/95 backdrop-blur-sm border border-forge-orange/20 shadow-xl rounded-2xl p-8 relative z-10">
         <div className="text-center">
-          {/* Loading State */}
           {status === 'loading' && (
             <div className="space-y-4">
               <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-forge-orange border-t-transparent"></div>
@@ -96,7 +74,6 @@ export default function AuthCallback() {
             </div>
           )}
 
-          {/* Success State */}
           {status === 'success' && (
             <div className="space-y-4">
               <div className="mx-auto h-12 w-12 rounded-full bg-forge-orange/10 flex items-center justify-center">
@@ -109,7 +86,6 @@ export default function AuthCallback() {
             </div>
           )}
 
-          {/* Error State */}
           {status === 'error' && (
             <div className="space-y-4">
               <div className="mx-auto h-12 w-12 rounded-full bg-red-100 flex items-center justify-center">

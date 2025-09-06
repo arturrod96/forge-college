@@ -6,6 +6,7 @@ import { Label } from '../components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Link } from 'react-router-dom';
 import { Github } from 'lucide-react';
+import { getOAuthRedirectUrl } from '@/lib/utils';
 
 export function SignUp() {
   const [email, setEmail] = useState('');
@@ -49,7 +50,7 @@ export function SignUp() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: getOAuthRedirectUrl()
         }
       });
       
@@ -68,7 +69,7 @@ export function SignUp() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: getOAuthRedirectUrl()
         }
       });
       

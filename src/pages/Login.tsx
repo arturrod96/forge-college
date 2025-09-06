@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { DASHBOARD } from '@/routes/paths';
 import { Github, Mail, Bug, AlertTriangle } from 'lucide-react';
+import { getOAuthRedirectUrl } from '@/lib/utils';
 
 export function Login() {
   const [email, setEmail] = useState('');
@@ -127,7 +128,7 @@ export function Login() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: getOAuthRedirectUrl()
         }
       });
 
@@ -151,7 +152,7 @@ export function Login() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: getOAuthRedirectUrl()
         }
       });
 
