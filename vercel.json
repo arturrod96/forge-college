@@ -14,5 +14,14 @@
   ],
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/api/ssr" }
-  ]
+  ],
+  "functions": {
+    "api/ssr.ts": {
+      "includeFiles": [
+        "public/entry-server.js",
+        "public/index.html",
+        "public/bare.html"
+      ]
+    }
+  }
 }
