@@ -26,23 +26,22 @@ export function UserStats() {
   useEffect(() => {
     if (!user) return;
 
-    const abort = new AbortController();
+    let isMounted = true;
 
     const fetchStats = async () => {
       const start = Date.now();
-      setLoading(true);
+      if (isMounted) setLoading(true);
       try {
         // Single joined query to avoid very long URLs from large IN() filters
         const { data, error } = await supabase
           .from('user_progress')
           .select('status, lessons!inner(id, xp_value, modules(courses(path_id)))')
           .eq('user_id', user.id)
-          .in('status', ['in_progress', 'completed'])
-          .abortSignal?.(abort.signal as any);
+          .in('status', ['in_progress', 'completed']);
 
         if (error) throw new Error(error.message || 'Failed to load user progress');
 
-        const rows = data || [] as any[];
+        const rows = (data || []) as any[];
         const completedLessons = rows.filter((r: any) => r.status === 'completed').length;
 
         let totalXP = 0;
@@ -56,27 +55,30 @@ export function UserStats() {
 
         const inProgressPaths = pathIds.size;
 
-        setStats({
-          totalXP,
-          completedLessons,
-          inProgressPaths,
-          totalTimeSpent: Math.max(0, Math.floor(completedLessons * 15))
-        });
+        if (isMounted) {
+          setStats({
+            totalXP,
+            completedLessons,
+            inProgressPaths,
+            totalTimeSpent: Math.max(0, Math.floor(completedLessons * 15))
+          });
+        }
       } catch (error: any) {
-        if (error?.name === 'AbortError') return;
+        if (!isMounted) return;
         console.error('Error fetching user statistics:', error?.message || error);
         setStats({ totalXP: 0, completedLessons: 0, inProgressPaths: 0, totalTimeSpent: 0 });
       } finally {
+        if (!isMounted) return;
         const elapsed = Date.now() - start;
         const MIN_SKELETON_MS = 600;
         const delay = Math.max(0, MIN_SKELETON_MS - elapsed);
-        setTimeout(() => setLoading(false), delay);
+        setTimeout(() => { if (isMounted) setLoading(false); }, delay);
       }
     };
 
     fetchStats();
-    return () => abort.abort();
-  }, [user]);
+    return () => { isMounted = false; };
+  }, [user, supabase]);
 
   // Only show skeleton if loading persists beyond a short threshold
   useEffect(() => {
