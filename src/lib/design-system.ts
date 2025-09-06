@@ -77,7 +77,7 @@ export const getButtonClasses = (
   size: "sm" | "md" | "lg",
 ) => {
   const baseClasses =
-    "relative group overflow-hidden rounded-2xl font-semibold transition-all duration-200 transform hover:scale-[1.02]";
+    "relative group inline-flex items-center justify-center overflow-hidden rounded-2xl font-semibold transition-all duration-200 transform hover:scale-[1.02]";
 
   // Size classes
   const sizeClasses = {
