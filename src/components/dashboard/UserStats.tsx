@@ -26,40 +26,29 @@ export function UserStats() {
   useEffect(() => {
     if (!user) return;
 
+    const abort = new AbortController();
+
     const fetchStats = async () => {
       const start = Date.now();
       setLoading(true);
       try {
-        // 1) Fetch user progress (only ids and status)
-        const { data: progressRows, error: progressError } = await supabase
+        // Single joined query to avoid very long URLs from large IN() filters
+        const { data, error } = await supabase
           .from('user_progress')
-          .select('lesson_id, status')
+          .select('status, lessons!inner(id, xp_value, modules(courses(path_id)))')
           .eq('user_id', user.id)
-          .in('status', ['in_progress', 'completed']);
+          .in('status', ['in_progress', 'completed'])
+          .abortSignal?.(abort.signal as any);
 
-        if (progressError) throw new Error(progressError.message || 'Failed to load user progress');
+        if (error) throw new Error(error.message || 'Failed to load user progress');
 
-        const rows = progressRows || [];
-        const completedLessons = rows.filter((p: any) => p.status === 'completed').length;
-        const lessonIds = Array.from(new Set(rows.map((r: any) => r.lesson_id).filter(Boolean)));
+        const rows = data || [] as any[];
+        const completedLessons = rows.filter((r: any) => r.status === 'completed').length;
 
-        if (lessonIds.length === 0) {
-          setStats({ totalXP: 0, completedLessons, inProgressPaths: 0, totalTimeSpent: 0 });
-          return;
-        }
-
-        // 2) Fetch lessons with nested modules -> courses to get path_id
-        const { data: lessonsData, error: lessonsError } = await supabase
-          .from('lessons')
-          .select('id, xp_value, modules(courses(path_id))')
-          .in('id', lessonIds);
-
-        if (lessonsError) throw new Error(lessonsError.message || 'Failed to load lessons');
-
-        // Normalize nested path_id w/ both possible nesting keys
         let totalXP = 0;
         const pathIds = new Set<string>();
-        (lessonsData || []).forEach((l: any) => {
+        rows.forEach((r: any) => {
+          const l = r.lessons;
           totalXP += l?.xp_value || 0;
           const pid = l?.modules?.courses?.path_id || l?.modules?.path_id;
           if (pid) pathIds.add(pid);
@@ -74,6 +63,7 @@ export function UserStats() {
           totalTimeSpent: Math.max(0, Math.floor(completedLessons * 15))
         });
       } catch (error: any) {
+        if (error?.name === 'AbortError') return;
         console.error('Error fetching user statistics:', error?.message || error);
         setStats({ totalXP: 0, completedLessons: 0, inProgressPaths: 0, totalTimeSpent: 0 });
       } finally {
@@ -85,6 +75,7 @@ export function UserStats() {
     };
 
     fetchStats();
+    return () => abort.abort();
   }, [user]);
 
   // Only show skeleton if loading persists beyond a short threshold
