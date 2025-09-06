@@ -19,13 +19,21 @@ import {
 import { LayoutDashboard, BookOpen, Lock, Menu } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ProfileDropdown } from '@/components/ProfileDropdown';
-import { useSidebar } from '@/components/ui/sidebar';
 import { DASHBOARD as DASHBOARD_PATH, DASHBOARD_EXPLORE, ROUTE_LABELS } from '@/routes/paths';
+
+function MobileMenuButton() {
+  const { toggleSidebar } = SidebarTrigger as unknown as { toggleSidebar: () => void };
+  return (
+    <SidebarTrigger
+      className="md:hidden p-2 rounded-lg border border-forge-orange/20 bg-forge-cream/90 text-forge-dark hover:text-forge-orange shadow-sm"
+      aria-label="Open menu"
+    />
+  );
+}
 
 export function DashboardLayout() {
   const { user, loading } = useAuth();
   const location = useLocation();
-  const { toggleSidebar } = useSidebar();
 
   // Show loading state while auth is being determined
   if (loading) {
@@ -107,13 +115,7 @@ export function DashboardLayout() {
         {/* Header with mobile hamburger on the left */}
         <div className="flex h-16 items-center justify-between px-4 sm:px-6 border-b bg-white border-forge-cream">
           <div className="flex items-center gap-3">
-            <button
-              className="md:hidden p-2 rounded-lg border border-forge-orange/20 bg-forge-cream/90 text-forge-dark hover:text-forge-orange shadow-sm"
-              aria-label="Open menu"
-              onClick={toggleSidebar}
-            >
-              <Menu size={22} />
-            </button>
+            <MobileMenuButton />
             <h1 className="text-xl sm:text-2xl font-semibold text-forge-dark">
               {isDashboard ? 'Dashboard' : isExplore ? 'Paths' : 'Dashboard'}
             </h1>
