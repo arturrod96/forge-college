@@ -8,7 +8,7 @@
     "build:client": "vite build",
     "build:ssr": "vite build --ssr src/entry-server.tsx",
     "build": "npm run build:client && npm run build:ssr && npm run build:copy",
-    "build:copy": "node -e \"const fs=require('fs');const path=require('path');if(fs.existsSync('public'))fs.rmSync('public',{recursive:true});fs.mkdirSync('public',{recursive:true});const copyDir=(src,dest)=>{if(!fs.existsSync(dest))fs.mkdirSync(dest,{recursive:true});const items=fs.readdirSync(src);items.forEach(item=>{const srcPath=path.join(src,item);const destPath=path.join(dest,item);if(fs.statSync(srcPath).isDirectory()){copyDir(srcPath,destPath);}else{fs.copyFileSync(srcPath,destPath);}});};if(fs.existsSync('dist/client'))copyDir('dist/client','public');if(fs.existsSync('dist/assets'))copyDir('dist/assets','public/assets');if(fs.existsSync('dist/api'))copyDir('dist/api','public/api');\"",
+    "build:copy": "node -e \"const fs=require('fs');const path=require('path');const copyDir=(src,dest)=>{if(!fs.existsSync(src))return;if(!fs.existsSync(dest))fs.mkdirSync(dest,{recursive:true});for(const item of fs.readdirSync(src)){const s=path.join(src,item);const d=path.join(dest,item);const stat=fs.statSync(s);if(stat.isDirectory()){copyDir(s,d);}else{fs.copyFileSync(s,d);}}};if(fs.existsSync('public'))fs.rmSync('public',{recursive:true,force:true});fs.mkdirSync('public',{recursive:true});if(fs.existsSync('dist'))copyDir('dist','public');\"",
     "build:dev": "vite build --mode development",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
