@@ -43,8 +43,8 @@ export function DashboardHome() {
 
       {/* 12-col grid layout */}
       <div className="grid grid-cols-12 gap-6">
-        {/* Main column */}
-        <div className="col-span-12 lg:col-span-8 space-y-6">
+        {/* Main column - full width */}
+        <div className="col-span-12 space-y-6">
           <div className="grid grid-cols-12 gap-6">
             <div className="col-span-12 xl:col-span-8">
               <ContinueLearningCard className="mb-0" />
@@ -55,24 +55,20 @@ export function DashboardHome() {
           </div>
           <UserStats />
         </div>
+      </div>
 
-        {/* Sidebar */}
-        <div className="col-span-12 lg:col-span-4 space-y-6">
-          <div className="space-y-3 sticky top-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold tracking-tight">{R.ROUTE_LABELS[R.DASHBOARD_EXPLORE]}</h2>
-              <Link to={R.DASHBOARD_EXPLORE} className="text-forge-orange hover:underline">
-                {DASHBOARD_STRINGS.dashboardHome.exploreCta}
-              </Link>
-            </div>
-            <AvailablePaths limit={3} className="mt-2" />
-          </div>
+      {/* Paths section below */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold tracking-tight">{R.ROUTE_LABELS[R.DASHBOARD_EXPLORE]}</h2>
+          <Link to={R.DASHBOARD_EXPLORE} className="text-forge-orange hover:underline">
+            {DASHBOARD_STRINGS.dashboardHome.exploreCta}
+          </Link>
         </div>
+        <AvailablePaths className="mt-2" />
       </div>
     </div>
   );
 }
 
 export default DashboardHome;
-
-
