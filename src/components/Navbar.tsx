@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "../hooks/useOAuth";
 import { ProfileDropdown } from "./ProfileDropdown";
+import { LogoutButton } from "./auth/LogoutButton";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -53,14 +54,26 @@ const Navbar = () => {
     <nav className="fixed top-4 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          <Link to="/" className="flex items-center space-x-3">
-            <img
-              src="https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/forgecollege-2c35f0?format=webp&width=800"
-              alt="Forge College"
-              className="h-12 w-auto"
-              style={{ minWidth: "120px" }}
-            />
-          </Link>
+          <div className="flex items-center gap-3">
+            {/* Mobile menu button on the left */}
+            <div className="md:hidden">
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="text-forge-dark hover:text-forge-orange transition-colors p-2 bg-forge-cream/95 backdrop-blur-sm rounded-xl border border-forge-orange/20 shadow-lg"
+                aria-label={isOpen ? 'Close menu' : 'Open menu'}
+              >
+                {isOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
+            <Link to="/" className="flex items-center space-x-3">
+              <img
+                src="https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/forgecollege-2c35f0?format=webp&width=800"
+                alt="Forge College"
+                className="h-12 w-auto"
+                style={{ minWidth: "120px" }}
+              />
+            </Link>
+          </div>
 
           {/* Desktop Navigation - Always show landing page items */}
           <div className="hidden md:flex items-center bg-forge-cream/95 backdrop-blur-sm rounded-2xl border border-forge-orange/20 shadow-lg overflow-hidden">
@@ -119,15 +132,8 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="text-forge-dark hover:text-forge-orange transition-colors p-2 bg-forge-cream/95 backdrop-blur-sm rounded-xl border border-forge-orange/20 shadow-lg"
-            >
-              {isOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
+          {/* Right side empty on mobile */}
+          <div className="md:hidden w-6" />
         </div>
 
         {/* Mobile Navigation */}
@@ -170,6 +176,7 @@ const Navbar = () => {
                 <div>
                   <ProfileDropdown />
                 </div>
+                <LogoutButton className="w-full py-3 rounded-lg" />
               </div>
             ) : (
               <div className="pt-4 mt-4 space-y-3 px-4">

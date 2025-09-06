@@ -16,10 +16,24 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, BookOpen, Lock } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Lock, Menu } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ProfileDropdown } from '@/components/ProfileDropdown';
+import { useSidebar } from '@/components/ui/sidebar';
 import { DASHBOARD as DASHBOARD_PATH, DASHBOARD_EXPLORE, ROUTE_LABELS } from '@/routes/paths';
+
+function MobileMenuButton() {
+  const { toggleSidebar } = useSidebar();
+  return (
+    <button
+      className="md:hidden p-2 rounded-lg border border-forge-orange/20 bg-forge-cream/90 text-forge-dark hover:text-forge-orange shadow-sm"
+      aria-label="Open menu"
+      onClick={toggleSidebar}
+    >
+      <Menu size={22} />
+    </button>
+  );
+}
 
 export function DashboardLayout() {
   const { user, loading } = useAuth();
@@ -102,17 +116,15 @@ export function DashboardLayout() {
       </Sidebar>
       
       <SidebarInset>
-        {/* Clean header with dynamic page title */}
-        <div className="flex h-16 items-center justify-between px-6 border-b bg-white border-forge-cream">
-          <div className="flex items-center space-x-3">
-            <h1 className="text-2xl font-semibold text-forge-dark">
+        {/* Header with mobile hamburger on the left */}
+        <div className="flex h-16 items-center justify-between px-4 sm:px-6 border-b bg-white border-forge-cream">
+          <div className="flex items-center gap-3">
+            <MobileMenuButton />
+            <h1 className="text-xl sm:text-2xl font-semibold text-forge-dark">
               {isDashboard ? 'Dashboard' : isExplore ? 'Paths' : 'Dashboard'}
             </h1>
           </div>
-          
-          {/* Right side empty for future use */}
-          <div className="flex items-center space-x-4">
-          </div>
+          <div className="flex items-center space-x-4" />
         </div>
         
         {/* Main content area */}
@@ -129,5 +141,3 @@ export function DashboardLayout() {
 }
 
 export default DashboardLayout;
-
-
