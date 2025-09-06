@@ -47,7 +47,7 @@ const EnhancedButton = ({
         className: mergedClassName,
       },
       <>
-        <span className="relative z-10 flex items-center gap-2">
+        <span className="relative z-10 inline-flex items-center gap-2">
           {displayIcon}
           {childElement.props?.children}
         </span>
