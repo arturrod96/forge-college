@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "../hooks/useOAuth";
 import { ProfileDropdown } from "./ProfileDropdown";
+import { LogoutButton } from "./auth/LogoutButton";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -170,6 +171,7 @@ const Navbar = () => {
                 <div>
                   <ProfileDropdown />
                 </div>
+                <LogoutButton className="w-full py-3 rounded-lg" />
               </div>
             ) : (
               <div className="pt-4 mt-4 space-y-3 px-4">
