@@ -7,7 +7,6 @@ import EnhancedButton from '@/components/ui/enhanced-button';
 import { DASHBOARD_LEARN_COURSE } from '@/routes/paths';
 import { DASHBOARD_STRINGS } from '@/strings/dashboard';
 import { toast } from 'sonner';
-import { useParams, Link } from 'react-router-dom';
 
 interface CourseSummary {
   id: string;
