@@ -1,5 +1,3 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
 // Minimal REST call to OpenAI without SDK to avoid extra deps
 async function openAiChat(payload: any, apiKey: string) {
   const res = await fetch('https://api.openai.com/v1/chat/completions', {
