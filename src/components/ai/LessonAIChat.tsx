@@ -201,7 +201,7 @@ export default function LessonAIChat(props: Props) {
           <div className="flex-1" />
 
           {messages.length === 0 && (
-            <div className="text-xs text-muted-foreground">Dica: clique em uma pergunta sugerida ou digite a sua abaixo.</div>
+            <div className="text-xs text-muted-foreground">Hint: Click on a suggested question or ask yours.</div>
           )}
           {messages.map((m, i) => (
             <div key={i} className={m.role === 'user' ? 'text-right' : 'text-left'}>
