@@ -216,7 +216,7 @@ export default function LessonAIChat(props: Props) {
               </div>
             </div>
           ))}
-          {loading && <div className="text-xs text-muted-foreground">Gerando resposta…</div>}
+          {loading && <div className="text-xs text-muted-foreground">Thinking...</div>}
         </div>
 
         <form
@@ -227,11 +227,11 @@ export default function LessonAIChat(props: Props) {
           className="flex gap-2"
         >
           <Input
-            placeholder="Pergunte algo sobre a lição…"
+            placeholder="Ask me about this lesson..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
           />
-          <Button type="submit" disabled={loading}>Enviar</Button>
+          <Button type="submit" disabled={loading}>Send</Button>
         </form>
       </CardContent>
     </Card>
