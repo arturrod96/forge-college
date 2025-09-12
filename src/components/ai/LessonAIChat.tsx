@@ -77,18 +77,17 @@ export default function LessonAIChat(props: Props) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mode: 'suggest', lessonContext: contextText }),
         });
-        const raw = await res.text();
         if (!res.ok) {
-          console.error('AI suggest error:', raw);
+          console.error('AI suggest error status:', res.status, res.statusText);
           const fallback = await fetchSuggestionsClient();
           if (fallback) setSuggestions(fallback);
           return;
         }
         let data: any = null;
         try {
-          data = JSON.parse(raw);
+          data = await res.json();
         } catch (err) {
-          console.error('AI suggest parse error:', raw);
+          console.error('AI suggest parse error (json)');
           return;
         }
         if (Array.isArray(data?.suggestions)) setSuggestions(data.suggestions);
@@ -121,7 +120,6 @@ export default function LessonAIChat(props: Props) {
           messages: [{ role: 'user', content: text.trim() }],
         }),
       });
-      const raw = await res.text();
       if (!res.ok) {
         // Client-side fallback to OpenAI if backend route is missing in dev
         if (clientKey) {
@@ -140,10 +138,9 @@ export default function LessonAIChat(props: Props) {
                 max_tokens: 700,
               }),
             });
-            const craw = await cres.text();
             if (cres.ok) {
-              let reply = '';
-              try { reply = JSON.parse(craw)?.choices?.[0]?.message?.content || ''; } catch { reply = craw; }
+              const cjson = await cres.json().catch(() => null);
+              const reply = cjson?.choices?.[0]?.message?.content || '';
               setMessages((m) => [...m, { role: 'assistant', content: reply || 'No reply' }]);
               return;
             }
@@ -151,14 +148,12 @@ export default function LessonAIChat(props: Props) {
             console.error('AI chat client exception:', fe);
           }
         }
-        let details = '';
-        try { details = JSON.parse(raw)?.error || ''; } catch { details = raw; }
-        const msg = details ? `Error: ${details}` : 'There was an error contacting the AI service.';
+        const msg = `Error: ${res.status} ${res.statusText}`;
         setMessages((m) => [...m, { role: 'assistant', content: msg }]);
         return;
       }
       let data: any = null;
-      try { data = JSON.parse(raw); } catch { data = null; }
+      try { data = await res.json(); } catch { data = null; }
       const reply = (data?.reply as string) || 'Sorry, I could not generate an answer.';
       setMessages((m) => [...m, { role: 'assistant', content: reply }]);
     } catch (e: any) {
