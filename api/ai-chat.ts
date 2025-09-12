@@ -65,19 +65,23 @@ export default async function handler(req: Request): Promise<Response> {
         apiKey
       );
 
-      const text: string = data.choices?.[0]?.message?.content ?? '[]';
+      let text: string = data.choices?.[0]?.message?.content ?? '[]';
+      let cleaned = text.replace(/```[a-z]*\n?/gi, '').replace(/```/g, '').trim();
       let suggestions: string[] = [];
-      try {
-        suggestions = JSON.parse(text);
-        if (!Array.isArray(suggestions)) suggestions = [];
-      } catch {
-        suggestions = text
-          .split('\n')
-          .map((s: string) => s.replace(/^[-*\d.\s]+/, '').trim())
-          .filter(Boolean)
-          .slice(0, 3);
+      const jsonMatch = cleaned.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        try {
+          const arr = JSON.parse(jsonMatch[0]);
+          if (Array.isArray(arr)) suggestions = arr;
+        } catch {}
       }
-      suggestions = suggestions.slice(0, 3);
+      if (!Array.isArray(suggestions) || suggestions.length === 0) {
+        suggestions = cleaned
+          .split('\n')
+          .map((s: string) => s.replace(/^[-*\d.\s]+/, '').replace(/^\"|\",?$/g, '').replace(/,$/, '').trim())
+          .filter(Boolean);
+      }
+      suggestions = suggestions.map((s) => String(s).replace(/^\"|\"$/g, '').trim()).slice(0, 3);
       return new Response(JSON.stringify({ suggestions }), {
         status: 200,
         headers: { 'content-type': 'application/json' },
