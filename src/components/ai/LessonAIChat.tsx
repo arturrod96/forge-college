@@ -179,7 +179,6 @@ export default function LessonAIChat(props: Props) {
           <Bot className="h-4 w-4 text-forge-dark" />
           <span>AI Instructor</span>
         </CardTitle>
-        <p className="text-[11px] text-muted-foreground">Faça perguntas sobre esta lição</p>
       </CardHeader>
       <CardContent className="flex-1 min-h-0 flex flex-col gap-3 text-xs">
         <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto rounded-md border p-3 bg-white flex flex-col gap-2">
