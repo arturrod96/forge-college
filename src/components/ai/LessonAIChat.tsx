@@ -191,7 +191,7 @@ export default function LessonAIChat(props: Props) {
                   onClick={() => send(q)}
                   className="w-full text-left border rounded-lg p-3 bg-white hover:bg-forge-cream transition-colors shadow-sm"
                 >
-                  <div className="text-[10px] text-muted-foreground mb-1">Sugestão</div>
+                  <div className="text-[10px] text-muted-foreground mb-1">Suggestion</div>
                   <div className="text-xs">{q}</div>
                 </button>
               ))}
