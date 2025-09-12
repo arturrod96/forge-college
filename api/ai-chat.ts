@@ -1,4 +1,5 @@
-// Minimal REST call to OpenAI without SDK to avoid extra deps
+export const config = { runtime: 'edge' };
+
 async function openAiChat(payload: any, apiKey: string) {
   const res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -15,36 +16,34 @@ async function openAiChat(payload: any, apiKey: string) {
   return res.json();
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: Request): Promise<Response> {
   try {
     if (req.method !== 'POST') {
-      res.status(405).json({ error: 'Method Not Allowed' });
-      return;
+      return new Response(JSON.stringify({ error: 'Method Not Allowed' }), {
+        status: 405,
+        headers: { 'content-type': 'application/json' },
+      });
     }
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = (process.env as any)?.OPENAI_API_KEY;
     if (!apiKey) {
-      res.status(500).json({ error: 'Missing OPENAI_API_KEY environment variable' });
-      return;
+      return new Response(JSON.stringify({ error: 'Missing OPENAI_API_KEY environment variable' }), {
+        status: 500,
+        headers: { 'content-type': 'application/json' },
+      });
     }
 
-    const {
-      mode,
-      messages,
-      lessonContext,
-      model,
-      max_tokens,
-      temperature,
-    }: {
+    const body = await req.json().catch(() => ({} as any));
+    const { mode, messages, lessonContext, model, max_tokens, temperature } = body as {
       mode: 'chat' | 'suggest';
       messages?: { role: 'user' | 'assistant' | 'system'; content: string }[];
       lessonContext?: string;
       model?: string;
       max_tokens?: number;
       temperature?: number;
-    } = req.body || {};
+    };
 
-    const selectedModel = model || process.env.OPENAI_MODEL || 'gpt-4o-mini';
+    const selectedModel = model || (process.env as any)?.OPENAI_MODEL || 'gpt-4o-mini';
 
     if (mode === 'suggest') {
       const system = {
@@ -66,25 +65,23 @@ export default async function handler(req: any, res: any) {
         apiKey
       );
 
-      // Try to parse JSON array from the response
       const text: string = data.choices?.[0]?.message?.content ?? '[]';
       let suggestions: string[] = [];
       try {
         suggestions = JSON.parse(text);
         if (!Array.isArray(suggestions)) suggestions = [];
       } catch {
-        // Fallback: attempt to split lines
         suggestions = text
           .split('\n')
-          .map((s) => s.replace(/^[-*\d.\s]+/, '').trim())
+          .map((s: string) => s.replace(/^[-*\d.\s]+/, '').trim())
           .filter(Boolean)
-          .slice(0, 4);
+          .slice(0, 3);
       }
-
-      // Ensure exactly up to 4 items
       suggestions = suggestions.slice(0, 3);
-      res.status(200).json({ suggestions });
-      return;
+      return new Response(JSON.stringify({ suggestions }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
     }
 
     if (mode === 'chat') {
@@ -93,11 +90,9 @@ export default async function handler(req: any, res: any) {
         content:
           'You are "AI Instructor", a concise, friendly tutor for software and blockchain courses. Use the provided lesson context when answering. If context is missing for a question, answer from general knowledge but keep it short and practical. Prefer step-by-step explanations and simple examples. Keep responses under 200 words unless code is needed.',
       };
-
       const ctxMsg = lessonContext
-        ? ({ role: 'system', content: `Lesson context: ${lessonContext.slice(0, 6000)}` } as const)
+        ? ({ role: 'system', content: `Lesson context: ${String(lessonContext).slice(0, 6000)}` } as const)
         : undefined;
-
       const chain = [sys, ...(ctxMsg ? [ctxMsg] : []), ...(messages || [])];
 
       const data = await openAiChat(
@@ -111,14 +106,22 @@ export default async function handler(req: any, res: any) {
       );
 
       const reply: string = data.choices?.[0]?.message?.content ?? '';
-      res.status(200).json({ reply });
-      return;
+      return new Response(JSON.stringify({ reply }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
     }
 
-    res.status(400).json({ error: 'Invalid mode' });
+    return new Response(JSON.stringify({ error: 'Invalid mode' }), {
+      status: 400,
+      headers: { 'content-type': 'application/json' },
+    });
   } catch (err: any) {
     const message = err?.message || 'Unexpected server error';
     console.error('AI API error:', message);
-    res.status(500).json({ error: message });
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+      headers: { 'content-type': 'application/json' },
+    });
   }
 }
