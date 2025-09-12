@@ -33,6 +33,42 @@ export default function LessonAIChat(props: Props) {
   const [loading, setLoading] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
 
+  // Optional client-side fallback when backend route is unavailable in dev
+  const clientKey = (import.meta as any).env?.VITE_OPENAI_API_KEY as string | undefined;
+  const clientModel = ((import.meta as any).env?.VITE_OPENAI_MODEL as string) || 'gpt-4o-mini';
+
+  const fetchSuggestionsClient = async () => {
+    if (!clientKey) return null;
+    try {
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${clientKey}` },
+        body: JSON.stringify({
+          model: clientModel,
+          messages: [
+            { role: 'system', content: 'You are an expert course assistant. Generate three concise, distinct, helpful questions based on the provided lesson context. Return ONLY a JSON array of three strings.' },
+            { role: 'user', content: `Lesson context (may be truncated):\n\n${contextText}` },
+          ],
+          temperature: 0.7,
+          max_tokens: 256,
+        }),
+      });
+      const raw = await res.text();
+      if (!res.ok) {
+        console.error('AI suggest client error:', raw);
+        return null;
+      }
+      let text = '';
+      try { text = (JSON.parse(raw)?.choices?.[0]?.message?.content as string) || ''; } catch { text = ''; }
+      let list: string[] = [];
+      try { list = JSON.parse(text); } catch { list = text.split('\n').map(s=>s.replace(/^[-*\d.\s]+/,'').trim()).filter(Boolean).slice(0,3); }
+      return list.slice(0, 3);
+    } catch (e) {
+      console.error('AI suggest client exception:', e);
+      return null;
+    }
+  };
+
   useEffect(() => {
     const fetchSuggestions = async () => {
       try {
@@ -44,6 +80,8 @@ export default function LessonAIChat(props: Props) {
         const raw = await res.text();
         if (!res.ok) {
           console.error('AI suggest error:', raw);
+          const fallback = await fetchSuggestionsClient();
+          if (fallback) setSuggestions(fallback);
           return;
         }
         let data: any = null;
@@ -56,6 +94,8 @@ export default function LessonAIChat(props: Props) {
         if (Array.isArray(data?.suggestions)) setSuggestions(data.suggestions);
       } catch (e) {
         console.error('AI suggest exception:', e);
+        const fallback = await fetchSuggestionsClient();
+        if (fallback) setSuggestions(fallback);
       }
     };
     fetchSuggestions();
@@ -83,6 +123,34 @@ export default function LessonAIChat(props: Props) {
       });
       const raw = await res.text();
       if (!res.ok) {
+        // Client-side fallback to OpenAI if backend route is missing in dev
+        if (clientKey) {
+          try {
+            const cres = await fetch('https://api.openai.com/v1/chat/completions', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${clientKey}` },
+              body: JSON.stringify({
+                model: clientModel,
+                messages: [
+                  { role: 'system', content: 'You are "AI Instructor", a concise, friendly tutor for software and blockchain courses.' },
+                  { role: 'system', content: `Lesson context: ${contextText}` },
+                  { role: 'user', content: text.trim() },
+                ],
+                temperature: 0.5,
+                max_tokens: 700,
+              }),
+            });
+            const craw = await cres.text();
+            if (cres.ok) {
+              let reply = '';
+              try { reply = JSON.parse(craw)?.choices?.[0]?.message?.content || ''; } catch { reply = craw; }
+              setMessages((m) => [...m, { role: 'assistant', content: reply || 'No reply' }]);
+              return;
+            }
+          } catch (fe) {
+            console.error('AI chat client exception:', fe);
+          }
+        }
         let details = '';
         try { details = JSON.parse(raw)?.error || ''; } catch { details = raw; }
         const msg = details ? `Error: ${details}` : 'There was an error contacting the AI service.';
