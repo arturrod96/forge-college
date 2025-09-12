@@ -178,7 +178,7 @@ export default function LessonAIChat(props: Props) {
         <p className="text-xs text-muted-foreground">Faça perguntas sobre esta lição</p>
       </CardHeader>
       <CardContent className="flex-1 min-h-0 flex flex-col gap-3">
-        <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto rounded-md border p-3 space-y-3 bg-white">
+        <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto rounded-md border p-3 bg-white flex flex-col justify-end gap-3">
           {messages.length === 0 && (
             <div className="text-xs text-muted-foreground">Dica: clique em uma pergunta sugerida ou digite a sua abaixo.</div>
           )}
