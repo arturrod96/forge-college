@@ -81,14 +81,16 @@ export default function LessonAIChat(props: Props) {
           messages: [{ role: 'user', content: text.trim() }],
         }),
       });
+      const raw = await res.text();
       if (!res.ok) {
         let details = '';
-        try { details = (await res.json())?.error || ''; } catch { details = await res.text(); }
+        try { details = JSON.parse(raw)?.error || ''; } catch { details = raw; }
         const msg = details ? `Error: ${details}` : 'There was an error contacting the AI service.';
         setMessages((m) => [...m, { role: 'assistant', content: msg }]);
         return;
       }
-      const data = await res.json();
+      let data: any = null;
+      try { data = JSON.parse(raw); } catch { data = null; }
       const reply = (data?.reply as string) || 'Sorry, I could not generate an answer.';
       setMessages((m) => [...m, { role: 'assistant', content: reply }]);
     } catch (e: any) {
