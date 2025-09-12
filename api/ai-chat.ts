@@ -117,6 +117,8 @@ export default async function handler(req: any, res: any) {
 
     res.status(400).json({ error: 'Invalid mode' });
   } catch (err: any) {
-    res.status(500).json({ error: err?.message || 'Unexpected server error' });
+    const message = err?.message || 'Unexpected server error';
+    console.error('AI API error:', message);
+    res.status(500).json({ error: message });
   }
 }
