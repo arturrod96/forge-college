@@ -131,6 +131,14 @@ export function CourseView() {
       <div className="flex-1 border rounded-md bg-white min-h-[60vh]">
         <LessonViewer lesson={currentLesson} course={course ?? null} onLessonChange={setCurrentLesson} />
       </div>
+      <div className="w-96 shrink-0 hidden xl:block">
+        <LessonAIChat
+          courseTitle={course?.title}
+          lessonTitle={currentLesson?.title}
+          lessonType={currentLesson?.lesson_type}
+          lessonContent={currentLesson?.content}
+        />
+      </div>
     </div>
   );
 }
