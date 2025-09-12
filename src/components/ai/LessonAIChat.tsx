@@ -173,13 +173,16 @@ export default function LessonAIChat(props: Props) {
   };
 
   return (
-    <Card className="h-full max-h-full flex flex-col">
+    <Card className="h-full max-h-full flex flex-col text-xs">
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">AI Instructor</CardTitle>
-        <p className="text-xs text-muted-foreground">Faça perguntas sobre esta lição</p>
+        <CardTitle className="text-sm flex items-center gap-2">
+          <Bot className="h-4 w-4 text-forge-dark" />
+          <span>AI Instructor</span>
+        </CardTitle>
+        <p className="text-[11px] text-muted-foreground">Faça perguntas sobre esta lição</p>
       </CardHeader>
-      <CardContent className="flex-1 min-h-0 flex flex-col gap-3">
-        <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto rounded-md border p-3 bg-white flex flex-col gap-3">
+      <CardContent className="flex-1 min-h-0 flex flex-col gap-3 text-xs">
+        <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto rounded-md border p-3 bg-white flex flex-col gap-2">
           {!!suggestions.length && (
             <div className="grid gap-2">
               {suggestions.map((q, i) => (
@@ -189,8 +192,8 @@ export default function LessonAIChat(props: Props) {
                   onClick={() => send(q)}
                   className="w-full text-left border rounded-lg p-3 bg-white hover:bg-forge-cream transition-colors shadow-sm"
                 >
-                  <div className="text-xs text-muted-foreground mb-1">Sugestão</div>
-                  <div className="text-sm">{q}</div>
+                  <div className="text-[10px] text-muted-foreground mb-1">Sugestão</div>
+                  <div className="text-xs">{q}</div>
                 </button>
               ))}
             </div>
@@ -207,7 +210,7 @@ export default function LessonAIChat(props: Props) {
                 {m.role === 'user' ? 'Me:' : 'Instructor:'}
               </div>
               <div className={
-                'inline-block rounded-lg px-3 py-2 text-sm ' +
+                'inline-block rounded-lg px-3 py-2 text-xs ' +
                 (m.role === 'user' ? 'bg-forge-orange text-white' : 'bg-forge-cream text-forge-dark')
               }>
                 {m.content}
