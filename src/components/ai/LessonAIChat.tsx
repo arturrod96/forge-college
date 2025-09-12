@@ -41,12 +41,18 @@ export default function LessonAIChat(props: Props) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mode: 'suggest', lessonContext: contextText }),
         });
+        const raw = await res.text();
         if (!res.ok) {
-          const msg = await res.text();
-          console.error('AI suggest error:', msg);
+          console.error('AI suggest error:', raw);
           return;
         }
-        const data = await res.json();
+        let data: any = null;
+        try {
+          data = JSON.parse(raw);
+        } catch (err) {
+          console.error('AI suggest parse error:', raw);
+          return;
+        }
         if (Array.isArray(data?.suggestions)) setSuggestions(data.suggestions);
       } catch (e) {
         console.error('AI suggest exception:', e);
