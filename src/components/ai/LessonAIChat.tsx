@@ -41,10 +41,15 @@ export default function LessonAIChat(props: Props) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mode: 'suggest', lessonContext: contextText }),
         });
+        if (!res.ok) {
+          const msg = await res.text();
+          console.error('AI suggest error:', msg);
+          return;
+        }
         const data = await res.json();
         if (Array.isArray(data?.suggestions)) setSuggestions(data.suggestions);
       } catch (e) {
-        // noop
+        console.error('AI suggest exception:', e);
       }
     };
     fetchSuggestions();
@@ -70,10 +75,18 @@ export default function LessonAIChat(props: Props) {
           messages: [{ role: 'user', content: text.trim() }],
         }),
       });
+      if (!res.ok) {
+        let details = '';
+        try { details = (await res.json())?.error || ''; } catch { details = await res.text(); }
+        const msg = details ? `Error: ${details}` : 'There was an error contacting the AI service.';
+        setMessages((m) => [...m, { role: 'assistant', content: msg }]);
+        return;
+      }
       const data = await res.json();
       const reply = (data?.reply as string) || 'Sorry, I could not generate an answer.';
       setMessages((m) => [...m, { role: 'assistant', content: reply }]);
     } catch (e: any) {
+      console.error('AI chat exception:', e);
       setMessages((m) => [...m, { role: 'assistant', content: 'There was an error contacting the AI service.' }]);
     } finally {
       setLoading(false);
