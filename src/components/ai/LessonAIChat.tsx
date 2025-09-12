@@ -87,22 +87,15 @@ export default function LessonAIChat(props: Props) {
         <p className="text-xs text-muted-foreground">Faça perguntas sobre esta lição</p>
       </CardHeader>
       <CardContent className="flex-1 min-h-0 flex flex-col gap-3">
-        {!!suggestions.length && (
-          <div className="grid gap-2">
-            {suggestions.map((q, i) => (
-              <Button key={i} variant="outline" className="justify-start text-left" onClick={() => send(q)}>
-                {q}
-              </Button>
-            ))}
-          </div>
-        )}
-
         <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto rounded-md border p-3 space-y-3 bg-white">
           {messages.length === 0 && (
             <div className="text-xs text-muted-foreground">Dica: clique em uma pergunta sugerida ou digite a sua abaixo.</div>
           )}
           {messages.map((m, i) => (
             <div key={i} className={m.role === 'user' ? 'text-right' : 'text-left'}>
+              <div className="text-[10px] uppercase tracking-wide mb-1 text-muted-foreground">
+                {m.role === 'user' ? 'Me:' : 'Instructor:'}
+              </div>
               <div className={
                 'inline-block rounded-lg px-3 py-2 text-sm ' +
                 (m.role === 'user' ? 'bg-forge-orange text-white' : 'bg-forge-cream text-forge-dark')
@@ -113,6 +106,22 @@ export default function LessonAIChat(props: Props) {
           ))}
           {loading && <div className="text-xs text-muted-foreground">Gerando resposta…</div>}
         </div>
+
+        {!!suggestions.length && (
+          <div className="grid gap-2">
+            {suggestions.map((q, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => send(q)}
+                className="w-full text-left border rounded-lg p-3 bg-white hover:bg-forge-cream transition-colors shadow-sm"
+              >
+                <div className="text-xs text-muted-foreground mb-1">Sugestão</div>
+                <div className="text-sm">{q}</div>
+              </button>
+            ))}
+          </div>
+        )}
 
         <form
           onSubmit={(e) => {
