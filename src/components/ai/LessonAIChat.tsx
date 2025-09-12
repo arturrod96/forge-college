@@ -32,6 +32,7 @@ export default function LessonAIChat(props: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
 
   // Optional client-side fallback when backend route is unavailable in dev
