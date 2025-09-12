@@ -209,7 +209,7 @@ export default function LessonAIChat(props: Props) {
                 {m.role === 'user' ? 'Me:' : 'Instructor:'}
               </div>
               <div className={
-                'inline-block rounded-lg px-3 py-2 text-xs break-words whitespace-pre-wrap ' +
+                'inline-block rounded-lg px-3 py-2 text-xs break-words whitespace-pre-wrap text-left ' +
                 (m.role === 'user' ? 'bg-forge-orange text-white max-w-[70%]' : 'bg-forge-cream text-forge-dark')
               }>
                 {m.content}
