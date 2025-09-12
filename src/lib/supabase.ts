@@ -3,14 +3,18 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import type { cookies as CookiesFn } from 'next/headers'
 import { supabaseConfig } from '@/config/supabase'
 
+// Maintain a single browser client instance to avoid multiple GoTrue clients
+let browserClient: ReturnType<typeof createClient> | null = null
+
 /**
- * Creates a Supabase client for browser-side operations
- * Used in client components for authentication
+ * Creates (or returns) a singleton Supabase client for browser-side operations
  */
 export function createClientBrowser() {
+  if (browserClient) return browserClient
+
   const { url, anonKey } = supabaseConfig
 
-  return createClient(
+  browserClient = createClient(
     url,
     anonKey,
     {
@@ -33,6 +37,8 @@ export function createClientBrowser() {
       }
     }
   )
+
+  return browserClient
 }
 
 /**

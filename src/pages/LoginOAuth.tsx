@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createClientBrowser } from '@/lib/supabase'
+import { getOAuthRedirectUrl } from '@/lib/utils'
 import { useNavigate } from 'react-router-dom'
 
 export default function LoginOAuth() {
@@ -22,7 +23,7 @@ export default function LoginOAuth() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: getOAuthRedirectUrl()
         }
       })
 

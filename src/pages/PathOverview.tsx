@@ -25,8 +25,9 @@ export function PathOverview() {
   const { pathId } = useParams();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const supabase = createClientBrowser();
 
-  const { data, isLoading } = useQuery<{ path: LearningPathDetail; isEnrolled: boolean } | null>({
+  const { data, isLoading, error } = useQuery<{ path: LearningPathDetail; isEnrolled: boolean } | null>({
     queryKey: ['pathOverview', pathId, user?.id],
     enabled: Boolean(pathId),
     queryFn: async () => {
@@ -98,6 +99,10 @@ export function PathOverview() {
         ))}
       </div>
     );
+  }
+
+  if (error) {
+    console.error('Supabase error loading path overview:', error)
   }
 
   if (!data) {

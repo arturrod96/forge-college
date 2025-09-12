@@ -1,9 +1,11 @@
-import { useParams } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams, useOutletContext, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { createClientBrowser } from '@/lib/supabase';
 import { CourseTableOfContents } from '@/components/dashboard/CourseTableOfContents';
 import { LessonViewer } from '@/components/dashboard/LessonViewer';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { DASHBOARD, DASHBOARD_EXPLORE } from '@/routes/paths';
 
 export type LessonType = 'text' | 'video' | 'quiz';
 
@@ -28,9 +30,13 @@ export interface Course {
   modules: Module[];
 }
 
+type DashboardOutletContext = { setHeaderBreadcrumb: (node: React.ReactNode | null) => void }
+
 export function CourseView() {
   const { courseId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
+  const supabase = createClientBrowser();
+  const { setHeaderBreadcrumb } = useOutletContext<DashboardOutletContext>();
 
   const { data: course, isLoading } = useQuery<Course | null>({
     queryKey: ['courseView', courseId],
@@ -73,6 +79,41 @@ export function CourseView() {
       return normalized;
     },
   });
+
+  useEffect(() => {
+    if (!course) return
+    const crumb = (
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to={DASHBOARD}>Dashboard</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to={DASHBOARD_EXPLORE}>Paths</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{course.title}</BreadcrumbPage>
+          </BreadcrumbItem>
+          {currentLesson && (
+            <>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>{currentLesson.title}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </>
+          )}
+        </BreadcrumbList>
+      </Breadcrumb>
+    )
+    setHeaderBreadcrumb(crumb)
+    return () => setHeaderBreadcrumb(null)
+  }, [course?.title, currentLesson?.title, setHeaderBreadcrumb])
 
   return (
     <div className="flex gap-6">

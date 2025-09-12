@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '@/hooks/useOAuth';
 import { Outlet, Link, useLocation } from 'react-router-dom';
+import { useState, type ReactNode } from 'react';
 import {
   SidebarProvider,
   Sidebar,
@@ -53,6 +54,8 @@ export function DashboardLayout() {
 
   const isDashboard = location.pathname === DASHBOARD_PATH;
   const isExplore = location.pathname.startsWith(DASHBOARD_EXPLORE);
+
+  const [headerBreadcrumb, setHeaderBreadcrumb] = useState<ReactNode | null>(null);
 
   return (
     <SidebarProvider>
@@ -120,9 +123,13 @@ export function DashboardLayout() {
         <div className="flex h-16 items-center justify-between px-4 sm:px-6 border-b bg-white border-forge-cream">
           <div className="flex items-center gap-3">
             <MobileMenuButton />
-            <h1 className="text-xl sm:text-2xl font-semibold text-forge-dark">
-              {isDashboard ? 'Dashboard' : isExplore ? 'Paths' : 'Dashboard'}
-            </h1>
+            {headerBreadcrumb ? (
+              <div className="hidden md:block">{headerBreadcrumb}</div>
+            ) : (
+              <h1 className="text-xl sm:text-2xl font-semibold text-forge-dark">
+                {isDashboard ? 'Dashboard' : isExplore ? 'Paths' : 'Dashboard'}
+              </h1>
+            )}
           </div>
           <div className="flex items-center space-x-4" />
         </div>
@@ -133,7 +140,7 @@ export function DashboardLayout() {
             <div className="absolute -top-6 right-6 w-32 h-32 bg-forge-cream rounded-full blur-2xl"></div>
             <div className="absolute bottom-0 left-10 w-24 h-24 bg-forge-orange/10 rounded-full blur-2xl"></div>
           </div>
-          <Outlet />
+          <Outlet context={{ setHeaderBreadcrumb }} />
         </div>
       </SidebarInset>
     </SidebarProvider>

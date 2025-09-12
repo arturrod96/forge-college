@@ -17,6 +17,7 @@ interface Props {
 export function LessonViewer({ lesson, course, onLessonChange }: Props) {
   const { user } = useAuth();
   const [isCompleting, setIsCompleting] = useState(false);
+  const supabase = createClientBrowser();
 
   if (!lesson) {
     return (
