@@ -80,6 +80,8 @@ export default function LessonAIChat(props: Props) {
 
   useEffect(() => {
     const fetchSuggestions = async () => {
+      setSuggestionsLoading(true);
+      setSuggestions([]);
       try {
         const res = await fetch('/api/ai-chat', {
           method: 'POST',
@@ -104,6 +106,8 @@ export default function LessonAIChat(props: Props) {
         console.error('AI suggest exception:', e);
         const fallback = await fetchSuggestionsClient();
         if (fallback) setSuggestions(fallback);
+      } finally {
+        setSuggestionsLoading(false);
       }
     };
     fetchSuggestions();
@@ -183,7 +187,10 @@ export default function LessonAIChat(props: Props) {
       </CardHeader>
       <CardContent className="flex-1 min-h-0 flex flex-col gap-3 text-xs">
         <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto rounded-md border p-3 bg-white flex flex-col gap-2">
-          {!!suggestions.length && (
+          {suggestionsLoading && (
+            <div className="text-[11px] text-muted-foreground">Loading suggestions...</div>
+          )}
+          {!!suggestions.length && !suggestionsLoading && (
             <div className="grid gap-2">
               {suggestions.map((q, i) => (
                 <button
