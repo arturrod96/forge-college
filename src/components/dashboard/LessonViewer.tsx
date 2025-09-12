@@ -6,6 +6,9 @@ import { QuizLesson } from '@/components/lessons/QuizLesson';
 import { useAuth } from '@/hooks/useOAuth';
 import { createClientBrowser } from '@/lib/supabase';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { DASHBOARD, DASHBOARD_EXPLORE } from '@/routes/paths';
 import { toast } from 'sonner';
 
 interface Props {
@@ -17,6 +20,7 @@ interface Props {
 export function LessonViewer({ lesson, course, onLessonChange }: Props) {
   const { user } = useAuth();
   const [isCompleting, setIsCompleting] = useState(false);
+  const supabase = createClientBrowser();
 
   if (!lesson) {
     return (
@@ -88,9 +92,36 @@ export function LessonViewer({ lesson, course, onLessonChange }: Props) {
 
   return (
     <div className="flex-1 flex flex-col p-6 bg-white">
-      <header className="mb-6">
+      <header className="mb-6 space-y-2">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to={DASHBOARD}>Dashboard</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to={DASHBOARD_EXPLORE}>Paths</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            {course && (
+              <>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{course.title}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </>
+            )}
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{lesson.title}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         <h1 className="text-3xl font-bold">{lesson.title}</h1>
-        <div className="text-sm text-gray-500 mt-2">
+        <div className="text-sm text-gray-500 mt-1">
           Lesson {currentIndex + 1} of {allLessons.length} • {lesson.xp_value} XP
         </div>
       </header>
