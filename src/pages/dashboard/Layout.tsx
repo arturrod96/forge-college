@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useAuth } from '@/hooks/useOAuth';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useState, type ReactNode } from 'react';
@@ -22,6 +22,14 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { ProfileDropdown } from '@/components/ProfileDropdown';
 import { useSidebar } from '@/components/ui/sidebar';
 import { DASHBOARD as DASHBOARD_PATH, DASHBOARD_EXPLORE, ROUTE_LABELS } from '@/routes/paths';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 
 function MobileMenuButton() {
   const { toggleSidebar } = useSidebar();
@@ -57,8 +65,37 @@ export function DashboardLayout() {
 
   const [headerBreadcrumb, setHeaderBreadcrumb] = useState<ReactNode | null>(null);
 
+  // Default breadcrumbs for all dashboard routes
+  const defaultBreadcrumbItems = useMemo(() => {
+    const segments = location.pathname.split('/').filter(Boolean);
+    const items: { label: string; to?: string }[] = [];
+
+    // Always start from Dashboard
+    items.push({ label: ROUTE_LABELS[DASHBOARD_PATH], to: DASHBOARD_PATH });
+
+    if (segments.length <= 1) return items; // only /dashboard
+
+    const second = segments[1];
+    if (second === 'explore') {
+      items.push({ label: ROUTE_LABELS[DASHBOARD_EXPLORE] });
+    } else if (second === 'profile') {
+      items.push({ label: ROUTE_LABELS.PROFILE });
+    } else if (second === 'learn') {
+      const third = segments[2];
+      if (third === 'course') {
+        items.push({ label: ROUTE_LABELS.LEARN, to: DASHBOARD_EXPLORE });
+        items.push({ label: ROUTE_LABELS.COURSE });
+      } else if (third === 'path') {
+        items.push({ label: ROUTE_LABELS.LEARN, to: DASHBOARD_EXPLORE });
+        items.push({ label: ROUTE_LABELS.PATH });
+      }
+    }
+
+    return items;
+  }, [location.pathname]);
+
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <Sidebar collapsible="icon">
         <SidebarRail />
         <SidebarHeader className="p-4">
@@ -126,9 +163,29 @@ export function DashboardLayout() {
             {headerBreadcrumb ? (
               <div className="hidden md:block">{headerBreadcrumb}</div>
             ) : (
-              <h1 className="text-xl sm:text-2xl font-semibold text-forge-dark">
-                {isDashboard ? 'Dashboard' : isExplore ? 'Paths' : 'Dashboard'}
-              </h1>
+              <div className="hidden md:block">
+                <Breadcrumb>
+                  <BreadcrumbList>
+                    {defaultBreadcrumbItems.map((item, index) => {
+                      const isLast = index === defaultBreadcrumbItems.length - 1;
+                      return (
+                        <React.Fragment key={`${item.label}-${index}`}>
+                          <BreadcrumbItem>
+                            {isLast || !item.to ? (
+                              <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                            ) : (
+                              <BreadcrumbLink asChild>
+                                <Link to={item.to}>{item.label}</Link>
+                              </BreadcrumbLink>
+                            )}
+                          </BreadcrumbItem>
+                          {!isLast && <BreadcrumbSeparator />}
+                        </React.Fragment>
+                      );
+                    })}
+                  </BreadcrumbList>
+                </Breadcrumb>
+              </div>
             )}
           </div>
           <div className="flex items-center space-x-4" />

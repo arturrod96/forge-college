@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useOutletContext, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { createClientBrowser } from '@/lib/supabase';
 import { CourseTableOfContents } from '@/components/dashboard/CourseTableOfContents';
 import { LessonViewer } from '@/components/dashboard/LessonViewer';
+import LessonAIChat from '@/components/ai/LessonAIChat';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { DASHBOARD, DASHBOARD_EXPLORE } from '@/routes/paths';
 
@@ -130,6 +131,14 @@ export function CourseView() {
       </div>
       <div className="flex-1 border rounded-md bg-white min-h-[60vh]">
         <LessonViewer lesson={currentLesson} course={course ?? null} onLessonChange={setCurrentLesson} />
+      </div>
+      <div className="w-96 shrink-0 hidden md:block sticky top-6 self-start h-[calc(100vh-7rem)] max-h-[calc(100vh-7rem)]">
+        <LessonAIChat
+          courseTitle={course?.title}
+          lessonTitle={currentLesson?.title}
+          lessonType={currentLesson?.lesson_type}
+          lessonContent={currentLesson?.content}
+        />
       </div>
     </div>
   );
