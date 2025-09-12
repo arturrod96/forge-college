@@ -178,7 +178,25 @@ export default function LessonAIChat(props: Props) {
         <p className="text-xs text-muted-foreground">Faça perguntas sobre esta lição</p>
       </CardHeader>
       <CardContent className="flex-1 min-h-0 flex flex-col gap-3">
-        <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto rounded-md border p-3 bg-white flex flex-col justify-end gap-3">
+        <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto rounded-md border p-3 bg-white flex flex-col gap-3">
+          {!!suggestions.length && (
+            <div className="grid gap-2">
+              {suggestions.map((q, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => send(q)}
+                  className="w-full text-left border rounded-lg p-3 bg-white hover:bg-forge-cream transition-colors shadow-sm"
+                >
+                  <div className="text-xs text-muted-foreground mb-1">Sugestão</div>
+                  <div className="text-sm">{q}</div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="flex-1" />
+
           {messages.length === 0 && (
             <div className="text-xs text-muted-foreground">Dica: clique em uma pergunta sugerida ou digite a sua abaixo.</div>
           )}
@@ -197,22 +215,6 @@ export default function LessonAIChat(props: Props) {
           ))}
           {loading && <div className="text-xs text-muted-foreground">Gerando resposta…</div>}
         </div>
-
-        {!!suggestions.length && (
-          <div className="grid gap-2">
-            {suggestions.map((q, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => send(q)}
-                className="w-full text-left border rounded-lg p-3 bg-white hover:bg-forge-cream transition-colors shadow-sm"
-              >
-                <div className="text-xs text-muted-foreground mb-1">Sugestão</div>
-                <div className="text-sm">{q}</div>
-              </button>
-            ))}
-          </div>
-        )}
 
         <form
           onSubmit={(e) => {
