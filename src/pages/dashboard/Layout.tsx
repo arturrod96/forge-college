@@ -95,7 +95,7 @@ export function DashboardLayout() {
   }, [location.pathname]);
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <Sidebar collapsible="icon">
         <SidebarRail />
         <SidebarHeader className="p-4">
