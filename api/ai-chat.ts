@@ -15,7 +15,7 @@ async function openAiChat(payload: any, apiKey: string) {
   return res.json();
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
   try {
     if (req.method !== 'POST') {
       res.status(405).json({ error: 'Method Not Allowed' });
