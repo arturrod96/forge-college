@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useOutletContext, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { createClientBrowser } from '@/lib/supabase';
 import { CourseTableOfContents } from '@/components/dashboard/CourseTableOfContents';
 import { LessonViewer } from '@/components/dashboard/LessonViewer';
+import LessonAIChat from '@/components/ai/LessonAIChat';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { DASHBOARD, DASHBOARD_EXPLORE } from '@/routes/paths';
 
