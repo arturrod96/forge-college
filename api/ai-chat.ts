@@ -50,7 +50,7 @@ export default async function handler(req: any, res: any) {
       const system = {
         role: 'system' as const,
         content:
-          'You are an expert course assistant. Read the provided lesson context and generate four concise, distinct, helpful questions a student might ask. Return ONLY a JSON array of four strings with no additional text.',
+          'You are an expert course assistant. Read the provided lesson context and generate three concise, distinct, helpful questions a student might ask. Return ONLY a JSON array of three strings with no additional text.',
       };
       const user = {
         role: 'user' as const,
@@ -82,7 +82,7 @@ export default async function handler(req: any, res: any) {
       }
 
       // Ensure exactly up to 4 items
-      suggestions = suggestions.slice(0, 4);
+      suggestions = suggestions.slice(0, 3);
       res.status(200).json({ suggestions });
       return;
     }
