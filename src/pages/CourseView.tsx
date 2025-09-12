@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { createClientBrowser } from '@/lib/supabase';
 import { CourseTableOfContents } from '@/components/dashboard/CourseTableOfContents';
@@ -31,6 +32,7 @@ export interface Course {
 export function CourseView() {
   const { courseId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
+  const supabase = createClientBrowser();
 
   const { data: course, isLoading } = useQuery<Course | null>({
     queryKey: ['courseView', courseId],
