@@ -60,9 +60,16 @@ export default function LessonAIChat(props: Props) {
       }
       let text = '';
       try { text = (JSON.parse(raw)?.choices?.[0]?.message?.content as string) || ''; } catch { text = ''; }
+      const cleaned = text.replace(/```[a-z]*\n?/gi,'').replace(/```/g,'').trim();
       let list: string[] = [];
-      try { list = JSON.parse(text); } catch { list = text.split('\n').map(s=>s.replace(/^[-*\d.\s]+/,'').trim()).filter(Boolean).slice(0,3); }
-      return list.slice(0, 3);
+      const match = cleaned.match(/\[[\s\S]*\]/);
+      if (match) {
+        try { const arr = JSON.parse(match[0]); if (Array.isArray(arr)) list = arr; } catch {}
+      }
+      if (!list.length) {
+        list = cleaned.split('\n').map(s=>s.replace(/^[-*\d.\s]+/, '').replace(/^\"|\",?$/g,'').replace(/,$/,'').trim()).filter(Boolean);
+      }
+      return list.map(s=>s.replace(/^\"|\"$/g,'').trim()).slice(0, 3);
     } catch (e) {
       console.error('AI suggest client exception:', e);
       return null;
