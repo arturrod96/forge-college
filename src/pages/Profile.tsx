@@ -155,8 +155,8 @@ export default function Profile() {
   if (!profile) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600">Failed to load profile</p>
-        <Button onClick={loadProfile} className="mt-4">Try Again</Button>
+        <p className="text-gray-600">{t('profile.failedToLoad')}</p>
+        <Button onClick={loadProfile} className="mt-4">{t('common.buttons.tryAgain')}</Button>
       </div>
     );
   }
@@ -165,8 +165,8 @@ export default function Profile() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
-        <p className="text-gray-600 mt-2">Manage your personal and professional information</p>
+        <h1 className="text-3xl font-bold text-gray-900">{t('profile.title')}</h1>
+        <p className="text-gray-600 mt-2">{t('profile.subtitle')}</p>
       </div>
 
       {/* Unsaved Changes Hint */}
@@ -174,7 +174,7 @@ export default function Profile() {
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <div className="flex items-center gap-2 text-yellow-800">
             <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-            <span className="text-sm font-medium">You have unsaved changes</span>
+            <span className="text-sm font-medium">{t('profile.unsavedChanges')}</span>
           </div>
         </div>
       )}
@@ -189,23 +189,23 @@ export default function Profile() {
         <div className="lg:col-span-3">
           {activeTab === 'personal' && (
             <SectionCard
-              title="Personal Information"
-              description="Update your basic personal details and contact information"
+              title={t('profile.sections.personal')}
+              description={t('profile.sections.personalDesc')}
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField label="Full Name" required error={errors.fullName}>
+                <FormField label={t('common.labels.fullName')} required error={errors.fullName}>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
                       value={profile.fullName}
                       onChange={(e) => updateField('fullName', e.target.value)}
-                      placeholder="Enter your full name"
+                      placeholder={t('common.placeholders.enterFullName')}
                       className="pl-10"
                     />
                   </div>
                 </FormField>
 
-                <FormField label="Email" required>
+                <FormField label={t('common.labels.email')} required>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
@@ -214,15 +214,15 @@ export default function Profile() {
                       className="pl-10 bg-gray-50"
                     />
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">Email can only be changed in your account settings</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('profile.messages.emailNote')}</p>
                 </FormField>
 
-                <FormField label="Country" required error={errors.country}>
+                <FormField label={t('common.labels.country')} required error={errors.country}>
                   <div className="relative">
                     <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Select value={profile.country} onValueChange={(value) => updateField('country', value)}>
                       <SelectTrigger className="pl-10">
-                        <SelectValue placeholder="Select your country" />
+                        <SelectValue placeholder={t('common.placeholders.selectCountry')} />
                       </SelectTrigger>
                       <SelectContent>
                         {countries.map((country) => (
@@ -235,24 +235,24 @@ export default function Profile() {
                   </div>
                 </FormField>
 
-                <FormField label="City">
+                <FormField label={t('common.labels.city')}>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
                       value={profile.city}
                       onChange={(e) => updateField('city', e.target.value)}
-                      placeholder="Enter your city"
+                      placeholder={t('common.placeholders.enterCity')}
                       className="pl-10"
                     />
                   </div>
                 </FormField>
 
                 <div className="md:col-span-2">
-                  <FormField label="Languages" description="Add languages you speak">
+                  <FormField label={t('common.labels.languages')} description={t('profile.sections.personalDesc')}>
                     <TagInput
                       value={profile.languages}
                       onChange={(value) => updateField('languages', value)}
-                      placeholder="Type a language and press Enter"
+                      placeholder={t('common.placeholders.typeLanguage')}
                     />
                   </FormField>
                 </div>
@@ -262,11 +262,11 @@ export default function Profile() {
 
           {activeTab === 'professional' && (
             <SectionCard
-              title="Professional Profile"
-              description="Share your work experience, skills, and career information"
+              title={t('profile.sections.professional')}
+              description={t('profile.sections.professionalDesc')}
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField label="Years of Experience in Technology">
+                <FormField label={t('profile.fields.yearsExperience')}>
                   <div className="relative">
                     <Briefcase className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
@@ -280,24 +280,24 @@ export default function Profile() {
                   </div>
                 </FormField>
 
-                <FormField label="Position & Company">
+                <FormField label={t('profile.fields.positionCompany')}>
                   <div className="relative">
                     <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
                       value={profile.positionCompany}
                       onChange={(e) => updateField('positionCompany', e.target.value)}
-                      placeholder="e.g., Senior Backend @ ACME"
+                      placeholder={t('profile.fields.positionPlaceholder')}
                       className="pl-10"
                     />
                   </div>
                 </FormField>
 
                 <div className="md:col-span-2">
-                  <FormField label="Stacks Dominated" description="Technologies you're proficient in">
+                  <FormField label={t('profile.fields.stacksDominated')} description={t('profile.fields.stacksDesc')}>
                     <TagInput
                       value={profile.stacks}
                       onChange={(value) => updateField('stacks', value)}
-                      placeholder="e.g., Java, Python, Solidity, React"
+                      placeholder={t('profile.fields.stacksPlaceholder')}
                     />
                   </FormField>
                 </div>
