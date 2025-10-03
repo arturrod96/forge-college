@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -40,61 +41,61 @@ interface Achievement {
   };
 }
 
-const MOCK_ACHIEVEMENTS: Achievement[] = [
+const getAchievements = (t: any): Achievement[] => [
   // Community Achievements
   {
     id: 'telegram-join',
-    title: 'Entre no Grupo Telegram',
-    description: 'Junte-se à nossa comunidade no Telegram e fique por dentro de todas as novidades',
+    title: t('achievements.tasks.telegramJoin.title'),
+    description: t('achievements.tasks.telegramJoin.description'),
     xpReward: 100,
     status: 'in_progress',
     category: 'community',
     icon: MessageCircle,
     action: {
-      label: 'Entrar no Telegram',
+      label: t('achievements.tasks.telegramJoin.action'),
       url: 'https://t.me/forgecollege'
     }
   },
   {
     id: 'discord-join',
-    title: 'Entre no Discord',
-    description: 'Conecte-se com outros estudantes e mentores no nosso servidor Discord',
+    title: t('achievements.tasks.discordJoin.title'),
+    description: t('achievements.tasks.discordJoin.description'),
     xpReward: 100,
     status: 'in_progress',
     category: 'community',
     icon: Users,
     action: {
-      label: 'Entrar no Discord',
+      label: t('achievements.tasks.discordJoin.action'),
       url: 'https://discord.gg/forgecollege'
     }
   },
   {
     id: 'first-message',
-    title: 'Primeira Mensagem',
-    description: 'Envie sua primeira mensagem em qualquer canal da comunidade',
+    title: t('achievements.tasks.firstMessage.title'),
+    description: t('achievements.tasks.firstMessage.description'),
     xpReward: 50,
     status: 'locked',
     category: 'community',
     icon: MessageCircle,
   },
-  
+
   // Profile Achievements
   {
     id: 'email-verify',
-    title: 'Verifique seu Email',
-    description: 'Confirme seu endereço de email através do link enviado',
+    title: t('achievements.tasks.emailVerify.title'),
+    description: t('achievements.tasks.emailVerify.description'),
     xpReward: 150,
     status: 'completed',
     category: 'profile',
     icon: Mail,
     action: {
-      label: 'Reenviar Email'
+      label: t('achievements.tasks.emailVerify.action')
     }
   },
   {
     id: 'complete-profile',
-    title: 'Complete seu Perfil',
-    description: 'Preencha todas as informações do seu perfil profissional',
+    title: t('achievements.tasks.completeProfile.title'),
+    description: t('achievements.tasks.completeProfile.description'),
     xpReward: 200,
     status: 'in_progress',
     category: 'profile',
@@ -102,53 +103,53 @@ const MOCK_ACHIEVEMENTS: Achievement[] = [
     maxProgress: 10,
     icon: Target,
     action: {
-      label: 'Ir para Perfil',
+      label: t('achievements.tasks.completeProfile.action'),
       url: '/dashboard/profile'
     }
   },
   {
     id: 'github-connect',
-    title: 'Conecte seu GitHub',
-    description: 'Vincule sua conta do GitHub ao seu perfil',
+    title: t('achievements.tasks.githubConnect.title'),
+    description: t('achievements.tasks.githubConnect.description'),
     xpReward: 100,
     status: 'in_progress',
     category: 'profile',
     icon: Github,
     action: {
-      label: 'Conectar GitHub'
+      label: t('achievements.tasks.githubConnect.action')
     }
   },
   {
     id: 'linkedin-connect',
-    title: 'Conecte seu LinkedIn',
-    description: 'Vincule sua conta do LinkedIn ao seu perfil',
+    title: t('achievements.tasks.linkedinConnect.title'),
+    description: t('achievements.tasks.linkedinConnect.description'),
     xpReward: 100,
     status: 'in_progress',
     category: 'profile',
     icon: Linkedin,
     action: {
-      label: 'Conectar LinkedIn'
+      label: t('achievements.tasks.linkedinConnect.action')
     }
   },
 
   // Social Achievements
   {
     id: 'twitter-follow',
-    title: 'Siga no Twitter',
-    description: 'Siga @ForgeCollege no Twitter para ficar atualizado',
+    title: t('achievements.tasks.twitterFollow.title'),
+    description: t('achievements.tasks.twitterFollow.description'),
     xpReward: 75,
     status: 'in_progress',
     category: 'social',
     icon: Twitter,
     action: {
-      label: 'Seguir no Twitter',
+      label: t('achievements.tasks.twitterFollow.action'),
       url: 'https://twitter.com/forgecollege'
     }
   },
   {
     id: 'share-progress',
-    title: 'Compartilhe seu Progresso',
-    description: 'Compartilhe sua jornada de aprendizado nas redes sociais',
+    title: t('achievements.tasks.shareProgress.title'),
+    description: t('achievements.tasks.shareProgress.description'),
     xpReward: 150,
     status: 'locked',
     category: 'social',
@@ -158,8 +159,8 @@ const MOCK_ACHIEVEMENTS: Achievement[] = [
   // Learning Achievements
   {
     id: 'first-lesson',
-    title: 'Primeira Lição',
-    description: 'Complete sua primeira lição em qualquer path',
+    title: t('achievements.tasks.firstLesson.title'),
+    description: t('achievements.tasks.firstLesson.description'),
     xpReward: 50,
     status: 'completed',
     category: 'learning',
@@ -167,8 +168,8 @@ const MOCK_ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'week-streak',
-    title: 'Sequência de 7 Dias',
-    description: 'Estude por 7 dias consecutivos',
+    title: t('achievements.tasks.weekStreak.title'),
+    description: t('achievements.tasks.weekStreak.description'),
     xpReward: 300,
     status: 'in_progress',
     category: 'learning',
@@ -178,8 +179,8 @@ const MOCK_ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'complete-path',
-    title: 'Complete um Path',
-    description: 'Finalize todas as lições de um learning path',
+    title: t('achievements.tasks.completePath.title'),
+    description: t('achievements.tasks.completePath.description'),
     xpReward: 500,
     status: 'in_progress',
     category: 'learning',
@@ -189,8 +190,8 @@ const MOCK_ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'perfect-quiz',
-    title: 'Quiz Perfeito',
-    description: 'Acerte 100% das questões em um quiz',
+    title: t('achievements.tasks.perfectQuiz.title'),
+    description: t('achievements.tasks.perfectQuiz.description'),
     xpReward: 200,
     status: 'locked',
     category: 'learning',
@@ -198,36 +199,37 @@ const MOCK_ACHIEVEMENTS: Achievement[] = [
   },
 ];
 
-const categoryConfig = {
+const getCategoryConfig = (t: any) => ({
   community: {
-    label: 'Comunidade',
+    label: t('achievements.categories.community'),
     color: 'text-blue-600',
     bgColor: 'bg-blue-50',
     borderColor: 'border-blue-200'
   },
   profile: {
-    label: 'Perfil',
+    label: t('achievements.categories.profile'),
     color: 'text-purple-600',
     bgColor: 'bg-purple-50',
     borderColor: 'border-purple-200'
   },
   learning: {
-    label: 'Aprendizado',
+    label: t('achievements.categories.learning'),
     color: 'text-green-600',
     bgColor: 'bg-green-50',
     borderColor: 'border-green-200'
   },
   social: {
-    label: 'Social',
+    label: t('achievements.categories.social'),
     color: 'text-pink-600',
     bgColor: 'bg-pink-50',
     borderColor: 'border-pink-200'
   }
-};
+});
 
 function AchievementCard({ achievement }: { achievement: Achievement }) {
+  const { t } = useTranslation();
   const Icon = achievement.icon;
-  const config = categoryConfig[achievement.category];
+  const config = getCategoryConfig(t)[achievement.category];
   const isCompleted = achievement.status === 'completed';
   const isLocked = achievement.status === 'locked';
 
@@ -274,7 +276,7 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
         {achievement.progress !== undefined && achievement.maxProgress && (
           <div className="space-y-1">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Progresso</span>
+              <span className="text-gray-600">{t('achievements.progress')}</span>
               <span className="font-medium">{achievement.progress}/{achievement.maxProgress}</span>
             </div>
             <Progress value={(achievement.progress / achievement.maxProgress) * 100} className="h-2" />
@@ -282,7 +284,7 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
         )}
 
         {achievement.action && !isCompleted && !isLocked && (
-          <Button 
+          <Button
             className="w-full bg-forge-orange hover:bg-forge-orange/90"
             onClick={() => {
               if (achievement.action?.url) {
@@ -300,13 +302,13 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
 
         {isCompleted && (
           <div className="text-center text-sm font-medium text-green-700 bg-green-100 py-2 rounded-md">
-            ✓ Concluído
+            {t('achievements.completedBadge')}
           </div>
         )}
 
         {isLocked && (
           <div className="text-center text-sm text-gray-500 bg-gray-100 py-2 rounded-md">
-            🔒 Bloqueado
+            {t('achievements.locked')}
           </div>
         )}
       </CardContent>
@@ -315,10 +317,12 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
 }
 
 export function Achievements() {
+  const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState<'all' | AchievementCategory>('all');
+  const MOCK_ACHIEVEMENTS = getAchievements(t);
 
-  const filteredAchievements = selectedCategory === 'all' 
-    ? MOCK_ACHIEVEMENTS 
+  const filteredAchievements = selectedCategory === 'all'
+    ? MOCK_ACHIEVEMENTS
     : MOCK_ACHIEVEMENTS.filter(a => a.category === selectedCategory);
 
   const stats = {
@@ -334,8 +338,8 @@ export function Achievements() {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900">Achievements</h1>
-        <p className="text-gray-600">Complete tarefas e ganhe XP extra para subir no ranking</p>
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900">{t('achievements.title')}</h1>
+        <p className="text-gray-600">{t('achievements.subtitle')}</p>
       </div>
 
       {/* Stats Overview */}
@@ -347,7 +351,7 @@ export function Achievements() {
                 <CheckCircle2 className="h-6 w-6 text-green-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-600">Concluídos</p>
+                <p className="text-sm font-medium text-gray-600">{t('achievements.completed')}</p>
                 <p className="text-2xl font-bold">{stats.completed}/{stats.total}</p>
               </div>
             </div>
@@ -361,7 +365,7 @@ export function Achievements() {
                 <Clock className="h-6 w-6 text-blue-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-600">Em Progresso</p>
+                <p className="text-sm font-medium text-gray-600">{t('achievements.inProgress')}</p>
                 <p className="text-2xl font-bold">{stats.inProgress}</p>
               </div>
             </div>
@@ -375,7 +379,7 @@ export function Achievements() {
                 <Award className="h-6 w-6 text-yellow-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-600">XP Ganho</p>
+                <p className="text-sm font-medium text-gray-600">{t('achievements.xpEarned')}</p>
                 <p className="text-2xl font-bold text-forge-orange">{stats.totalXP}</p>
               </div>
             </div>
@@ -389,7 +393,7 @@ export function Achievements() {
                 <Sparkles className="h-6 w-6 text-purple-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-600">XP Disponível</p>
+                <p className="text-sm font-medium text-gray-600">{t('achievements.xpAvailable')}</p>
                 <p className="text-2xl font-bold text-purple-600">{stats.availableXP}</p>
               </div>
             </div>
@@ -400,11 +404,11 @@ export function Achievements() {
       {/* Category Filters */}
       <Tabs defaultValue="all" className="space-y-6" onValueChange={(v) => setSelectedCategory(v as any)}>
         <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="all">Todos</TabsTrigger>
-          <TabsTrigger value="community">Comunidade</TabsTrigger>
-          <TabsTrigger value="profile">Perfil</TabsTrigger>
-          <TabsTrigger value="learning">Aprendizado</TabsTrigger>
-          <TabsTrigger value="social">Social</TabsTrigger>
+          <TabsTrigger value="all">{t('achievements.all')}</TabsTrigger>
+          <TabsTrigger value="community">{t('achievements.categories.community')}</TabsTrigger>
+          <TabsTrigger value="profile">{t('achievements.categories.profile')}</TabsTrigger>
+          <TabsTrigger value="learning">{t('achievements.categories.learning')}</TabsTrigger>
+          <TabsTrigger value="social">{t('achievements.categories.social')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value={selectedCategory} className="space-y-4">

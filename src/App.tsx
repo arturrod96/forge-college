@@ -1,3 +1,4 @@
+import './config/i18n';
 import { OAuthProvider } from './hooks/useOAuth';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";

@@ -1,0 +1,338 @@
+{
+  "common": {
+    "buttons": {
+      "login": "Login",
+      "signIn": "Sign In",
+      "signUp": "Sign Up",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "save": "Save Changes",
+      "saving": "Saving...",
+      "loading": "Loading...",
+      "submit": "Submit",
+      "tryAgain": "Try Again",
+      "continue": "Continue",
+      "continueLearning": "Continue learning",
+      "send": "Send",
+      "edit": "Edit",
+      "create": "Create",
+      "update": "Update",
+      "close": "Close",
+      "next": "Next",
+      "previous": "Previous",
+      "testConnection": "Test Connection",
+      "testing": "Testing..."
+    },
+    "labels": {
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "fullName": "Full Name",
+      "country": "Country",
+      "city": "City",
+      "languages": "Languages",
+      "language": "Language"
+    },
+    "placeholders": {
+      "email": "m@example.com",
+      "emailDemo": "demo@example.com",
+      "enterFullName": "Enter your full name",
+      "selectCountry": "Select your country",
+      "enterCity": "Enter your city",
+      "typeLanguage": "Type a language and press Enter"
+    },
+    "errors": {
+      "required": "This field is required",
+      "invalidUrl": "Please enter a valid URL",
+      "networkError": "Network connection error. Please check your internet connection and try again.",
+      "unexpectedError": "An unexpected error occurred. Please try again."
+    }
+  },
+  "nav": {
+    "forProfessionals": "For Professionals",
+    "forCompanies": "For Companies", 
+    "forInvestors": "For Investors",
+    "dashboard": "Dashboard",
+    "paths": "Paths",
+    "admin": "Admin",
+    "scoreboard": "Scoreboard",
+    "achievements": "Achievements",
+    "learn": "Learn",
+    "course": "Course",
+    "path": "Path",
+    "myProfile": "My Profile"
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "submit": "Login",
+      "ssoGoogle": "Continue with Google",
+      "ssoGithub": "Continue with GitHub",
+      "orContinueWith": "Or continue with",
+      "dontHaveAccount": "Don't have an account?",
+      "forgotPassword": "Forgot your password?",
+      "errors": {
+        "invalidCredentials": "Invalid email or password. Please check your credentials and try again.",
+        "emailNotConfirmed": "Please check your email and click the confirmation link before signing in.",
+        "tooManyAttempts": "Too many login attempts. Please wait a moment before trying again.",
+        "configError": "Authentication service configuration error. Using demo mode - try email: demo@example.com, password: demo123",
+        "authServiceError": "Authentication service error. The Supabase instance may be misconfigured.",
+        "cannotConnect": "Cannot connect to authentication service. Please check if Supabase is properly configured.",
+        "googleFailed": "Google sign-in failed. Please try again.",
+        "githubFailed": "GitHub sign-in failed. Please try again."
+      }
+    },
+    "signup": {
+      "title": "Create Account",
+      "submit": "Sign Up",
+      "alreadyHaveAccount": "Already have an account?",
+      "passwordMismatch": "Passwords do not match",
+      "success": "Check your email for the confirmation link!",
+      "notConfigured": "Authentication service not configured. Please contact the administrator."
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "submit": "Send Reset Link",
+      "rememberedPassword": "Remembered your password?"
+    },
+    "updatePassword": {
+      "title": "Update Password",
+      "success": "Password updated successfully! Redirecting to login..."
+    },
+    "logout": {
+      "button": "Log Out",
+      "signingOut": "Signing out..."
+    }
+  },
+  "profile": {
+    "title": "My Profile",
+    "subtitle": "Manage your personal and professional information",
+    "unsavedChanges": "You have unsaved changes",
+    "loadingProfile": "Loading profile...",
+    "failedToLoad": "Failed to load profile",
+    "sections": {
+      "personal": "Personal Information",
+      "personalDesc": "Update your basic personal details and contact information",
+      "professional": "Professional Profile",
+      "professionalDesc": "Share your work experience, skills, and career information",
+      "learning": "Learning Progress",
+      "learningDesc": "Track your learning journey and achievements",
+      "career": "Career Preferences",
+      "careerDesc": "Set your job preferences and career goals"
+    },
+    "fields": {
+      "yearsExperience": "Years of Experience in Technology",
+      "positionCompany": "Position & Company",
+      "positionPlaceholder": "e.g., Senior Backend @ ACME",
+      "stacksDominated": "Stacks Dominated",
+      "stacksDesc": "Technologies you're proficient in",
+      "stacksPlaceholder": "e.g., Java, Python, Solidity, React",
+      "skillsToDevelop": "Skills to Develop",
+      "skillsDesc": "Areas you want to improve",
+      "skillsPlaceholder": "e.g., DeFi, Smart Contracts, Web3",
+      "linkedinUrl": "LinkedIn URL",
+      "linkedinPlaceholder": "https://linkedin.com/in/username",
+      "githubUrl": "GitHub URL",
+      "githubPlaceholder": "https://github.com/username",
+      "languagePreference": "Language Preference",
+      "selectLanguage": "Select your preferred language"
+    },
+    "errors": {
+      "fullNameRequired": "Full name is required",
+      "countryRequired": "Country is required",
+      "invalidLinkedin": "Please enter a valid LinkedIn URL",
+      "invalidGithub": "Please enter a valid GitHub URL"
+    },
+    "messages": {
+      "emailNote": "Email can only be changed in your account settings",
+      "validationError": "Please fix the errors before saving.",
+      "updateSuccess": "Profile updated successfully!",
+      "updateError": "Failed to update profile. Please try again."
+    },
+    "comingSoon": {
+      "title": "Coming Soon",
+      "learning": "Learning progress tracking will be available in the next update.",
+      "career": "Career preferences will be available in the next update."
+    }
+  },
+  "profileDropdown": {
+    "myAccount": "My Account",
+    "profile": "Profile",
+    "admin": "Admin",
+    "connectWallet": "Connect Wallet"
+  },
+  "dashboard": {
+    "welcomeBack": "Welcome back",
+    "loading": "Loading...",
+    "notFound": "Not found",
+    "readMore": "Read more",
+    "readLess": "Read less",
+    "enrollToStart": "Enroll to start",
+    "enroll": "Enroll",
+    "enrolling": "Enrolling...",
+    "enrolled": "Enrolled",
+    "viewDetails": "View Details",
+    "mustLoginToEnroll": "You must be logged in to enroll",
+    "enrollSuccess": "Successfully enrolled!",
+    "enrollError": "Failed to enroll",
+    "loadError": "Failed to load",
+    "nothingToContinue": "Nothing to continue right now.",
+    "emptyTitle": "No paths yet",
+    "emptySubtitle": "Enroll in a path to get started",
+    "progressSuffix": "complete"
+  },
+  "lessons": {
+    "selectToBegin": "Select a lesson to begin.",
+    "lessonInfo": "Lesson {{current}} of {{total}} • {{xp}} XP",
+    "previousLesson": "Previous lesson",
+    "completeAndContinue": "Complete and Continue",
+    "markAsCompleted": "Mark as Completed",
+    "submitAnswer": "Submit Answer",
+    "loginToTrack": "You need to be logged in to track progress",
+    "progressSaveFailed": "Failed to save progress",
+    "lessonCompleted": "Lesson marked as completed!",
+    "completionError": "Error marking lesson as completed"
+  },
+  "admin": {
+    "paths": {
+      "title": "Learning Paths",
+      "new": "New learning path",
+      "edit": "Edit learning path",
+      "delete": "Delete learning path",
+      "deleteConfirm": "This action cannot be undone. Deleting a path will remove all associated courses, modules, and lessons. Make sure you really want to remove \"{{title}}\".",
+      "created": "Learning path created",
+      "updated": "Learning path updated",
+      "deleted": "Learning path deleted",
+      "validation": {
+        "titleMin": "Title must have at least 3 characters",
+        "slugMin": "Slug must have at least 3 characters",
+        "slugFormat": "Slug must be lowercase with hyphens only"
+      }
+    },
+    "courses": {
+      "title": "Courses",
+      "new": "New course",
+      "edit": "Edit course",
+      "delete": "Delete course",
+      "deleteConfirm": "This action cannot be undone. Make sure you really want to remove \"{{title}}\".",
+      "created": "Course created",
+      "updated": "Course updated",
+      "deleted": "Course deleted"
+    },
+    "modules": {
+      "title": "Modules",
+      "new": "New module",
+      "edit": "Edit module",
+      "delete": "Delete module",
+      "deleteConfirm": "This action cannot be undone. Make sure you really want to remove \"{{title}}\".",
+      "created": "Module created",
+      "updated": "Module updated",
+      "deleted": "Module deleted"
+    },
+    "lessons": {
+      "title": "Lessons",
+      "new": "New lesson",
+      "edit": "Edit lesson",
+      "delete": "Delete lesson",
+      "deleteConfirm": "This action cannot be undone. Make sure you really want to remove \"{{title}}\".",
+      "created": "Lesson created",
+      "updated": "Lesson updated",
+      "deleted": "Lesson deleted"
+    }
+  },
+  "application": {
+    "submit": "Submit Application",
+    "selectTimeline": "Select timeline",
+    "timelineImmediate": "Immediate (next 30 days)",
+    "timelineQuarter": "This quarter"
+  },
+  "scoreboard": {
+    "title": "Scoreboard",
+    "subtitle": "Check out the rankings of students with the most XP",
+    "global": "Global",
+    "byPath": "By Path",
+    "rankingGlobal": "Global Ranking - All Paths",
+    "ranking": "Ranking - {{pathName}}",
+    "xp": "XP",
+    "lessons": "lessons"
+  },
+  "achievements": {
+    "title": "Achievements",
+    "subtitle": "Complete tasks and earn extra XP to climb the rankings",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "xpEarned": "XP Earned",
+    "xpAvailable": "XP Available",
+    "progress": "Progress",
+    "all": "All",
+    "completedBadge": "✓ Completed",
+    "locked": "🔒 Locked",
+    "categories": {
+      "community": "Community",
+      "profile": "Profile",
+      "learning": "Learning",
+      "social": "Social"
+    },
+    "tasks": {
+      "telegramJoin": {
+        "title": "Join Telegram Group",
+        "description": "Join our community on Telegram and stay updated with all the news",
+        "action": "Join Telegram"
+      },
+      "discordJoin": {
+        "title": "Join Discord",
+        "description": "Connect with other students and mentors on our Discord server",
+        "action": "Join Discord"
+      },
+      "firstMessage": {
+        "title": "First Message",
+        "description": "Send your first message in any community channel"
+      },
+      "emailVerify": {
+        "title": "Verify your Email",
+        "description": "Confirm your email address through the link sent",
+        "action": "Resend Email"
+      },
+      "completeProfile": {
+        "title": "Complete your Profile",
+        "description": "Fill in all your professional profile information",
+        "action": "Go to Profile"
+      },
+      "githubConnect": {
+        "title": "Connect your GitHub",
+        "description": "Link your GitHub account to your profile",
+        "action": "Connect GitHub"
+      },
+      "linkedinConnect": {
+        "title": "Connect your LinkedIn",
+        "description": "Link your LinkedIn account to your profile",
+        "action": "Connect LinkedIn"
+      },
+      "twitterFollow": {
+        "title": "Follow on Twitter",
+        "description": "Follow @ForgeCollege on Twitter to stay updated",
+        "action": "Follow on Twitter"
+      },
+      "shareProgress": {
+        "title": "Share your Progress",
+        "description": "Share your learning journey on social media"
+      },
+      "firstLesson": {
+        "title": "First Lesson",
+        "description": "Complete your first lesson in any path"
+      },
+      "weekStreak": {
+        "title": "7-Day Streak",
+        "description": "Study for 7 consecutive days"
+      },
+      "completePath": {
+        "title": "Complete a Path",
+        "description": "Finish all lessons in a learning path"
+      },
+      "perfectQuiz": {
+        "title": "Perfect Quiz",
+        "description": "Score 100% on a quiz"
+      }
+    }
+  }
+}

@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../hooks/useOAuth";
 import { ProfileDropdown } from "./ProfileDropdown";
 import { LogoutButton } from "./auth/LogoutButton";
 
 const Navbar = () => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { user, loading } = useAuth();
@@ -45,9 +47,9 @@ const Navbar = () => {
   
   // Always show landing page navigation items for all users (including logged in users)
   const landingPageNavItems = [
-    { path: "/old/hidden/index", label: "For Professionals" },
-    { path: "/companies", label: "For Companies" },
-    { path: "/investors", label: "For Investors" },
+    { path: "/old/hidden/index", label: t('nav.forProfessionals') },
+    { path: "/companies", label: t('nav.forCompanies') },
+    { path: "/investors", label: t('nav.forInvestors') },
   ];
 
   return (
@@ -110,7 +112,7 @@ const Navbar = () => {
                   to="/dashboard"
                   className="bg-forge-dark text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forge-dark/80 transition-colors shadow-lg"
                 >
-                  Dashboard
+                  {t('nav.dashboard')}
                 </Link>
                 <ProfileDropdown />
               </div>
@@ -120,13 +122,13 @@ const Navbar = () => {
                   to="/login"
                   className="text-forge-orange transition-colors px-4 py-2 rounded-lg text-sm font-medium hover:bg-forge-cream/50"
                 >
-                  Sign In
+                  {t('common.buttons.signIn')}
                 </Link>
                 <Link
                   to="/signup"
                   className="bg-forge-orange text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-forge-orange-dark transition-colors shadow-lg border border-forge-orange"
                 >
-                  Sign Up
+                  {t('common.buttons.signUp')}
                 </Link>
               </>
             )}
@@ -171,7 +173,7 @@ const Navbar = () => {
                   onClick={() => setIsOpen(false)}
                   className="block text-center py-3 px-6 rounded-lg text-base font-medium bg-forge-dark text-white hover:bg-forge-dark/80 transition-colors shadow-lg"
                 >
-                  Dashboard
+                  {t('nav.dashboard')}
                 </Link>
                 <div>
                   <ProfileDropdown />
@@ -185,14 +187,14 @@ const Navbar = () => {
                   onClick={() => setIsOpen(false)}
                   className="block text-center py-3 px-6 rounded-lg text-base font-medium text-forge-orange hover:bg-forge-orange/10 transition-colors"
                 >
-                  Sign In
+                  {t('common.buttons.signIn')}
                 </Link>
                 <Link
                   to="/signup"
                   onClick={() => setIsOpen(false)}
                   className="block text-center py-3 px-6 rounded-full text-base font-semibold bg-forge-orange text-white hover:bg-forge-orange-dark transition-colors shadow-lg border border-forge-orange"
                 >
-                  Sign Up
+                  {t('common.buttons.signUp')}
                 </Link>
               </div>
             )}

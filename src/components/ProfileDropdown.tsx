@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { useAuth, useOAuth } from '@/hooks/useOAuth';
-
+import { useTranslation } from 'react-i18next';
 import { Link } from "react-router-dom";
 
 import {
@@ -17,6 +17,7 @@ import { shouldUseMockAuth } from '@/lib/supabase-simple';
 
 
 export function ProfileDropdown() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { signOut: oAuthSignOut, loading: signOutLoading } = useOAuth();
   const isMock = shouldUseMockAuth();
@@ -88,12 +89,12 @@ export function ProfileDropdown() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuLabel>{t('profileDropdown.myAccount')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link to="/dashboard/profile">
             <User className="mr-2 h-4 w-4" />
-            <span>Profile</span>
+            <span>{t('profileDropdown.profile')}</span>
           </Link>
         </DropdownMenuItem>
 
@@ -101,20 +102,20 @@ export function ProfileDropdown() {
           <DropdownMenuItem asChild>
             <Link to="/dashboard/admin">
               <Shield className="mr-2 h-4 w-4" />
-              <span>Admin</span>
+              <span>{t('profileDropdown.admin')}</span>
             </Link>
           </DropdownMenuItem>
         )}
         
         <DropdownMenuItem>
           <Wallet className="mr-2 h-4 w-4" />
-          <span>Connect Wallet</span>
+          <span>{t('profileDropdown.connectWallet')}</span>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout} disabled={signOutLoading}>
           <LogOut className="mr-2 h-4 w-4" />
-          <span>{signOutLoading ? 'Signing out...' : 'Log Out'}</span>
+          <span>{signOutLoading ? t('auth.logout.signingOut') : t('auth.logout.button')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

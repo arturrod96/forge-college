@@ -1,0 +1,338 @@
+{
+  "common": {
+    "buttons": {
+      "login": "Entrar",
+      "signIn": "Entrar",
+      "signUp": "Cadastrar",
+      "cancel": "Cancelar",
+      "delete": "Excluir",
+      "save": "Salvar Alterações",
+      "saving": "Salvando...",
+      "loading": "Carregando...",
+      "submit": "Enviar",
+      "tryAgain": "Tentar Novamente",
+      "continue": "Continuar",
+      "continueLearning": "Continuar aprendendo",
+      "send": "Enviar",
+      "edit": "Editar",
+      "create": "Criar",
+      "update": "Atualizar",
+      "close": "Fechar",
+      "next": "Próximo",
+      "previous": "Anterior",
+      "testConnection": "Testar Conexão",
+      "testing": "Testando..."
+    },
+    "labels": {
+      "email": "E-mail",
+      "password": "Senha",
+      "confirmPassword": "Confirmar Senha",
+      "fullName": "Nome Completo",
+      "country": "País",
+      "city": "Cidade",
+      "languages": "Idiomas",
+      "language": "Idioma"
+    },
+    "placeholders": {
+      "email": "m@exemplo.com",
+      "emailDemo": "demo@exemplo.com",
+      "enterFullName": "Digite seu nome completo",
+      "selectCountry": "Selecione seu país",
+      "enterCity": "Digite sua cidade",
+      "typeLanguage": "Digite um idioma e pressione Enter"
+    },
+    "errors": {
+      "required": "Este campo é obrigatório",
+      "invalidUrl": "Por favor, insira uma URL válida",
+      "networkError": "Erro de conexão de rede. Por favor, verifique sua conexão com a internet e tente novamente.",
+      "unexpectedError": "Ocorreu um erro inesperado. Por favor, tente novamente."
+    }
+  },
+  "nav": {
+    "forProfessionals": "Para Profissionais",
+    "forCompanies": "Para Empresas",
+    "forInvestors": "Para Investidores",
+    "dashboard": "Painel",
+    "paths": "Trilhas",
+    "admin": "Admin",
+    "scoreboard": "Placar",
+    "achievements": "Conquistas",
+    "learn": "Aprender",
+    "course": "Curso",
+    "path": "Trilha",
+    "myProfile": "Meu Perfil"
+  },
+  "auth": {
+    "login": {
+      "title": "Entrar",
+      "submit": "Entrar",
+      "ssoGoogle": "Continuar com Google",
+      "ssoGithub": "Continuar com GitHub",
+      "orContinueWith": "Ou continue com",
+      "dontHaveAccount": "Não tem uma conta?",
+      "forgotPassword": "Esqueceu sua senha?",
+      "errors": {
+        "invalidCredentials": "E-mail ou senha inválidos. Por favor, verifique suas credenciais e tente novamente.",
+        "emailNotConfirmed": "Por favor, verifique seu e-mail e clique no link de confirmação antes de fazer login.",
+        "tooManyAttempts": "Muitas tentativas de login. Por favor, aguarde um momento antes de tentar novamente.",
+        "configError": "Erro de configuração do serviço de autenticação. Usando modo demo - tente e-mail: demo@exemplo.com, senha: demo123",
+        "authServiceError": "Erro no serviço de autenticação. A instância do Supabase pode estar mal configurada.",
+        "cannotConnect": "Não foi possível conectar ao serviço de autenticação. Por favor, verifique se o Supabase está configurado corretamente.",
+        "googleFailed": "Login com Google falhou. Por favor, tente novamente.",
+        "githubFailed": "Login com GitHub falhou. Por favor, tente novamente."
+      }
+    },
+    "signup": {
+      "title": "Criar Conta",
+      "submit": "Cadastrar",
+      "alreadyHaveAccount": "Já tem uma conta?",
+      "passwordMismatch": "As senhas não coincidem",
+      "success": "Verifique seu e-mail para o link de confirmação!",
+      "notConfigured": "Serviço de autenticação não configurado. Por favor, contate o administrador."
+    },
+    "forgotPassword": {
+      "title": "Esqueci a Senha",
+      "submit": "Enviar Link de Redefinição",
+      "rememberedPassword": "Lembrou sua senha?"
+    },
+    "updatePassword": {
+      "title": "Atualizar Senha",
+      "success": "Senha atualizada com sucesso! Redirecionando para o login..."
+    },
+    "logout": {
+      "button": "Sair",
+      "signingOut": "Saindo..."
+    }
+  },
+  "profile": {
+    "title": "Meu Perfil",
+    "subtitle": "Gerencie suas informações pessoais e profissionais",
+    "unsavedChanges": "Você tem alterações não salvas",
+    "loadingProfile": "Carregando perfil...",
+    "failedToLoad": "Falha ao carregar perfil",
+    "sections": {
+      "personal": "Informações Pessoais",
+      "personalDesc": "Atualize seus dados pessoais básicos e informações de contato",
+      "professional": "Perfil Profissional",
+      "professionalDesc": "Compartilhe sua experiência de trabalho, habilidades e informações de carreira",
+      "learning": "Progresso de Aprendizado",
+      "learningDesc": "Acompanhe sua jornada de aprendizado e conquistas",
+      "career": "Preferências de Carreira",
+      "careerDesc": "Defina suas preferências de trabalho e objetivos de carreira"
+    },
+    "fields": {
+      "yearsExperience": "Anos de Experiência em Tecnologia",
+      "positionCompany": "Cargo e Empresa",
+      "positionPlaceholder": "ex: Desenvolvedor Sênior @ ACME",
+      "stacksDominated": "Stacks Dominadas",
+      "stacksDesc": "Tecnologias nas quais você é proficiente",
+      "stacksPlaceholder": "ex: Java, Python, Solidity, React",
+      "skillsToDevelop": "Habilidades a Desenvolver",
+      "skillsDesc": "Áreas que você quer melhorar",
+      "skillsPlaceholder": "ex: DeFi, Smart Contracts, Web3",
+      "linkedinUrl": "URL do LinkedIn",
+      "linkedinPlaceholder": "https://linkedin.com/in/usuario",
+      "githubUrl": "URL do GitHub",
+      "githubPlaceholder": "https://github.com/usuario",
+      "languagePreference": "Preferência de Idioma",
+      "selectLanguage": "Selecione seu idioma preferido"
+    },
+    "errors": {
+      "fullNameRequired": "Nome completo é obrigatório",
+      "countryRequired": "País é obrigatório",
+      "invalidLinkedin": "Por favor, insira uma URL válida do LinkedIn",
+      "invalidGithub": "Por favor, insira uma URL válida do GitHub"
+    },
+    "messages": {
+      "emailNote": "O e-mail só pode ser alterado nas configurações da conta",
+      "validationError": "Por favor, corrija os erros antes de salvar.",
+      "updateSuccess": "Perfil atualizado com sucesso!",
+      "updateError": "Falha ao atualizar perfil. Por favor, tente novamente."
+    },
+    "comingSoon": {
+      "title": "Em Breve",
+      "learning": "O acompanhamento do progresso de aprendizado estará disponível na próxima atualização.",
+      "career": "As preferências de carreira estarão disponíveis na próxima atualização."
+    }
+  },
+  "profileDropdown": {
+    "myAccount": "Minha Conta",
+    "profile": "Perfil",
+    "admin": "Admin",
+    "connectWallet": "Conectar Carteira"
+  },
+  "dashboard": {
+    "welcomeBack": "Bem-vindo de volta",
+    "loading": "Carregando...",
+    "notFound": "Não encontrado",
+    "readMore": "Ler mais",
+    "readLess": "Ler menos",
+    "enrollToStart": "Inscreva-se para começar",
+    "enroll": "Inscrever",
+    "enrolling": "Inscrevendo...",
+    "enrolled": "Inscrito",
+    "viewDetails": "Ver Detalhes",
+    "mustLoginToEnroll": "Você deve estar logado para se inscrever",
+    "enrollSuccess": "Inscrito com sucesso!",
+    "enrollError": "Falha ao inscrever",
+    "loadError": "Falha ao carregar",
+    "nothingToContinue": "Nada para continuar agora.",
+    "emptyTitle": "Sem trilhas ainda",
+    "emptySubtitle": "Inscreva-se em uma trilha para começar",
+    "progressSuffix": "completo"
+  },
+  "lessons": {
+    "selectToBegin": "Selecione uma lição para começar.",
+    "lessonInfo": "Lição {{current}} de {{total}} • {{xp}} XP",
+    "previousLesson": "Lição anterior",
+    "completeAndContinue": "Completar e Continuar",
+    "markAsCompleted": "Marcar como Concluído",
+    "submitAnswer": "Enviar Resposta",
+    "loginToTrack": "Você precisa estar logado para acompanhar o progresso",
+    "progressSaveFailed": "Falha ao salvar progresso",
+    "lessonCompleted": "Lição marcada como concluída!",
+    "completionError": "Erro ao marcar lição como concluída"
+  },
+  "admin": {
+    "paths": {
+      "title": "Trilhas de Aprendizado",
+      "new": "Nova trilha de aprendizado",
+      "edit": "Editar trilha de aprendizado",
+      "delete": "Excluir trilha de aprendizado",
+      "deleteConfirm": "Esta ação não pode ser desfeita. Excluir uma trilha removerá todos os cursos, módulos e lições associados. Tem certeza de que deseja remover \"{{title}}\"?",
+      "created": "Trilha de aprendizado criada",
+      "updated": "Trilha de aprendizado atualizada",
+      "deleted": "Trilha de aprendizado excluída",
+      "validation": {
+        "titleMin": "O título deve ter pelo menos 3 caracteres",
+        "slugMin": "O slug deve ter pelo menos 3 caracteres",
+        "slugFormat": "O slug deve ser minúsculo apenas com hífens"
+      }
+    },
+    "courses": {
+      "title": "Cursos",
+      "new": "Novo curso",
+      "edit": "Editar curso",
+      "delete": "Excluir curso",
+      "deleteConfirm": "Esta ação não pode ser desfeita. Tem certeza de que deseja remover \"{{title}}\"?",
+      "created": "Curso criado",
+      "updated": "Curso atualizado",
+      "deleted": "Curso excluído"
+    },
+    "modules": {
+      "title": "Módulos",
+      "new": "Novo módulo",
+      "edit": "Editar módulo",
+      "delete": "Excluir módulo",
+      "deleteConfirm": "Esta ação não pode ser desfeita. Tem certeza de que deseja remover \"{{title}}\"?",
+      "created": "Módulo criado",
+      "updated": "Módulo atualizado",
+      "deleted": "Módulo excluído"
+    },
+    "lessons": {
+      "title": "Lições",
+      "new": "Nova lição",
+      "edit": "Editar lição",
+      "delete": "Excluir lição",
+      "deleteConfirm": "Esta ação não pode ser desfeita. Tem certeza de que deseja remover \"{{title}}\"?",
+      "created": "Lição criada",
+      "updated": "Lição atualizada",
+      "deleted": "Lição excluída"
+    }
+  },
+  "application": {
+    "submit": "Enviar Inscrição",
+    "selectTimeline": "Selecionar prazo",
+    "timelineImmediate": "Imediato (próximos 30 dias)",
+    "timelineQuarter": "Este trimestre"
+  },
+  "scoreboard": {
+    "title": "Scoreboard",
+    "subtitle": "Confira os rankings dos estudantes com maior XP",
+    "global": "Global",
+    "byPath": "Por Path",
+    "rankingGlobal": "Ranking Global - Todos os Paths",
+    "ranking": "Ranking - {{pathName}}",
+    "xp": "XP",
+    "lessons": "lições"
+  },
+  "achievements": {
+    "title": "Achievements",
+    "subtitle": "Complete tarefas e ganhe XP extra para subir no ranking",
+    "completed": "Concluídos",
+    "inProgress": "Em Progresso",
+    "xpEarned": "XP Ganho",
+    "xpAvailable": "XP Disponível",
+    "progress": "Progresso",
+    "all": "Todos",
+    "completedBadge": "✓ Concluído",
+    "locked": "🔒 Bloqueado",
+    "categories": {
+      "community": "Comunidade",
+      "profile": "Perfil",
+      "learning": "Aprendizado",
+      "social": "Social"
+    },
+    "tasks": {
+      "telegramJoin": {
+        "title": "Entre no Grupo Telegram",
+        "description": "Junte-se à nossa comunidade no Telegram e fique por dentro de todas as novidades",
+        "action": "Entrar no Telegram"
+      },
+      "discordJoin": {
+        "title": "Entre no Discord",
+        "description": "Conecte-se com outros estudantes e mentores no nosso servidor Discord",
+        "action": "Entrar no Discord"
+      },
+      "firstMessage": {
+        "title": "Primeira Mensagem",
+        "description": "Envie sua primeira mensagem em qualquer canal da comunidade"
+      },
+      "emailVerify": {
+        "title": "Verifique seu Email",
+        "description": "Confirme seu endereço de email através do link enviado",
+        "action": "Reenviar Email"
+      },
+      "completeProfile": {
+        "title": "Complete seu Perfil",
+        "description": "Preencha todas as informações do seu perfil profissional",
+        "action": "Ir para Perfil"
+      },
+      "githubConnect": {
+        "title": "Conecte seu GitHub",
+        "description": "Vincule sua conta do GitHub ao seu perfil",
+        "action": "Conectar GitHub"
+      },
+      "linkedinConnect": {
+        "title": "Conecte seu LinkedIn",
+        "description": "Vincule sua conta do LinkedIn ao seu perfil",
+        "action": "Conectar LinkedIn"
+      },
+      "twitterFollow": {
+        "title": "Siga no Twitter",
+        "description": "Siga @ForgeCollege no Twitter para ficar atualizado",
+        "action": "Seguir no Twitter"
+      },
+      "shareProgress": {
+        "title": "Compartilhe seu Progresso",
+        "description": "Compartilhe sua jornada de aprendizado nas redes sociais"
+      },
+      "firstLesson": {
+        "title": "Primeira Lição",
+        "description": "Complete sua primeira lição em qualquer path"
+      },
+      "weekStreak": {
+        "title": "Sequência de 7 Dias",
+        "description": "Estude por 7 dias consecutivos"
+      },
+      "completePath": {
+        "title": "Complete um Path",
+        "description": "Finalize todas as lições de um learning path"
+      },
+      "perfectQuiz": {
+        "title": "Quiz Perfeito",
+        "description": "Acerte 100% das questões em um quiz"
+      }
+    }
+  }
+}
