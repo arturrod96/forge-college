@@ -256,6 +256,32 @@ export default function Profile() {
                     />
                   </FormField>
                 </div>
+
+                <div className="md:col-span-2">
+                  <FormField label={t('profile.fields.languagePreference')} description={t('profile.fields.selectLanguage')}>
+                    <div className="relative">
+                      <Languages className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Select
+                        value={i18n.language}
+                        onValueChange={(value) => {
+                          i18n.changeLanguage(value);
+                          toast({
+                            title: t('common.buttons.save'),
+                            description: t('profile.messages.updateSuccess'),
+                          });
+                        }}
+                      >
+                        <SelectTrigger className="pl-10">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="en-US">English (US)</SelectItem>
+                          <SelectItem value="pt-BR">Português (BR)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </FormField>
+                </div>
               </div>
             </SectionCard>
           )}
