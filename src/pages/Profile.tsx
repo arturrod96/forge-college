@@ -303,34 +303,34 @@ export default function Profile() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <FormField label="Skills to Develop" description="Areas you want to improve">
+                  <FormField label={t('profile.fields.skillsToDevelop')} description={t('profile.fields.skillsDesc')}>
                     <TagInput
                       value={profile.skillsToDevelop}
                       onChange={(value) => updateField('skillsToDevelop', value)}
-                      placeholder="e.g., DeFi, Smart Contracts, Web3"
+                      placeholder={t('profile.fields.skillsPlaceholder')}
                     />
                   </FormField>
                 </div>
 
-                <FormField label="LinkedIn URL" error={errors.linkedinUrl}>
+                <FormField label={t('profile.fields.linkedinUrl')} error={errors.linkedinUrl}>
                   <div className="relative">
                     <Linkedin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
                       value={profile.linkedinUrl}
                       onChange={(e) => updateField('linkedinUrl', e.target.value)}
-                      placeholder="https://linkedin.com/in/username"
+                      placeholder={t('profile.fields.linkedinPlaceholder')}
                       className="pl-10"
                     />
                   </div>
                 </FormField>
 
-                <FormField label="GitHub URL" error={errors.githubUrl}>
+                <FormField label={t('profile.fields.githubUrl')} error={errors.githubUrl}>
                   <div className="relative">
                     <Github className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
                       value={profile.githubUrl}
                       onChange={(e) => updateField('githubUrl', e.target.value)}
-                      placeholder="https://github.com/username"
+                      placeholder={t('profile.fields.githubPlaceholder')}
                       className="pl-10"
                     />
                   </div>
@@ -341,26 +341,26 @@ export default function Profile() {
 
           {activeTab === 'learning' && (
             <SectionCard
-              title="Learning Progress"
-              description="Track your learning journey and achievements"
+              title={t('profile.sections.learning')}
+              description={t('profile.sections.learningDesc')}
             >
               <div className="text-center py-12">
                 <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Coming Soon</h3>
-                <p className="text-gray-600">Learning progress tracking will be available in the next update.</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t('profile.comingSoon.title')}</h3>
+                <p className="text-gray-600">{t('profile.comingSoon.learning')}</p>
               </div>
             </SectionCard>
           )}
 
           {activeTab === 'career' && (
             <SectionCard
-              title="Career Preferences"
-              description="Set your job preferences and career goals"
+              title={t('profile.sections.career')}
+              description={t('profile.sections.careerDesc')}
             >
               <div className="text-center py-12">
                 <Target className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Coming Soon</h3>
-                <p className="text-gray-600">Career preferences will be available in the next update.</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t('profile.comingSoon.title')}</h3>
+                <p className="text-gray-600">{t('profile.comingSoon.career')}</p>
               </div>
             </SectionCard>
           )}
@@ -376,12 +376,12 @@ export default function Profile() {
                 {saving ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Saving...
+                    {t('common.buttons.saving')}
                   </>
                 ) : (
                   <>
                     <Save className="h-4 w-4 mr-2" />
-                    Save Changes
+                    {t('common.buttons.save')}
                   </>
                 )}
               </Button>
