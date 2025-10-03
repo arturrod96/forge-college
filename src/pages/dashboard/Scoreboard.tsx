@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -264,6 +265,7 @@ function getRankBadgeColor(position: number) {
 }
 
 function ScoreboardList({ entries, title }: { entries: ScoreboardEntry[]; title: string }) {
+  const { t } = useTranslation();
   return (
     <Card>
       <CardHeader>
@@ -305,8 +307,8 @@ function ScoreboardList({ entries, title }: { entries: ScoreboardEntry[]; title:
                 </div>
                 
                 <div className="text-right">
-                  <div className="font-bold text-lg text-forge-orange">{entry.xp.toLocaleString()} XP</div>
-                  <div className="text-sm text-gray-500">{entry.completedLessons} lições</div>
+                  <div className="font-bold text-lg text-forge-orange">{entry.xp.toLocaleString()} {t('scoreboard.xp')}</div>
+                  <div className="text-sm text-gray-500">{entry.completedLessons} {t('scoreboard.lessons')}</div>
                 </div>
               </div>
             );
@@ -318,25 +320,26 @@ function ScoreboardList({ entries, title }: { entries: ScoreboardEntry[]; title:
 }
 
 export function Scoreboard() {
+  const { t } = useTranslation();
   const [selectedPath, setSelectedPath] = useState<string>('blockchain-web3');
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900">Scoreboard</h1>
-        <p className="text-gray-600">Confira os rankings dos estudantes com maior XP</p>
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900">{t('scoreboard.title')}</h1>
+        <p className="text-gray-600">{t('scoreboard.subtitle')}</p>
       </div>
 
       <Tabs defaultValue="global" className="space-y-6">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="global">Global</TabsTrigger>
-          <TabsTrigger value="by-path">Por Path</TabsTrigger>
+          <TabsTrigger value="global">{t('scoreboard.global')}</TabsTrigger>
+          <TabsTrigger value="by-path">{t('scoreboard.byPath')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="global" className="space-y-6">
           <ScoreboardList
             entries={MOCK_GLOBAL_SCOREBOARD}
-            title="Ranking Global - Todos os Paths"
+            title={t('scoreboard.rankingGlobal')}
           />
         </TabsContent>
 
@@ -359,7 +362,7 @@ export function Scoreboard() {
 
           <ScoreboardList
             entries={MOCK_PATH_SCOREBOARDS[selectedPath as keyof typeof MOCK_PATH_SCOREBOARDS].entries}
-            title={`Ranking - ${MOCK_PATH_SCOREBOARDS[selectedPath as keyof typeof MOCK_PATH_SCOREBOARDS].name}`}
+            title={t('scoreboard.ranking', { pathName: MOCK_PATH_SCOREBOARDS[selectedPath as keyof typeof MOCK_PATH_SCOREBOARDS].name })}
           />
         </TabsContent>
       </Tabs>
