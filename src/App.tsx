@@ -36,6 +36,8 @@ import AdminPaths from './pages/admin/AdminPaths';
 import AdminCourses from './pages/admin/AdminCourses';
 import AdminModules from './pages/admin/AdminModules';
 import AdminLessons from './pages/admin/AdminLessons';
+import Scoreboard from './pages/dashboard/Scoreboard';
+import Achievements from './pages/dashboard/Achievements';
 
 const App = () => {
   try {
@@ -77,6 +79,8 @@ const App = () => {
                 <Route index element={<DashboardHome />} />
                 <Route path="explore" element={<AvailablePaths />} />
                 <Route path="profile" element={<Profile />} />
+                <Route path="scoreboard" element={<Scoreboard />} />
+                <Route path="achievements" element={<Achievements />} />
                 <Route path="learn/course/:courseId" element={<CourseView />} />
                 <Route path="learn/path/:pathId" element={<PathOverview />} />
                 <Route

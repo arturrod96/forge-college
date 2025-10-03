@@ -17,11 +17,11 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, BookOpen, Lock, Menu, Shield } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Lock, Menu, Shield, Trophy, Award } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ProfileDropdown } from '@/components/ProfileDropdown';
 import { useSidebar } from '@/components/ui/sidebar';
-import { DASHBOARD as DASHBOARD_PATH, DASHBOARD_EXPLORE, DASHBOARD_ADMIN, ROUTE_LABELS } from '@/routes/paths';
+import { DASHBOARD as DASHBOARD_PATH, DASHBOARD_EXPLORE, DASHBOARD_ADMIN, DASHBOARD_SCOREBOARD, DASHBOARD_ACHIEVEMENTS, ROUTE_LABELS } from '@/routes/paths';
 import { shouldUseMockAuth } from '@/lib/supabase-simple';
 import {
   Breadcrumb,
@@ -52,6 +52,8 @@ export function DashboardLayout() {
   const isDashboard = location.pathname === DASHBOARD_PATH;
   const isExplore = location.pathname.startsWith(DASHBOARD_EXPLORE);
   const isAdminRoute = location.pathname.startsWith(DASHBOARD_ADMIN);
+  const isScoreboard = location.pathname.startsWith(DASHBOARD_SCOREBOARD);
+  const isAchievements = location.pathname.startsWith(DASHBOARD_ACHIEVEMENTS);
 
   const [headerBreadcrumb, setHeaderBreadcrumb] = useState<ReactNode | null>(null);
 
@@ -84,6 +86,10 @@ export function DashboardLayout() {
       items.push({ label: ROUTE_LABELS[DASHBOARD_EXPLORE] });
     } else if (second === 'profile') {
       items.push({ label: ROUTE_LABELS.PROFILE });
+    } else if (second === 'scoreboard') {
+      items.push({ label: ROUTE_LABELS[DASHBOARD_SCOREBOARD] });
+    } else if (second === 'achievements') {
+      items.push({ label: ROUTE_LABELS[DASHBOARD_ACHIEVEMENTS] });
     } else if (second === 'admin') {
       items.push({ label: ROUTE_LABELS[DASHBOARD_ADMIN] });
       const third = segments[2];
@@ -162,6 +168,22 @@ export function DashboardLayout() {
                     <Link to={DASHBOARD_EXPLORE}>
                       <BookOpen />
                       <span className="group-data-[collapsible=icon]:hidden">Paths</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={isScoreboard} tooltip="Scoreboard">
+                    <Link to={DASHBOARD_SCOREBOARD}>
+                      <Trophy />
+                      <span className="group-data-[collapsible=icon]:hidden">Scoreboard</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={isAchievements} tooltip="Achievements">
+                    <Link to={DASHBOARD_ACHIEVEMENTS}>
+                      <Award />
+                      <span className="group-data-[collapsible=icon]:hidden">Achievements</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
