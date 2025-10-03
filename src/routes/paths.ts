@@ -25,6 +25,7 @@ export const ROUTE_LABELS = {
   [DASHBOARD]: "Dashboard",
   [DASHBOARD_EXPLORE]: "Paths",
   [DASHBOARD_ADMIN]: "Admin",
+  [DASHBOARD_SCOREBOARD]: "Scoreboard",
   LEARN: "Learn",
   COURSE: "Course",
   PATH: "Path",
