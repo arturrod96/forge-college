@@ -78,6 +78,7 @@ const App = () => {
                 <Route index element={<DashboardHome />} />
                 <Route path="explore" element={<AvailablePaths />} />
                 <Route path="profile" element={<Profile />} />
+                <Route path="scoreboard" element={<Scoreboard />} />
                 <Route path="learn/course/:courseId" element={<CourseView />} />
                 <Route path="learn/path/:pathId" element={<PathOverview />} />
                 <Route
