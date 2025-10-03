@@ -168,6 +168,14 @@ export function DashboardLayout() {
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={isScoreboard} tooltip="Scoreboard">
+                    <Link to={DASHBOARD_SCOREBOARD}>
+                      <Trophy />
+                      <span className="group-data-[collapsible=icon]:hidden">Scoreboard</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
                 {isAdmin && (
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild isActive={isAdminRoute} tooltip="Admin">
