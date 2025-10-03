@@ -17,7 +17,7 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, BookOpen, Lock, Menu, Shield } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Lock, Menu, Shield, Trophy } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ProfileDropdown } from '@/components/ProfileDropdown';
 import { useSidebar } from '@/components/ui/sidebar';
