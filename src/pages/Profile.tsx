@@ -57,8 +57,8 @@ export default function Profile() {
       setProfile(data);
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to load profile. Please try again.",
+        title: t('common.errors.unexpectedError'),
+        description: t('profile.messages.updateError'),
       });
     } finally {
       setLoading(false);
@@ -72,26 +72,26 @@ export default function Profile() {
     const newErrors: Partial<StudentProfile> = {};
     
     if (!profile.fullName.trim()) {
-      newErrors.fullName = 'Full name is required';
+      newErrors.fullName = t('profile.errors.fullNameRequired');
     }
-    
+
     if (!profile.country.trim()) {
-      newErrors.country = 'Country is required';
+      newErrors.country = t('profile.errors.countryRequired');
     }
-    
+
     if (profile.linkedinUrl && !isValidUrl(profile.linkedinUrl)) {
-      newErrors.linkedinUrl = 'Please enter a valid LinkedIn URL';
+      newErrors.linkedinUrl = t('profile.errors.invalidLinkedin');
     }
-    
+
     if (profile.githubUrl && !isValidUrl(profile.githubUrl)) {
-      newErrors.githubUrl = 'Please enter a valid GitHub URL';
+      newErrors.githubUrl = t('profile.errors.invalidGithub');
     }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       toast({
-        title: "Validation Error",
-        description: "Please fix the errors before saving.",
+        title: t('common.errors.unexpectedError'),
+        description: t('profile.messages.validationError'),
       });
       return;
     }
@@ -102,13 +102,13 @@ export default function Profile() {
       setErrors({});
       setHasChanges(false);
       toast({
-        title: "Success",
-        description: "Profile updated successfully!",
+        title: t('common.buttons.save'),
+        description: t('profile.messages.updateSuccess'),
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to update profile. Please try again.",
+        title: t('common.errors.unexpectedError'),
+        description: t('profile.messages.updateError'),
       });
     } finally {
       setSaving(false);
@@ -146,7 +146,7 @@ export default function Profile() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="flex items-center gap-2">
           <Loader2 className="h-6 w-6 animate-spin text-orange-500" />
-          <span className="text-gray-600">Loading profile...</span>
+          <span className="text-gray-600">{t('profile.loadingProfile')}</span>
         </div>
       </div>
     );
