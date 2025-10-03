@@ -1,10 +1,11 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import type { cookies as CookiesFn } from 'next/headers'
 import { supabaseConfig } from '@/config/supabase'
+import type { Database } from '@/types/supabase'
 
 // Maintain a single browser client instance to avoid multiple GoTrue clients
-let browserClient: ReturnType<typeof createClient> | null = null
+let browserClient: SupabaseClient<Database> | null = null
 
 /**
  * Creates (or returns) a singleton Supabase client for browser-side operations
@@ -14,7 +15,7 @@ export function createClientBrowser() {
 
   const { url, anonKey } = supabaseConfig
 
-  browserClient = createClient(
+  browserClient = createClient<Database>(
     url,
     anonKey,
     {
@@ -46,7 +47,7 @@ export function createClientBrowser() {
  * Used in server components and API routes for session management
  */
 export function createClientServer(cookies: ReturnType<typeof CookiesFn>) {
-  return createServerClient(
+  return createServerClient<Database>(
     import.meta.env.VITE_SUPABASE_URL!,
     import.meta.env.VITE_SUPABASE_ANON_KEY!,
     {

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { supabaseConfig } from '@/config/supabase'
+import type { Database } from '@/types/supabase'
 
 /**
  * Debug version of Supabase client to investigate connection issues
@@ -10,7 +11,7 @@ export function createDebugClient() {
   console.log('Debug: Supabase URL:', url);
   console.log('Debug: Supabase Key (first 20 chars):', anonKey.substring(0, 20) + '...');
   
-  return createClient(url, anonKey, {
+  return createClient<Database>(url, anonKey, {
     auth: {
       autoRefreshToken: false, // Disable auto refresh for debugging
       persistSession: false,   // Disable session persistence for debugging

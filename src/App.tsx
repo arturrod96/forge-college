@@ -20,6 +20,7 @@ import DashboardHome from './pages/dashboard/DashboardHome';
 import { MyLearningPaths } from './components/dashboard/MyLearningPaths';
 import Profile from './pages/Profile';
 import RequireAuth from '@/routes/RequireAuth';
+import RequireAdmin from '@/routes/RequireAdmin';
 import LoginOAuth from './pages/LoginOAuth';
 import AuthCallback from './pages/AuthCallback';
 import TestPage from './pages/TestPage';
@@ -29,6 +30,12 @@ import StaticBare from './pages/StaticBare';
 import SSRCanary from './pages/SSRCanary';
 import AuthErrorBoundary from './components/auth/AuthErrorBoundary';
 import * as R from '@/routes/paths';
+import AdminLayout from './pages/admin/AdminLayout';
+import AdminOverview from './pages/admin/AdminOverview';
+import AdminPaths from './pages/admin/AdminPaths';
+import AdminCourses from './pages/admin/AdminCourses';
+import AdminModules from './pages/admin/AdminModules';
+import AdminLessons from './pages/admin/AdminLessons';
 
 const App = () => {
   try {
@@ -72,6 +79,20 @@ const App = () => {
                 <Route path="profile" element={<Profile />} />
                 <Route path="learn/course/:courseId" element={<CourseView />} />
                 <Route path="learn/path/:pathId" element={<PathOverview />} />
+                <Route
+                  path="admin"
+                  element={
+                    <RequireAdmin>
+                      <AdminLayout />
+                    </RequireAdmin>
+                  }
+                >
+                  <Route index element={<AdminOverview />} />
+                  <Route path="paths" element={<AdminPaths />} />
+                  <Route path="courses" element={<AdminCourses />} />
+                  <Route path="modules" element={<AdminModules />} />
+                  <Route path="lessons" element={<AdminLessons />} />
+                </Route>
               </Route>
 
               <Route path="*" element={<NotFound />} />
