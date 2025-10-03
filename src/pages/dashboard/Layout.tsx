@@ -21,7 +21,7 @@ import { LayoutDashboard, BookOpen, Lock, Menu, Shield, Trophy } from 'lucide-re
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ProfileDropdown } from '@/components/ProfileDropdown';
 import { useSidebar } from '@/components/ui/sidebar';
-import { DASHBOARD as DASHBOARD_PATH, DASHBOARD_EXPLORE, DASHBOARD_ADMIN, ROUTE_LABELS } from '@/routes/paths';
+import { DASHBOARD as DASHBOARD_PATH, DASHBOARD_EXPLORE, DASHBOARD_ADMIN, DASHBOARD_SCOREBOARD, ROUTE_LABELS } from '@/routes/paths';
 import { shouldUseMockAuth } from '@/lib/supabase-simple';
 import {
   Breadcrumb,
