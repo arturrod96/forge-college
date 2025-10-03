@@ -245,5 +245,94 @@
     "selectTimeline": "Select timeline",
     "timelineImmediate": "Immediate (next 30 days)",
     "timelineQuarter": "This quarter"
+  },
+  "scoreboard": {
+    "title": "Scoreboard",
+    "subtitle": "Check out the rankings of students with the most XP",
+    "global": "Global",
+    "byPath": "By Path",
+    "rankingGlobal": "Global Ranking - All Paths",
+    "ranking": "Ranking - {{pathName}}",
+    "xp": "XP",
+    "lessons": "lessons"
+  },
+  "achievements": {
+    "title": "Achievements",
+    "subtitle": "Complete tasks and earn extra XP to climb the rankings",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "xpEarned": "XP Earned",
+    "xpAvailable": "XP Available",
+    "progress": "Progress",
+    "all": "All",
+    "completedBadge": "✓ Completed",
+    "locked": "🔒 Locked",
+    "categories": {
+      "community": "Community",
+      "profile": "Profile",
+      "learning": "Learning",
+      "social": "Social"
+    },
+    "tasks": {
+      "telegramJoin": {
+        "title": "Join Telegram Group",
+        "description": "Join our community on Telegram and stay updated with all the news",
+        "action": "Join Telegram"
+      },
+      "discordJoin": {
+        "title": "Join Discord",
+        "description": "Connect with other students and mentors on our Discord server",
+        "action": "Join Discord"
+      },
+      "firstMessage": {
+        "title": "First Message",
+        "description": "Send your first message in any community channel"
+      },
+      "emailVerify": {
+        "title": "Verify your Email",
+        "description": "Confirm your email address through the link sent",
+        "action": "Resend Email"
+      },
+      "completeProfile": {
+        "title": "Complete your Profile",
+        "description": "Fill in all your professional profile information",
+        "action": "Go to Profile"
+      },
+      "githubConnect": {
+        "title": "Connect your GitHub",
+        "description": "Link your GitHub account to your profile",
+        "action": "Connect GitHub"
+      },
+      "linkedinConnect": {
+        "title": "Connect your LinkedIn",
+        "description": "Link your LinkedIn account to your profile",
+        "action": "Connect LinkedIn"
+      },
+      "twitterFollow": {
+        "title": "Follow on Twitter",
+        "description": "Follow @ForgeCollege on Twitter to stay updated",
+        "action": "Follow on Twitter"
+      },
+      "shareProgress": {
+        "title": "Share your Progress",
+        "description": "Share your learning journey on social media"
+      },
+      "firstLesson": {
+        "title": "First Lesson",
+        "description": "Complete your first lesson in any path"
+      },
+      "weekStreak": {
+        "title": "7-Day Streak",
+        "description": "Study for 7 consecutive days"
+      },
+      "completePath": {
+        "title": "Complete a Path",
+        "description": "Finish all lessons in a learning path"
+      },
+      "perfectQuiz": {
+        "title": "Perfect Quiz",
+        "description": "Score 100% on a quiz"
+      }
+    }
   }
 }
