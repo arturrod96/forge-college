@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../hooks/useOAuth";
 import { ProfileDropdown } from "./ProfileDropdown";
 import { LogoutButton } from "./auth/LogoutButton";
 
 const Navbar = () => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { user, loading } = useAuth();
