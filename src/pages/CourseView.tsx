@@ -55,21 +55,52 @@ export function CourseView() {
         .single();
       if (error) throw new Error(error.message || 'Failed to load course');
 
+      type SupabaseLesson = {
+        id: string
+        title: string
+        content: unknown
+        lesson_type: LessonType
+        order: number | null
+        xp_value: number | null
+      }
+
+      type SupabaseModule = {
+        id: string
+        title: string
+        order: number | null
+        lessons?: SupabaseLesson[] | null
+      }
+
+      type SupabaseCourse = {
+        id: string
+        title: string
+        description: string
+        modules?: SupabaseModule[] | null
+      }
+
+      const typedCourse = courseData as SupabaseCourse
+
       const normalized: Course = {
-        id: courseData.id,
-        title: courseData.title,
-        description: courseData.description,
-        modules: (courseData.modules || []).map((m: any) => ({
-          id: m.id,
-          title: m.title,
-          lessons: (m.lessons || []).map((l: any) => ({
-            id: l.id,
-            title: l.title,
-            content: l.content,
-            lesson_type: l.lesson_type,
-            xp_value: l.xp_value ?? 0,
+        id: typedCourse.id,
+        title: typedCourse.title,
+        description: typedCourse.description,
+        modules: (typedCourse.modules ?? [])
+          .slice()
+          .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+          .map((module) => ({
+            id: module.id,
+            title: module.title,
+            lessons: (module.lessons ?? [])
+              .slice()
+              .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+              .map((lesson) => ({
+                id: lesson.id,
+                title: lesson.title,
+                content: lesson.content,
+                lesson_type: lesson.lesson_type,
+                xp_value: lesson.xp_value ?? 0,
+              })),
           })),
-        })),
       };
 
       // pick first lesson by default
