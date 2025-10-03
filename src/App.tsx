@@ -36,6 +36,7 @@ import AdminPaths from './pages/admin/AdminPaths';
 import AdminCourses from './pages/admin/AdminCourses';
 import AdminModules from './pages/admin/AdminModules';
 import AdminLessons from './pages/admin/AdminLessons';
+import Scoreboard from './pages/dashboard/Scoreboard';
 
 const App = () => {
   try {
