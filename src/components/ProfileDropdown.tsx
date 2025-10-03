@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { useAuth, useOAuth } from '@/hooks/useOAuth';
-
+import { useTranslation } from 'react-i18next';
 import { Link } from "react-router-dom";
 
 import {
