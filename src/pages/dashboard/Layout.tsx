@@ -85,6 +85,8 @@ export function DashboardLayout() {
       items.push({ label: ROUTE_LABELS[DASHBOARD_EXPLORE] });
     } else if (second === 'profile') {
       items.push({ label: ROUTE_LABELS.PROFILE });
+    } else if (second === 'scoreboard') {
+      items.push({ label: ROUTE_LABELS[DASHBOARD_SCOREBOARD] });
     } else if (second === 'admin') {
       items.push({ label: ROUTE_LABELS[DASHBOARD_ADMIN] });
       const third = segments[2];
