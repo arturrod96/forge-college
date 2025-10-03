@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useOAuth';
 import { useToast } from '@/hooks/use-toast';
 import { StudentProfile } from '@/types/profile';
@@ -10,7 +11,7 @@ import { TagInput } from '@/components/profile/TagInput';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Save, User, Mail, MapPin, Globe, Briefcase, Target, Building, Linkedin, Github, BookOpen } from 'lucide-react';
+import { Loader2, Save, User, Mail, MapPin, Globe, Briefcase, Target, Building, Linkedin, Github, BookOpen, Languages } from 'lucide-react';
 
 const countries = [
   'Brazil', 'United States', 'Canada', 'United Kingdom', 'Germany', 'France', 'Spain', 'Italy',
