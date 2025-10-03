@@ -22,6 +22,7 @@ const countries = [
 ];
 
 export default function Profile() {
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('personal');
