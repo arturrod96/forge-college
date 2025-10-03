@@ -52,6 +52,7 @@ export function DashboardLayout() {
   const isDashboard = location.pathname === DASHBOARD_PATH;
   const isExplore = location.pathname.startsWith(DASHBOARD_EXPLORE);
   const isAdminRoute = location.pathname.startsWith(DASHBOARD_ADMIN);
+  const isScoreboard = location.pathname.startsWith(DASHBOARD_SCOREBOARD);
 
   const [headerBreadcrumb, setHeaderBreadcrumb] = useState<ReactNode | null>(null);
 
