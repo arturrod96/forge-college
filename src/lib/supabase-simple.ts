@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { supabaseConfig } from '@/config/supabase'
+import type { Database } from '@/types/supabase'
 
 /**
  * Simple Supabase client for testing without complex authentication flows
@@ -8,7 +9,7 @@ export function createSimpleClient() {
   const { url, anonKey } = supabaseConfig
   
   // Basic client with minimal configuration
-  return createClient(url, anonKey, {
+  return createClient<Database>(url, anonKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,

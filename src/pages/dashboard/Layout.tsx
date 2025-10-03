@@ -17,11 +17,12 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, BookOpen, Lock, Menu } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Lock, Menu, Shield } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ProfileDropdown } from '@/components/ProfileDropdown';
 import { useSidebar } from '@/components/ui/sidebar';
-import { DASHBOARD as DASHBOARD_PATH, DASHBOARD_EXPLORE, ROUTE_LABELS } from '@/routes/paths';
+import { DASHBOARD as DASHBOARD_PATH, DASHBOARD_EXPLORE, DASHBOARD_ADMIN, ROUTE_LABELS } from '@/routes/paths';
+import { shouldUseMockAuth } from '@/lib/supabase-simple';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -48,22 +49,25 @@ export function DashboardLayout() {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  // Show loading state while auth is being determined
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-forge-orange mx-auto mb-4"></div>
-          <p className="text-forge-gray">Loading dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
   const isDashboard = location.pathname === DASHBOARD_PATH;
   const isExplore = location.pathname.startsWith(DASHBOARD_EXPLORE);
+  const isAdminRoute = location.pathname.startsWith(DASHBOARD_ADMIN);
 
   const [headerBreadcrumb, setHeaderBreadcrumb] = useState<ReactNode | null>(null);
+
+  const isMock = shouldUseMockAuth();
+  const mockUserRaw = isMock ? localStorage.getItem('mock-auth-user') : null;
+  let mockUser: { is_admin?: boolean } | null = null;
+
+  if (mockUserRaw) {
+    try {
+      mockUser = JSON.parse(mockUserRaw);
+    } catch (error) {
+      console.warn('Failed to parse mock user payload', error);
+    }
+  }
+
+  const isAdmin = Boolean(user?.app_metadata?.is_admin || mockUser?.is_admin);
 
   // Default breadcrumbs for all dashboard routes
   const defaultBreadcrumbItems = useMemo(() => {
@@ -80,6 +84,21 @@ export function DashboardLayout() {
       items.push({ label: ROUTE_LABELS[DASHBOARD_EXPLORE] });
     } else if (second === 'profile') {
       items.push({ label: ROUTE_LABELS.PROFILE });
+    } else if (second === 'admin') {
+      items.push({ label: ROUTE_LABELS[DASHBOARD_ADMIN] });
+      const third = segments[2];
+      if (third) {
+        const labelMap: Record<string, string> = {
+          paths: 'Learning Paths',
+          courses: 'Courses',
+          modules: 'Modules',
+          lessons: 'Lessons',
+        };
+        const label = labelMap[third];
+        if (label) {
+          items.push({ label });
+        }
+      }
     } else if (second === 'learn') {
       const third = segments[2];
       if (third === 'course') {
@@ -93,6 +112,18 @@ export function DashboardLayout() {
 
     return items;
   }, [location.pathname]);
+
+  // Show loading state while auth is being determined
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-forge-orange mx-auto mb-4"></div>
+          <p className="text-forge-gray">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <SidebarProvider defaultOpen={false}>
@@ -134,6 +165,16 @@ export function DashboardLayout() {
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+                {isAdmin && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={isAdminRoute} tooltip="Admin">
+                      <Link to={DASHBOARD_ADMIN}>
+                        <Shield />
+                        <span className="group-data-[collapsible=icon]:hidden">Admin</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
                 <SidebarMenuItem>
                   <Tooltip>
                     <TooltipTrigger asChild>

@@ -13,6 +13,7 @@ export const UPDATE_PASSWORD = "/update-password";
 // Dashboard base
 export const DASHBOARD = "/dashboard";
 export const DASHBOARD_EXPLORE = "/dashboard/explore";
+export const DASHBOARD_ADMIN = "/dashboard/admin";
 
 // Dashboard learning routes (builders)
 export const DASHBOARD_LEARN_COURSE = (courseId: string) => `/dashboard/learn/course/${courseId}`;
@@ -22,6 +23,7 @@ export const DASHBOARD_LEARN_PATH = (pathId: string) => `/dashboard/learn/path/$
 export const ROUTE_LABELS = {
   [DASHBOARD]: "Dashboard",
   [DASHBOARD_EXPLORE]: "Paths",
+  [DASHBOARD_ADMIN]: "Admin",
   LEARN: "Learn",
   COURSE: "Course",
   PATH: "Path",

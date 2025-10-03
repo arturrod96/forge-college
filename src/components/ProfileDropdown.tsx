@@ -12,12 +12,26 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { LogOut, User, Wallet } from "lucide-react";
+import { LogOut, User, Wallet, Shield } from "lucide-react";
+import { shouldUseMockAuth } from '@/lib/supabase-simple';
 
 
 export function ProfileDropdown() {
   const { user } = useAuth();
   const { signOut: oAuthSignOut, loading: signOutLoading } = useOAuth();
+  const isMock = shouldUseMockAuth();
+  const mockUserRaw = isMock ? localStorage.getItem('mock-auth-user') : null;
+  let mockUser: { is_admin?: boolean } | null = null;
+
+  if (mockUserRaw) {
+    try {
+      mockUser = JSON.parse(mockUserRaw);
+    } catch (error) {
+      console.warn('Failed to parse mock admin user payload', error);
+    }
+  }
+
+  const isAdmin = Boolean(user?.app_metadata?.is_admin || mockUser?.is_admin);
   
 
   const handleLogout = async () => {
@@ -82,6 +96,15 @@ export function ProfileDropdown() {
             <span>Profile</span>
           </Link>
         </DropdownMenuItem>
+
+        {isAdmin && (
+          <DropdownMenuItem asChild>
+            <Link to="/dashboard/admin">
+              <Shield className="mr-2 h-4 w-4" />
+              <span>Admin</span>
+            </Link>
+          </DropdownMenuItem>
+        )}
         
         <DropdownMenuItem>
           <Wallet className="mr-2 h-4 w-4" />
