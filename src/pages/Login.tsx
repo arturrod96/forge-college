@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createClientBrowser } from '../lib/supabase';
 import { testSupabaseConnection } from '../lib/supabase-debug';
 import { shouldUseMockAuth, mockAuth } from '../lib/supabase-simple';
@@ -12,6 +13,7 @@ import { Github, Mail, Bug, AlertTriangle } from 'lucide-react';
 import { getOAuthRedirectUrl } from '@/lib/utils';
 
 export function Login() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
