@@ -253,6 +253,57 @@
       "created": "Lição criada",
       "updated": "Lição atualizada",
       "deleted": "Lição excluída"
+    },
+    "projects": {
+      "title": "Projetos",
+      "subtitle": "Associe projetos aos módulos para reforçar o aprendizado aplicado ao final de cada módulo.",
+      "actions": {
+        "newProject": "Novo projeto"
+      },
+      "filters": {
+        "modulePlaceholder": "Filtrar por módulo",
+        "allModules": "Todos os módulos"
+      },
+      "loading": "Carregando projetos...",
+      "emptyState": "Nenhum projeto encontrado para os filtros atuais.",
+      "unassignedModule": "Módulo sem atribuição",
+      "labels": {
+        "course": "Curso: {{course}}",
+        "projectOrder": "Ordem #{{order}}"
+      },
+      "dialog": {
+        "editTitle": "Editar projeto",
+        "createTitle": "Criar projeto",
+        "description": "Descreva expectativas e orientações para o projeto do módulo."
+      },
+      "form": {
+        "module": "Módulo",
+        "modulePlaceholder": "Selecione um módulo",
+        "title": "Título",
+        "titlePlaceholder": "Título do projeto",
+        "description": "Descrição do projeto",
+        "descriptionPlaceholder": "Descreva objetivos, entregáveis e recursos que os estudantes devem consultar. Suporta conteúdo HTML.",
+        "descriptionHelp": "Você pode usar HTML para formatar o conteúdo (títulos, listas, links, etc.).",
+        "order": "Ordem de exibição"
+      },
+      "validation": {
+        "moduleRequired": "Selecione um módulo",
+        "titleMin": "O título deve ter pelo menos 3 caracteres",
+        "orderMin": "A ordem deve ser pelo menos 1"
+      },
+      "notifications": {
+        "loadError": "Falha ao carregar projetos",
+        "created": "Projeto criado",
+        "updated": "Projeto atualizado",
+        "saveError": "Falha ao salvar projeto",
+        "deleted": "Projeto excluído",
+        "deleteError": "Falha ao excluir projeto"
+      },
+      "delete": {
+        "title": "Excluir projeto",
+        "description": "Esta ação não pode ser desfeita. Tem certeza de que deseja remover \"{{title}}\"?",
+        "confirm": "Excluir projeto"
+      }
     }
   },
   "application": {
