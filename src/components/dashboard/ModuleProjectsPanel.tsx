@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/dialog'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { ArrowUpRight, ExternalLink, FolderGit2 } from 'lucide-react'
 
@@ -37,7 +36,8 @@ interface ModuleProjectsPanelProps {
   communityLink: string
 }
 
-const sanitizeHtml = (value: string) => value.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+const sanitizeHtml = (value: string | null | undefined) =>
+  (value ?? '').replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
 
 export function ModuleProjectsPanel({
   moduleTitle,
@@ -193,11 +193,9 @@ export function ModuleProjectsPanel({
           {activeProject && (
             <form className="space-y-5" onSubmit={handleSubmit}>
               {activeProject.description && (
-                <Textarea
-                  className="h-48 resize-none"
-                  value={sanitizeHtml(activeProject.description)}
-                  readOnly
-                />
+                <div className="max-h-64 overflow-y-auto rounded-md border border-forge-cream/60 bg-forge-cream/20 p-4 text-sm text-forge-dark">
+                  <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(activeProject.description) }} />
+                </div>
               )}
 
               <div className="space-y-2">
