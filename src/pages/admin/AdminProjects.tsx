@@ -256,7 +256,7 @@ export function AdminProjects() {
       })
       setDialogOpen(true)
     },
-    [form, setDialogOpen]
+    [form, setDialogOpen, setEditingProject]
   )
 
   const handleDeleteClick = useCallback(
