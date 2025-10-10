@@ -274,9 +274,7 @@
       "dialog": {
         "editTitle": "Edit project",
         "createTitle": "Create project",
-        "description": "Provide details and expectations for the module project.",
-        "descriptionPlaceholder": "Describe the project goals, deliverables, and any resources students should consult. Supports HTML content.",
-        "descriptionHelp": "You can use HTML to format the content (headings, lists, links, etc.)."
+        "description": "Provide details and expectations for the module project."
       },
       "form": {
         "module": "Module",
@@ -284,6 +282,8 @@
         "title": "Title",
         "titlePlaceholder": "Project title",
         "description": "Project description",
+        "descriptionPlaceholder": "Describe the project goals, deliverables, and any resources students should consult. Supports HTML content.",
+        "descriptionHelp": "You can use HTML to format the content (headings, lists, links, etc.).",
         "order": "Display order"
       },
       "validation": {
@@ -331,7 +331,7 @@
     "xpAvailable": "XP Available",
     "progress": "Progress",
     "all": "All",
-    "completedBadge": "✓ Completed",
+    "completedBadge": "�� Completed",
     "locked": "🔒 Locked",
     "categories": {
       "community": "Community",
