@@ -400,5 +400,56 @@
         "description": "Acerte 100% das questões em um quiz"
       }
     }
+  },
+  "projects": {
+    "errors": {
+      "loginRequired": "Você precisa estar logado para enviar projetos.",
+      "required": "Informe a URL do repositório no GitHub.",
+      "invalidUrl": "Insira uma URL válida.",
+      "githubOnly": "Envie um link de repositório do GitHub.",
+      "submitFailed": "Não foi possível enviar o projeto. Tente novamente."
+    },
+    "notifications": {
+      "fetchError": "Falha ao carregar seus envios de projeto.",
+      "submitError": "Falha ao enviar projeto.",
+      "submitted": "Projeto enviado! Excelente aplicação do que você aprendeu.",
+      "updated": "Envio do projeto atualizado."
+    },
+    "module": {
+      "title": "Projetos do módulo: {{module}}",
+      "subtitle": "Coloque em prática o que aprendeu neste módulo completando um dos projetos abaixo.",
+      "noProjects": "Este módulo ainda não possui projetos.",
+      "communityLink": "Ver envios da comunidade",
+      "projectOrder": "Projeto #{{order}}",
+      "startProject": "Iniciar projeto",
+      "updateSubmission": "Atualizar envio",
+      "yourSubmission": "Seu envio:",
+      "dialog": {
+        "title": "Projeto: {{project}}",
+        "subtitle": "Revise a descrição e envie o link do seu repositório no GitHub.",
+        "repositoryLabel": "URL do repositório no GitHub",
+        "repositoryPlaceholder": "https://github.com/usuario/repositorio",
+        "repositoryHelp": "Compartilhe um repositório público no GitHub mostrando sua implementação.",
+        "submitting": "Enviando...",
+        "submit": "Enviar projeto"
+      }
+    },
+    "community": {
+      "loadError": "Falha ao carregar projetos da comunidade.",
+      "loading": "Carregando projetos da comunidade...",
+      "title": "Projetos da Comunidade",
+      "subtitle": "Veja o que outros estudantes estão construindo e inspire-se.",
+      "empty": "Ainda não há envios da comunidade. Seja o primeiro a compartilhar sua solução!",
+      "courseLabel": "Curso: {{course}}",
+      "unknownCourse": "Curso não atribuído",
+      "projectCount": "Projetos: {{count}}",
+      "projectOrder": "Projeto #{{order}}",
+      "noSubmissions": "Nenhum envio ainda.",
+      "submissions": "Envios: {{count}}",
+      "visitRepository": "Ver repositório",
+      "submittedBy": "Enviado por {{user}} · {{date}}",
+      "anonymous": "Anônimo",
+      "dateUnknown": "Data desconhecida"
+    }
   }
 }
