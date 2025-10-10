@@ -243,7 +243,7 @@ export function AdminProjects() {
       project_order: 1,
     })
     setDialogOpen(true)
-  }, [form, setDialogOpen])
+  }, [form, setDialogOpen, setEditingProject])
 
   const openForEdit = useCallback(
     (project: ProjectWithModule) => {
