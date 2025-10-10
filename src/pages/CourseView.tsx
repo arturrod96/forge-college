@@ -172,12 +172,12 @@ export function CourseView() {
   const projectIdsKey = useMemo(() => sortedProjectIds.join(','), [sortedProjectIds]);
 
   const { data: submissionsMap = {} } = useQuery<Record<string, ProjectSubmissionSummary>>({
-    queryKey: ['project-submissions', user?.id, projectIdsKey],
+    queryKey: ['module-project-submissions', user?.id, projectIdsKey],
     enabled: Boolean(user && sortedProjectIds.length > 0),
     queryFn: async () => {
       if (!user) return {};
       const { data, error } = await supabase
-        .from('project_submissions')
+        .from('module_project_submissions')
         .select('project_id, repository_url, submitted_at')
         .eq('user_id', user.id)
         .in('project_id', sortedProjectIds);
@@ -203,7 +203,7 @@ export function CourseView() {
     mutationFn: async ({ projectId, repositoryUrl }) => {
       if (!user) throw new Error('AUTH_REQUIRED');
       const { error } = await supabase
-        .from('project_submissions')
+        .from('module_project_submissions')
         .upsert(
           {
             project_id: projectId,
@@ -216,7 +216,7 @@ export function CourseView() {
       if (error) throw error;
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['project-submissions', user?.id, projectIdsKey] });
+      queryClient.invalidateQueries({ queryKey: ['module-project-submissions', user?.id, projectIdsKey] });
       toast.success(
         t(variables.isUpdate ? 'projects.notifications.updated' : 'projects.notifications.submitted')
       );
