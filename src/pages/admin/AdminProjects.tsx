@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -234,7 +234,7 @@ export function AdminProjects() {
     },
   })
 
-  const openForCreate = () => {
+  const openForCreate = useCallback(() => {
     setEditingProject(null)
     form.reset({
       module_id: '',
@@ -243,18 +243,29 @@ export function AdminProjects() {
       project_order: 1,
     })
     setDialogOpen(true)
-  }
+  }, [form, setDialogOpen])
 
-  const openForEdit = (project: ProjectWithModule) => {
-    setEditingProject(project)
-    form.reset({
-      module_id: project.module_id,
-      title: project.title,
-      description: project.description ?? '',
-      project_order: project.project_order ?? 1,
-    })
-    setDialogOpen(true)
-  }
+  const openForEdit = useCallback(
+    (project: ProjectWithModule) => {
+      setEditingProject(project)
+      form.reset({
+        module_id: project.module_id,
+        title: project.title,
+        description: project.description ?? '',
+        project_order: project.project_order ?? 1,
+      })
+      setDialogOpen(true)
+    },
+    [form, setDialogOpen]
+  )
+
+  const handleDeleteClick = useCallback(
+    (project: ProjectWithModule) => {
+      setDeleteTarget(project)
+      setDeleteDialogOpen(true)
+    },
+    [setDeleteDialogOpen, setDeleteTarget]
+  )
 
   const onSubmit = (values: ProjectFormValues) => {
     upsertMutation.mutate(values)
@@ -266,6 +277,64 @@ export function AdminProjects() {
       return a.title.localeCompare(b.title)
     })
   }, [modules])
+
+  const renderedGroups = useMemo(
+    () =>
+      grouped.map(({ key, module, items }) => (
+        <Card key={key} className="border border-forge-cream/70 bg-white/80">
+          <CardHeader className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+            <div className="space-y-1">
+              <CardTitle className="text-forge-dark">
+                {module ? `${module.title}` : t('admin.projects.unassignedModule')}
+              </CardTitle>
+              {module?.course && (
+                <CardDescription className="text-forge-gray text-sm">
+                  {t('admin.projects.labels.course', { course: module.course.title })}
+                </CardDescription>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {items.map((project) => (
+              <div
+                key={project.id}
+                className="rounded-lg border border-forge-cream/60 bg-white/90 p-4 shadow-sm transition-shadow hover:shadow-md"
+              >
+                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full bg-forge-orange/10 px-2 py-0.5 text-xs font-medium text-forge-orange">
+                        {t('admin.projects.labels.projectOrder', { order: project.project_order ?? 1 })}
+                      </span>
+                      <h3 className="text-lg font-semibold text-forge-dark">{project.title}</h3>
+                    </div>
+                    {project.description && (
+                      <p className="text-sm text-forge-gray/90 line-clamp-2">
+                        {stripHtml(project.description)}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="icon" onClick={() => openForEdit(project)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="text-red-500 hover:text-red-600"
+                      onClick={() => handleDeleteClick(project)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )),
+    [grouped, handleDeleteClick, openForEdit, t]
+  )
 
   return (
     <div className="space-y-6">
@@ -313,64 +382,7 @@ export function AdminProjects() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4">
-          {grouped.map(({ key, module, items }) => (
-            <Card key={key} className="border border-forge-cream/70 bg-white/80">
-              <CardHeader className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
-                <div className="space-y-1">
-                  <CardTitle className="text-forge-dark">
-                    {module ? `${module.title}` : t('admin.projects.unassignedModule')}
-                  </CardTitle>
-                  {module?.course && (
-                    <CardDescription className="text-forge-gray text-sm">
-                      {t('admin.projects.labels.course', { course: module.course.title })}
-                    </CardDescription>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {items.map((project) => (
-                  <div
-                    key={project.id}
-                    className="rounded-lg border border-forge-cream/60 bg-white/90 p-4 shadow-sm transition-shadow hover:shadow-md"
-                  >
-                    <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                      <div className="space-y-2">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="rounded-full bg-forge-orange/10 px-2 py-0.5 text-xs font-medium text-forge-orange">
-                            {t('admin.projects.labels.projectOrder', { order: project.project_order ?? 1 })}
-                          </span>
-                          <h3 className="text-lg font-semibold text-forge-dark">{project.title}</h3>
-                        </div>
-                        {project.description && (
-                          <p className="text-sm text-forge-gray/90 line-clamp-2">
-                            {stripHtml(project.description)}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="icon" onClick={() => openForEdit(project)}>
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="text-red-500 hover:text-red-600"
-                          onClick={() => {
-                            setDeleteTarget(project)
-                            setDeleteDialogOpen(true)
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <div className="grid gap-4">{renderedGroups}</div>
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
