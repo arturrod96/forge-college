@@ -231,6 +231,79 @@ export type Database = {
           }
         ]
       }
+      projects: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          module_id: string
+          project_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          module_id: string
+          project_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          module_id?: string
+          project_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      project_submissions: {
+        Row: {
+          id: string
+          project_id: string
+          repository_url: string
+          submitted_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          repository_url: string
+          submitted_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          repository_url?: string
+          submitted_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_submissions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
