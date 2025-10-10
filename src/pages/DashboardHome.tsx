@@ -6,9 +6,11 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useOAuth';
 import * as R from '@/routes/paths';
 import { DASHBOARD_STRINGS } from '@/strings/dashboard';
+import { useTranslation } from 'react-i18next';
 
 export function DashboardHome() {
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const getUserDisplayName = () => {
     // Debug: log user data
@@ -60,7 +62,7 @@ export function DashboardHome() {
       {/* Paths section below */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold tracking-tight">{R.ROUTE_LABELS[R.DASHBOARD_EXPLORE]}</h2>
+          <h2 className="text-xl font-semibold tracking-tight">{t(R.ROUTE_LABELS[R.DASHBOARD_EXPLORE])}</h2>
           <Link to={R.DASHBOARD_EXPLORE} className="text-forge-orange hover:underline">
             {DASHBOARD_STRINGS.dashboardHome.exploreCta}
           </Link>
