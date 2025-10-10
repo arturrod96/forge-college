@@ -273,7 +273,9 @@
       "unassignedModule": "Módulo sem atribuição",
       "labels": {
         "course": "Curso: {{course}}",
-        "projectOrder": "Ordem #{{order}}"
+        "projectNumber": "Projeto #{{number}}",
+        "inactive": "Inativo",
+        "xpValue": "XP {{xp}}"
       },
       "dialog": {
         "editTitle": "Editar projeto",
@@ -288,12 +290,16 @@
         "description": "Descrição do projeto",
         "descriptionPlaceholder": "Descreva objetivos, entregáveis e recursos que os estudantes devem consultar. Suporta conteúdo HTML.",
         "descriptionHelp": "Você pode usar HTML para formatar o conteúdo (títulos, listas, links, etc.).",
-        "order": "Ordem de exibição"
+        "xpValue": "Recompensa de XP",
+        "xpValuePlaceholder": "XP opcional",
+        "xpValueHelp": "Deixe em branco se este projeto não conceder XP.",
+        "activeLabel": "Visibilidade do projeto",
+        "activeDescription": "Use para ocultar o projeto dos alunos enquanto realiza ajustes."
       },
       "validation": {
         "moduleRequired": "Selecione um módulo",
         "titleMin": "O título deve ter pelo menos 3 caracteres",
-        "orderMin": "A ordem deve ser pelo menos 1"
+        "xpMin": "O XP deve ser zero ou maior"
       },
       "notifications": {
         "loadError": "Falha ao carregar projetos",
