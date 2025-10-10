@@ -57,10 +57,12 @@
     "admin": "Admin",
     "scoreboard": "Placar",
     "achievements": "Conquistas",
+    "communityProjects": "Projetos da Comunidade",
     "learn": "Aprender",
     "course": "Curso",
     "path": "Trilha",
-    "myProfile": "Meu Perfil"
+    "myProfile": "Meu Perfil",
+    "page": "Página"
   },
   "auth": {
     "login": {
