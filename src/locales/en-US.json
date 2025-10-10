@@ -164,6 +164,10 @@
     "connectWallet": "Connect Wallet"
   },
   "dashboard": {
+    "layout": {
+      "openMenu": "Open menu",
+      "loading": "Loading dashboard..."
+    },
     "welcomeBack": "Welcome back",
     "loading": "Loading...",
     "notFound": "Not found",
