@@ -162,7 +162,7 @@ export function CourseView() {
 
   const projectIdsKey = useMemo(() => sortedProjectIds.join(','), [sortedProjectIds]);
 
-  const { data: submissionsMap = {}, isFetching: loadingSubmissions } = useQuery<Record<string, ProjectSubmissionSummary>>({
+  const { data: submissionsMap = {} } = useQuery<Record<string, ProjectSubmissionSummary>>({
     queryKey: ['project-submissions', user?.id, projectIdsKey],
     enabled: Boolean(user && sortedProjectIds.length > 0),
     queryFn: async () => {
