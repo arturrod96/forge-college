@@ -6,8 +6,16 @@ interface Props {
 
 export function TextLesson({ content }: Props) {
   return (
-    <div className="prose max-w-none">
-      <ReactMarkdown>{content}</ReactMarkdown>
+    <div className="prose prose-slate max-w-none">
+      <ReactMarkdown
+        components={{
+          a: ({ node, ...props }) => (
+            <a {...props} target="_blank" rel="noopener noreferrer" />
+          ),
+        }}
+      >
+        {content}
+      </ReactMarkdown>
     </div>
   );
 }

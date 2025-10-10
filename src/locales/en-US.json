@@ -263,10 +263,29 @@
     "inProgress": "In Progress",
     "xpEarned": "XP Earned",
     "xpAvailable": "XP Available",
+    "xpReward": "XP Reward",
     "progress": "Progress",
     "all": "All",
-    "completedBadge": "✓ Completed",
-    "locked": "🔒 Locked",
+    "completedBadge": "Completed",
+    "locked": "Locked",
+    "overallProgress": "Overall Progress",
+    "completedOf": "of {{total}} achievements unlocked",
+    "emptyState": {
+      "title": "No Achievements Here Yet",
+      "descriptionAll": "Start your learning journey to unlock achievements and earn XP!",
+      "descriptionCategory": "Complete tasks in the {{category}} category to unlock achievements here."
+    },
+    "sidebar": {
+      "overview": "Your Progress",
+      "nextSuggested": "Suggested Next",
+      "gettingStarted": "Getting Started",
+      "keepGoing": "Keep Going!",
+      "hoverTip": "Hover over any achievement to see detailed information here.",
+      "inProgressMessage": "You have {{count}} achievements in progress. Great momentum!",
+      "quickWinsTip": "Start with Profile category achievements for easy wins.",
+      "halfwayThere": "You're halfway there! Only {{remaining}} more to go.",
+      "allComplete": "Amazing! You've completed all achievements!"
+    },
     "categories": {
       "community": "Community",
       "profile": "Profile",
