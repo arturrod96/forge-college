@@ -273,7 +273,9 @@
       "unassignedModule": "Unassigned module",
       "labels": {
         "course": "Course: {{course}}",
-        "projectOrder": "Order #{{order}}"
+        "projectNumber": "Project #{{number}}",
+        "inactive": "Inactive",
+        "xpValue": "XP {{xp}}"
       },
       "dialog": {
         "editTitle": "Edit project",
@@ -288,12 +290,16 @@
         "description": "Project description",
         "descriptionPlaceholder": "Describe the project goals, deliverables, and any resources students should consult. Supports HTML content.",
         "descriptionHelp": "You can use HTML to format the content (headings, lists, links, etc.).",
-        "order": "Display order"
+        "xpValue": "XP reward",
+        "xpValuePlaceholder": "Optional XP value",
+        "xpValueHelp": "Leave empty if this project does not grant XP.",
+        "activeLabel": "Project visibility",
+        "activeDescription": "Toggle to hide this project from students while editing."
       },
       "validation": {
         "moduleRequired": "Select a module",
         "titleMin": "Title must have at least 3 characters",
-        "orderMin": "Order must be at least 1"
+        "xpMin": "XP value must be zero or greater"
       },
       "notifications": {
         "loadError": "Failed to load projects",
