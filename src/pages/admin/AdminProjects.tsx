@@ -21,7 +21,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -35,6 +43,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Switch } from '@/components/ui/switch'
+import { Badge } from '@/components/ui/badge'
 import { Loader2, Pencil, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
@@ -50,9 +60,9 @@ type ModuleOption = ModuleRow & {
   course?: { id: string; title: string } | null
 }
 
-type ProjectRow = Tables<'projects'>
+type ModuleProjectRow = Tables<'module_projects'>
 
-type ProjectWithModule = ProjectRow & {
+type ModuleProjectWithModule = ModuleProjectRow & {
   module: (ModuleRow & { course?: { id: string; title: string } | null }) | null
 }
 
@@ -60,7 +70,8 @@ type ProjectFormValues = {
   module_id: string
   title: string
   description: string
-  project_order: number
+  xp_value: number | null
+  is_active: boolean
 }
 
 export function AdminProjects() {
@@ -70,8 +81,8 @@ export function AdminProjects() {
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [editingProject, setEditingProject] = useState<ProjectWithModule | null>(null)
-  const [deleteTarget, setDeleteTarget] = useState<ProjectWithModule | null>(null)
+  const [editingProject, setEditingProject] = useState<ModuleProjectWithModule | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<ModuleProjectWithModule | null>(null)
   const [selectedModuleFilter, setSelectedModuleFilter] = useState<'all' | string>('all')
 
   const formSchema = useMemo(
@@ -80,10 +91,10 @@ export function AdminProjects() {
         module_id: z.string().uuid(t('admin.projects.validation.moduleRequired')),
         title: z.string().min(3, t('admin.projects.validation.titleMin')),
         description: z.string().optional().or(z.literal('')),
-        project_order: z
-          .union([z.coerce.number().int(), z.literal('')])
-          .transform((value) => (value === '' ? 1 : value))
-          .pipe(z.number().int().min(1, t('admin.projects.validation.orderMin'))),
+        xp_value: z
+          .union([z.literal(''), z.coerce.number().int().min(0, t('admin.projects.validation.xpMin'))])
+          .transform((value) => (value === '' ? null : value)),
+        is_active: z.boolean(),
       }),
     [t]
   )
@@ -94,7 +105,8 @@ export function AdminProjects() {
       module_id: '',
       title: '',
       description: '',
-      project_order: 1,
+      xp_value: null,
+      is_active: true,
     },
   })
 
@@ -105,13 +117,14 @@ export function AdminProjects() {
         module_id: '',
         title: '',
         description: '',
-        project_order: 1,
+        xp_value: null,
+        is_active: true,
       })
     }
   }, [dialogOpen, form])
 
   const { data: modules = [], isLoading: loadingModules } = useQuery<ModuleOption[]>({
-    queryKey: ['admin-projects-modules'],
+    queryKey: ['admin-module-projects-modules'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('modules')
@@ -129,21 +142,21 @@ export function AdminProjects() {
     },
   })
 
-  const { data: projects = [], isLoading } = useQuery<ProjectWithModule[]>({
-    queryKey: ['admin-projects'],
+  const { data: projects = [], isLoading } = useQuery<ModuleProjectWithModule[]>({
+    queryKey: ['admin-module-projects'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('projects')
+        .from('module_projects')
         .select(
-          'id, title, description, project_order, module:modules(id, title, order, course:courses(id, title))'
+          'id, module_id, title, description, xp_value, is_active, module:modules(id, title, order, course:courses(id, title))'
         )
         .order('module_id', { ascending: true })
-        .order('project_order', { ascending: true })
+        .order('created_at', { ascending: true })
         .order('title', { ascending: true })
 
       if (error) throw error
 
-      type QueryRow = ProjectRow & {
+      type QueryRow = ModuleProjectRow & {
         module: (ModuleRow & { course?: { id: string; title: string } | null }) | null
       }
 
@@ -164,7 +177,7 @@ export function AdminProjects() {
   }, [projects, selectedModuleFilter])
 
   const grouped = useMemo(() => {
-    const map = new Map<string, { module: ProjectWithModule['module']; items: ProjectWithModule[] }>()
+    const map = new Map<string, { module: ModuleProjectWithModule['module']; items: ModuleProjectWithModule[] }>()
     filteredProjects.forEach((project) => {
       const key = project.module_id || 'unassigned'
       if (!map.has(key)) {
@@ -191,19 +204,20 @@ export function AdminProjects() {
         module_id: values.module_id,
         title: values.title.trim(),
         description: values.description?.trim() ? values.description.trim() : null,
-        project_order: values.project_order,
+        xp_value: values.xp_value,
+        is_active: values.is_active,
       }
 
       if (editingProject) {
-        const { error } = await supabase.from('projects').update(payload).eq('id', editingProject.id)
+        const { error } = await supabase.from('module_projects').update(payload).eq('id', editingProject.id)
         if (error) throw error
       } else {
-        const { error } = await supabase.from('projects').insert(payload)
+        const { error } = await supabase.from('module_projects').insert(payload)
         if (error) throw error
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-projects'] })
+      queryClient.invalidateQueries({ queryKey: ['admin-module-projects'] })
       toast.success(
         editingProject
           ? t('admin.projects.notifications.updated')
@@ -219,11 +233,11 @@ export function AdminProjects() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('projects').delete().eq('id', id)
+      const { error } = await supabase.from('module_projects').delete().eq('id', id)
       if (error) throw error
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-projects'] })
+      queryClient.invalidateQueries({ queryKey: ['admin-module-projects'] })
       toast.success(t('admin.projects.notifications.deleted'))
       setDeleteDialogOpen(false)
       setDeleteTarget(null)
@@ -240,31 +254,33 @@ export function AdminProjects() {
       module_id: '',
       title: '',
       description: '',
-      project_order: 1,
+      xp_value: null,
+      is_active: true,
     })
     setDialogOpen(true)
-  }, [form, setDialogOpen, setEditingProject])
+  }, [form, setDialogOpen])
 
   const openForEdit = useCallback(
-    (project: ProjectWithModule) => {
+    (project: ModuleProjectWithModule) => {
       setEditingProject(project)
       form.reset({
         module_id: project.module_id,
         title: project.title,
         description: project.description ?? '',
-        project_order: project.project_order ?? 1,
+        xp_value: project.xp_value ?? null,
+        is_active: project.is_active ?? true,
       })
       setDialogOpen(true)
     },
-    [form, setDialogOpen, setEditingProject]
+    [form, setDialogOpen]
   )
 
   const handleDeleteClick = useCallback(
-    (project: ProjectWithModule) => {
+    (project: ModuleProjectWithModule) => {
       setDeleteTarget(project)
       setDeleteDialogOpen(true)
     },
-    [setDeleteDialogOpen, setDeleteTarget]
+    []
   )
 
   const onSubmit = (values: ProjectFormValues) => {
@@ -288,48 +304,59 @@ export function AdminProjects() {
                 {module ? `${module.title}` : t('admin.projects.unassignedModule')}
               </CardTitle>
               {module?.course && (
-                <CardDescription className="text-forge-gray text-sm">
+                <CardDescription className="text-sm text-forge-gray">
                   {t('admin.projects.labels.course', { course: module.course.title })}
                 </CardDescription>
               )}
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {items.map((project) => (
-              <div
-                key={project.id}
-                className="rounded-lg border border-forge-cream/60 bg-white/90 p-4 shadow-sm transition-shadow hover:shadow-md"
-              >
-                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-forge-orange/10 px-2 py-0.5 text-xs font-medium text-forge-orange">
-                        {t('admin.projects.labels.projectOrder', { order: project.project_order ?? 1 })}
-                      </span>
-                      <h3 className="text-lg font-semibold text-forge-dark">{project.title}</h3>
+            {items.map((project, index) => {
+              const sequence = index + 1
+              return (
+                <div
+                  key={project.id}
+                  className="rounded-lg border border-forge-cream/60 bg-white/90 p-4 shadow-sm transition-shadow hover:shadow-md"
+                >
+                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full bg-forge-orange/10 px-2 py-0.5 text-xs font-medium text-forge-orange">
+                          {t('admin.projects.labels.projectNumber', { number: sequence })}
+                        </span>
+                        <h3 className="text-lg font-semibold text-forge-dark">{project.title}</h3>
+                        {!project.is_active && (
+                          <Badge variant="outline" className="border-red-200 text-red-600">
+                            {t('admin.projects.labels.inactive')}
+                          </Badge>
+                        )}
+                        {typeof project.xp_value === 'number' && (
+                          <Badge variant="secondary" className="bg-forge-cream text-forge-dark">
+                            {t('admin.projects.labels.xpValue', { xp: project.xp_value })}
+                          </Badge>
+                        )}
+                      </div>
+                      {project.description && (
+                        <p className="text-sm text-forge-gray/90 line-clamp-2">{stripHtml(project.description)}</p>
+                      )}
                     </div>
-                    {project.description && (
-                      <p className="text-sm text-forge-gray/90 line-clamp-2">
-                        {stripHtml(project.description)}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="icon" onClick={() => openForEdit(project)}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="text-red-500 hover:text-red-600"
-                      onClick={() => handleDeleteClick(project)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="icon" onClick={() => openForEdit(project)}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="text-red-500 hover:text-red-600"
+                        onClick={() => handleDeleteClick(project)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </CardContent>
         </Card>
       )),
@@ -454,14 +481,40 @@ export function AdminProjects() {
 
               <FormField
                 control={form.control}
-                name="project_order"
+                name="xp_value"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('admin.projects.form.order')}</FormLabel>
+                    <FormLabel>{t('admin.projects.form.xpValue')}</FormLabel>
                     <FormControl>
-                      <Input type="number" min={1} {...field} />
+                      <Input
+                        type="number"
+                        min={0}
+                        value={field.value ?? ''}
+                        onChange={(event) => {
+                          const value = event.target.value
+                          field.onChange(value === '' ? null : Number(value))
+                        }}
+                        placeholder={t('admin.projects.form.xpValuePlaceholder')}
+                      />
                     </FormControl>
+                    <FormDescription>{t('admin.projects.form.xpValueHelp')}</FormDescription>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="is_active"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border border-forge-cream/70 bg-forge-cream/10 p-3">
+                    <div className="space-y-1">
+                      <FormLabel className="text-base">{t('admin.projects.form.activeLabel')}</FormLabel>
+                      <FormDescription>{t('admin.projects.form.activeDescription')}</FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
                   </FormItem>
                 )}
               />
