@@ -19,7 +19,8 @@ export interface ModuleProject {
   id: string
   title: string
   description: string | null
-  project_order: number
+  order: number
+  xp_value: number | null
 }
 
 export interface ProjectSubmissionSummary {
