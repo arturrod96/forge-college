@@ -134,12 +134,19 @@ export function CourseView() {
               })),
             projects: (module.projects ?? [])
               .slice()
-              .sort((a, b) => (a.project_order ?? 0) - (b.project_order ?? 0))
-              .map((project) => ({
+              .filter((project) => project.is_active ?? true)
+              .sort((a, b) => {
+                const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+                const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+                if (dateA !== dateB) return dateA - dateB;
+                return a.title.localeCompare(b.title);
+              })
+              .map((project, index) => ({
                 id: project.id,
                 title: project.title,
                 description: project.description ?? '',
-                project_order: project.project_order ?? 1,
+                order: index + 1,
+                xp_value: project.xp_value ?? null,
               })),
           })),
       };
