@@ -18,7 +18,9 @@ interface ProjectRow {
   id: string
   title: string
   description: string | null
-  project_order: number
+  xp_value: number | null
+  is_active: boolean | null
+  created_at: string | null
   module: {
     id: string
     title: string
@@ -44,11 +46,11 @@ export function CommunityProjects() {
     queryKey: ['community-projects'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('projects')
+        .from('module_projects')
         .select(
-          `id, title, description, project_order,
+          `id, title, description, xp_value, is_active, created_at,
            module:modules(id, title, order, course:courses(id, title)),
-           submissions:project_submissions(repository_url, submitted_at, user_id)`
+           submissions:module_project_submissions(repository_url, submitted_at, user_id)`
         )
 
       if (error) throw error
@@ -134,9 +136,16 @@ export function CommunityProjects() {
             <CardContent className="space-y-4">
               {projects
                 .slice()
-                .sort((a, b) => (a.project_order ?? 0) - (b.project_order ?? 0))
-                .map((project) => {
+                .filter((project) => project.is_active ?? true)
+                .sort((a, b) => {
+                  const dateA = a.created_at ? new Date(a.created_at).getTime() : 0
+                  const dateB = b.created_at ? new Date(b.created_at).getTime() : 0
+                  if (dateA !== dateB) return dateA - dateB
+                  return a.title.localeCompare(b.title)
+                })
+                .map((project, index) => {
                   const submissions = project.submissions ?? []
+                  const order = index + 1
                   return (
                     <div
                       key={project.id}
@@ -145,9 +154,14 @@ export function CommunityProjects() {
                       <div className="flex flex-col gap-3">
                         <div className="flex flex-wrap items-center gap-2">
                           <Badge variant="outline" className="border-forge-orange text-forge-orange">
-                            {t('projects.community.projectOrder', { order: project.project_order })}
+                            {t('projects.community.projectOrder', { order })}
                           </Badge>
                           <h3 className="text-lg font-semibold text-forge-dark">{project.title}</h3>
+                          {typeof project.xp_value === 'number' && (
+                            <Badge variant="secondary" className="bg-forge-cream text-forge-dark">
+                              {t('projects.community.xpValue', { xp: project.xp_value })}
+                            </Badge>
+                          )}
                         </div>
                         {project.description && (
                           <p className="text-sm text-forge-gray/90">{stripHtml(project.description)}</p>
