@@ -196,6 +196,19 @@
     "completionError": "Erro ao marcar lição como concluída"
   },
   "admin": {
+    "layout": {
+      "kicker": "Admin",
+      "title": "Gestão de Conteúdo",
+      "subtitle": "Crie, organize e publique experiências de aprendizado para a comunidade.",
+      "nav": {
+        "overview": "Visão geral",
+        "paths": "Trilhas",
+        "courses": "Cursos",
+        "modules": "Módulos",
+        "lessons": "Lições",
+        "projects": "Projetos"
+      }
+    },
     "paths": {
       "title": "Trilhas de Aprendizado",
       "new": "Nova trilha de aprendizado",
