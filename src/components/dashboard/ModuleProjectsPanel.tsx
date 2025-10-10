@@ -13,6 +13,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 import { ArrowUpRight, ExternalLink, FolderGit2 } from 'lucide-react'
 
 export interface ModuleProject {
@@ -145,9 +146,14 @@ export function ModuleProjectsPanel({
                 <div className="space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="rounded-full bg-forge-orange/10 px-2 py-0.5 text-xs font-medium text-forge-orange">
-                      {t('projects.module.projectOrder', { order: project.project_order })}
+                      {t('projects.module.projectOrder', { order: project.order })}
                     </span>
                     <h3 className="text-lg font-semibold text-forge-dark">{project.title}</h3>
+                    {typeof project.xp_value === 'number' && (
+                      <Badge variant="secondary" className="bg-forge-cream text-forge-dark">
+                        {t('projects.module.xpValue', { xp: project.xp_value })}
+                      </Badge>
+                    )}
                   </div>
                   {project.description && (
                     <div
