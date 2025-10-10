@@ -164,6 +164,10 @@
     "connectWallet": "Conectar Carteira"
   },
   "dashboard": {
+    "layout": {
+      "openMenu": "Abrir menu",
+      "loading": "Carregando painel..."
+    },
     "welcomeBack": "Bem-vindo de volta",
     "loading": "Carregando...",
     "notFound": "Não encontrado",
