@@ -253,6 +253,57 @@
       "created": "Lesson created",
       "updated": "Lesson updated",
       "deleted": "Lesson deleted"
+    },
+    "projects": {
+      "title": "Projects",
+      "subtitle": "Link projects to modules to reinforce applied learning at the end of each module.",
+      "actions": {
+        "newProject": "New project"
+      },
+      "filters": {
+        "modulePlaceholder": "Filter by module",
+        "allModules": "All modules"
+      },
+      "loading": "Loading projects...",
+      "emptyState": "No projects found for the current filters.",
+      "unassignedModule": "Unassigned module",
+      "labels": {
+        "course": "Course: {{course}}",
+        "projectOrder": "Order #{{order}}"
+      },
+      "dialog": {
+        "editTitle": "Edit project",
+        "createTitle": "Create project",
+        "description": "Provide details and expectations for the module project.",
+        "descriptionPlaceholder": "Describe the project goals, deliverables, and any resources students should consult. Supports HTML content.",
+        "descriptionHelp": "You can use HTML to format the content (headings, lists, links, etc.)."
+      },
+      "form": {
+        "module": "Module",
+        "modulePlaceholder": "Select a module",
+        "title": "Title",
+        "titlePlaceholder": "Project title",
+        "description": "Project description",
+        "order": "Display order"
+      },
+      "validation": {
+        "moduleRequired": "Select a module",
+        "titleMin": "Title must have at least 3 characters",
+        "orderMin": "Order must be at least 1"
+      },
+      "notifications": {
+        "loadError": "Failed to load projects",
+        "created": "Project created",
+        "updated": "Project updated",
+        "saveError": "Failed to save project",
+        "deleted": "Project deleted",
+        "deleteError": "Failed to delete project"
+      },
+      "delete": {
+        "title": "Delete project",
+        "description": "This action cannot be undone. Make sure you really want to remove \"{{title}}\".",
+        "confirm": "Delete project"
+      }
     }
   },
   "application": {
