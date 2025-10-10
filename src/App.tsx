@@ -21,6 +21,7 @@ import DashboardHome from './pages/dashboard/DashboardHome';
 import { MyLearningPaths } from './components/dashboard/MyLearningPaths';
 import Profile from './pages/Profile';
 import RequireAuth from '@/routes/RequireAuth';
+import CommunityProjects from './pages/dashboard/CommunityProjects';
 import RequireAdmin from '@/routes/RequireAdmin';
 import LoginOAuth from './pages/LoginOAuth';
 import AuthCallback from './pages/AuthCallback';
@@ -81,6 +82,7 @@ const App = () => {
                 <Route index element={<DashboardHome />} />
                 <Route path="explore" element={<AvailablePaths />} />
                 <Route path="profile" element={<Profile />} />
+                <Route path="community-projects" element={<CommunityProjects />} />
                 <Route path="scoreboard" element={<Scoreboard />} />
                 <Route path="achievements" element={<Achievements />} />
                 <Route path="learn/course/:courseId" element={<CourseView />} />
