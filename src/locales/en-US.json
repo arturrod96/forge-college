@@ -57,10 +57,12 @@
     "admin": "Admin",
     "scoreboard": "Scoreboard",
     "achievements": "Achievements",
+    "communityProjects": "Community Projects",
     "learn": "Learn",
     "course": "Course",
     "path": "Path",
-    "myProfile": "My Profile"
+    "myProfile": "My Profile",
+    "page": "Page"
   },
   "auth": {
     "login": {
