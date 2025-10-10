@@ -90,7 +90,9 @@ export function CourseView() {
         id: string;
         title: string;
         description: string | null;
-        project_order: number | null;
+        xp_value: number | null;
+        is_active: boolean | null;
+        created_at: string | null;
       };
 
       type SupabaseModule = {
