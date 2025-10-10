@@ -1,6 +1,6 @@
 import { useAuth } from '@/hooks/useOAuth'
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { useMemo, useState, type ReactNode } from 'react'
+import { Fragment, useMemo, useState, type ReactNode } from 'react'
 import {
   SidebarProvider,
   Sidebar,
@@ -16,8 +16,7 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
-import { LayoutDashboard, BookOpen, Shield, Trophy, Award, FolderGit2 } from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { LayoutDashboard, BookOpen, Shield, Trophy, Award, FolderGit2, Menu } from 'lucide-react'
 import { ProfileDropdown } from '@/components/ProfileDropdown'
 import { useSidebar } from '@/components/ui/sidebar'
 import {
@@ -49,13 +48,9 @@ function MobileMenuButton() {
       aria-label={t('dashboard.layout.openMenu')}
       onClick={toggleSidebar}
     >
-      <MenuIcon />
+      <Menu size={22} />
     </button>
   )
-}
-
-function MenuIcon() {
-  return <svg viewBox="0 0 24 24" width={22} height={22} stroke="currentColor" strokeWidth={1.5} fill="none"><path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" /></svg>
 }
 
 export function DashboardLayout() {
@@ -244,7 +239,7 @@ export function DashboardLayout() {
                     {defaultBreadcrumbItems.map((item, index) => {
                       const isLast = index === defaultBreadcrumbItems.length - 1
                       return (
-                        <span key={`${item.label}-${index}`} className="flex items-center">
+                        <Fragment key={`${item.label}-${index}`}>
                           <BreadcrumbItem>
                             {isLast || !item.to ? (
                               <BreadcrumbPage>{item.label}</BreadcrumbPage>
@@ -255,7 +250,7 @@ export function DashboardLayout() {
                             )}
                           </BreadcrumbItem>
                           {!isLast && <BreadcrumbSeparator />}
-                        </span>
+                        </Fragment>
                       )
                     })}
                   </BreadcrumbList>
