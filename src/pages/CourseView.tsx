@@ -70,7 +70,7 @@ export function CourseView() {
           id, title, description,
           modules:modules(id, title, order,
             lessons:lessons(id, title, content, lesson_type, order, xp_value),
-            projects:projects(id, title, description, project_order)
+            projects:module_projects(id, title, description, xp_value, is_active, created_at)
           )
         `)
         .eq('id', courseId)
