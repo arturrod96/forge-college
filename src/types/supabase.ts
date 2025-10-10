@@ -231,45 +231,71 @@ export type Database = {
           }
         ]
       }
-      projects: {
+      module_projects: {
         Row: {
           created_at: string
+          created_by: string | null
           description: string | null
           id: string
+          is_active: boolean
           module_id: string
-          project_order: number
+          rubric: Json | null
           title: string
           updated_at: string
+          updated_by: string | null
+          xp_value: number | null
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
+          is_active?: boolean
           module_id: string
-          project_order?: number
+          rubric?: Json | null
           title: string
           updated_at?: string
+          updated_by?: string | null
+          xp_value?: number | null
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
+          is_active?: boolean
           module_id?: string
-          project_order?: number
+          rubric?: Json | null
           title?: string
           updated_at?: string
+          updated_by?: string | null
+          xp_value?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "projects_module_id_fkey"
+            foreignKeyName: "module_projects_module_id_fkey"
             columns: ["module_id"]
             isOneToOne: false
             referencedRelation: "modules"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "module_projects_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "module_projects_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           }
         ]
       }
-      project_submissions: {
+      module_project_submissions: {
         Row: {
           id: string
           project_id: string
@@ -296,10 +322,17 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "project_submissions_project_id_fkey"
+            foreignKeyName: "module_project_submissions_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "projects"
+            referencedRelation: "module_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "module_project_submissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           }
         ]
