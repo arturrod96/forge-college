@@ -331,7 +331,7 @@
     "xpAvailable": "XP Available",
     "progress": "Progress",
     "all": "All",
-    "completedBadge": "�� Completed",
+    "completedBadge": "✓ Completed",
     "locked": "🔒 Locked",
     "categories": {
       "community": "Community",
@@ -399,6 +399,57 @@
         "title": "Perfect Quiz",
         "description": "Score 100% on a quiz"
       }
+    }
+  },
+  "projects": {
+    "errors": {
+      "loginRequired": "You need to be logged in to submit projects.",
+      "required": "Enter the GitHub repository URL.",
+      "invalidUrl": "Enter a valid URL.",
+      "githubOnly": "Please submit a GitHub repository link.",
+      "submitFailed": "Could not submit the project. Try again."
+    },
+    "notifications": {
+      "fetchError": "Failed to load your project submissions.",
+      "submitError": "Failed to submit project.",
+      "submitted": "Project submitted! Great job applying your knowledge.",
+      "updated": "Project submission updated."
+    },
+    "module": {
+      "title": "Module projects: {{module}}",
+      "subtitle": "Apply what you learned in this module by completing one of the projects below.",
+      "noProjects": "This module does not have projects yet.",
+      "communityLink": "See community submissions",
+      "projectOrder": "Project #{{order}}",
+      "startProject": "Start project",
+      "updateSubmission": "Update submission",
+      "yourSubmission": "Your submission:",
+      "dialog": {
+        "title": "Project: {{project}}",
+        "subtitle": "Review the description and submit your GitHub repository link.",
+        "repositoryLabel": "GitHub repository URL",
+        "repositoryPlaceholder": "https://github.com/username/repository",
+        "repositoryHelp": "Share a public GitHub repository showcasing your implementation.",
+        "submitting": "Submitting...",
+        "submit": "Submit project"
+      }
+    },
+    "community": {
+      "loadError": "Failed to load community projects.",
+      "loading": "Loading community projects...",
+      "title": "Community Projects",
+      "subtitle": "Check what other students are building and get inspired.",
+      "empty": "No community submissions yet. Be the first to share your solution!",
+      "courseLabel": "Course: {{course}}",
+      "unknownCourse": "Unassigned course",
+      "projectCount": "Projects: {{count}}",
+      "projectOrder": "Project #{{order}}",
+      "noSubmissions": "No submissions yet.",
+      "submissions": "Submissions: {{count}}",
+      "visitRepository": "View repository",
+      "submittedBy": "Submitted by {{user}} · {{date}}",
+      "anonymous": "Anonymous",
+      "dateUnknown": "Date unknown"
     }
   }
 }
