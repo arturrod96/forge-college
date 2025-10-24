@@ -118,7 +118,7 @@ type CourseRow = Tables<'courses'>
 
 type LearningPathRow = Tables<'learning_paths'>
 
-export function AdminLessons() {
+export default function AdminLessons() {
   const supabase = useMemo(() => createClientBrowser(), [])
   const queryClient = useQueryClient()
 
@@ -950,5 +950,3 @@ export function AdminLessons() {
     </div>
   )
 }
-
-export default AdminLessons

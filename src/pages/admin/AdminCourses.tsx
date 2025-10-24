@@ -80,7 +80,7 @@ type CourseWithMeta = CourseRow & {
 
 type LearningPathRow = Tables<'learning_paths'>
 
-export function AdminCourses() {
+export default function AdminCourses() {
   const supabase = useMemo(() => createClientBrowser(), [])
   const queryClient = useQueryClient()
 
@@ -644,5 +644,3 @@ export function AdminCourses() {
     </div>
   )
 }
-
-export default AdminCourses

@@ -8,7 +8,7 @@ type RequireAdminProps = {
   children: ReactNode
 }
 
-export function RequireAdmin({ children }: RequireAdminProps) {
+export default function RequireAdmin({ children }: RequireAdminProps) {
   const { user, loading } = useAuth()
   const location = useLocation()
 
@@ -40,5 +40,3 @@ export function RequireAdmin({ children }: RequireAdminProps) {
 
   return <>{children}</>
 }
-
-export default RequireAdmin

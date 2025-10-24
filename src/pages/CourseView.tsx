@@ -33,7 +33,7 @@ export interface Course {
 
 type DashboardOutletContext = { setHeaderBreadcrumb: (node: React.ReactNode | null) => void }
 
-export function CourseView() {
+export default function CourseView() {
   const { courseId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
   const supabase = createClientBrowser();
@@ -174,5 +174,3 @@ export function CourseView() {
     </div>
   );
 }
-
-export default CourseView;

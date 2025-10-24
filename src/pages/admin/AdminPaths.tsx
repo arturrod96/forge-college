@@ -69,7 +69,7 @@ type LearningPathWithMeta = LearningPathRow & {
   courseCount: number
 }
 
-export function AdminPaths() {
+export default function AdminPaths() {
   const supabase = useMemo(() => createClientBrowser(), [])
   const queryClient = useQueryClient()
 
@@ -459,5 +459,3 @@ export function AdminPaths() {
     </div>
   )
 }
-
-export default AdminPaths

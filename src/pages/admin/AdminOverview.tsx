@@ -25,7 +25,7 @@ const overviewItems = [
   },
 ]
 
-export function AdminOverview() {
+export default function AdminOverview() {
   const { user } = useAuth()
 
   return (
@@ -60,5 +60,3 @@ export function AdminOverview() {
     </div>
   )
 }
-
-export default AdminOverview
