@@ -45,7 +45,7 @@ function MobileMenuButton() {
   );
 }
 
-export function DashboardLayout() {
+export default function DashboardLayout() {
   const { user, loading } = useAuth();
   const location = useLocation();
 
@@ -266,5 +266,3 @@ export function DashboardLayout() {
     </SidebarProvider>
   );
 }
-
-export default DashboardLayout;

@@ -21,7 +21,7 @@ interface LearningPathDetail {
   courses: CourseSummary[];
 }
 
-export function PathOverview() {
+export default function PathOverview() {
   const { pathId } = useParams();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -168,5 +168,3 @@ export function PathOverview() {
     </div>
   );
 }
-
-export default PathOverview;

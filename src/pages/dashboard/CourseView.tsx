@@ -1,3 +1,2 @@
-export { CourseView as default } from '@/pages/CourseView'
-
+export { default } from '@/pages/CourseView'
 

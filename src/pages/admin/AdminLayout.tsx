@@ -10,7 +10,7 @@ const adminNav = [
   { to: '/dashboard/admin/lessons', label: 'Lessons', icon: FileText },
 ]
 
-export function AdminLayout() {
+export default function AdminLayout() {
   const location = useLocation()
 
   return (
@@ -54,5 +54,3 @@ export function AdminLayout() {
     </div>
   )
 }
-
-export default AdminLayout

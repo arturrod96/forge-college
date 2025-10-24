@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useOAuth';
 import * as R from '@/routes/paths';
 import { DASHBOARD_STRINGS } from '@/strings/dashboard';
 
-export function DashboardHome() {
+export default function DashboardHome() {
   const { user } = useAuth();
 
   const getUserDisplayName = () => {
@@ -70,5 +70,3 @@ export function DashboardHome() {
     </div>
   );
 }
-
-export default DashboardHome;
