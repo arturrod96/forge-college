@@ -275,9 +275,9 @@ export default function Profile() {
                         <SelectValue placeholder={t('common.placeholders.selectCountry')} />
                       </SelectTrigger>
                       <SelectContent>
-                        {countries.map((country) => (
-                          <SelectItem key={country} value={country}>
-                            {country}
+                        {countryOptions.map(({ value, label }) => (
+                          <SelectItem key={value} value={value}>
+                            {label}
                           </SelectItem>
                         ))}
                       </SelectContent>
