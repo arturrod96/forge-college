@@ -277,6 +277,10 @@
         "inactive": "Inativo",
         "xpValue": "XP {{xp}}"
       },
+      "markdown": {
+        "loading": "Carregando editor...",
+        "ariaLabel": "Editor de Markdown"
+      },
       "dialog": {
         "editTitle": "Editar projeto",
         "createTitle": "Criar projeto",
