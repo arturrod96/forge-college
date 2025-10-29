@@ -65,6 +65,23 @@ export default function Profile() {
   const [hasChanges, setHasChanges] = useState(false);
   const [errors, setErrors] = useState<Partial<StudentProfile>>({});
 
+  const countryOptions = useMemo(
+    () =>
+      COUNTRY_LIST.map(({ value, key }) => ({
+        value,
+        label: t(`common.countries.${key}`)
+      })),
+    [t]
+  );
+
+  const languageOptions = useMemo(
+    () => [
+      { value: 'en-US', label: t('profile.languageOptions.enUS') },
+      { value: 'pt-BR', label: t('profile.languageOptions.ptBR') }
+    ],
+    [t]
+  );
+
   // Load profile on component mount
   useEffect(() => {
     loadProfile();
