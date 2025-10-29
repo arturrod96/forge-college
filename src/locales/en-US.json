@@ -470,6 +470,57 @@
       }
     }
   },
+  "diagnostics": {
+    "testPage": {
+      "title": "🧪 Test Page - Forge College",
+      "description": "This is a static test page without external dependencies.",
+      "systemStatus": {
+        "title": "System status",
+        "react": "✅ React running",
+        "typescript": "✅ TypeScript running",
+        "build": "✅ Build running",
+        "deploy": "✅ Deployment running",
+        "ssr": "✅ SSR running (timestamp: {{timestamp}})"
+      },
+      "environment": {
+        "title": "Environment information (SSR)",
+        "serverTimestamp": "Server timestamp:",
+        "noJsMessage": "If you can read this text without JavaScript, SSR is OK."
+      },
+      "clientTest": {
+        "title": "Client-side JavaScript test",
+        "instructions": "If JavaScript is working, you will see additional information below:",
+        "loading": "Loading client information...",
+        "button": "Test JavaScript"
+      },
+      "alerts": {
+        "jsWorking": "JavaScript is working!"
+      },
+      "footer": "If you are seeing this page, the issue is not infrastructure related.",
+      "js": {
+        "clientReady": "✅ JavaScript running!",
+        "userAgent": "User agent:",
+        "url": "URL:",
+        "clientTimestamp": "Client timestamp:"
+      }
+    },
+    "ssrCanary": {
+      "title": "SSR Canary Test",
+      "status": "SSR CANARY OK: {{timestamp}}",
+      "instructions": "If you can see this text, SSR is working.",
+      "timestamp": "Timestamp: {{timestamp}}",
+      "renderMode": "This page renders static HTML on the server.",
+      "runtime": "Runtime: Node.js",
+      "dynamicMode": "Dynamic: force-dynamic"
+    },
+    "staticBare": {
+      "title": "Static Bare SSR Test",
+      "status": "STATIC BARE SSR OK: {{timestamp}}",
+      "instructions": "If you can see this text, SSR is working.",
+      "timestamp": "Timestamp: {{timestamp}}",
+      "renderMode": "This page renders static HTML on the server."
+    }
+  },
   "projects": {
     "errors": {
       "loginRequired": "You need to be logged in to submit projects.",
