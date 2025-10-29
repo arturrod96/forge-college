@@ -554,5 +554,11 @@
       "anonymous": "Anônimo",
       "dateUnknown": "Data desconhecida"
     }
+  },
+  "errorBoundary": {
+    "title": "Algo deu errado",
+    "description": "Ocorreu um erro inesperado. Por favor, recarregue a página.",
+    "reload": "Recarregar página",
+    "detailsTitle": "Detalhes do erro (desenvolvimento)"
   }
 }
