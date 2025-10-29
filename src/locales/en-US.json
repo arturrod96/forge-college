@@ -277,6 +277,10 @@
         "inactive": "Inactive",
         "xpValue": "XP {{xp}}"
       },
+      "markdown": {
+        "loading": "Loading editor...",
+        "ariaLabel": "Markdown editor"
+      },
       "dialog": {
         "editTitle": "Edit project",
         "createTitle": "Create project",
