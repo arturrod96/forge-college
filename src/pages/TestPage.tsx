@@ -1,62 +1,94 @@
-import React from 'react';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const TestPage: React.FC = () => {
   const serverTimestamp = new Date().toISOString();
-  
+  const { t } = useTranslation();
+
+  const clientScript = useMemo(() => {
+    return `
+      document.addEventListener('DOMContentLoaded', function() {
+        const jsTest = document.getElementById('js-test');
+        if (jsTest) {
+          jsTest.innerHTML = \`
+            <p><strong>${t('diagnostics.testPage.js.clientReady')}</strong></p>
+            <p><strong>${t('diagnostics.testPage.js.userAgent')}</strong> \${navigator.userAgent}</p>
+            <p><strong>${t('diagnostics.testPage.js.url')}</strong> \${window.location.href}</p>
+            <p><strong>${t('diagnostics.testPage.js.clientTimestamp')}</strong> \${new Date().toISOString()}</p>
+          \`;
+        }
+      });
+    `;
+  }, [t]);
+
   return (
-    <div style={{ 
-      padding: '2rem', 
-      textAlign: 'center', 
-      fontFamily: 'system-ui, sans-serif',
-      maxWidth: '800px',
-      margin: '0 auto'
-    }}>
-      <h1>🧪 Página de Teste - Forge College</h1>
-      <p>Esta é uma página de teste estática sem dependências externas.</p>
-      
-      <div style={{ 
-        backgroundColor: '#f0f8ff', 
-        padding: '1rem', 
-        borderRadius: '8px',
-        margin: '1rem 0'
-      }}>
-        <h2>Status do Sistema</h2>
-        <p>✅ React funcionando</p>
-        <p>✅ TypeScript funcionando</p>
-        <p>✅ Build funcionando</p>
-        <p>✅ Deploy funcionando</p>
-        <p>✅ SSR funcionando (timestamp: {serverTimestamp})</p>
+    <div
+      style={{
+        padding: '2rem',
+        textAlign: 'center',
+        fontFamily: 'system-ui, sans-serif',
+        maxWidth: '800px',
+        margin: '0 auto'
+      }}
+    >
+      <h1>{t('diagnostics.testPage.title')}</h1>
+      <p>{t('diagnostics.testPage.description')}</p>
+
+      <div
+        style={{
+          backgroundColor: '#f0f8ff',
+          padding: '1rem',
+          borderRadius: '8px',
+          margin: '1rem 0'
+        }}
+      >
+        <h2>{t('diagnostics.testPage.systemStatus.title')}</h2>
+        <p>{t('diagnostics.testPage.systemStatus.react')}</p>
+        <p>{t('diagnostics.testPage.systemStatus.typescript')}</p>
+        <p>{t('diagnostics.testPage.systemStatus.build')}</p>
+        <p>{t('diagnostics.testPage.systemStatus.deploy')}</p>
+        <p>{t('diagnostics.testPage.systemStatus.ssr', { timestamp: serverTimestamp })}</p>
       </div>
 
-      <div style={{ 
-        backgroundColor: '#f0fff0', 
-        padding: '1rem', 
-        borderRadius: '8px',
-        margin: '1rem 0'
-      }}>
-        <h3>Informações do Ambiente (SSR)</h3>
-        <p><strong>Timestamp do Servidor:</strong> {serverTimestamp}</p>
-        <p><strong>Se você vê este texto sem JS, o SSR está OK</strong></p>
+      <div
+        style={{
+          backgroundColor: '#f0fff0',
+          padding: '1rem',
+          borderRadius: '8px',
+          margin: '1rem 0'
+        }}
+      >
+        <h3>{t('diagnostics.testPage.environment.title')}</h3>
+        <p>
+          <strong>{t('diagnostics.testPage.environment.serverTimestamp')}</strong>{' '}
+          {serverTimestamp}
+        </p>
+        <p>{t('diagnostics.testPage.environment.noJsMessage')}</p>
       </div>
 
-      <div style={{ 
-        backgroundColor: '#fff8f0', 
-        padding: '1rem', 
-        borderRadius: '8px',
-        margin: '1rem 0'
-      }}>
-        <h3>Teste de JavaScript (Client-side)</h3>
-        <p>Se o JavaScript estiver funcionando, você verá informações adicionais abaixo:</p>
-        <div id="js-test" style={{ 
-          backgroundColor: '#e8f5e8', 
-          padding: '0.5rem', 
-          borderRadius: '4px',
-          margin: '0.5rem 0'
-        }}>
-          <p>Carregando informações do cliente...</p>
+      <div
+        style={{
+          backgroundColor: '#fff8f0',
+          padding: '1rem',
+          borderRadius: '8px',
+          margin: '1rem 0'
+        }}
+      >
+        <h3>{t('diagnostics.testPage.clientTest.title')}</h3>
+        <p>{t('diagnostics.testPage.clientTest.instructions')}</p>
+        <div
+          id="js-test"
+          style={{
+            backgroundColor: '#e8f5e8',
+            padding: '0.5rem',
+            borderRadius: '4px',
+            margin: '0.5rem 0'
+          }}
+        >
+          <p>{t('diagnostics.testPage.clientTest.loading')}</p>
         </div>
-        <button 
-          onClick={() => alert('JavaScript está funcionando!')}
+        <button
+          onClick={() => alert(t('diagnostics.testPage.alerts.jsWorking'))}
           style={{
             padding: '0.5rem 1rem',
             backgroundColor: '#28a745',
@@ -66,30 +98,13 @@ const TestPage: React.FC = () => {
             cursor: 'pointer'
           }}
         >
-          Testar JavaScript
+          {t('diagnostics.testPage.clientTest.button')}
         </button>
       </div>
 
-      <p style={{ marginTop: '2rem', color: '#666' }}>
-        Se você está vendo esta página, o problema não é de infraestrutura básica.
-      </p>
+      <p style={{ marginTop: '2rem', color: '#666' }}>{t('diagnostics.testPage.footer')}</p>
 
-      {/* Script inline para testar JS sem dependências externas */}
-      <script dangerouslySetInnerHTML={{
-        __html: `
-          document.addEventListener('DOMContentLoaded', function() {
-            const jsTest = document.getElementById('js-test');
-            if (jsTest) {
-              jsTest.innerHTML = \`
-                <p><strong>✅ JavaScript funcionando!</strong></p>
-                <p><strong>User Agent:</strong> \${navigator.userAgent}</p>
-                <p><strong>URL:</strong> \${window.location.href}</p>
-                <p><strong>Timestamp do Cliente:</strong> \${new Date().toISOString()}</p>
-              \`;
-            }
-          });
-        `
-      }} />
+      <script dangerouslySetInnerHTML={{ __html: clientScript }} />
     </div>
   );
 };
