@@ -8,7 +8,7 @@ type RequireAuthProps = {
   children: ReactNode
 }
 
-export function RequireAuth({ children }: RequireAuthProps) {
+export default function RequireAuth({ children }: RequireAuthProps) {
   const { user, loading } = useAuth()
   const location = useLocation()
 
@@ -32,5 +32,3 @@ export function RequireAuth({ children }: RequireAuthProps) {
 
   return <>{children}</>
 }
-
-export default RequireAuth

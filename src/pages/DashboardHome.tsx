@@ -8,7 +8,7 @@ import * as R from '@/routes/paths';
 import { DASHBOARD_STRINGS } from '@/strings/dashboard';
 import { useTranslation } from 'react-i18next';
 
-export function DashboardHome() {
+export default function DashboardHome() {
   const { user } = useAuth();
   const { t } = useTranslation();
 
@@ -72,5 +72,3 @@ export function DashboardHome() {
     </div>
   );
 }
-
-export default DashboardHome;

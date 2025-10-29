@@ -1,1 +1,1 @@
-export { default } from './dashboard/Layout';
+export { DashboardLayout as default } from './dashboard/Layout'

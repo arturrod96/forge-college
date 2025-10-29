@@ -127,5 +127,3 @@ export function LearningHabits({ className }: LearningHabitsProps) {
     </Card>
   );
 }
-
-export default LearningHabits;

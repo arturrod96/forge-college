@@ -1,3 +1,2 @@
-export { DashboardHome as default } from '@/pages/DashboardHome'
-
+export { default } from '@/pages/DashboardHome'
 

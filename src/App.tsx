@@ -40,7 +40,7 @@ import AdminModules from './pages/admin/AdminModules';
 import AdminLessons from './pages/admin/AdminLessons';
 import AdminProjects from './pages/admin/AdminProjects';
 import Scoreboard from './pages/dashboard/Scoreboard';
-import Achievements from './pages/dashboard/Achievements';
+import { AchievementsPage } from './features/achievements';
 
 const App = () => {
   try {
@@ -84,7 +84,7 @@ const App = () => {
                 <Route path="profile" element={<Profile />} />
                 <Route path="community-projects" element={<CommunityProjects />} />
                 <Route path="scoreboard" element={<Scoreboard />} />
-                <Route path="achievements" element={<Achievements />} />
+                <Route path="achievements" element={<AchievementsPage />} />
                 <Route path="learn/course/:courseId" element={<CourseView />} />
                 <Route path="learn/path/:pathId" element={<PathOverview />} />
                 <Route

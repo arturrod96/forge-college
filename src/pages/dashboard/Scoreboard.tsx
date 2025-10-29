@@ -319,7 +319,7 @@ function ScoreboardList({ entries, title }: { entries: ScoreboardEntry[]; title:
   );
 }
 
-export function Scoreboard() {
+export default function Scoreboard() {
   const { t } = useTranslation();
   const [selectedPath, setSelectedPath] = useState<string>('blockchain-web3');
 
@@ -369,5 +369,3 @@ export function Scoreboard() {
     </div>
   );
 }
-
-export default Scoreboard;

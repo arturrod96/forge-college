@@ -1,10 +1,11 @@
 import { useMemo } from 'react'
+import { useMemo } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { Settings, Layers3, BookOpen, ListChecks, FileText, FolderGit2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 
-export function AdminLayout() {
+export default function AdminLayout() {
   const location = useLocation()
   const { t } = useTranslation()
 
@@ -61,5 +62,3 @@ export function AdminLayout() {
     </div>
   )
 }
-
-export default AdminLayout

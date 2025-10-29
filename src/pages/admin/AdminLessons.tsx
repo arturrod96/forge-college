@@ -25,6 +25,9 @@ import {
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import ReactMarkdown from 'react-markdown'
+import { MarkdownEditor } from '@/components/admin/MarkdownEditor'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
@@ -115,7 +118,7 @@ type CourseRow = Tables<'courses'>
 
 type LearningPathRow = Tables<'learning_paths'>
 
-export function AdminLessons() {
+export default function AdminLessons() {
   const supabase = useMemo(() => createClientBrowser(), [])
   const queryClient = useQueryClient()
 
@@ -759,9 +762,38 @@ export function AdminLessons() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Markdown content</FormLabel>
-                      <FormControl>
-                        <Textarea rows={8} placeholder="Write lesson content in Markdown" {...field} />
-                      </FormControl>
+                      <Tabs defaultValue="edit" className="w-full">
+                        <TabsList>
+                          <TabsTrigger value="edit">Edit</TabsTrigger>
+                          <TabsTrigger value="preview">Preview</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="edit">
+                          <FormControl>
+                            <MarkdownEditor
+                              value={field.value ?? ''}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              placeholder="Write lesson content in Markdown"
+                            />
+                          </FormControl>
+                        </TabsContent>
+                        <TabsContent value="preview">
+                          <div className="rounded-md border p-4 bg-white">
+                            <div className="prose prose-slate max-w-none">
+                              <ReactMarkdown
+                                components={{
+                                  a: ({ node, ...props }) => (
+                                    <a {...props} target="_blank" rel="noopener noreferrer" />
+                                  ),
+                                }}
+                              >
+                                {field.value || 'Nothing to preview yet.'}
+                              </ReactMarkdown>
+                            </div>
+                          </div>
+                        </TabsContent>
+                      </Tabs>
+                      <FormDescription>Supports Markdown syntax (headings, lists, code blocks, links, images).</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -918,5 +950,3 @@ export function AdminLessons() {
     </div>
   )
 }
-
-export default AdminLessons

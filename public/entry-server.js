@@ -1,8 +1,13 @@
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 import { jsx, jsxs, Fragment } from "react/jsx-runtime";
 import { renderToString } from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server.mjs";
+import i18n from "i18next";
+import { initReactI18next, useTranslation } from "react-i18next";
 import * as React from "react";
-import React__default, { createContext, useState, useRef, useMemo, useEffect, useContext } from "react";
+import React__default, { createContext, useState, useRef, useMemo, useEffect, useContext, Component, memo, useCallback } from "react";
 import { FunctionsClient } from "@supabase/functions-js";
 import { PostgrestClient } from "@supabase/postgrest-js";
 import { RealtimeClient } from "@supabase/realtime-js";
@@ -12,13 +17,13 @@ import { AuthClient } from "@supabase/auth-js";
 import "cookie";
 import * as ToastPrimitives from "@radix-ui/react-toast";
 import { cva } from "class-variance-authority";
-import { X, Flame, ArrowRight, Zap, Target, DollarSign, TrendingUp, Code, Briefcase, Trophy, CheckCircle, Users, Coins, BarChart3, PieChart, Shield, Github, ChevronLeft, ChevronRight, Check, Circle, User, Wallet, LogOut, LayoutDashboard, BookOpen, Lock, ChevronDown, Play, Menu, Clock, ChevronUp, Loader2, Mail, Globe, MapPin, Building, Linkedin, Save } from "lucide-react";
+import { X, Flame, ArrowRight, Zap, Target, DollarSign, TrendingUp, Code, Briefcase, Trophy, CheckCircle, Users, Coins, BarChart3, PieChart, Shield, Github, Bug, ChevronLeft, ChevronRight, Check, Circle, User, Wallet, LogOut, LayoutDashboard, BookOpen, Award, Lock, Menu, ChevronDown, Play, Bot, Clock, ChevronUp, Loader2, Mail, Globe, MapPin, Languages, Building, Linkedin, Save, AlertTriangle, RefreshCw, Settings, Layers3, ListChecks, FileText, ShieldCheck, Plus, Pencil, Trash2, BookOpenText, Medal, Share2, CheckCircle2, Sparkles, MessageCircle, Twitter, Star } from "lucide-react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { useTheme } from "next-themes";
 import { Toaster as Toaster$2, toast as toast$1 } from "sonner";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
-import { useLocation, useNavigate, Link, Outlet, useParams, Navigate, BrowserRouter, Routes, Route } from "react-router-dom";
+import { useLocation, useNavigate, Link, Outlet, useParams, useOutletContext, Navigate, NavLink, Routes, Route } from "react-router-dom";
 import { motion, useMotionValue, useSpring, useScroll, useTransform } from "framer-motion";
 import { Slot } from "@radix-ui/react-slot";
 import * as LabelPrimitive from "@radix-ui/react-label";
@@ -32,6 +37,755 @@ import ReactMarkdown from "react-markdown";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import * as ProgressPrimitive from "@radix-ui/react-progress";
 import * as SelectPrimitive from "@radix-ui/react-select";
+import { useFormContext, FormProvider, Controller, useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as SwitchPrimitives from "@radix-ui/react-switch";
+import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
+import { formatDistanceToNow } from "date-fns";
+import * as TabsPrimitive from "@radix-ui/react-tabs";
+const common$1 = {
+  buttons: {
+    login: "Login",
+    signIn: "Sign In",
+    signUp: "Sign Up",
+    cancel: "Cancel",
+    "delete": "Delete",
+    save: "Save Changes",
+    saving: "Saving...",
+    loading: "Loading...",
+    submit: "Submit",
+    tryAgain: "Try Again",
+    "continue": "Continue",
+    continueLearning: "Continue learning",
+    send: "Send",
+    edit: "Edit",
+    create: "Create",
+    update: "Update",
+    close: "Close",
+    next: "Next",
+    previous: "Previous",
+    testConnection: "Test Connection",
+    testing: "Testing..."
+  },
+  labels: {
+    email: "Email",
+    password: "Password",
+    confirmPassword: "Confirm Password",
+    fullName: "Full Name",
+    country: "Country",
+    city: "City",
+    languages: "Languages",
+    language: "Language"
+  },
+  placeholders: {
+    email: "m@example.com",
+    emailDemo: "demo@example.com",
+    enterFullName: "Enter your full name",
+    selectCountry: "Select your country",
+    enterCity: "Enter your city",
+    typeLanguage: "Type a language and press Enter"
+  },
+  errors: {
+    required: "This field is required",
+    invalidUrl: "Please enter a valid URL",
+    networkError: "Network connection error. Please check your internet connection and try again.",
+    unexpectedError: "An unexpected error occurred. Please try again."
+  }
+};
+const nav$1 = {
+  forProfessionals: "For Professionals",
+  forCompanies: "For Companies",
+  forInvestors: "For Investors",
+  dashboard: "Dashboard",
+  paths: "Paths",
+  admin: "Admin",
+  scoreboard: "Scoreboard",
+  achievements: "Achievements",
+  learn: "Learn",
+  course: "Course",
+  path: "Path",
+  myProfile: "My Profile"
+};
+const auth$1 = {
+  login: {
+    title: "Login",
+    submit: "Login",
+    ssoGoogle: "Continue with Google",
+    ssoGithub: "Continue with GitHub",
+    orContinueWith: "Or continue with",
+    dontHaveAccount: "Don't have an account?",
+    forgotPassword: "Forgot your password?",
+    errors: {
+      invalidCredentials: "Invalid email or password. Please check your credentials and try again.",
+      emailNotConfirmed: "Please check your email and click the confirmation link before signing in.",
+      tooManyAttempts: "Too many login attempts. Please wait a moment before trying again.",
+      configError: "Authentication service configuration error. Using demo mode - try email: demo@example.com, password: demo123",
+      authServiceError: "Authentication service error. The Supabase instance may be misconfigured.",
+      cannotConnect: "Cannot connect to authentication service. Please check if Supabase is properly configured.",
+      googleFailed: "Google sign-in failed. Please try again.",
+      githubFailed: "GitHub sign-in failed. Please try again."
+    }
+  },
+  signup: {
+    title: "Create Account",
+    submit: "Sign Up",
+    alreadyHaveAccount: "Already have an account?",
+    passwordMismatch: "Passwords do not match",
+    success: "Check your email for the confirmation link!",
+    notConfigured: "Authentication service not configured. Please contact the administrator."
+  },
+  forgotPassword: {
+    title: "Forgot Password",
+    submit: "Send Reset Link",
+    rememberedPassword: "Remembered your password?"
+  },
+  updatePassword: {
+    title: "Update Password",
+    success: "Password updated successfully! Redirecting to login..."
+  },
+  logout: {
+    button: "Log Out",
+    signingOut: "Signing out..."
+  }
+};
+const profile$1 = {
+  title: "My Profile",
+  subtitle: "Manage your personal and professional information",
+  unsavedChanges: "You have unsaved changes",
+  loadingProfile: "Loading profile...",
+  failedToLoad: "Failed to load profile",
+  sections: {
+    personal: "Personal Information",
+    personalDesc: "Update your basic personal details and contact information",
+    professional: "Professional Profile",
+    professionalDesc: "Share your work experience, skills, and career information",
+    learning: "Learning Progress",
+    learningDesc: "Track your learning journey and achievements",
+    career: "Career Preferences",
+    careerDesc: "Set your job preferences and career goals"
+  },
+  fields: {
+    yearsExperience: "Years of Experience in Technology",
+    positionCompany: "Position & Company",
+    positionPlaceholder: "e.g., Senior Backend @ ACME",
+    stacksDominated: "Stacks Dominated",
+    stacksDesc: "Technologies you're proficient in",
+    stacksPlaceholder: "e.g., Java, Python, Solidity, React",
+    skillsToDevelop: "Skills to Develop",
+    skillsDesc: "Areas you want to improve",
+    skillsPlaceholder: "e.g., DeFi, Smart Contracts, Web3",
+    linkedinUrl: "LinkedIn URL",
+    linkedinPlaceholder: "https://linkedin.com/in/username",
+    githubUrl: "GitHub URL",
+    githubPlaceholder: "https://github.com/username",
+    languagePreference: "Language Preference",
+    selectLanguage: "Select your preferred language"
+  },
+  errors: {
+    fullNameRequired: "Full name is required",
+    countryRequired: "Country is required",
+    invalidLinkedin: "Please enter a valid LinkedIn URL",
+    invalidGithub: "Please enter a valid GitHub URL"
+  },
+  messages: {
+    emailNote: "Email can only be changed in your account settings",
+    validationError: "Please fix the errors before saving.",
+    updateSuccess: "Profile updated successfully!",
+    updateError: "Failed to update profile. Please try again."
+  },
+  comingSoon: {
+    title: "Coming Soon",
+    learning: "Learning progress tracking will be available in the next update.",
+    career: "Career preferences will be available in the next update."
+  }
+};
+const profileDropdown$1 = {
+  myAccount: "My Account",
+  profile: "Profile",
+  admin: "Admin",
+  connectWallet: "Connect Wallet"
+};
+const dashboard$1 = {
+  welcomeBack: "Welcome back",
+  loading: "Loading...",
+  notFound: "Not found",
+  readMore: "Read more",
+  readLess: "Read less",
+  enrollToStart: "Enroll to start",
+  enroll: "Enroll",
+  enrolling: "Enrolling...",
+  enrolled: "Enrolled",
+  viewDetails: "View Details",
+  mustLoginToEnroll: "You must be logged in to enroll",
+  enrollSuccess: "Successfully enrolled!",
+  enrollError: "Failed to enroll",
+  loadError: "Failed to load",
+  nothingToContinue: "Nothing to continue right now.",
+  emptyTitle: "No paths yet",
+  emptySubtitle: "Enroll in a path to get started",
+  progressSuffix: "complete"
+};
+const lessons$1 = {
+  selectToBegin: "Select a lesson to begin.",
+  lessonInfo: "Lesson {{current}} of {{total}} • {{xp}} XP",
+  previousLesson: "Previous lesson",
+  completeAndContinue: "Complete and Continue",
+  markAsCompleted: "Mark as Completed",
+  submitAnswer: "Submit Answer",
+  loginToTrack: "You need to be logged in to track progress",
+  progressSaveFailed: "Failed to save progress",
+  lessonCompleted: "Lesson marked as completed!",
+  completionError: "Error marking lesson as completed"
+};
+const admin$1 = {
+  paths: {
+    title: "Learning Paths",
+    "new": "New learning path",
+    edit: "Edit learning path",
+    "delete": "Delete learning path",
+    deleteConfirm: 'This action cannot be undone. Deleting a path will remove all associated courses, modules, and lessons. Make sure you really want to remove "{{title}}".',
+    created: "Learning path created",
+    updated: "Learning path updated",
+    deleted: "Learning path deleted",
+    validation: {
+      titleMin: "Title must have at least 3 characters",
+      slugMin: "Slug must have at least 3 characters",
+      slugFormat: "Slug must be lowercase with hyphens only"
+    }
+  },
+  courses: {
+    title: "Courses",
+    "new": "New course",
+    edit: "Edit course",
+    "delete": "Delete course",
+    deleteConfirm: 'This action cannot be undone. Make sure you really want to remove "{{title}}".',
+    created: "Course created",
+    updated: "Course updated",
+    deleted: "Course deleted"
+  },
+  modules: {
+    title: "Modules",
+    "new": "New module",
+    edit: "Edit module",
+    "delete": "Delete module",
+    deleteConfirm: 'This action cannot be undone. Make sure you really want to remove "{{title}}".',
+    created: "Module created",
+    updated: "Module updated",
+    deleted: "Module deleted"
+  },
+  lessons: {
+    title: "Lessons",
+    "new": "New lesson",
+    edit: "Edit lesson",
+    "delete": "Delete lesson",
+    deleteConfirm: 'This action cannot be undone. Make sure you really want to remove "{{title}}".',
+    created: "Lesson created",
+    updated: "Lesson updated",
+    deleted: "Lesson deleted"
+  }
+};
+const application$1 = {
+  submit: "Submit Application",
+  selectTimeline: "Select timeline",
+  timelineImmediate: "Immediate (next 30 days)",
+  timelineQuarter: "This quarter"
+};
+const scoreboard$1 = {
+  title: "Scoreboard",
+  subtitle: "Check out the rankings of students with the most XP",
+  global: "Global",
+  byPath: "By Path",
+  rankingGlobal: "Global Ranking - All Paths",
+  ranking: "Ranking - {{pathName}}",
+  xp: "XP",
+  lessons: "lessons"
+};
+const achievements$1 = {
+  title: "Achievements",
+  subtitle: "Complete tasks and earn extra XP to climb the rankings",
+  completed: "Completed",
+  inProgress: "In Progress",
+  xpEarned: "XP Earned",
+  xpAvailable: "XP Available",
+  xpReward: "XP Reward",
+  progress: "Progress",
+  all: "All",
+  completedBadge: "Completed",
+  locked: "Locked",
+  overallProgress: "Overall Progress",
+  completedOf: "of {{total}} achievements unlocked",
+  emptyState: {
+    title: "No Achievements Here Yet",
+    descriptionAll: "Start your learning journey to unlock achievements and earn XP!",
+    descriptionCategory: "Complete tasks in the {{category}} category to unlock achievements here."
+  },
+  sidebar: {
+    overview: "Your Progress",
+    nextSuggested: "Suggested Next",
+    gettingStarted: "Getting Started",
+    keepGoing: "Keep Going!",
+    hoverTip: "Hover over any achievement to see detailed information here.",
+    inProgressMessage: "You have {{count}} achievements in progress. Great momentum!",
+    quickWinsTip: "Start with Profile category achievements for easy wins.",
+    halfwayThere: "You're halfway there! Only {{remaining}} more to go.",
+    allComplete: "Amazing! You've completed all achievements!"
+  },
+  categories: {
+    community: "Community",
+    profile: "Profile",
+    learning: "Learning",
+    social: "Social"
+  },
+  tasks: {
+    telegramJoin: {
+      title: "Join Telegram Group",
+      description: "Join our community on Telegram and stay updated with all the news",
+      action: "Join Telegram"
+    },
+    discordJoin: {
+      title: "Join Discord",
+      description: "Connect with other students and mentors on our Discord server",
+      action: "Join Discord"
+    },
+    firstMessage: {
+      title: "First Message",
+      description: "Send your first message in any community channel"
+    },
+    emailVerify: {
+      title: "Verify your Email",
+      description: "Confirm your email address through the link sent",
+      action: "Resend Email"
+    },
+    completeProfile: {
+      title: "Complete your Profile",
+      description: "Fill in all your professional profile information",
+      action: "Go to Profile"
+    },
+    githubConnect: {
+      title: "Connect your GitHub",
+      description: "Link your GitHub account to your profile",
+      action: "Connect GitHub"
+    },
+    linkedinConnect: {
+      title: "Connect your LinkedIn",
+      description: "Link your LinkedIn account to your profile",
+      action: "Connect LinkedIn"
+    },
+    twitterFollow: {
+      title: "Follow on Twitter",
+      description: "Follow @ForgeCollege on Twitter to stay updated",
+      action: "Follow on Twitter"
+    },
+    shareProgress: {
+      title: "Share your Progress",
+      description: "Share your learning journey on social media"
+    },
+    firstLesson: {
+      title: "First Lesson",
+      description: "Complete your first lesson in any path"
+    },
+    weekStreak: {
+      title: "7-Day Streak",
+      description: "Study for 7 consecutive days"
+    },
+    completePath: {
+      title: "Complete a Path",
+      description: "Finish all lessons in a learning path"
+    },
+    perfectQuiz: {
+      title: "Perfect Quiz",
+      description: "Score 100% on a quiz"
+    }
+  }
+};
+const enUS = {
+  common: common$1,
+  nav: nav$1,
+  auth: auth$1,
+  profile: profile$1,
+  profileDropdown: profileDropdown$1,
+  dashboard: dashboard$1,
+  lessons: lessons$1,
+  admin: admin$1,
+  application: application$1,
+  scoreboard: scoreboard$1,
+  achievements: achievements$1
+};
+const common = {
+  buttons: {
+    login: "Entrar",
+    signIn: "Entrar",
+    signUp: "Cadastrar",
+    cancel: "Cancelar",
+    "delete": "Excluir",
+    save: "Salvar Alterações",
+    saving: "Salvando...",
+    loading: "Carregando...",
+    submit: "Enviar",
+    tryAgain: "Tentar Novamente",
+    "continue": "Continuar",
+    continueLearning: "Continuar aprendendo",
+    send: "Enviar",
+    edit: "Editar",
+    create: "Criar",
+    update: "Atualizar",
+    close: "Fechar",
+    next: "Próximo",
+    previous: "Anterior",
+    testConnection: "Testar Conexão",
+    testing: "Testando..."
+  },
+  labels: {
+    email: "E-mail",
+    password: "Senha",
+    confirmPassword: "Confirmar Senha",
+    fullName: "Nome Completo",
+    country: "País",
+    city: "Cidade",
+    languages: "Idiomas",
+    language: "Idioma"
+  },
+  placeholders: {
+    email: "m@exemplo.com",
+    emailDemo: "demo@exemplo.com",
+    enterFullName: "Digite seu nome completo",
+    selectCountry: "Selecione seu país",
+    enterCity: "Digite sua cidade",
+    typeLanguage: "Digite um idioma e pressione Enter"
+  },
+  errors: {
+    required: "Este campo é obrigatório",
+    invalidUrl: "Por favor, insira uma URL válida",
+    networkError: "Erro de conexão de rede. Por favor, verifique sua conexão com a internet e tente novamente.",
+    unexpectedError: "Ocorreu um erro inesperado. Por favor, tente novamente."
+  }
+};
+const nav = {
+  forProfessionals: "Para Profissionais",
+  forCompanies: "Para Empresas",
+  forInvestors: "Para Investidores",
+  dashboard: "Painel",
+  paths: "Trilhas",
+  admin: "Admin",
+  scoreboard: "Placar",
+  achievements: "Conquistas",
+  learn: "Aprender",
+  course: "Curso",
+  path: "Trilha",
+  myProfile: "Meu Perfil"
+};
+const auth = {
+  login: {
+    title: "Entrar",
+    submit: "Entrar",
+    ssoGoogle: "Continuar com Google",
+    ssoGithub: "Continuar com GitHub",
+    orContinueWith: "Ou continue com",
+    dontHaveAccount: "Não tem uma conta?",
+    forgotPassword: "Esqueceu sua senha?",
+    errors: {
+      invalidCredentials: "E-mail ou senha inválidos. Por favor, verifique suas credenciais e tente novamente.",
+      emailNotConfirmed: "Por favor, verifique seu e-mail e clique no link de confirmação antes de fazer login.",
+      tooManyAttempts: "Muitas tentativas de login. Por favor, aguarde um momento antes de tentar novamente.",
+      configError: "Erro de configuração do serviço de autenticação. Usando modo demo - tente e-mail: demo@exemplo.com, senha: demo123",
+      authServiceError: "Erro no serviço de autenticação. A instância do Supabase pode estar mal configurada.",
+      cannotConnect: "Não foi possível conectar ao serviço de autenticação. Por favor, verifique se o Supabase está configurado corretamente.",
+      googleFailed: "Login com Google falhou. Por favor, tente novamente.",
+      githubFailed: "Login com GitHub falhou. Por favor, tente novamente."
+    }
+  },
+  signup: {
+    title: "Criar Conta",
+    submit: "Cadastrar",
+    alreadyHaveAccount: "Já tem uma conta?",
+    passwordMismatch: "As senhas não coincidem",
+    success: "Verifique seu e-mail para o link de confirmação!",
+    notConfigured: "Serviço de autenticação não configurado. Por favor, contate o administrador."
+  },
+  forgotPassword: {
+    title: "Esqueci a Senha",
+    submit: "Enviar Link de Redefinição",
+    rememberedPassword: "Lembrou sua senha?"
+  },
+  updatePassword: {
+    title: "Atualizar Senha",
+    success: "Senha atualizada com sucesso! Redirecionando para o login..."
+  },
+  logout: {
+    button: "Sair",
+    signingOut: "Saindo..."
+  }
+};
+const profile = {
+  title: "Meu Perfil",
+  subtitle: "Gerencie suas informações pessoais e profissionais",
+  unsavedChanges: "Você tem alterações não salvas",
+  loadingProfile: "Carregando perfil...",
+  failedToLoad: "Falha ao carregar perfil",
+  sections: {
+    personal: "Informações Pessoais",
+    personalDesc: "Atualize seus dados pessoais básicos e informações de contato",
+    professional: "Perfil Profissional",
+    professionalDesc: "Compartilhe sua experiência de trabalho, habilidades e informações de carreira",
+    learning: "Progresso de Aprendizado",
+    learningDesc: "Acompanhe sua jornada de aprendizado e conquistas",
+    career: "Preferências de Carreira",
+    careerDesc: "Defina suas preferências de trabalho e objetivos de carreira"
+  },
+  fields: {
+    yearsExperience: "Anos de Experiência em Tecnologia",
+    positionCompany: "Cargo e Empresa",
+    positionPlaceholder: "ex: Desenvolvedor Sênior @ ACME",
+    stacksDominated: "Stacks Dominadas",
+    stacksDesc: "Tecnologias nas quais você é proficiente",
+    stacksPlaceholder: "ex: Java, Python, Solidity, React",
+    skillsToDevelop: "Habilidades a Desenvolver",
+    skillsDesc: "Áreas que você quer melhorar",
+    skillsPlaceholder: "ex: DeFi, Smart Contracts, Web3",
+    linkedinUrl: "URL do LinkedIn",
+    linkedinPlaceholder: "https://linkedin.com/in/usuario",
+    githubUrl: "URL do GitHub",
+    githubPlaceholder: "https://github.com/usuario",
+    languagePreference: "Preferência de Idioma",
+    selectLanguage: "Selecione seu idioma preferido"
+  },
+  errors: {
+    fullNameRequired: "Nome completo é obrigatório",
+    countryRequired: "País é obrigatório",
+    invalidLinkedin: "Por favor, insira uma URL válida do LinkedIn",
+    invalidGithub: "Por favor, insira uma URL válida do GitHub"
+  },
+  messages: {
+    emailNote: "O e-mail só pode ser alterado nas configurações da conta",
+    validationError: "Por favor, corrija os erros antes de salvar.",
+    updateSuccess: "Perfil atualizado com sucesso!",
+    updateError: "Falha ao atualizar perfil. Por favor, tente novamente."
+  },
+  comingSoon: {
+    title: "Em Breve",
+    learning: "O acompanhamento do progresso de aprendizado estará disponível na próxima atualização.",
+    career: "As preferências de carreira estarão disponíveis na próxima atualização."
+  }
+};
+const profileDropdown = {
+  myAccount: "Minha Conta",
+  profile: "Perfil",
+  admin: "Admin",
+  connectWallet: "Conectar Carteira"
+};
+const dashboard = {
+  welcomeBack: "Bem-vindo de volta",
+  loading: "Carregando...",
+  notFound: "Não encontrado",
+  readMore: "Ler mais",
+  readLess: "Ler menos",
+  enrollToStart: "Inscreva-se para começar",
+  enroll: "Inscrever",
+  enrolling: "Inscrevendo...",
+  enrolled: "Inscrito",
+  viewDetails: "Ver Detalhes",
+  mustLoginToEnroll: "Você deve estar logado para se inscrever",
+  enrollSuccess: "Inscrito com sucesso!",
+  enrollError: "Falha ao inscrever",
+  loadError: "Falha ao carregar",
+  nothingToContinue: "Nada para continuar agora.",
+  emptyTitle: "Sem trilhas ainda",
+  emptySubtitle: "Inscreva-se em uma trilha para começar",
+  progressSuffix: "completo"
+};
+const lessons = {
+  selectToBegin: "Selecione uma lição para começar.",
+  lessonInfo: "Lição {{current}} de {{total}} • {{xp}} XP",
+  previousLesson: "Lição anterior",
+  completeAndContinue: "Completar e Continuar",
+  markAsCompleted: "Marcar como Concluído",
+  submitAnswer: "Enviar Resposta",
+  loginToTrack: "Você precisa estar logado para acompanhar o progresso",
+  progressSaveFailed: "Falha ao salvar progresso",
+  lessonCompleted: "Lição marcada como concluída!",
+  completionError: "Erro ao marcar lição como concluída"
+};
+const admin = {
+  paths: {
+    title: "Trilhas de Aprendizado",
+    "new": "Nova trilha de aprendizado",
+    edit: "Editar trilha de aprendizado",
+    "delete": "Excluir trilha de aprendizado",
+    deleteConfirm: 'Esta ação não pode ser desfeita. Excluir uma trilha removerá todos os cursos, módulos e lições associados. Tem certeza de que deseja remover "{{title}}"?',
+    created: "Trilha de aprendizado criada",
+    updated: "Trilha de aprendizado atualizada",
+    deleted: "Trilha de aprendizado excluída",
+    validation: {
+      titleMin: "O título deve ter pelo menos 3 caracteres",
+      slugMin: "O slug deve ter pelo menos 3 caracteres",
+      slugFormat: "O slug deve ser minúsculo apenas com hífens"
+    }
+  },
+  courses: {
+    title: "Cursos",
+    "new": "Novo curso",
+    edit: "Editar curso",
+    "delete": "Excluir curso",
+    deleteConfirm: 'Esta ação não pode ser desfeita. Tem certeza de que deseja remover "{{title}}"?',
+    created: "Curso criado",
+    updated: "Curso atualizado",
+    deleted: "Curso excluído"
+  },
+  modules: {
+    title: "Módulos",
+    "new": "Novo módulo",
+    edit: "Editar módulo",
+    "delete": "Excluir módulo",
+    deleteConfirm: 'Esta ação não pode ser desfeita. Tem certeza de que deseja remover "{{title}}"?',
+    created: "Módulo criado",
+    updated: "Módulo atualizado",
+    deleted: "Módulo excluído"
+  },
+  lessons: {
+    title: "Lições",
+    "new": "Nova lição",
+    edit: "Editar lição",
+    "delete": "Excluir lição",
+    deleteConfirm: 'Esta ação não pode ser desfeita. Tem certeza de que deseja remover "{{title}}"?',
+    created: "Lição criada",
+    updated: "Lição atualizada",
+    deleted: "Lição excluída"
+  }
+};
+const application = {
+  submit: "Enviar Inscrição",
+  selectTimeline: "Selecionar prazo",
+  timelineImmediate: "Imediato (próximos 30 dias)",
+  timelineQuarter: "Este trimestre"
+};
+const scoreboard = {
+  title: "Scoreboard",
+  subtitle: "Confira os rankings dos estudantes com maior XP",
+  global: "Global",
+  byPath: "Por Path",
+  rankingGlobal: "Ranking Global - Todos os Paths",
+  ranking: "Ranking - {{pathName}}",
+  xp: "XP",
+  lessons: "lições"
+};
+const achievements = {
+  title: "Achievements",
+  subtitle: "Complete tarefas e ganhe XP extra para subir no ranking",
+  completed: "Concluídos",
+  inProgress: "Em Progresso",
+  xpEarned: "XP Ganho",
+  xpAvailable: "XP Disponível",
+  progress: "Progresso",
+  all: "Todos",
+  completedBadge: "✓ Concluído",
+  locked: "🔒 Bloqueado",
+  categories: {
+    community: "Comunidade",
+    profile: "Perfil",
+    learning: "Aprendizado",
+    social: "Social"
+  },
+  tasks: {
+    telegramJoin: {
+      title: "Entre no Grupo Telegram",
+      description: "Junte-se à nossa comunidade no Telegram e fique por dentro de todas as novidades",
+      action: "Entrar no Telegram"
+    },
+    discordJoin: {
+      title: "Entre no Discord",
+      description: "Conecte-se com outros estudantes e mentores no nosso servidor Discord",
+      action: "Entrar no Discord"
+    },
+    firstMessage: {
+      title: "Primeira Mensagem",
+      description: "Envie sua primeira mensagem em qualquer canal da comunidade"
+    },
+    emailVerify: {
+      title: "Verifique seu Email",
+      description: "Confirme seu endereço de email através do link enviado",
+      action: "Reenviar Email"
+    },
+    completeProfile: {
+      title: "Complete seu Perfil",
+      description: "Preencha todas as informações do seu perfil profissional",
+      action: "Ir para Perfil"
+    },
+    githubConnect: {
+      title: "Conecte seu GitHub",
+      description: "Vincule sua conta do GitHub ao seu perfil",
+      action: "Conectar GitHub"
+    },
+    linkedinConnect: {
+      title: "Conecte seu LinkedIn",
+      description: "Vincule sua conta do LinkedIn ao seu perfil",
+      action: "Conectar LinkedIn"
+    },
+    twitterFollow: {
+      title: "Siga no Twitter",
+      description: "Siga @ForgeCollege no Twitter para ficar atualizado",
+      action: "Seguir no Twitter"
+    },
+    shareProgress: {
+      title: "Compartilhe seu Progresso",
+      description: "Compartilhe sua jornada de aprendizado nas redes sociais"
+    },
+    firstLesson: {
+      title: "Primeira Lição",
+      description: "Complete sua primeira lição em qualquer path"
+    },
+    weekStreak: {
+      title: "Sequência de 7 Dias",
+      description: "Estude por 7 dias consecutivos"
+    },
+    completePath: {
+      title: "Complete um Path",
+      description: "Finalize todas as lições de um learning path"
+    },
+    perfectQuiz: {
+      title: "Quiz Perfeito",
+      description: "Acerte 100% das questões em um quiz"
+    }
+  }
+};
+const ptBR = {
+  common,
+  nav,
+  auth,
+  profile,
+  profileDropdown,
+  dashboard,
+  lessons,
+  admin,
+  application,
+  scoreboard,
+  achievements
+};
+const LANGUAGE_COOKIE = "app_language";
+const getLanguageFromCookie = () => {
+  const cookies = document.cookie.split(";");
+  const langCookie = cookies.find((cookie) => cookie.trim().startsWith(`${LANGUAGE_COOKIE}=`));
+  return langCookie ? langCookie.split("=")[1] : "en-US";
+};
+const saveLanguageToCookie = (language) => {
+  const expires = /* @__PURE__ */ new Date();
+  expires.setFullYear(expires.getFullYear() + 1);
+  document.cookie = `${LANGUAGE_COOKIE}=${language};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+};
+i18n.use(initReactI18next).init({
+  resources: {
+    "en-US": { translation: enUS },
+    "pt-BR": { translation: ptBR }
+  },
+  lng: getLanguageFromCookie(),
+  fallbackLng: "en-US",
+  interpolation: {
+    escapeValue: false
+  }
+});
+i18n.on("languageChanged", (lng) => {
+  saveLanguageToCookie(lng);
+});
 const version = "2.56.0";
 let JS_ENV = "";
 if (typeof Deno !== "undefined") {
@@ -438,19 +1192,48 @@ const IGNORE_BASE64URL = " 	\n\r=".split("");
   }
   return charMap;
 })();
+const getSupabaseConfig = () => {
+  const url = "https://fdeblavnrrnoyqivydsg.supabase.co";
+  const anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkZWJsYXZucnJub3lxaXZ5ZHNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTgxMzgsImV4cCI6MjA3MDA3NDEzOH0.iaK-5qda3SZGkSwSJRB5ejyJ1Ky8S2tPOxRAPAap_FI";
+  {
+    return { url, anonKey };
+  }
+};
+let supabaseConfig;
+try {
+  supabaseConfig = getSupabaseConfig();
+} catch (error) {
+  console.error("Supabase config error:", error);
+  throw error;
+}
+let browserClient = null;
 function createClientBrowser() {
-  return createClient(
-    "https://fdeblavnrrnoyqivydsg.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkZWJsYXZucnJub3lxaXZ5ZHNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0OTgxMzgsImV4cCI6MjA3MDA3NDEzOH0.iaK-5qda3SZGkSwSJRB5ejyJ1Ky8S2tPOxRAPAap_FI",
+  if (browserClient) return browserClient;
+  const { url, anonKey } = supabaseConfig;
+  browserClient = createClient(
+    url,
+    anonKey,
     {
       auth: {
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: true,
-        flowType: "pkce"
+        flowType: "pkce",
+        debug: process.env.NODE_ENV === "development"
+      },
+      global: {
+        headers: {
+          "X-Client-Info": "forge-college-web"
+        }
+      },
+      realtime: {
+        params: {
+          eventsPerSecond: 10
+        }
       }
     }
   );
+  return browserClient;
 }
 const AuthContext = createContext(void 0);
 function OAuthProvider({ children }) {
@@ -699,6 +1482,22 @@ function useToast() {
 }
 function cn(...inputs) {
   return twMerge(clsx(inputs));
+}
+function getOAuthRedirectUrl() {
+  try {
+    if (typeof window === "undefined") return "/auth/callback";
+    const origin = window.location.origin;
+    const host = window.location.hostname;
+    if (host.includes("localhost") || host.startsWith("127.")) {
+      return `${origin}/auth/callback`;
+    }
+    if (host === "forge.college") {
+      return `https://app.forge.college/auth/callback`;
+    }
+    return `${origin}/auth/callback`;
+  } catch {
+    return "/auth/callback";
+  }
 }
 const ToastProvider = ToastPrimitives.Provider;
 const ToastViewport = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
@@ -2328,6 +3127,167 @@ const NotFound = () => {
     /* @__PURE__ */ jsx("a", { href: "/", className: "text-blue-500 hover:text-blue-700 underline", children: "Return to Home" })
   ] }) });
 };
+function createDebugClient() {
+  const { url, anonKey } = supabaseConfig;
+  console.log("Debug: Supabase URL:", url);
+  console.log("Debug: Supabase Key (first 20 chars):", anonKey.substring(0, 20) + "...");
+  return createClient(url, anonKey, {
+    auth: {
+      autoRefreshToken: false,
+      // Disable auto refresh for debugging
+      persistSession: false,
+      // Disable session persistence for debugging
+      detectSessionInUrl: false,
+      // Disable URL detection for debugging
+      flowType: "implicit",
+      debug: true
+    },
+    global: {
+      headers: {
+        "X-Client-Info": "forge-college-debug"
+      },
+      fetch: (url2, options = {}) => {
+        console.log("Debug: Fetch request to:", url2);
+        console.log("Debug: Fetch options:", options);
+        return fetch(url2, {
+          ...options,
+          headers: {
+            ...options.headers,
+            "User-Agent": "forge-college-debug/1.0"
+          }
+        }).then((response) => {
+          console.log("Debug: Response status:", response.status);
+          console.log("Debug: Response headers:", Object.fromEntries(response.headers.entries()));
+          const clonedResponse = response.clone();
+          clonedResponse.text().then((text) => {
+            console.log("Debug: Response body:", text.substring(0, 200) + (text.length > 200 ? "..." : ""));
+          }).catch((err) => {
+            console.log("Debug: Could not read response body:", err);
+          });
+          return response;
+        }).catch((error) => {
+          console.error("Debug: Fetch error:", error);
+          throw error;
+        });
+      }
+    }
+  });
+}
+async function testSupabaseConnection() {
+  try {
+    const client = createDebugClient();
+    const { url, anonKey } = supabaseConfig;
+    console.log("Testing Supabase connection...");
+    const healthResponse = await fetch(`${url}/rest/v1/`, {
+      headers: {
+        "apikey": anonKey
+      }
+    });
+    console.log("Health check status:", healthResponse.status);
+    if (!healthResponse.ok) {
+      throw new Error(`Supabase health check failed: ${healthResponse.status}`);
+    }
+    let authResponse;
+    let authStatus = "unknown";
+    let authResponseText = "Could not read response";
+    try {
+      authResponse = await fetch(`${url}/auth/v1/signup`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": anonKey
+        },
+        body: JSON.stringify({
+          email: "test@example.com",
+          password: "test123456"
+        })
+      });
+      authStatus = authResponse.status.toString();
+      console.log("Auth endpoint status:", authResponse.status);
+      const clonedResponse = authResponse.clone();
+      try {
+        authResponseText = await clonedResponse.text();
+        console.log("Auth response:", authResponseText.substring(0, 200));
+      } catch (textError) {
+        console.log("Could not read auth response text:", textError);
+        authResponseText = `Error reading response: ${textError}`;
+      }
+    } catch (fetchError) {
+      console.error("Auth endpoint fetch failed:", fetchError);
+      authStatus = "fetch_failed";
+      authResponseText = `Fetch error: ${fetchError}`;
+    }
+    return {
+      success: true,
+      healthStatus: healthResponse.status,
+      authStatus,
+      authResponse: authResponseText
+    };
+  } catch (error) {
+    console.error("Supabase connection test failed:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error"
+    };
+  }
+}
+const mockAuth = {
+  signInWithPassword: async ({ email, password }) => {
+    await new Promise((resolve) => setTimeout(resolve, 1e3));
+    if (email === "demo@example.com" && password === "demo123") {
+      return {
+        data: {
+          user: {
+            id: "mock-user-id",
+            email: "demo@example.com",
+            user_metadata: {
+              name: "Demo User"
+            }
+          },
+          session: {
+            access_token: "mock-access-token",
+            refresh_token: "mock-refresh-token"
+          }
+        },
+        error: null
+      };
+    }
+    return {
+      data: { user: null, session: null },
+      error: {
+        message: "Invalid login credentials",
+        status: 400
+      }
+    };
+  },
+  signInWithOAuth: async ({ provider }) => {
+    console.log(`Mock OAuth redirect for ${provider}`);
+    window.location.href = `/auth/callback?provider=${provider}&mock=true`;
+    return { data: null, error: null };
+  },
+  signOut: async () => {
+    return { error: null };
+  },
+  getSession: async () => {
+    return {
+      data: { session: null },
+      error: null
+    };
+  },
+  onAuthStateChange: () => {
+    return {
+      data: {
+        subscription: {
+          unsubscribe: () => {
+          }
+        }
+      }
+    };
+  }
+};
+function shouldUseMockAuth() {
+  return false;
+}
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
@@ -2452,17 +3412,24 @@ CardFooter.displayName = "CardFooter";
 const ROOT = "/";
 const COMPANIES = "/companies";
 const INVESTORS = "/investors";
+const OLD_HIDDEN = "/old/hidden/index";
 const LOGIN = "/login";
 const SIGNUP = "/signup";
 const FORGOT_PASSWORD = "/forgot-password";
 const UPDATE_PASSWORD = "/update-password";
 const DASHBOARD = "/dashboard";
 const DASHBOARD_EXPLORE = "/dashboard/explore";
+const DASHBOARD_ADMIN = "/dashboard/admin";
+const DASHBOARD_SCOREBOARD = "/dashboard/scoreboard";
+const DASHBOARD_ACHIEVEMENTS = "/dashboard/achievements";
 const DASHBOARD_LEARN_COURSE = (courseId) => `/dashboard/learn/course/${courseId}`;
 const DASHBOARD_LEARN_PATH = (pathId) => `/dashboard/learn/path/${pathId}`;
 const ROUTE_LABELS = {
   [DASHBOARD]: "Dashboard",
   [DASHBOARD_EXPLORE]: "Paths",
+  [DASHBOARD_ADMIN]: "Admin",
+  [DASHBOARD_SCOREBOARD]: "Scoreboard",
+  [DASHBOARD_ACHIEVEMENTS]: "Achievements",
   LEARN: "Learn",
   COURSE: "Course",
   PATH: "Path",
@@ -2470,30 +3437,71 @@ const ROUTE_LABELS = {
   PAGE: "Page"
 };
 function Login() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [testing, setTesting] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const handleLogin = async (e) => {
-    var _a, _b;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m;
     e.preventDefault();
     setError(null);
     setLoading(true);
     try {
+      if (shouldUseMockAuth()) ;
+      console.log("Attempting Supabase authentication...");
       const supabase2 = createClientBrowser();
-      const { data, error: error2 } = await supabase2.auth.signInWithPassword({ email, password });
+      const { data, error: error2 } = await supabase2.auth.signInWithPassword({
+        email: email.trim(),
+        password
+      });
+      console.log("Login response:", { data: !!data, error: error2 == null ? void 0 : error2.message });
       if (error2) {
-        throw error2;
+        if ((_a = error2.message) == null ? void 0 : _a.includes("Invalid login credentials")) {
+          throw new Error("Invalid email or password. Please check your credentials and try again.");
+        } else if ((_b = error2.message) == null ? void 0 : _b.includes("Email not confirmed")) {
+          throw new Error("Please check your email and click the confirmation link before signing in.");
+        } else if ((_c = error2.message) == null ? void 0 : _c.includes("Too many requests")) {
+          throw new Error("Too many login attempts. Please wait a moment before trying again.");
+        } else if ((_d = error2.message) == null ? void 0 : _d.includes("body stream already read")) {
+          console.log("Supabase error detected, falling back to mock auth...");
+          const { data: mockData, error: mockError } = await mockAuth.signInWithPassword({
+            email: email.trim(),
+            password
+          });
+          if (mockError) {
+            throw new Error(mockError.message);
+          }
+          if (mockData == null ? void 0 : mockData.user) {
+            localStorage.setItem("mock-auth-user", JSON.stringify(mockData.user));
+            const from = ((_f = (_e = location.state) == null ? void 0 : _e.from) == null ? void 0 : _f.pathname) || DASHBOARD;
+            navigate(from, { replace: true });
+          }
+          return;
+        } else {
+          throw new Error(error2.message || "Login failed");
+        }
       }
-      const from = ((_b = (_a = location.state) == null ? void 0 : _a.from) == null ? void 0 : _b.pathname) || DASHBOARD;
-      navigate(from, { replace: true });
+      if (data == null ? void 0 : data.user) {
+        console.log("Login successful, redirecting...");
+        const from = ((_h = (_g = location.state) == null ? void 0 : _g.from) == null ? void 0 : _h.pathname) || DASHBOARD;
+        navigate(from, { replace: true });
+      }
     } catch (error2) {
-      if (error2.message.includes("fetch") || error2.message.includes("network")) {
-        setError("Authentication service not configured. Please contact the administrator.");
+      console.error("Login error:", error2);
+      if ((_i = error2.message) == null ? void 0 : _i.includes("body stream already read")) {
+        setError("Authentication service configuration error. Using demo mode - try email: demo@example.com, password: demo123");
+      } else if (((_j = error2.message) == null ? void 0 : _j.includes("fetch")) || ((_k = error2.message) == null ? void 0 : _k.includes("network"))) {
+        setError("Network connection error. Please check your internet connection and try again.");
+      } else if ((_l = error2.message) == null ? void 0 : _l.includes("Failed to execute")) {
+        setError("Authentication service error. The Supabase instance may be misconfigured.");
+      } else if ((_m = error2.message) == null ? void 0 : _m.includes("Supabase connection failed")) {
+        setError("Cannot connect to authentication service. Please check if Supabase is properly configured.");
       } else {
-        setError(error2.message);
+        setError(error2.message || "An unexpected error occurred. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -2507,12 +3515,16 @@ function Login() {
       const { error: error2 } = await supabase2.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: getOAuthRedirectUrl()
         }
       });
-      if (error2) throw error2;
+      if (error2) {
+        console.error("Google OAuth error:", error2);
+        throw new Error("Google sign-in failed. Please try again.");
+      }
     } catch (error2) {
-      setError(error2.message);
+      console.error("Google login error:", error2);
+      setError(error2.message || "Google sign-in failed. Please try again.");
       setLoading(false);
     }
   };
@@ -2524,12 +3536,16 @@ function Login() {
       const { error: error2 } = await supabase2.auth.signInWithOAuth({
         provider: "github",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: getOAuthRedirectUrl()
         }
       });
-      if (error2) throw error2;
+      if (error2) {
+        console.error("GitHub OAuth error:", error2);
+        throw new Error("GitHub sign-in failed. Please try again.");
+      }
     } catch (error2) {
-      setError(error2.message);
+      console.error("GitHub login error:", error2);
+      setError(error2.message || "GitHub sign-in failed. Please try again.");
       setLoading(false);
     }
   };
@@ -2540,116 +3556,144 @@ function Login() {
     ] }),
     /* @__PURE__ */ jsxs(Card, { className: "w-full max-w-md bg-white/95 backdrop-blur-sm border border-forge-orange/20 shadow-xl relative z-10", children: [
       /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsx(CardTitle, { className: "text-forge-dark text-2xl font-bold", children: "Login" }) }),
-      /* @__PURE__ */ jsx(CardContent, { children: /* @__PURE__ */ jsx("form", { onSubmit: handleLogin, children: /* @__PURE__ */ jsxs("div", { className: "grid gap-4", children: [
-        /* @__PURE__ */ jsxs("div", { className: "grid gap-2", children: [
-          /* @__PURE__ */ jsx(Label, { htmlFor: "email", className: "text-forge-dark font-medium", children: "Email" }),
+      /* @__PURE__ */ jsxs(CardContent, { children: [
+        shouldUseMockAuth(),
+        /* @__PURE__ */ jsx("form", { onSubmit: handleLogin, children: /* @__PURE__ */ jsxs("div", { className: "grid gap-4", children: [
+          /* @__PURE__ */ jsxs("div", { className: "grid gap-2", children: [
+            /* @__PURE__ */ jsx(Label, { htmlFor: "email", className: "text-forge-dark font-medium", children: "Email" }),
+            /* @__PURE__ */ jsx(
+              Input,
+              {
+                id: "email",
+                type: "email",
+                placeholder: "m@example.com",
+                required: true,
+                value: email,
+                onChange: (e) => setEmail(e.target.value),
+                className: "border-forge-orange/20 focus:border-forge-orange focus:ring-forge-orange/20"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxs("div", { className: "grid gap-2", children: [
+            /* @__PURE__ */ jsx(Label, { htmlFor: "password", className: "text-forge-dark font-medium", children: "Password" }),
+            /* @__PURE__ */ jsx(
+              Input,
+              {
+                id: "password",
+                type: "password",
+                required: true,
+                value: password,
+                onChange: (e) => setPassword(e.target.value),
+                className: "border-forge-orange/20 focus:border-forge-orange focus:ring-forge-orange/20"
+              }
+            )
+          ] }),
+          error && /* @__PURE__ */ jsx("p", { className: "text-red-500 text-sm bg-red-50 p-3 rounded-lg border border-red-200", children: error }),
           /* @__PURE__ */ jsx(
-            Input,
-            {
-              id: "email",
-              type: "email",
-              placeholder: "m@example.com",
-              required: true,
-              value: email,
-              onChange: (e) => setEmail(e.target.value),
-              className: "border-forge-orange/20 focus:border-forge-orange focus:ring-forge-orange/20"
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxs("div", { className: "grid gap-2", children: [
-          /* @__PURE__ */ jsx(Label, { htmlFor: "password", className: "text-forge-dark font-medium", children: "Password" }),
-          /* @__PURE__ */ jsx(
-            Input,
-            {
-              id: "password",
-              type: "password",
-              required: true,
-              value: password,
-              onChange: (e) => setPassword(e.target.value),
-              className: "border-forge-orange/20 focus:border-forge-orange focus:ring-forge-orange/20"
-            }
-          )
-        ] }),
-        error && /* @__PURE__ */ jsx("p", { className: "text-red-500 text-sm bg-red-50 p-3 rounded-lg border border-red-200", children: error }),
-        /* @__PURE__ */ jsx(
-          Button,
-          {
-            type: "submit",
-            className: "w-full bg-forge-orange text-white hover:bg-forge-orange-light transition-all duration-200 shadow-lg hover:shadow-xl font-semibold py-3 rounded-xl",
-            disabled: loading,
-            children: loading ? "Loading..." : "Login"
-          }
-        ),
-        /* @__PURE__ */ jsxs("div", { className: "relative my-6", children: [
-          /* @__PURE__ */ jsx("div", { className: "absolute inset-0 flex items-center", children: /* @__PURE__ */ jsx("span", { className: "w-full border-t border-forge-orange/20" }) }),
-          /* @__PURE__ */ jsx("div", { className: "relative flex justify-center text-xs uppercase", children: /* @__PURE__ */ jsx("span", { className: "bg-white px-2 text-forge-gray", children: "Or continue with" }) })
-        ] }),
-        /* @__PURE__ */ jsxs("div", { className: "grid gap-3", children: [
-          /* @__PURE__ */ jsxs(
             Button,
             {
-              type: "button",
-              variant: "outline",
-              onClick: handleGoogleLogin,
-              className: "w-full border-forge-orange/20 hover:border-forge-orange hover:bg-forge-orange/5 transition-all duration-200 font-medium py-3 rounded-xl group",
+              type: "submit",
+              className: "w-full bg-forge-orange text-white hover:bg-forge-orange-light transition-all duration-200 shadow-lg hover:shadow-xl font-semibold py-3 rounded-xl",
               disabled: loading,
-              children: [
-                /* @__PURE__ */ jsxs("svg", { className: "w-6 h-6 mr-3 transition-transform group-hover:scale-110", viewBox: "0 0 24 24", children: [
-                  /* @__PURE__ */ jsx(
-                    "path",
-                    {
-                      fill: "#4285F4",
-                      d: "M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                    }
-                  ),
-                  /* @__PURE__ */ jsx(
-                    "path",
-                    {
-                      fill: "#34A853",
-                      d: "M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    }
-                  ),
-                  /* @__PURE__ */ jsx(
-                    "path",
-                    {
-                      fill: "#FBBC05",
-                      d: "M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                    }
-                  ),
-                  /* @__PURE__ */ jsx(
-                    "path",
-                    {
-                      fill: "#EA4335",
-                      d: "M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                    }
-                  )
-                ] }),
-                "Continue with Google"
-              ]
+              children: loading ? "Loading..." : "Login"
             }
           ),
-          /* @__PURE__ */ jsxs(
+          /* @__PURE__ */ jsxs("div", { className: "relative my-6", children: [
+            /* @__PURE__ */ jsx("div", { className: "absolute inset-0 flex items-center", children: /* @__PURE__ */ jsx("span", { className: "w-full border-t border-forge-orange/20" }) }),
+            /* @__PURE__ */ jsx("div", { className: "relative flex justify-center text-xs uppercase", children: /* @__PURE__ */ jsx("span", { className: "bg-white px-2 text-forge-gray", children: "Or continue with" }) })
+          ] }),
+          /* @__PURE__ */ jsxs("div", { className: "grid gap-3", children: [
+            /* @__PURE__ */ jsxs(
+              Button,
+              {
+                type: "button",
+                variant: "outline",
+                onClick: handleGoogleLogin,
+                className: "w-full border-forge-orange/20 hover:border-forge-orange hover:bg-forge-orange/5 transition-all duration-200 font-medium py-3 rounded-xl group",
+                disabled: loading,
+                children: [
+                  /* @__PURE__ */ jsxs("svg", { className: "w-6 h-6 mr-3 transition-transform group-hover:scale-110", viewBox: "0 0 24 24", children: [
+                    /* @__PURE__ */ jsx(
+                      "path",
+                      {
+                        fill: "#4285F4",
+                        d: "M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                      }
+                    ),
+                    /* @__PURE__ */ jsx(
+                      "path",
+                      {
+                        fill: "#34A853",
+                        d: "M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                      }
+                    ),
+                    /* @__PURE__ */ jsx(
+                      "path",
+                      {
+                        fill: "#FBBC05",
+                        d: "M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                      }
+                    ),
+                    /* @__PURE__ */ jsx(
+                      "path",
+                      {
+                        fill: "#EA4335",
+                        d: "M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                      }
+                    )
+                  ] }),
+                  "Continue with Google"
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxs(
+              Button,
+              {
+                type: "button",
+                variant: "outline",
+                onClick: handleGithubLogin,
+                className: "w-full border-forge-orange/20 hover:border-forge-orange hover:bg-forge-orange/5 transition-all duration-200 font-medium py-3 rounded-xl group",
+                disabled: loading,
+                children: [
+                  /* @__PURE__ */ jsx(Github, { className: "w-6 h-6 mr-3 transition-transform group-hover:scale-110" }),
+                  "Continue with GitHub"
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxs("div", { className: "mt-4 text-center text-sm", children: [
+            /* @__PURE__ */ jsx("span", { className: "text-forge-gray", children: "Don't have an account?" }),
+            " ",
+            /* @__PURE__ */ jsx(Link, { to: "/signup", className: "text-forge-orange hover:text-forge-orange-light font-medium underline transition-colors", children: "Sign up" })
+          ] }),
+          /* @__PURE__ */ jsx("div", { className: "text-center text-sm", children: /* @__PURE__ */ jsx(Link, { to: "/forgot-password", className: "text-forge-orange hover:text-forge-orange-light font-medium underline transition-colors", children: "Forgot your password?" }) }),
+          process.env.NODE_ENV === "development" && /* @__PURE__ */ jsx("div", { className: "text-center", children: /* @__PURE__ */ jsxs(
             Button,
             {
               type: "button",
               variant: "outline",
-              onClick: handleGithubLogin,
-              className: "w-full border-forge-orange/20 hover:border-forge-orange hover:bg-forge-orange/5 transition-all duration-200 font-medium py-3 rounded-xl group",
-              disabled: loading,
+              size: "sm",
+              onClick: async () => {
+                setTesting(true);
+                try {
+                  const result = await testSupabaseConnection();
+                  alert(`Connection test ${result.success ? "passed" : "failed"}: ${JSON.stringify(result, null, 2)}`);
+                } catch (err) {
+                  alert(`Connection test error: ${err}`);
+                } finally {
+                  setTesting(false);
+                }
+              },
+              disabled: testing,
+              className: "text-xs",
               children: [
-                /* @__PURE__ */ jsx(Github, { className: "w-6 h-6 mr-3 transition-transform group-hover:scale-110" }),
-                "Continue with GitHub"
+                /* @__PURE__ */ jsx(Bug, { className: "w-3 h-3 mr-1" }),
+                testing ? "Testing..." : "Test Connection"
               ]
             }
-          )
-        ] }),
-        /* @__PURE__ */ jsxs("div", { className: "mt-4 text-center text-sm", children: [
-          /* @__PURE__ */ jsx("span", { className: "text-forge-gray", children: "Don't have an account?" }),
-          " ",
-          /* @__PURE__ */ jsx(Link, { to: "/signup", className: "text-forge-orange hover:text-forge-orange-light font-medium underline transition-colors", children: "Sign up" })
-        ] }),
-        /* @__PURE__ */ jsx("div", { className: "text-center text-sm", children: /* @__PURE__ */ jsx(Link, { to: "/forgot-password", className: "text-forge-orange hover:text-forge-orange-light font-medium underline transition-colors", children: "Forgot your password?" }) })
-      ] }) }) })
+          ) })
+        ] }) })
+      ] })
     ] })
   ] });
 }
@@ -2672,7 +3716,7 @@ function SignUp() {
     try {
       const supabase2 = createClientBrowser();
       const { error: error2 } = await supabase2.auth.signUp({ email, password });
-      if (error2) throw error2;
+      if (error2) throw new Error(error2.message || "Sign up failed");
       setMessage("Check your email for the confirmation link!");
     } catch (error2) {
       if (error2.message.includes("fetch") || error2.message.includes("network")) {
@@ -2692,10 +3736,10 @@ function SignUp() {
       const { error: error2 } = await supabase2.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: getOAuthRedirectUrl()
         }
       });
-      if (error2) throw error2;
+      if (error2) throw new Error(error2.message || "OAuth sign-in failed");
     } catch (error2) {
       setError(error2.message);
       setLoading(false);
@@ -2709,10 +3753,10 @@ function SignUp() {
       const { error: error2 } = await supabase2.auth.signInWithOAuth({
         provider: "github",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: getOAuthRedirectUrl()
         }
       });
-      if (error2) throw error2;
+      if (error2) throw new Error(error2.message || "OAuth sign-in failed");
     } catch (error2) {
       setError(error2.message);
       setLoading(false);
@@ -2867,7 +3911,7 @@ function ForgotPassword() {
       const { error: error2 } = await supabase2.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/update-password`
       });
-      if (error2) throw error2;
+      if (error2) throw new Error(error2.message || "Failed to send reset email");
       setMessage("Check your email for a password reset link.");
     } catch (error2) {
       setError(error2.message);
@@ -2988,6 +4032,7 @@ const SheetContent = React.forwardRef(({ side = "right", className, children, ..
       className: cn(sheetVariants({ side }), className),
       ...props,
       children: [
+        /* @__PURE__ */ jsx(SheetPrimitive.Title, { className: "sr-only", children: "Menu" }),
         children,
         /* @__PURE__ */ jsxs(SheetPrimitive.Close, { className: "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary", children: [
           /* @__PURE__ */ jsx(X, { className: "h-4 w-4" }),
@@ -3736,9 +4781,12 @@ const AvatarFallback = React.forwardRef(({ className, ...props }, ref) => /* @__
 ));
 AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName;
 function ProfileDropdown() {
-  var _a;
+  var _a, _b;
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { signOut: oAuthSignOut, loading: signOutLoading } = useOAuth();
+  let mockUser = null;
+  const isAdmin = Boolean(((_a = user == null ? void 0 : user.app_metadata) == null ? void 0 : _a.is_admin) || (mockUser == null ? void 0 : mockUser.is_admin));
   const handleLogout = async () => {
     try {
       await oAuthSignOut();
@@ -3752,11 +4800,11 @@ function ProfileDropdown() {
     return email.substring(0, 2).toUpperCase();
   };
   const getUserDisplayName = () => {
-    var _a2, _b;
+    var _a2, _b2;
     if ((_a2 = user == null ? void 0 : user.user_metadata) == null ? void 0 : _a2.full_name) {
       return user.user_metadata.full_name;
     }
-    if ((_b = user == null ? void 0 : user.user_metadata) == null ? void 0 : _b.name) {
+    if ((_b2 = user == null ? void 0 : user.user_metadata) == null ? void 0 : _b2.name) {
       return user.user_metadata.name;
     }
     if (user == null ? void 0 : user.email) {
@@ -3770,45 +4818,171 @@ function ProfileDropdown() {
   return /* @__PURE__ */ jsxs(DropdownMenu, { children: [
     /* @__PURE__ */ jsx(DropdownMenuTrigger, { asChild: true, children: /* @__PURE__ */ jsxs(Button, { variant: "ghost", className: "w-full justify-start gap-2 px-2", children: [
       /* @__PURE__ */ jsxs(Avatar, { className: "h-8 w-8", children: [
-        /* @__PURE__ */ jsx(AvatarImage, { src: (_a = user == null ? void 0 : user.user_metadata) == null ? void 0 : _a.avatar_url }),
+        /* @__PURE__ */ jsx(AvatarImage, { src: (_b = user == null ? void 0 : user.user_metadata) == null ? void 0 : _b.avatar_url }),
         /* @__PURE__ */ jsx(AvatarFallback, { children: getInitials(user == null ? void 0 : user.email) })
       ] }),
-      /* @__PURE__ */ jsxs("div", { className: "hidden flex-col items-start text-left group-data-[collapsible=icon]:hidden", children: [
+      /* @__PURE__ */ jsxs("div", { className: "flex flex-col items-start text-left group-data-[collapsible=icon]:hidden", children: [
         /* @__PURE__ */ jsx("span", { className: "text-sm font-medium", children: getUserDisplayName() }),
         /* @__PURE__ */ jsx("span", { className: "text-xs text-muted-foreground", children: user == null ? void 0 : user.email })
       ] })
     ] }) }),
     /* @__PURE__ */ jsxs(DropdownMenuContent, { align: "end", className: "w-56", children: [
-      /* @__PURE__ */ jsx(DropdownMenuLabel, { children: "My Account" }),
+      /* @__PURE__ */ jsx(DropdownMenuLabel, { children: t("profileDropdown.myAccount") }),
       /* @__PURE__ */ jsx(DropdownMenuSeparator, {}),
       /* @__PURE__ */ jsx(DropdownMenuItem, { asChild: true, children: /* @__PURE__ */ jsxs(Link, { to: "/dashboard/profile", children: [
         /* @__PURE__ */ jsx(User, { className: "mr-2 h-4 w-4" }),
-        /* @__PURE__ */ jsx("span", { children: "Profile" })
+        /* @__PURE__ */ jsx("span", { children: t("profileDropdown.profile") })
+      ] }) }),
+      isAdmin && /* @__PURE__ */ jsx(DropdownMenuItem, { asChild: true, children: /* @__PURE__ */ jsxs(Link, { to: "/dashboard/admin", children: [
+        /* @__PURE__ */ jsx(Shield, { className: "mr-2 h-4 w-4" }),
+        /* @__PURE__ */ jsx("span", { children: t("profileDropdown.admin") })
       ] }) }),
       /* @__PURE__ */ jsxs(DropdownMenuItem, { children: [
         /* @__PURE__ */ jsx(Wallet, { className: "mr-2 h-4 w-4" }),
-        /* @__PURE__ */ jsx("span", { children: "Connect Wallet" })
+        /* @__PURE__ */ jsx("span", { children: t("profileDropdown.connectWallet") })
       ] }),
       /* @__PURE__ */ jsx(DropdownMenuSeparator, {}),
       /* @__PURE__ */ jsxs(DropdownMenuItem, { onClick: handleLogout, disabled: signOutLoading, children: [
         /* @__PURE__ */ jsx(LogOut, { className: "mr-2 h-4 w-4" }),
-        /* @__PURE__ */ jsx("span", { children: signOutLoading ? "Signing out..." : "Log Out" })
+        /* @__PURE__ */ jsx("span", { children: signOutLoading ? t("auth.logout.signingOut") : t("auth.logout.button") })
       ] })
     ] })
   ] });
 }
+const Breadcrumb = React.forwardRef(({ ...props }, ref) => /* @__PURE__ */ jsx("nav", { ref, "aria-label": "breadcrumb", ...props }));
+Breadcrumb.displayName = "Breadcrumb";
+const BreadcrumbList = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  "ol",
+  {
+    ref,
+    className: cn(
+      "flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground sm:gap-2.5",
+      className
+    ),
+    ...props
+  }
+));
+BreadcrumbList.displayName = "BreadcrumbList";
+const BreadcrumbItem = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  "li",
+  {
+    ref,
+    className: cn("inline-flex items-center gap-1.5", className),
+    ...props
+  }
+));
+BreadcrumbItem.displayName = "BreadcrumbItem";
+const BreadcrumbLink = React.forwardRef(({ asChild, className, ...props }, ref) => {
+  const Comp = asChild ? Slot : "a";
+  return /* @__PURE__ */ jsx(
+    Comp,
+    {
+      ref,
+      className: cn("transition-colors hover:text-foreground", className),
+      ...props
+    }
+  );
+});
+BreadcrumbLink.displayName = "BreadcrumbLink";
+const BreadcrumbPage = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  "span",
+  {
+    ref,
+    role: "link",
+    "aria-disabled": "true",
+    "aria-current": "page",
+    className: cn("font-normal text-foreground", className),
+    ...props
+  }
+));
+BreadcrumbPage.displayName = "BreadcrumbPage";
+const BreadcrumbSeparator = ({
+  children,
+  className,
+  ...props
+}) => /* @__PURE__ */ jsx(
+  "li",
+  {
+    role: "presentation",
+    "aria-hidden": "true",
+    className: cn("[&>svg]:size-3.5", className),
+    ...props,
+    children: children ?? /* @__PURE__ */ jsx(ChevronRight, {})
+  }
+);
+BreadcrumbSeparator.displayName = "BreadcrumbSeparator";
+function MobileMenuButton() {
+  const { toggleSidebar } = useSidebar();
+  return /* @__PURE__ */ jsx(
+    "button",
+    {
+      className: "md:hidden p-2 rounded-lg border border-forge-orange/20 bg-forge-cream/90 text-forge-dark hover:text-forge-orange shadow-sm",
+      "aria-label": "Open menu",
+      onClick: toggleSidebar,
+      children: /* @__PURE__ */ jsx(Menu, { size: 22 })
+    }
+  );
+}
 function DashboardLayout() {
-  const { loading } = useAuth();
+  var _a;
+  const { user, loading } = useAuth();
   const location = useLocation();
+  const isDashboard = location.pathname === DASHBOARD;
+  const isExplore = location.pathname.startsWith(DASHBOARD_EXPLORE);
+  const isAdminRoute = location.pathname.startsWith(DASHBOARD_ADMIN);
+  const isScoreboard = location.pathname.startsWith(DASHBOARD_SCOREBOARD);
+  const isAchievements = location.pathname.startsWith(DASHBOARD_ACHIEVEMENTS);
+  const [headerBreadcrumb, setHeaderBreadcrumb] = useState(null);
+  let mockUser = null;
+  const isAdmin = Boolean(((_a = user == null ? void 0 : user.app_metadata) == null ? void 0 : _a.is_admin) || (mockUser == null ? void 0 : mockUser.is_admin));
+  const defaultBreadcrumbItems = useMemo(() => {
+    const segments = location.pathname.split("/").filter(Boolean);
+    const items = [];
+    items.push({ label: ROUTE_LABELS[DASHBOARD], to: DASHBOARD });
+    if (segments.length <= 1) return items;
+    const second = segments[1];
+    if (second === "explore") {
+      items.push({ label: ROUTE_LABELS[DASHBOARD_EXPLORE] });
+    } else if (second === "profile") {
+      items.push({ label: ROUTE_LABELS.PROFILE });
+    } else if (second === "scoreboard") {
+      items.push({ label: ROUTE_LABELS[DASHBOARD_SCOREBOARD] });
+    } else if (second === "achievements") {
+      items.push({ label: ROUTE_LABELS[DASHBOARD_ACHIEVEMENTS] });
+    } else if (second === "admin") {
+      items.push({ label: ROUTE_LABELS[DASHBOARD_ADMIN] });
+      const third = segments[2];
+      if (third) {
+        const labelMap = {
+          paths: "Learning Paths",
+          courses: "Courses",
+          modules: "Modules",
+          lessons: "Lessons"
+        };
+        const label = labelMap[third];
+        if (label) {
+          items.push({ label });
+        }
+      }
+    } else if (second === "learn") {
+      const third = segments[2];
+      if (third === "course") {
+        items.push({ label: ROUTE_LABELS.LEARN, to: DASHBOARD_EXPLORE });
+        items.push({ label: ROUTE_LABELS.COURSE });
+      } else if (third === "path") {
+        items.push({ label: ROUTE_LABELS.LEARN, to: DASHBOARD_EXPLORE });
+        items.push({ label: ROUTE_LABELS.PATH });
+      }
+    }
+    return items;
+  }, [location.pathname]);
   if (loading) {
     return /* @__PURE__ */ jsx("div", { className: "min-h-screen flex items-center justify-center", children: /* @__PURE__ */ jsxs("div", { className: "text-center", children: [
       /* @__PURE__ */ jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-b-2 border-forge-orange mx-auto mb-4" }),
       /* @__PURE__ */ jsx("p", { className: "text-forge-gray", children: "Loading dashboard..." })
     ] }) });
   }
-  const isDashboard = location.pathname === DASHBOARD;
-  const isExplore = location.pathname.startsWith(DASHBOARD_EXPLORE);
-  return /* @__PURE__ */ jsxs(SidebarProvider, { children: [
+  return /* @__PURE__ */ jsxs(SidebarProvider, { defaultOpen: false, children: [
     /* @__PURE__ */ jsxs(Sidebar, { collapsible: "icon", children: [
       /* @__PURE__ */ jsx(SidebarRail, {}),
       /* @__PURE__ */ jsx(SidebarHeader, { className: "p-4", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between w-full", children: [
@@ -3831,6 +5005,18 @@ function DashboardLayout() {
           /* @__PURE__ */ jsx(BookOpen, {}),
           /* @__PURE__ */ jsx("span", { className: "group-data-[collapsible=icon]:hidden", children: "Paths" })
         ] }) }) }),
+        /* @__PURE__ */ jsx(SidebarMenuItem, { children: /* @__PURE__ */ jsx(SidebarMenuButton, { asChild: true, isActive: isScoreboard, tooltip: "Scoreboard", children: /* @__PURE__ */ jsxs(Link, { to: DASHBOARD_SCOREBOARD, children: [
+          /* @__PURE__ */ jsx(Trophy, {}),
+          /* @__PURE__ */ jsx("span", { className: "group-data-[collapsible=icon]:hidden", children: "Scoreboard" })
+        ] }) }) }),
+        /* @__PURE__ */ jsx(SidebarMenuItem, { children: /* @__PURE__ */ jsx(SidebarMenuButton, { asChild: true, isActive: isAchievements, tooltip: "Achievements", children: /* @__PURE__ */ jsxs(Link, { to: DASHBOARD_ACHIEVEMENTS, children: [
+          /* @__PURE__ */ jsx(Award, {}),
+          /* @__PURE__ */ jsx("span", { className: "group-data-[collapsible=icon]:hidden", children: "Achievements" })
+        ] }) }) }),
+        isAdmin && /* @__PURE__ */ jsx(SidebarMenuItem, { children: /* @__PURE__ */ jsx(SidebarMenuButton, { asChild: true, isActive: isAdminRoute, tooltip: "Admin", children: /* @__PURE__ */ jsxs(Link, { to: DASHBOARD_ADMIN, children: [
+          /* @__PURE__ */ jsx(Shield, {}),
+          /* @__PURE__ */ jsx("span", { className: "group-data-[collapsible=icon]:hidden", children: "Admin" })
+        ] }) }) }),
         /* @__PURE__ */ jsx(SidebarMenuItem, { children: /* @__PURE__ */ jsxs(Tooltip, { children: [
           /* @__PURE__ */ jsx(TooltipTrigger, { asChild: true, children: /* @__PURE__ */ jsxs(SidebarMenuButton, { disabled: true, children: [
             /* @__PURE__ */ jsx(Lock, {}),
@@ -3842,8 +5028,17 @@ function DashboardLayout() {
       /* @__PURE__ */ jsx(SidebarFooter, { className: "p-2", children: /* @__PURE__ */ jsx(ProfileDropdown, {}) })
     ] }),
     /* @__PURE__ */ jsxs(SidebarInset, { children: [
-      /* @__PURE__ */ jsxs("div", { className: "flex h-16 items-center justify-between px-6 border-b bg-white border-forge-cream", children: [
-        /* @__PURE__ */ jsx("div", { className: "flex items-center space-x-3", children: /* @__PURE__ */ jsx("h1", { className: "text-2xl font-semibold text-forge-dark", children: isDashboard ? "Dashboard" : isExplore ? "Paths" : "Dashboard" }) }),
+      /* @__PURE__ */ jsxs("div", { className: "flex h-16 items-center justify-between px-4 sm:px-6 border-b bg-white border-forge-cream", children: [
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
+          /* @__PURE__ */ jsx(MobileMenuButton, {}),
+          headerBreadcrumb ? /* @__PURE__ */ jsx("div", { className: "hidden md:block", children: headerBreadcrumb }) : /* @__PURE__ */ jsx("div", { className: "hidden md:block", children: /* @__PURE__ */ jsx(Breadcrumb, { children: /* @__PURE__ */ jsx(BreadcrumbList, { children: defaultBreadcrumbItems.map((item, index) => {
+            const isLast = index === defaultBreadcrumbItems.length - 1;
+            return /* @__PURE__ */ jsxs(React__default.Fragment, { children: [
+              /* @__PURE__ */ jsx(BreadcrumbItem, { children: isLast || !item.to ? /* @__PURE__ */ jsx(BreadcrumbPage, { children: item.label }) : /* @__PURE__ */ jsx(BreadcrumbLink, { asChild: true, children: /* @__PURE__ */ jsx(Link, { to: item.to, children: item.label }) }) }),
+              !isLast && /* @__PURE__ */ jsx(BreadcrumbSeparator, {})
+            ] }, `${item.label}-${index}`);
+          }) }) }) })
+        ] }),
         /* @__PURE__ */ jsx("div", { className: "flex items-center space-x-4" })
       ] }),
       /* @__PURE__ */ jsxs("div", { className: "px-6 py-8 relative", children: [
@@ -3851,7 +5046,7 @@ function DashboardLayout() {
           /* @__PURE__ */ jsx("div", { className: "absolute -top-6 right-6 w-32 h-32 bg-forge-cream rounded-full blur-2xl" }),
           /* @__PURE__ */ jsx("div", { className: "absolute bottom-0 left-10 w-24 h-24 bg-forge-orange/10 rounded-full blur-2xl" })
         ] }),
-        /* @__PURE__ */ jsx(Outlet, {})
+        /* @__PURE__ */ jsx(Outlet, { context: { setHeaderBreadcrumb } })
       ] })
     ] })
   ] });
@@ -3875,7 +5070,7 @@ function UpdatePassword() {
     try {
       const supabase2 = createClientBrowser();
       const { error: error2 } = await supabase2.auth.updateUser({ password });
-      if (error2) throw error2;
+      if (error2) throw new Error(error2.message || "Failed to update password");
       setMessage("Password updated successfully! Redirecting to login...");
       setTimeout(() => navigate("/login"), 3e3);
     } catch (error2) {
@@ -4155,6 +5350,7 @@ function QuizLesson({ quizData }) {
 function LessonViewer({ lesson, course, onLessonChange }) {
   const { user } = useAuth();
   const [isCompleting, setIsCompleting] = useState(false);
+  const supabase2 = createClientBrowser();
   if (!lesson) {
     return /* @__PURE__ */ jsx("div", { className: "flex-1 flex items-center justify-center", children: /* @__PURE__ */ jsx("p", { children: "Select a lesson to begin." }) });
   }
@@ -4173,7 +5369,7 @@ function LessonViewer({ lesson, course, onLessonChange }) {
     }
     setIsCompleting(true);
     try {
-      const { error } = await supabase.from("user_progress").upsert(
+      const { error } = await supabase2.from("user_progress").upsert(
         {
           user_id: user.id,
           lesson_id: lesson.id,
@@ -4182,7 +5378,7 @@ function LessonViewer({ lesson, course, onLessonChange }) {
         },
         { onConflict: "user_id,lesson_id" }
       );
-      if (error) throw error;
+      if (error) throw new Error(error.message || "Failed to save progress");
       toast$1.success("Lesson marked as completed!");
       if (nextLesson) {
         onLessonChange(nextLesson);
@@ -4244,33 +5440,261 @@ function LessonViewer({ lesson, course, onLessonChange }) {
     ] })
   ] });
 }
+const __vite_import_meta_env__ = {};
+function normalizeContext({ courseTitle, lessonTitle, lessonType, lessonContent }) {
+  let body = "";
+  if (typeof lessonContent === "string") body = lessonContent;
+  else if (lessonContent) body = JSON.stringify(lessonContent);
+  const header = `Course: ${courseTitle || ""}
+Lesson: ${lessonTitle || ""}
+Type: ${lessonType || ""}`.trim();
+  return `${header}
+
+${body}`.slice(0, 8e3);
+}
+function LessonAIChat(props) {
+  const contextText = useMemo(() => normalizeContext(props), [props.courseTitle, props.lessonTitle, props.lessonType, props.lessonContent]);
+  const [suggestions, setSuggestions] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  const listRef = useRef(null);
+  const clientKey = __vite_import_meta_env__ == null ? void 0 : __vite_import_meta_env__.VITE_OPENAI_API_KEY;
+  const clientModel = (__vite_import_meta_env__ == null ? void 0 : __vite_import_meta_env__.VITE_OPENAI_MODEL) || "gpt-4o-mini";
+  const fetchSuggestionsClient = async () => {
+    var _a, _b, _c, _d;
+    if (!clientKey) return null;
+    try {
+      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${clientKey}` },
+        body: JSON.stringify({
+          model: clientModel,
+          messages: [
+            { role: "system", content: "You are an expert course assistant. Generate three concise, distinct, helpful questions based on the provided lesson context. Return ONLY a JSON array of three strings." },
+            { role: "user", content: `Lesson context (may be truncated):
+
+${contextText}` }
+          ],
+          temperature: 0.7,
+          max_tokens: 256
+        })
+      });
+      const raw = await res.text();
+      if (!res.ok) {
+        console.error("AI suggest client error:", raw);
+        return null;
+      }
+      let text = "";
+      try {
+        text = ((_d = (_c = (_b = (_a = JSON.parse(raw)) == null ? void 0 : _a.choices) == null ? void 0 : _b[0]) == null ? void 0 : _c.message) == null ? void 0 : _d.content) || "";
+      } catch {
+        text = "";
+      }
+      const cleaned = text.replace(/```[a-z]*\n?/gi, "").replace(/```/g, "").trim();
+      let list = [];
+      const match = cleaned.match(/\[[\s\S]*\]/);
+      if (match) {
+        try {
+          const arr = JSON.parse(match[0]);
+          if (Array.isArray(arr)) list = arr;
+        } catch {
+        }
+      }
+      if (!list.length) {
+        list = cleaned.split("\n").map((s) => s.replace(/^[-*\d.\s]+/, "").replace(/^\"|\",?$/g, "").replace(/,$/, "").trim()).filter(Boolean);
+      }
+      return list.map((s) => s.replace(/^\"|\"$/g, "").trim()).slice(0, 3);
+    } catch (e) {
+      console.error("AI suggest client exception:", e);
+      return null;
+    }
+  };
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      setSuggestionsLoading(true);
+      setSuggestions([]);
+      try {
+        const res = await fetch("/api/ai-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mode: "suggest", lessonContext: contextText })
+        });
+        if (!res.ok) {
+          console.error("AI suggest error status:", res.status, res.statusText);
+          const fallback = await fetchSuggestionsClient();
+          if (fallback) setSuggestions(fallback);
+          return;
+        }
+        let data = null;
+        try {
+          data = await res.json();
+        } catch (err) {
+          console.error("AI suggest parse error (json)");
+          return;
+        }
+        if (Array.isArray(data == null ? void 0 : data.suggestions)) setSuggestions(data.suggestions);
+      } catch (e) {
+        console.error("AI suggest exception:", e);
+        const fallback = await fetchSuggestionsClient();
+        if (fallback) setSuggestions(fallback);
+      } finally {
+        setSuggestionsLoading(false);
+      }
+    };
+    fetchSuggestions();
+  }, [contextText]);
+  useEffect(() => {
+    var _a;
+    (_a = listRef.current) == null ? void 0 : _a.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages]);
+  const send = async (text) => {
+    var _a, _b, _c;
+    if (!text.trim()) return;
+    const userMsg = { role: "user", content: text.trim() };
+    setMessages((m) => [...m, userMsg]);
+    setInput("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "chat",
+          lessonContext: contextText,
+          messages: [{ role: "user", content: text.trim() }]
+        })
+      });
+      if (!res.ok) {
+        if (clientKey) {
+          try {
+            const cres = await fetch("https://api.openai.com/v1/chat/completions", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Authorization: `Bearer ${clientKey}` },
+              body: JSON.stringify({
+                model: clientModel,
+                messages: [
+                  { role: "system", content: 'You are "AI Instructor", a concise, friendly tutor for software and blockchain courses.' },
+                  { role: "system", content: `Lesson context: ${contextText}` },
+                  { role: "user", content: text.trim() }
+                ],
+                temperature: 0.5,
+                max_tokens: 700
+              })
+            });
+            if (cres.ok) {
+              const cjson = await cres.json().catch(() => null);
+              const reply2 = ((_c = (_b = (_a = cjson == null ? void 0 : cjson.choices) == null ? void 0 : _a[0]) == null ? void 0 : _b.message) == null ? void 0 : _c.content) || "";
+              setMessages((m) => [...m, { role: "assistant", content: reply2 || "No reply" }]);
+              return;
+            }
+          } catch (fe) {
+            console.error("AI chat client exception:", fe);
+          }
+        }
+        const msg = `Error: ${res.status} ${res.statusText}`;
+        setMessages((m) => [...m, { role: "assistant", content: msg }]);
+        return;
+      }
+      let data = null;
+      try {
+        data = await res.json();
+      } catch {
+        data = null;
+      }
+      const reply = (data == null ? void 0 : data.reply) || "Sorry, I could not generate an answer.";
+      setMessages((m) => [...m, { role: "assistant", content: reply }]);
+    } catch (e) {
+      console.error("AI chat exception:", e);
+      setMessages((m) => [...m, { role: "assistant", content: "There was an error contacting the AI service." }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  return /* @__PURE__ */ jsxs(Card, { className: "h-full max-h-full flex flex-col text-xs", children: [
+    /* @__PURE__ */ jsx(CardHeader, { className: "pb-3", children: /* @__PURE__ */ jsxs(CardTitle, { className: "text-sm flex items-center gap-2", children: [
+      /* @__PURE__ */ jsx(Bot, { className: "h-4 w-4 text-forge-dark" }),
+      /* @__PURE__ */ jsx("span", { children: "AI Instructor" })
+    ] }) }),
+    /* @__PURE__ */ jsxs(CardContent, { className: "flex-1 min-h-0 flex flex-col gap-3 text-xs", children: [
+      /* @__PURE__ */ jsxs("div", { ref: listRef, className: "flex-1 min-h-0 overflow-y-auto rounded-md border p-3 bg-white flex flex-col gap-2", children: [
+        suggestionsLoading && /* @__PURE__ */ jsx("div", { className: "text-[11px] text-muted-foreground", children: "Loading suggestions..." }),
+        !!suggestions.length && !suggestionsLoading && /* @__PURE__ */ jsx("div", { className: "grid gap-2", children: suggestions.map((q, i) => /* @__PURE__ */ jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => send(q),
+            className: "w-full text-left border rounded-lg p-3 bg-white hover:bg-forge-cream transition-colors shadow-sm",
+            children: [
+              /* @__PURE__ */ jsx("div", { className: "text-[10px] text-muted-foreground mb-1", children: "Suggestion" }),
+              /* @__PURE__ */ jsx("div", { className: "text-xs", children: q })
+            ]
+          },
+          i
+        )) }),
+        /* @__PURE__ */ jsx("div", { className: "flex-1" }),
+        messages.length === 0 && /* @__PURE__ */ jsx("div", { className: "text-xs text-muted-foreground", children: "Hint: Click on a suggested question or ask yours." }),
+        messages.map((m, i) => /* @__PURE__ */ jsxs("div", { className: m.role === "user" ? "text-right" : "text-left", children: [
+          /* @__PURE__ */ jsx("div", { className: "text-[10px] uppercase tracking-wide mb-1 text-muted-foreground", children: m.role === "user" ? "Me:" : "Instructor:" }),
+          /* @__PURE__ */ jsx("div", { className: "inline-block rounded-lg px-3 py-2 text-xs break-words whitespace-pre-wrap text-left " + (m.role === "user" ? "bg-forge-orange text-white max-w-[70%]" : "bg-forge-cream text-forge-dark"), children: m.content })
+        ] }, i)),
+        loading && /* @__PURE__ */ jsx("div", { className: "text-xs text-muted-foreground", children: "Thinking..." })
+      ] }),
+      /* @__PURE__ */ jsxs(
+        "form",
+        {
+          onSubmit: (e) => {
+            e.preventDefault();
+            send(input);
+          },
+          className: "flex gap-2",
+          children: [
+            /* @__PURE__ */ jsx(
+              Input,
+              {
+                placeholder: "Ask me about this lesson...",
+                value: input,
+                onChange: (e) => setInput(e.target.value)
+              }
+            ),
+            /* @__PURE__ */ jsx(Button, { type: "submit", disabled: loading, children: "Send" })
+          ]
+        }
+      )
+    ] })
+  ] });
+}
 function CourseView() {
   const { courseId } = useParams();
   const [currentLesson, setCurrentLesson] = useState(null);
+  const supabase2 = createClientBrowser();
+  const { setHeaderBreadcrumb } = useOutletContext();
   const { data: course, isLoading } = useQuery({
     queryKey: ["courseView", courseId],
     enabled: Boolean(courseId),
     queryFn: async () => {
-      const { data: courseData, error } = await supabase.from("courses").select(`
+      const { data: courseData, error } = await supabase2.from("courses").select(`
           id, title, description,
           modules:modules(id, title, order,
             lessons:lessons(id, title, content, lesson_type, order, xp_value)
           )
         `).eq("id", courseId).single();
-      if (error) throw error;
+      if (error) throw new Error(error.message || "Failed to load course");
+      const typedCourse = courseData;
       const normalized = {
-        id: courseData.id,
-        title: courseData.title,
-        description: courseData.description,
-        modules: (courseData.modules || []).map((m) => ({
-          id: m.id,
-          title: m.title,
-          lessons: (m.lessons || []).map((l) => ({
-            id: l.id,
-            title: l.title,
-            content: l.content,
-            lesson_type: l.lesson_type,
-            xp_value: l.xp_value ?? 0
+        id: typedCourse.id,
+        title: typedCourse.title,
+        description: typedCourse.description,
+        modules: (typedCourse.modules ?? []).slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((module) => ({
+          id: module.id,
+          title: module.title,
+          lessons: (module.lessons ?? []).slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((lesson) => ({
+            id: lesson.id,
+            title: lesson.title,
+            content: lesson.content,
+            lesson_type: lesson.lesson_type,
+            xp_value: lesson.xp_value ?? 0
           }))
         }))
       };
@@ -4280,6 +5704,22 @@ function CourseView() {
       return normalized;
     }
   });
+  useEffect(() => {
+    if (!course) return;
+    const crumb = /* @__PURE__ */ jsx(Breadcrumb, { children: /* @__PURE__ */ jsxs(BreadcrumbList, { children: [
+      /* @__PURE__ */ jsx(BreadcrumbItem, { children: /* @__PURE__ */ jsx(BreadcrumbLink, { asChild: true, children: /* @__PURE__ */ jsx(Link, { to: DASHBOARD, children: "Dashboard" }) }) }),
+      /* @__PURE__ */ jsx(BreadcrumbSeparator, {}),
+      /* @__PURE__ */ jsx(BreadcrumbItem, { children: /* @__PURE__ */ jsx(BreadcrumbLink, { asChild: true, children: /* @__PURE__ */ jsx(Link, { to: DASHBOARD_EXPLORE, children: "Paths" }) }) }),
+      /* @__PURE__ */ jsx(BreadcrumbSeparator, {}),
+      /* @__PURE__ */ jsx(BreadcrumbItem, { children: /* @__PURE__ */ jsx(BreadcrumbPage, { children: course.title }) }),
+      currentLesson && /* @__PURE__ */ jsxs(Fragment, { children: [
+        /* @__PURE__ */ jsx(BreadcrumbSeparator, {}),
+        /* @__PURE__ */ jsx(BreadcrumbItem, { children: /* @__PURE__ */ jsx(BreadcrumbPage, { children: currentLesson.title }) })
+      ] })
+    ] }) });
+    setHeaderBreadcrumb(crumb);
+    return () => setHeaderBreadcrumb(null);
+  }, [course == null ? void 0 : course.title, currentLesson == null ? void 0 : currentLesson.title, setHeaderBreadcrumb]);
   return /* @__PURE__ */ jsxs("div", { className: "flex gap-6", children: [
     /* @__PURE__ */ jsx("div", { className: "w-80 shrink-0 border rounded-md bg-white", children: isLoading || !course ? /* @__PURE__ */ jsx("div", { className: "p-4 text-gray-500", children: "Loading course..." }) : /* @__PURE__ */ jsx(
       CourseTableOfContents,
@@ -4289,11 +5729,20 @@ function CourseView() {
         onLessonClick: setCurrentLesson
       }
     ) }),
-    /* @__PURE__ */ jsx("div", { className: "flex-1 border rounded-md bg-white min-h-[60vh]", children: /* @__PURE__ */ jsx(LessonViewer, { lesson: currentLesson, course: course ?? null, onLessonChange: setCurrentLesson }) })
+    /* @__PURE__ */ jsx("div", { className: "flex-1 border rounded-md bg-white min-h-[60vh]", children: /* @__PURE__ */ jsx(LessonViewer, { lesson: currentLesson, course: course ?? null, onLessonChange: setCurrentLesson }) }),
+    /* @__PURE__ */ jsx("div", { className: "w-96 shrink-0 hidden md:block sticky top-6 self-start h-[calc(100vh-7rem)] max-h-[calc(100vh-7rem)]", children: /* @__PURE__ */ jsx(
+      LessonAIChat,
+      {
+        courseTitle: course == null ? void 0 : course.title,
+        lessonTitle: currentLesson == null ? void 0 : currentLesson.title,
+        lessonType: currentLesson == null ? void 0 : currentLesson.lesson_type,
+        lessonContent: currentLesson == null ? void 0 : currentLesson.content
+      }
+    ) })
   ] });
 }
 const getButtonClasses = (variant, size) => {
-  const baseClasses = "relative group overflow-hidden rounded-2xl font-semibold transition-all duration-200 transform hover:scale-[1.02]";
+  const baseClasses = "relative group inline-flex items-center justify-center overflow-hidden rounded-2xl font-semibold transition-all duration-200 transform hover:scale-[1.02]";
   const sizeClasses = {
     sm: "px-4 py-2 text-sm",
     md: "px-6 py-3 text-base",
@@ -4322,21 +5771,21 @@ const EnhancedButton = ({
   const gradientOverlay = withGradient && /* @__PURE__ */ jsx("div", { className: "absolute inset-0 bg-gradient-to-r from-forge-orange to-forge-orange-light opacity-0 group-hover:opacity-100 transition-opacity duration-200" });
   const defaultIcon = withIcon && !icon && /* @__PURE__ */ jsx(Flame, { size: 16 });
   const displayIcon = icon || defaultIcon;
-  if (asChild && React__default.isValidElement(children)) {
+  if (asChild && React.isValidElement(children)) {
     const childElement = children;
     const mergedClassName = cn(
       getButtonClasses(variant, size),
       (_a = childElement.props) == null ? void 0 : _a.className,
       className
     );
-    return React__default.cloneElement(
+    return React.cloneElement(
       childElement,
       {
         ...props,
         className: mergedClassName
       },
       /* @__PURE__ */ jsxs(Fragment, { children: [
-        /* @__PURE__ */ jsxs("span", { className: "relative z-10 flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxs("span", { className: "relative z-10 inline-flex items-center gap-2", children: [
           displayIcon,
           (_b = childElement.props) == null ? void 0 : _b.children
         ] }),
@@ -4382,11 +5831,12 @@ function PathOverview() {
   const { pathId } = useParams();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { data, isLoading } = useQuery({
+  const supabase2 = createClientBrowser();
+  const { data, isLoading, error } = useQuery({
     queryKey: ["pathOverview", pathId, user == null ? void 0 : user.id],
     enabled: Boolean(pathId),
     queryFn: async () => {
-      const { data: pathData, error: pathError } = await supabase.from("learning_paths").select("id, title, description, courses(id, title, description)").eq("id", pathId).single();
+      const { data: pathData, error: pathError } = await supabase2.from("learning_paths").select("id, title, description, courses(id, title, description)").eq("id", pathId).single();
       if (pathError) throw pathError;
       const path2 = {
         id: pathData.id,
@@ -4400,7 +5850,7 @@ function PathOverview() {
       };
       let isEnrolled2 = false;
       if (user) {
-        const { data: enroll, error: enrollErr } = await supabase.from("user_enrollments").select("learning_path_id").eq("user_id", user.id).eq("learning_path_id", pathId).eq("is_active", true).maybeSingle();
+        const { data: enroll, error: enrollErr } = await supabase2.from("user_enrollments").select("learning_path_id").eq("user_id", user.id).eq("learning_path_id", pathId).eq("is_active", true).maybeSingle();
         if (!enrollErr) isEnrolled2 = Boolean(enroll);
       }
       return { path: path2, isEnrolled: isEnrolled2 };
@@ -4409,8 +5859,8 @@ function PathOverview() {
   const enrollMutation = useMutation({
     mutationFn: async () => {
       if (!user || !pathId) throw new Error("Not authenticated");
-      const { error } = await supabase.from("user_enrollments").insert({ user_id: user.id, learning_path_id: pathId });
-      if (error) throw error;
+      const { error: error2 } = await supabase2.from("user_enrollments").insert({ user_id: user.id, learning_path_id: pathId });
+      if (error2) throw new Error(error2.message || "Failed to enroll");
     },
     onSuccess: () => {
       toast$1.success(DASHBOARD_STRINGS.pathOverview.continue);
@@ -4426,6 +5876,9 @@ function PathOverview() {
       /* @__PURE__ */ jsx("div", { className: "h-4 bg-gray-200 rounded mb-4" }),
       /* @__PURE__ */ jsx("div", { className: "h-20 bg-gray-100 rounded" })
     ] }) }) }, i)) });
+  }
+  if (error) {
+    console.error("Supabase error loading path overview:", error);
   }
   if (!data) {
     return /* @__PURE__ */ jsx("div", { className: "text-gray-500", children: DASHBOARD_STRINGS.pathOverview.notFound });
@@ -4465,6 +5918,10 @@ function AvailablePaths({ limit, className }) {
   const supabase2 = createClientBrowser();
   const { data: paths = [], isLoading } = useQuery({
     queryKey: ["availablePaths", user == null ? void 0 : user.id],
+    enabled: true,
+    staleTime: 6e4,
+    refetchOnWindowFocus: false,
+    keepPreviousData: true,
     queryFn: async () => {
       const { data: pathsData, error: pathsError } = await supabase2.from("learning_paths").select(`
           id, title, description,
@@ -4493,7 +5950,7 @@ function AvailablePaths({ limit, className }) {
     mutationFn: async (pathId) => {
       if (!user) throw new Error("Not authenticated");
       const { error } = await supabase2.from("user_enrollments").insert({ user_id: user.id, learning_path_id: pathId });
-      if (error) throw error;
+      if (error) throw new Error(error.message || "Failed to enroll");
       return pathId;
     },
     onMutate: (pathId) => {
@@ -4528,7 +5985,7 @@ function AvailablePaths({ limit, className }) {
   return /* @__PURE__ */ jsx("div", { className, children: /* @__PURE__ */ jsx("div", { className: "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 items-stretch", children: visiblePaths.map((path) => /* @__PURE__ */ jsxs(
     Card,
     {
-      className: `relative border-forge-cream/80 hover:shadow-md transition-shadow h-full min-h-[300px] flex flex-col ${path.isEnrolled ? "ring-1 ring-forge-orange/20" : ""}`,
+      className: `relative overflow-hidden border-forge-cream/80 hover:shadow-md transition-shadow h-full min-h-[300px] flex flex-col ${path.isEnrolled ? "ring-1 ring-forge-orange/20" : ""}`,
       children: [
         path.isEnrolled && /* @__PURE__ */ jsxs("div", { className: "absolute top-2 right-2 bg-forge-orange text-white px-1.5 py-0.5 rounded-full text-[10px] font-medium flex items-center gap-1 shadow-sm", children: [
           /* @__PURE__ */ jsx(Flame, { className: "h-3 w-3" }),
@@ -4545,7 +6002,7 @@ function AvailablePaths({ limit, className }) {
             DASHBOARD_STRINGS.availablePaths.courses(path.courseCount || 0)
           ] })
         ] }),
-        /* @__PURE__ */ jsx(CardContent, { className: "space-y-2 mt-auto", children: path.isEnrolled ? /* @__PURE__ */ jsx(Link, { to: DASHBOARD_LEARN_PATH(path.id), children: /* @__PURE__ */ jsx(EnhancedButton, { className: "w-full text-sm py-2", size: "sm", withGradient: true, children: DASHBOARD_STRINGS.availablePaths.continueLearning }) }) : /* @__PURE__ */ jsxs(Fragment, { children: [
+        /* @__PURE__ */ jsx(CardContent, { className: "space-y-2 mt-auto", children: path.isEnrolled ? /* @__PURE__ */ jsx(EnhancedButton, { className: "w-full text-sm py-2", size: "sm", withGradient: true, asChild: true, children: /* @__PURE__ */ jsx(Link, { to: DASHBOARD_LEARN_PATH(path.id), children: DASHBOARD_STRINGS.availablePaths.continueLearning }) }) : /* @__PURE__ */ jsxs(Fragment, { children: [
           /* @__PURE__ */ jsx(
             EnhancedButton,
             {
@@ -4557,14 +6014,70 @@ function AvailablePaths({ limit, className }) {
               children: enrollingId === path.id ? DASHBOARD_STRINGS.availablePaths.enrolling : DASHBOARD_STRINGS.availablePaths.enroll
             }
           ),
-          user && /* @__PURE__ */ jsx(Link, { to: DASHBOARD_LEARN_PATH(path.id), children: /* @__PURE__ */ jsx(EnhancedButton, { variant: "ghost", size: "sm", className: "w-full", children: DASHBOARD_STRINGS.availablePaths.viewDetails }) })
+          user && /* @__PURE__ */ jsx(EnhancedButton, { variant: "ghost", size: "sm", className: "w-full", asChild: true, children: /* @__PURE__ */ jsx(Link, { to: DASHBOARD_LEARN_PATH(path.id), children: DASHBOARD_STRINGS.availablePaths.viewDetails }) })
         ] }) })
       ]
     },
     path.id
   )) }) });
 }
+function LogoutButton({
+  className = "",
+  variant = "default",
+  children
+}) {
+  const { signOut, loading } = useOAuth();
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+  if (variant === "minimal") {
+    return /* @__PURE__ */ jsx(
+      "button",
+      {
+        onClick: handleSignOut,
+        disabled: loading,
+        className: `text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50 ${className}`,
+        children: children || "Sign out"
+      }
+    );
+  }
+  if (variant === "icon") {
+    return /* @__PURE__ */ jsx(
+      "button",
+      {
+        onClick: handleSignOut,
+        disabled: loading,
+        className: `p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full disabled:opacity-50 ${className}`,
+        title: "Sign out",
+        children: /* @__PURE__ */ jsx("svg", { className: "w-5 h-5", fill: "none", viewBox: "0 0 24 24", stroke: "currentColor", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" }) })
+      }
+    );
+  }
+  return /* @__PURE__ */ jsx(
+    "button",
+    {
+      onClick: handleSignOut,
+      disabled: loading,
+      className: `inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-forge-orange hover:bg-forge-orange-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-forge-orange disabled:opacity-50 disabled:cursor-not-allowed ${className}`,
+      children: loading ? /* @__PURE__ */ jsxs(Fragment, { children: [
+        /* @__PURE__ */ jsxs("svg", { className: "animate-spin -ml-1 mr-2 h-4 w-4 text-white", xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", children: [
+          /* @__PURE__ */ jsx("circle", { className: "opacity-25", cx: "12", cy: "12", r: "10", stroke: "currentColor", strokeWidth: "4" }),
+          /* @__PURE__ */ jsx("path", { className: "opacity-75", fill: "currentColor", d: "M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" })
+        ] }),
+        "Signing out..."
+      ] }) : /* @__PURE__ */ jsxs(Fragment, { children: [
+        /* @__PURE__ */ jsx("svg", { className: "w-4 h-4 mr-2", fill: "none", viewBox: "0 0 24 24", stroke: "currentColor", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" }) }),
+        children || "Sign out"
+      ] })
+    }
+  );
+}
 const Navbar = () => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { user, loading } = useAuth();
@@ -4588,21 +6101,32 @@ const Navbar = () => {
     ) }) }) }) });
   }
   const landingPageNavItems = [
-    { path: "/", label: "For Professionals" },
-    { path: "/companies", label: "For Companies" },
-    { path: "/investors", label: "For Investors" }
+    { path: "/old/hidden/index", label: t("nav.forProfessionals") },
+    { path: "/companies", label: t("nav.forCompanies") },
+    { path: "/investors", label: t("nav.forInvestors") }
   ];
   return /* @__PURE__ */ jsx("nav", { className: "fixed top-4 left-0 right-0 z-50", children: /* @__PURE__ */ jsxs("div", { className: "max-w-7xl mx-auto px-6 lg:px-8", children: [
     /* @__PURE__ */ jsxs("div", { className: "flex justify-between items-center h-20", children: [
-      /* @__PURE__ */ jsx(Link, { to: "/", className: "flex items-center space-x-3", children: /* @__PURE__ */ jsx(
-        "img",
-        {
-          src: "https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/forgecollege-2c35f0?format=webp&width=800",
-          alt: "Forge College",
-          className: "h-12 w-auto",
-          style: { minWidth: "120px" }
-        }
-      ) }),
+      /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
+        /* @__PURE__ */ jsx("div", { className: "md:hidden", children: /* @__PURE__ */ jsx(
+          "button",
+          {
+            onClick: () => setIsOpen(!isOpen),
+            className: "text-forge-dark hover:text-forge-orange transition-colors p-2 bg-forge-cream/95 backdrop-blur-sm rounded-xl border border-forge-orange/20 shadow-lg",
+            "aria-label": isOpen ? "Close menu" : "Open menu",
+            children: isOpen ? /* @__PURE__ */ jsx(X, { size: 24 }) : /* @__PURE__ */ jsx(Menu, { size: 24 })
+          }
+        ) }),
+        /* @__PURE__ */ jsx(Link, { to: "/", className: "flex items-center space-x-3", children: /* @__PURE__ */ jsx(
+          "img",
+          {
+            src: "https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/forgecollege-2c35f0?format=webp&width=800",
+            alt: "Forge College",
+            className: "h-12 w-auto",
+            style: { minWidth: "120px" }
+          }
+        ) })
+      ] }),
       /* @__PURE__ */ jsx("div", { className: "hidden md:flex items-center bg-forge-cream/95 backdrop-blur-sm rounded-2xl border border-forge-orange/20 shadow-lg overflow-hidden", children: landingPageNavItems.map((item, index) => /* @__PURE__ */ jsxs("div", { className: "flex items-center", children: [
         /* @__PURE__ */ jsxs(
           Link,
@@ -4624,7 +6148,7 @@ const Navbar = () => {
           {
             to: "/dashboard",
             className: "bg-forge-dark text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forge-dark/80 transition-colors shadow-lg",
-            children: "Dashboard"
+            children: t("nav.dashboard")
           }
         ),
         /* @__PURE__ */ jsx(ProfileDropdown, {})
@@ -4634,7 +6158,7 @@ const Navbar = () => {
           {
             to: "/login",
             className: "text-forge-orange transition-colors px-4 py-2 rounded-lg text-sm font-medium hover:bg-forge-cream/50",
-            children: "Sign In"
+            children: t("common.buttons.signIn")
           }
         ),
         /* @__PURE__ */ jsx(
@@ -4642,18 +6166,11 @@ const Navbar = () => {
           {
             to: "/signup",
             className: "bg-forge-orange text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-forge-orange-dark transition-colors shadow-lg border border-forge-orange",
-            children: "Sign Up"
+            children: t("common.buttons.signUp")
           }
         )
       ] }) }),
-      /* @__PURE__ */ jsx("div", { className: "md:hidden", children: /* @__PURE__ */ jsx(
-        "button",
-        {
-          onClick: () => setIsOpen(!isOpen),
-          className: "text-forge-dark hover:text-forge-orange transition-colors p-2 bg-forge-cream/95 backdrop-blur-sm rounded-xl border border-forge-orange/20 shadow-lg",
-          children: isOpen ? /* @__PURE__ */ jsx(X, { size: 24 }) : /* @__PURE__ */ jsx(Menu, { size: 24 })
-        }
-      ) })
+      /* @__PURE__ */ jsx("div", { className: "md:hidden w-6" })
     ] }),
     isOpen && /* @__PURE__ */ jsxs("div", { className: "md:hidden py-6 bg-forge-cream/95 backdrop-blur-sm rounded-2xl mx-4 mt-4 border border-forge-orange/20 shadow-lg overflow-hidden", children: [
       landingPageNavItems.map((item, index) => /* @__PURE__ */ jsxs("div", { children: [
@@ -4679,10 +6196,11 @@ const Navbar = () => {
             to: "/dashboard",
             onClick: () => setIsOpen(false),
             className: "block text-center py-3 px-6 rounded-lg text-base font-medium bg-forge-dark text-white hover:bg-forge-dark/80 transition-colors shadow-lg",
-            children: "Dashboard"
+            children: t("nav.dashboard")
           }
         ),
-        /* @__PURE__ */ jsx("div", { children: /* @__PURE__ */ jsx(ProfileDropdown, {}) })
+        /* @__PURE__ */ jsx("div", { children: /* @__PURE__ */ jsx(ProfileDropdown, {}) }),
+        /* @__PURE__ */ jsx(LogoutButton, { className: "w-full py-3 rounded-lg" })
       ] }) : /* @__PURE__ */ jsxs("div", { className: "pt-4 mt-4 space-y-3 px-4", children: [
         /* @__PURE__ */ jsx(
           Link,
@@ -4690,7 +6208,7 @@ const Navbar = () => {
             to: "/login",
             onClick: () => setIsOpen(false),
             className: "block text-center py-3 px-6 rounded-lg text-base font-medium text-forge-orange hover:bg-forge-orange/10 transition-colors",
-            children: "Sign In"
+            children: t("common.buttons.signIn")
           }
         ),
         /* @__PURE__ */ jsx(
@@ -4699,7 +6217,7 @@ const Navbar = () => {
             to: "/signup",
             onClick: () => setIsOpen(false),
             className: "block text-center py-3 px-6 rounded-full text-base font-semibold bg-forge-orange text-white hover:bg-forge-orange-dark transition-colors shadow-lg border border-forge-orange",
-            children: "Sign Up"
+            children: t("common.buttons.signUp")
           }
         )
       ] })
@@ -4753,8 +6271,15 @@ function ContinueLearningCard({ className }) {
     /* @__PURE__ */ jsx(CardContent, { children: /* @__PURE__ */ jsx(Link, { to: DASHBOARD_LEARN_COURSE(recentCourse.id), children: /* @__PURE__ */ jsx(Button, { size: "lg", className: "w-full md:w-auto", children: "Continue learning" }) }) })
   ] });
 }
+const MOCK_STATS = {
+  totalXP: 1320,
+  completedLessons: 9,
+  inProgressPaths: 2,
+  totalTimeSpent: 210
+};
 function UserStats() {
   const { user } = useAuth();
+  const supabase2 = useMemo(() => createClientBrowser(), []);
   const [stats, setStats] = useState({
     totalXP: 0,
     completedLessons: 0,
@@ -4762,83 +6287,94 @@ function UserStats() {
     totalTimeSpent: 0
   });
   const [loading, setLoading] = useState(true);
+  const [useMock, setUseMock] = useState(true);
   useEffect(() => {
     if (!user) return;
+    let isMounted = true;
     const fetchStats = async () => {
-      setLoading(true);
+      const start = Date.now();
+      if (isMounted) setLoading(true);
       try {
-        const { data: progressData, error: progressError } = await supabase.from("user_progress").select(`
-            status,
-            lessons!inner(
-              xp_value,
-              modules!inner(
-                courses!inner(path_id)
-              )
-            )
-          `).eq("user_id", user.id).in("status", ["in_progress", "completed"]);
-        if (progressError) throw progressError;
-        const completedLessons = (progressData || []).filter((p) => p.status === "completed").length;
-        const totalXP = (progressData || []).reduce((sum, p) => {
-          var _a;
-          return sum + (((_a = p.lessons) == null ? void 0 : _a.xp_value) || 0);
-        }, 0);
+        const { data: progressRows, error: progressError } = await supabase2.from("user_progress").select("lesson_id, status").eq("user_id", user.id).in("status", ["in_progress", "completed"]);
+        if (progressError) throw new Error(progressError.message || "Failed to load user progress");
+        const rows = progressRows || [];
+        const completedLessons = rows.filter((r) => r.status === "completed").length;
+        const lessonIds = Array.from(new Set(rows.map((r) => r.lesson_id).filter(Boolean)));
+        const chunkSize = 50;
+        let lessons2 = [];
+        if (lessonIds.length > 0) {
+          for (let i = 0; i < lessonIds.length; i += chunkSize) {
+            const chunk = lessonIds.slice(i, i + chunkSize);
+            const { data: ldata, error: lerr } = await supabase2.from("lessons").select("id, xp_value, modules(courses(path_id))").in("id", chunk);
+            if (lerr) throw new Error(lerr.message || "Failed to load lessons");
+            lessons2 = lessons2.concat(ldata || []);
+          }
+        }
+        let totalXP = 0;
         const pathIds = /* @__PURE__ */ new Set();
-        (progressData || []).forEach((p) => {
+        lessons2.forEach((l) => {
           var _a, _b, _c;
-          const pid = (_c = (_b = (_a = p == null ? void 0 : p.lessons) == null ? void 0 : _a.modules) == null ? void 0 : _b.courses) == null ? void 0 : _c.path_id;
+          totalXP += (l == null ? void 0 : l.xp_value) || 0;
+          const pid = ((_b = (_a = l == null ? void 0 : l.modules) == null ? void 0 : _a.courses) == null ? void 0 : _b.path_id) || ((_c = l == null ? void 0 : l.modules) == null ? void 0 : _c.path_id);
           if (pid) pathIds.add(pid);
         });
         const inProgressPaths = pathIds.size;
-        setStats({
-          totalXP,
-          completedLessons,
-          inProgressPaths,
-          totalTimeSpent: Math.max(0, Math.floor(completedLessons * 15))
-        });
+        if (isMounted) {
+          const computed = {
+            totalXP,
+            completedLessons,
+            inProgressPaths,
+            totalTimeSpent: Math.max(0, Math.floor(completedLessons * 15))
+          };
+          setStats(computed);
+          setUseMock(!(computed.totalXP || computed.completedLessons || computed.inProgressPaths));
+        }
       } catch (error) {
-        console.error("Error fetching user statistics:", error);
-        setStats({
-          totalXP: 150,
-          completedLessons: 12,
-          inProgressPaths: 3,
-          totalTimeSpent: 180
-        });
+        if (!isMounted) return;
+        console.error("Error fetching user statistics:", (error == null ? void 0 : error.message) || error);
+        setStats({ totalXP: 0, completedLessons: 0, inProgressPaths: 0, totalTimeSpent: 0 });
+        setUseMock(true);
+      } finally {
+        if (!isMounted) return;
+        const elapsed = Date.now() - start;
+        const MIN_SKELETON_MS = 600;
+        const delay = Math.max(0, MIN_SKELETON_MS - elapsed);
+        setTimeout(() => {
+          if (isMounted) setLoading(false);
+        }, delay);
       }
-      setLoading(false);
     };
     fetchStats();
-  }, [user]);
-  if (loading) {
-    return /* @__PURE__ */ jsx("div", { className: "grid gap-4 md:grid-cols-4", children: [...Array(4)].map((_, i) => /* @__PURE__ */ jsx(Card, { children: /* @__PURE__ */ jsx(CardContent, { className: "p-6", children: /* @__PURE__ */ jsxs("div", { className: "animate-pulse", children: [
-      /* @__PURE__ */ jsx("div", { className: "h-8 bg-gray-200 rounded mb-2" }),
-      /* @__PURE__ */ jsx("div", { className: "h-4 bg-gray-200 rounded" })
-    ] }) }) }, i)) });
-  }
+    return () => {
+      isMounted = false;
+    };
+  }, [user, supabase2]);
+  const display = useMock || loading ? MOCK_STATS : stats;
   const statCards = [
     {
       title: "Total XP",
-      value: stats.totalXP,
+      value: display.totalXP,
       icon: Trophy,
       color: "text-yellow-600",
       bgColor: "bg-gradient-to-br from-yellow-50 to-yellow-100"
     },
     {
       title: "Completed Lessons",
-      value: stats.completedLessons,
+      value: display.completedLessons,
       icon: BookOpen,
       color: "text-green-600",
       bgColor: "bg-gradient-to-br from-green-50 to-green-100"
     },
     {
       title: "Active Paths",
-      value: stats.inProgressPaths,
+      value: display.inProgressPaths,
       icon: Target,
       color: "text-blue-600",
       bgColor: "bg-gradient-to-br from-blue-50 to-blue-100"
     },
     {
       title: "Study Time",
-      value: `${stats.totalTimeSpent} min`,
+      value: `${display.totalTimeSpent} min`,
       icon: Clock,
       color: "text-purple-600",
       bgColor: "bg-gradient-to-br from-purple-50 to-purple-100"
@@ -4877,12 +6413,17 @@ Progress.displayName = ProgressPrimitive.Root.displayName;
 const WEEKLY_GOAL = 5;
 function LearningHabits({ className }) {
   const { user } = useAuth();
+  const supabase2 = useMemo(() => createClientBrowser(), []);
   const { data: completions = [], isLoading } = useQuery({
     queryKey: ["learningHabits", user == null ? void 0 : user.id],
     enabled: !!(user == null ? void 0 : user.id),
+    staleTime: 6e4,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    keepPreviousData: true,
     queryFn: async () => {
-      const { data, error } = await supabase.from("user_progress").select("completed_at").eq("user_id", user.id).eq("status", "completed").not("completed_at", "is", null).order("completed_at", { ascending: false }).limit(200);
-      if (error) throw error;
+      const { data, error } = await supabase2.from("user_progress").select("completed_at").eq("user_id", user.id).eq("status", "completed").not("completed_at", "is", null).order("completed_at", { ascending: false }).limit(200);
+      if (error) throw new Error(error.message || "Failed to load learning habits");
       return data;
     }
   });
@@ -4985,21 +6526,19 @@ function DashboardHome() {
       /* @__PURE__ */ jsx("span", { className: "font-medium text-forge-dark", children: getUserDisplayName() }),
       DASHBOARD_STRINGS.dashboardHome.headlineSuffix
     ] }) }),
-    /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-12 gap-6", children: [
-      /* @__PURE__ */ jsxs("div", { className: "col-span-12 lg:col-span-8 space-y-6", children: [
-        /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-12 gap-6", children: [
-          /* @__PURE__ */ jsx("div", { className: "col-span-12 xl:col-span-8", children: /* @__PURE__ */ jsx(ContinueLearningCard, { className: "mb-0" }) }),
-          /* @__PURE__ */ jsx("div", { className: "col-span-12 xl:col-span-4", children: /* @__PURE__ */ jsx(LearningHabits, { className: "mb-0" }) })
-        ] }),
-        /* @__PURE__ */ jsx(UserStats, {})
+    /* @__PURE__ */ jsx("div", { className: "grid grid-cols-12 gap-6", children: /* @__PURE__ */ jsxs("div", { className: "col-span-12 space-y-6", children: [
+      /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-12 gap-6", children: [
+        /* @__PURE__ */ jsx("div", { className: "col-span-12 xl:col-span-8", children: /* @__PURE__ */ jsx(ContinueLearningCard, { className: "mb-0" }) }),
+        /* @__PURE__ */ jsx("div", { className: "col-span-12 xl:col-span-4", children: /* @__PURE__ */ jsx(LearningHabits, { className: "mb-0" }) })
       ] }),
-      /* @__PURE__ */ jsx("div", { className: "col-span-12 lg:col-span-4 space-y-6", children: /* @__PURE__ */ jsxs("div", { className: "space-y-3 sticky top-6", children: [
-        /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between", children: [
-          /* @__PURE__ */ jsx("h2", { className: "text-xl font-semibold tracking-tight", children: ROUTE_LABELS[DASHBOARD_EXPLORE] }),
-          /* @__PURE__ */ jsx(Link, { to: DASHBOARD_EXPLORE, className: "text-forge-orange hover:underline", children: DASHBOARD_STRINGS.dashboardHome.exploreCta })
-        ] }),
-        /* @__PURE__ */ jsx(AvailablePaths, { limit: 3, className: "mt-2" })
-      ] }) })
+      /* @__PURE__ */ jsx(UserStats, {})
+    ] }) }),
+    /* @__PURE__ */ jsxs("div", { className: "space-y-3", children: [
+      /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between", children: [
+        /* @__PURE__ */ jsx("h2", { className: "text-xl font-semibold tracking-tight", children: ROUTE_LABELS[DASHBOARD_EXPLORE] }),
+        /* @__PURE__ */ jsx(Link, { to: DASHBOARD_EXPLORE, className: "text-forge-orange hover:underline", children: DASHBOARD_STRINGS.dashboardHome.exploreCta })
+      ] }),
+      /* @__PURE__ */ jsx(AvailablePaths, { className: "mt-2" })
     ] })
   ] });
 }
@@ -5091,7 +6630,7 @@ function SectionCard({ title, description, children, className }) {
     children
   ] });
 }
-function FormField({ label, required = false, error, description, children, className }) {
+function FormField$1({ label, required = false, error, description, children, className }) {
   return /* @__PURE__ */ jsxs("div", { className: cn("space-y-2", className), children: [
     /* @__PURE__ */ jsxs("label", { className: "text-sm font-medium text-gray-700", children: [
       label,
@@ -5304,10 +6843,11 @@ const countries = [
   "French Guiana"
 ];
 function Profile() {
+  const { t, i18n: i18n2 } = useTranslation();
   const { user } = useAuth();
   const { toast: toast2 } = useToast();
   const [activeTab, setActiveTab] = useState("personal");
-  const [profile, setProfile] = useState(null);
+  const [profile2, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -5316,10 +6856,10 @@ function Profile() {
     loadProfile();
   }, []);
   useEffect(() => {
-    if (profile) {
+    if (profile2) {
       setHasChanges(true);
     }
-  }, [profile]);
+  }, [profile2]);
   const loadProfile = async () => {
     try {
       setLoading(true);
@@ -5330,58 +6870,58 @@ function Profile() {
       setProfile(data);
     } catch (error) {
       toast2({
-        title: "Error",
-        description: "Failed to load profile. Please try again."
+        title: t("common.errors.unexpectedError"),
+        description: t("profile.messages.updateError")
       });
     } finally {
       setLoading(false);
     }
   };
   const handleSave = async () => {
-    if (!profile) return;
+    if (!profile2) return;
     const newErrors = {};
-    if (!profile.fullName.trim()) {
-      newErrors.fullName = "Full name is required";
+    if (!profile2.fullName.trim()) {
+      newErrors.fullName = t("profile.errors.fullNameRequired");
     }
-    if (!profile.country.trim()) {
-      newErrors.country = "Country is required";
+    if (!profile2.country.trim()) {
+      newErrors.country = t("profile.errors.countryRequired");
     }
-    if (profile.linkedinUrl && !isValidUrl(profile.linkedinUrl)) {
-      newErrors.linkedinUrl = "Please enter a valid LinkedIn URL";
+    if (profile2.linkedinUrl && !isValidUrl(profile2.linkedinUrl)) {
+      newErrors.linkedinUrl = t("profile.errors.invalidLinkedin");
     }
-    if (profile.githubUrl && !isValidUrl(profile.githubUrl)) {
-      newErrors.githubUrl = "Please enter a valid GitHub URL";
+    if (profile2.githubUrl && !isValidUrl(profile2.githubUrl)) {
+      newErrors.githubUrl = t("profile.errors.invalidGithub");
     }
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       toast2({
-        title: "Validation Error",
-        description: "Please fix the errors before saving."
+        title: t("common.errors.unexpectedError"),
+        description: t("profile.messages.validationError")
       });
       return;
     }
     try {
       setSaving(true);
-      await updateProfile(profile);
+      await updateProfile(profile2);
       setErrors({});
       setHasChanges(false);
       toast2({
-        title: "Success",
-        description: "Profile updated successfully!"
+        title: t("common.buttons.save"),
+        description: t("profile.messages.updateSuccess")
       });
     } catch (error) {
       toast2({
-        title: "Error",
-        description: "Failed to update profile. Please try again."
+        title: t("common.errors.unexpectedError"),
+        description: t("profile.messages.updateError")
       });
     } finally {
       setSaving(false);
     }
   };
   const updateField = (field, value) => {
-    if (!profile) return;
+    if (!profile2) return;
     setProfile({
-      ...profile,
+      ...profile2,
       [field]: value
     });
     if (errors[field]) {
@@ -5402,23 +6942,23 @@ function Profile() {
   if (loading) {
     return /* @__PURE__ */ jsx("div", { className: "flex items-center justify-center min-h-[400px]", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
       /* @__PURE__ */ jsx(Loader2, { className: "h-6 w-6 animate-spin text-orange-500" }),
-      /* @__PURE__ */ jsx("span", { className: "text-gray-600", children: "Loading profile..." })
+      /* @__PURE__ */ jsx("span", { className: "text-gray-600", children: t("profile.loadingProfile") })
     ] }) });
   }
-  if (!profile) {
+  if (!profile2) {
     return /* @__PURE__ */ jsxs("div", { className: "text-center py-8", children: [
-      /* @__PURE__ */ jsx("p", { className: "text-gray-600", children: "Failed to load profile" }),
-      /* @__PURE__ */ jsx(Button, { onClick: loadProfile, className: "mt-4", children: "Try Again" })
+      /* @__PURE__ */ jsx("p", { className: "text-gray-600", children: t("profile.failedToLoad") }),
+      /* @__PURE__ */ jsx(Button, { onClick: loadProfile, className: "mt-4", children: t("common.buttons.tryAgain") })
     ] });
   }
   return /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
     /* @__PURE__ */ jsxs("div", { children: [
-      /* @__PURE__ */ jsx("h1", { className: "text-3xl font-bold text-gray-900", children: "My Profile" }),
-      /* @__PURE__ */ jsx("p", { className: "text-gray-600 mt-2", children: "Manage your personal and professional information" })
+      /* @__PURE__ */ jsx("h1", { className: "text-3xl font-bold text-gray-900", children: t("profile.title") }),
+      /* @__PURE__ */ jsx("p", { className: "text-gray-600 mt-2", children: t("profile.subtitle") })
     ] }),
     hasChanges && /* @__PURE__ */ jsx("div", { className: "bg-yellow-50 border border-yellow-200 rounded-lg p-4", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 text-yellow-800", children: [
       /* @__PURE__ */ jsx("div", { className: "w-2 h-2 bg-yellow-500 rounded-full" }),
-      /* @__PURE__ */ jsx("span", { className: "text-sm font-medium", children: "You have unsaved changes" })
+      /* @__PURE__ */ jsx("span", { className: "text-sm font-medium", children: t("profile.unsavedChanges") })
     ] }) }),
     /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-1 lg:grid-cols-4 gap-6", children: [
       /* @__PURE__ */ jsx("div", { className: "lg:col-span-1", children: /* @__PURE__ */ jsx(ProfileSidebar, { activeTab, onTabChange: setActiveTab }) }),
@@ -5426,133 +6966,156 @@ function Profile() {
         activeTab === "personal" && /* @__PURE__ */ jsx(
           SectionCard,
           {
-            title: "Personal Information",
-            description: "Update your basic personal details and contact information",
+            title: t("profile.sections.personal"),
+            description: t("profile.sections.personalDesc"),
             children: /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-6", children: [
-              /* @__PURE__ */ jsx(FormField, { label: "Full Name", required: true, error: errors.fullName, children: /* @__PURE__ */ jsxs("div", { className: "relative", children: [
+              /* @__PURE__ */ jsx(FormField$1, { label: t("common.labels.fullName"), required: true, error: errors.fullName, children: /* @__PURE__ */ jsxs("div", { className: "relative", children: [
                 /* @__PURE__ */ jsx(User, { className: "absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" }),
                 /* @__PURE__ */ jsx(
                   Input,
                   {
-                    value: profile.fullName,
+                    value: profile2.fullName,
                     onChange: (e) => updateField("fullName", e.target.value),
-                    placeholder: "Enter your full name",
+                    placeholder: t("common.placeholders.enterFullName"),
                     className: "pl-10"
                   }
                 )
               ] }) }),
-              /* @__PURE__ */ jsxs(FormField, { label: "Email", required: true, children: [
+              /* @__PURE__ */ jsxs(FormField$1, { label: t("common.labels.email"), required: true, children: [
                 /* @__PURE__ */ jsxs("div", { className: "relative", children: [
                   /* @__PURE__ */ jsx(Mail, { className: "absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" }),
                   /* @__PURE__ */ jsx(
                     Input,
                     {
-                      value: profile.email,
+                      value: profile2.email,
                       disabled: true,
                       className: "pl-10 bg-gray-50"
                     }
                   )
                 ] }),
-                /* @__PURE__ */ jsx("p", { className: "text-xs text-gray-500 mt-1", children: "Email can only be changed in your account settings" })
+                /* @__PURE__ */ jsx("p", { className: "text-xs text-gray-500 mt-1", children: t("profile.messages.emailNote") })
               ] }),
-              /* @__PURE__ */ jsx(FormField, { label: "Country", required: true, error: errors.country, children: /* @__PURE__ */ jsxs("div", { className: "relative", children: [
+              /* @__PURE__ */ jsx(FormField$1, { label: t("common.labels.country"), required: true, error: errors.country, children: /* @__PURE__ */ jsxs("div", { className: "relative", children: [
                 /* @__PURE__ */ jsx(Globe, { className: "absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" }),
-                /* @__PURE__ */ jsxs(Select, { value: profile.country, onValueChange: (value) => updateField("country", value), children: [
-                  /* @__PURE__ */ jsx(SelectTrigger, { className: "pl-10", children: /* @__PURE__ */ jsx(SelectValue, { placeholder: "Select your country" }) }),
+                /* @__PURE__ */ jsxs(Select, { value: profile2.country, onValueChange: (value) => updateField("country", value), children: [
+                  /* @__PURE__ */ jsx(SelectTrigger, { className: "pl-10", children: /* @__PURE__ */ jsx(SelectValue, { placeholder: t("common.placeholders.selectCountry") }) }),
                   /* @__PURE__ */ jsx(SelectContent, { children: countries.map((country) => /* @__PURE__ */ jsx(SelectItem, { value: country, children: country }, country)) })
                 ] })
               ] }) }),
-              /* @__PURE__ */ jsx(FormField, { label: "City", children: /* @__PURE__ */ jsxs("div", { className: "relative", children: [
+              /* @__PURE__ */ jsx(FormField$1, { label: t("common.labels.city"), children: /* @__PURE__ */ jsxs("div", { className: "relative", children: [
                 /* @__PURE__ */ jsx(MapPin, { className: "absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" }),
                 /* @__PURE__ */ jsx(
                   Input,
                   {
-                    value: profile.city,
+                    value: profile2.city,
                     onChange: (e) => updateField("city", e.target.value),
-                    placeholder: "Enter your city",
+                    placeholder: t("common.placeholders.enterCity"),
                     className: "pl-10"
                   }
                 )
               ] }) }),
-              /* @__PURE__ */ jsx("div", { className: "md:col-span-2", children: /* @__PURE__ */ jsx(FormField, { label: "Languages", description: "Add languages you speak", children: /* @__PURE__ */ jsx(
+              /* @__PURE__ */ jsx("div", { className: "md:col-span-2", children: /* @__PURE__ */ jsx(FormField$1, { label: t("common.labels.languages"), description: t("profile.sections.personalDesc"), children: /* @__PURE__ */ jsx(
                 TagInput,
                 {
-                  value: profile.languages,
+                  value: profile2.languages,
                   onChange: (value) => updateField("languages", value),
-                  placeholder: "Type a language and press Enter"
+                  placeholder: t("common.placeholders.typeLanguage")
                 }
-              ) }) })
+              ) }) }),
+              /* @__PURE__ */ jsx("div", { className: "md:col-span-2", children: /* @__PURE__ */ jsx(FormField$1, { label: t("profile.fields.languagePreference"), description: t("profile.fields.selectLanguage"), children: /* @__PURE__ */ jsxs("div", { className: "relative", children: [
+                /* @__PURE__ */ jsx(Languages, { className: "absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" }),
+                /* @__PURE__ */ jsxs(
+                  Select,
+                  {
+                    value: i18n2.language,
+                    onValueChange: (value) => {
+                      i18n2.changeLanguage(value);
+                      toast2({
+                        title: t("common.buttons.save"),
+                        description: t("profile.messages.updateSuccess")
+                      });
+                    },
+                    children: [
+                      /* @__PURE__ */ jsx(SelectTrigger, { className: "pl-10", children: /* @__PURE__ */ jsx(SelectValue, {}) }),
+                      /* @__PURE__ */ jsxs(SelectContent, { children: [
+                        /* @__PURE__ */ jsx(SelectItem, { value: "en-US", children: "English (US)" }),
+                        /* @__PURE__ */ jsx(SelectItem, { value: "pt-BR", children: "Português (BR)" })
+                      ] })
+                    ]
+                  }
+                )
+              ] }) }) })
             ] })
           }
         ),
         activeTab === "professional" && /* @__PURE__ */ jsx(
           SectionCard,
           {
-            title: "Professional Profile",
-            description: "Share your work experience, skills, and career information",
+            title: t("profile.sections.professional"),
+            description: t("profile.sections.professionalDesc"),
             children: /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-6", children: [
-              /* @__PURE__ */ jsx(FormField, { label: "Years of Experience in Technology", children: /* @__PURE__ */ jsxs("div", { className: "relative", children: [
+              /* @__PURE__ */ jsx(FormField$1, { label: t("profile.fields.yearsExperience"), children: /* @__PURE__ */ jsxs("div", { className: "relative", children: [
                 /* @__PURE__ */ jsx(Briefcase, { className: "absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" }),
                 /* @__PURE__ */ jsx(
                   Input,
                   {
                     type: "number",
                     min: "0",
-                    value: profile.yearsExperience,
+                    value: profile2.yearsExperience,
                     onChange: (e) => updateField("yearsExperience", parseInt(e.target.value) || 0),
                     placeholder: "0",
                     className: "pl-10"
                   }
                 )
               ] }) }),
-              /* @__PURE__ */ jsx(FormField, { label: "Position & Company", children: /* @__PURE__ */ jsxs("div", { className: "relative", children: [
+              /* @__PURE__ */ jsx(FormField$1, { label: t("profile.fields.positionCompany"), children: /* @__PURE__ */ jsxs("div", { className: "relative", children: [
                 /* @__PURE__ */ jsx(Building, { className: "absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" }),
                 /* @__PURE__ */ jsx(
                   Input,
                   {
-                    value: profile.positionCompany,
+                    value: profile2.positionCompany,
                     onChange: (e) => updateField("positionCompany", e.target.value),
-                    placeholder: "e.g., Senior Backend @ ACME",
+                    placeholder: t("profile.fields.positionPlaceholder"),
                     className: "pl-10"
                   }
                 )
               ] }) }),
-              /* @__PURE__ */ jsx("div", { className: "md:col-span-2", children: /* @__PURE__ */ jsx(FormField, { label: "Stacks Dominated", description: "Technologies you're proficient in", children: /* @__PURE__ */ jsx(
+              /* @__PURE__ */ jsx("div", { className: "md:col-span-2", children: /* @__PURE__ */ jsx(FormField$1, { label: t("profile.fields.stacksDominated"), description: t("profile.fields.stacksDesc"), children: /* @__PURE__ */ jsx(
                 TagInput,
                 {
-                  value: profile.stacks,
+                  value: profile2.stacks,
                   onChange: (value) => updateField("stacks", value),
-                  placeholder: "e.g., Java, Python, Solidity, React"
+                  placeholder: t("profile.fields.stacksPlaceholder")
                 }
               ) }) }),
-              /* @__PURE__ */ jsx("div", { className: "md:col-span-2", children: /* @__PURE__ */ jsx(FormField, { label: "Skills to Develop", description: "Areas you want to improve", children: /* @__PURE__ */ jsx(
+              /* @__PURE__ */ jsx("div", { className: "md:col-span-2", children: /* @__PURE__ */ jsx(FormField$1, { label: t("profile.fields.skillsToDevelop"), description: t("profile.fields.skillsDesc"), children: /* @__PURE__ */ jsx(
                 TagInput,
                 {
-                  value: profile.skillsToDevelop,
+                  value: profile2.skillsToDevelop,
                   onChange: (value) => updateField("skillsToDevelop", value),
-                  placeholder: "e.g., DeFi, Smart Contracts, Web3"
+                  placeholder: t("profile.fields.skillsPlaceholder")
                 }
               ) }) }),
-              /* @__PURE__ */ jsx(FormField, { label: "LinkedIn URL", error: errors.linkedinUrl, children: /* @__PURE__ */ jsxs("div", { className: "relative", children: [
+              /* @__PURE__ */ jsx(FormField$1, { label: t("profile.fields.linkedinUrl"), error: errors.linkedinUrl, children: /* @__PURE__ */ jsxs("div", { className: "relative", children: [
                 /* @__PURE__ */ jsx(Linkedin, { className: "absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" }),
                 /* @__PURE__ */ jsx(
                   Input,
                   {
-                    value: profile.linkedinUrl,
+                    value: profile2.linkedinUrl,
                     onChange: (e) => updateField("linkedinUrl", e.target.value),
-                    placeholder: "https://linkedin.com/in/username",
+                    placeholder: t("profile.fields.linkedinPlaceholder"),
                     className: "pl-10"
                   }
                 )
               ] }) }),
-              /* @__PURE__ */ jsx(FormField, { label: "GitHub URL", error: errors.githubUrl, children: /* @__PURE__ */ jsxs("div", { className: "relative", children: [
+              /* @__PURE__ */ jsx(FormField$1, { label: t("profile.fields.githubUrl"), error: errors.githubUrl, children: /* @__PURE__ */ jsxs("div", { className: "relative", children: [
                 /* @__PURE__ */ jsx(Github, { className: "absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" }),
                 /* @__PURE__ */ jsx(
                   Input,
                   {
-                    value: profile.githubUrl,
+                    value: profile2.githubUrl,
                     onChange: (e) => updateField("githubUrl", e.target.value),
-                    placeholder: "https://github.com/username",
+                    placeholder: t("profile.fields.githubPlaceholder"),
                     className: "pl-10"
                   }
                 )
@@ -5563,24 +7126,24 @@ function Profile() {
         activeTab === "learning" && /* @__PURE__ */ jsx(
           SectionCard,
           {
-            title: "Learning Progress",
-            description: "Track your learning journey and achievements",
+            title: t("profile.sections.learning"),
+            description: t("profile.sections.learningDesc"),
             children: /* @__PURE__ */ jsxs("div", { className: "text-center py-12", children: [
               /* @__PURE__ */ jsx(BookOpen, { className: "h-16 w-16 text-gray-300 mx-auto mb-4" }),
-              /* @__PURE__ */ jsx("h3", { className: "text-lg font-medium text-gray-900 mb-2", children: "Coming Soon" }),
-              /* @__PURE__ */ jsx("p", { className: "text-gray-600", children: "Learning progress tracking will be available in the next update." })
+              /* @__PURE__ */ jsx("h3", { className: "text-lg font-medium text-gray-900 mb-2", children: t("profile.comingSoon.title") }),
+              /* @__PURE__ */ jsx("p", { className: "text-gray-600", children: t("profile.comingSoon.learning") })
             ] })
           }
         ),
         activeTab === "career" && /* @__PURE__ */ jsx(
           SectionCard,
           {
-            title: "Career Preferences",
-            description: "Set your job preferences and career goals",
+            title: t("profile.sections.career"),
+            description: t("profile.sections.careerDesc"),
             children: /* @__PURE__ */ jsxs("div", { className: "text-center py-12", children: [
               /* @__PURE__ */ jsx(Target, { className: "h-16 w-16 text-gray-300 mx-auto mb-4" }),
-              /* @__PURE__ */ jsx("h3", { className: "text-lg font-medium text-gray-900 mb-2", children: "Coming Soon" }),
-              /* @__PURE__ */ jsx("p", { className: "text-gray-600", children: "Career preferences will be available in the next update." })
+              /* @__PURE__ */ jsx("h3", { className: "text-lg font-medium text-gray-900 mb-2", children: t("profile.comingSoon.title") }),
+              /* @__PURE__ */ jsx("p", { className: "text-gray-600", children: t("profile.comingSoon.career") })
             ] })
           }
         ),
@@ -5592,10 +7155,10 @@ function Profile() {
             className: "bg-orange-500 hover:bg-orange-600 text-white",
             children: saving ? /* @__PURE__ */ jsxs(Fragment, { children: [
               /* @__PURE__ */ jsx(Loader2, { className: "h-4 w-4 animate-spin mr-2" }),
-              "Saving..."
+              t("common.buttons.saving")
             ] }) : /* @__PURE__ */ jsxs(Fragment, { children: [
               /* @__PURE__ */ jsx(Save, { className: "h-4 w-4 mr-2" }),
-              "Save Changes"
+              t("common.buttons.save")
             ] })
           }
         ) }) : null
@@ -5606,11 +7169,25 @@ function Profile() {
 function RequireAuth({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
-  if (loading) {
+  if (loading && true) {
     return /* @__PURE__ */ jsx("div", { className: "min-h-[40vh] flex items-center justify-center text-gray-500", children: "Loading..." });
   }
-  if (!user) {
+  if (!user && true) {
     return /* @__PURE__ */ jsx(Navigate, { to: LOGIN, replace: true, state: { from: location } });
+  }
+  return /* @__PURE__ */ jsx(Fragment, { children });
+}
+function RequireAdmin({ children }) {
+  var _a;
+  const { user, loading } = useAuth();
+  const location = useLocation();
+  let mockUser = null;
+  const isAdmin = Boolean(((_a = user == null ? void 0 : user.app_metadata) == null ? void 0 : _a.is_admin) || (mockUser == null ? void 0 : mockUser.is_admin));
+  if (loading && true) {
+    return /* @__PURE__ */ jsx("div", { className: "min-h-[40vh] flex items-center justify-center text-gray-500", children: "Checking admin permissions..." });
+  }
+  if (!isAdmin) {
+    return /* @__PURE__ */ jsx(Navigate, { to: DASHBOARD, replace: true, state: { from: location } });
   }
   return /* @__PURE__ */ jsx(Fragment, { children });
 }
@@ -5626,7 +7203,7 @@ function LoginOAuth() {
       const { error: error2 } = await supabase2.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: getOAuthRedirectUrl()
         }
       });
       if (error2) {
@@ -5703,40 +7280,43 @@ function AuthCallback() {
   const supabase2 = createClientBrowser();
   useEffect(() => {
     async function handleCallback() {
+      var _a;
       try {
-        await new Promise((resolve) => setTimeout(resolve, 1e3));
-        const { data: { session }, error } = await supabase2.auth.getSession();
-        if (error) {
-          throw error;
+        const initial = await supabase2.auth.getSession();
+        if ((_a = initial.data.session) == null ? void 0 : _a.user) {
+          setStatus("success");
+          setMessage("Authentication successful! Redirecting...");
+          await new Promise((r) => setTimeout(r, 800));
+          navigate("/dashboard", { replace: true });
+          return;
         }
+        const url = new URL(window.location.href);
+        const code = url.searchParams.get("code");
+        if (code) {
+          const { error: exchangeError } = await supabase2.auth.exchangeCodeForSession(code);
+          if (exchangeError) throw exchangeError;
+        } else {
+          await new Promise((resolve) => setTimeout(resolve, 800));
+        }
+        const { data: { session }, error } = await supabase2.auth.getSession();
+        if (error) throw error;
         if (session == null ? void 0 : session.user) {
           setStatus("success");
           setMessage("Authentication successful! Redirecting...");
-          await new Promise((resolve) => setTimeout(resolve, 1e3));
+          await new Promise((r) => setTimeout(r, 800));
           navigate("/dashboard", { replace: true });
         } else {
-          await new Promise((resolve) => setTimeout(resolve, 2e3));
-          const { data: { session: retrySession } } = await supabase2.auth.getSession();
-          if (retrySession == null ? void 0 : retrySession.user) {
-            setStatus("success");
-            setMessage("Authentication successful! Redirecting...");
-            await new Promise((resolve) => setTimeout(resolve, 1e3));
-            navigate("/dashboard", { replace: true });
-          } else {
-            throw new Error("No session found after OAuth completion");
-          }
+          throw new Error("No session found after OAuth completion");
         }
       } catch (error) {
         console.error("Auth callback error:", error);
         setStatus("error");
         setMessage("Authentication failed. Please try again.");
-        setTimeout(() => {
-          navigate("/login");
-        }, 3e3);
+        setTimeout(() => navigate("/login"), 3e3);
       }
     }
     handleCallback();
-  }, [navigate, supabase2.auth]);
+  }, [navigate, supabase2]);
   return /* @__PURE__ */ jsxs("div", { className: "min-h-screen bg-forge-cream relative overflow-hidden flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8", children: [
     /* @__PURE__ */ jsxs("div", { className: "absolute inset-0 pointer-events-none", children: [
       /* @__PURE__ */ jsx("div", { className: "absolute top-20 left-10 w-32 h-32 bg-forge-orange/5 rounded-full blur-3xl" }),
@@ -5938,14 +7518,3587 @@ const SSRCanary = () => {
     ] })
   ] });
 };
+class AuthErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    __publicField(this, "handleRetry", () => {
+      this.setState({ hasError: false, error: null, errorInfo: null });
+      window.location.reload();
+    });
+    __publicField(this, "handleReset", () => {
+      localStorage.clear();
+      sessionStorage.clear();
+      document.cookie.split(";").forEach(function(c) {
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + (/* @__PURE__ */ new Date()).toUTCString() + ";path=/");
+      });
+      this.setState({ hasError: false, error: null, errorInfo: null });
+      window.location.href = "/";
+    });
+    this.state = { hasError: false, error: null, errorInfo: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error, errorInfo: null };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error("Authentication Error Boundary caught an error:", error, errorInfo);
+    this.setState({
+      error,
+      errorInfo
+    });
+  }
+  render() {
+    var _a, _b, _c, _d, _e, _f, _g, _h;
+    if (this.state.hasError) {
+      const isAuthError = ((_b = (_a = this.state.error) == null ? void 0 : _a.message) == null ? void 0 : _b.includes("body stream")) || ((_d = (_c = this.state.error) == null ? void 0 : _c.message) == null ? void 0 : _d.includes("json")) || ((_f = (_e = this.state.error) == null ? void 0 : _e.message) == null ? void 0 : _f.includes("auth")) || ((_h = (_g = this.state.error) == null ? void 0 : _g.message) == null ? void 0 : _h.includes("fetch"));
+      return /* @__PURE__ */ jsx("div", { className: "flex items-center justify-center min-h-screen bg-forge-cream p-4", children: /* @__PURE__ */ jsxs(Card, { className: "w-full max-w-md bg-white/95 backdrop-blur-sm border border-red-200 shadow-xl", children: [
+        /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsxs(CardTitle, { className: "text-red-600 text-xl font-bold flex items-center gap-2", children: [
+          /* @__PURE__ */ jsx(AlertTriangle, { className: "w-5 h-5" }),
+          "Authentication Error"
+        ] }) }),
+        /* @__PURE__ */ jsxs(CardContent, { className: "space-y-4", children: [
+          /* @__PURE__ */ jsx("div", { className: "text-sm text-gray-600", children: isAuthError ? /* @__PURE__ */ jsx("p", { children: "An authentication error occurred. This might be due to a network issue or temporary service problem." }) : /* @__PURE__ */ jsx("p", { children: "An unexpected error occurred in the authentication system." }) }),
+          process.env.NODE_ENV === "development" && this.state.error && /* @__PURE__ */ jsx("div", { className: "bg-red-50 p-3 rounded-lg border border-red-200", children: /* @__PURE__ */ jsxs("p", { className: "text-xs font-mono text-red-700", children: [
+            "Error: ",
+            this.state.error.message
+          ] }) }),
+          /* @__PURE__ */ jsxs("div", { className: "flex flex-col gap-2", children: [
+            /* @__PURE__ */ jsxs(
+              Button,
+              {
+                onClick: this.handleRetry,
+                className: "w-full bg-forge-orange hover:bg-forge-orange-light",
+                children: [
+                  /* @__PURE__ */ jsx(RefreshCw, { className: "w-4 h-4 mr-2" }),
+                  "Try Again"
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsx(
+              Button,
+              {
+                onClick: this.handleReset,
+                variant: "outline",
+                className: "w-full border-red-200 text-red-600 hover:bg-red-50",
+                children: "Reset & Go Home"
+              }
+            )
+          ] })
+        ] })
+      ] }) });
+    }
+    return this.props.children;
+  }
+}
+const adminNav = [
+  { to: "/dashboard/admin", label: "Overview", icon: Settings, end: true },
+  { to: "/dashboard/admin/paths", label: "Learning Paths", icon: Layers3 },
+  { to: "/dashboard/admin/courses", label: "Courses", icon: BookOpen },
+  { to: "/dashboard/admin/modules", label: "Modules", icon: ListChecks },
+  { to: "/dashboard/admin/lessons", label: "Lessons", icon: FileText }
+];
+function AdminLayout() {
+  const location = useLocation();
+  return /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
+    /* @__PURE__ */ jsxs("header", { className: "space-y-2", children: [
+      /* @__PURE__ */ jsx("p", { className: "text-xs font-semibold uppercase tracking-wide text-forge-orange", children: "Admin" }),
+      /* @__PURE__ */ jsx("div", { className: "flex flex-wrap items-center justify-between gap-4", children: /* @__PURE__ */ jsxs("div", { children: [
+        /* @__PURE__ */ jsx("h1", { className: "text-3xl font-bold text-forge-dark", children: "Content Management" }),
+        /* @__PURE__ */ jsx("p", { className: "text-sm text-forge-gray", children: "Create, organize, and publish learning experiences for the community." })
+      ] }) }),
+      /* @__PURE__ */ jsx("nav", { className: "flex flex-wrap gap-2 pt-2", children: adminNav.map(({ to, label, icon: Icon, end }) => {
+        const isActive = end ? location.pathname === to : location.pathname.startsWith(to);
+        return /* @__PURE__ */ jsxs(
+          NavLink,
+          {
+            to,
+            end,
+            className: cn(
+              "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-all",
+              isActive ? "border-forge-orange bg-forge-orange/10 text-forge-orange shadow-sm" : "border-transparent bg-white text-forge-gray hover:border-forge-cream hover:bg-forge-cream/40 hover:text-forge-dark"
+            ),
+            children: [
+              /* @__PURE__ */ jsx(Icon, { className: "h-4 w-4" }),
+              label
+            ]
+          },
+          to
+        );
+      }) })
+    ] }),
+    /* @__PURE__ */ jsx("main", { className: "space-y-6", children: /* @__PURE__ */ jsx(Outlet, {}) })
+  ] });
+}
+const overviewItems = [
+  {
+    label: "Learning Paths",
+    description: "Create thematic journeys and bundle courses together.",
+    icon: Layers3
+  },
+  {
+    label: "Courses",
+    description: "Organize syllabus, outcomes, and prerequisites.",
+    icon: BookOpen
+  },
+  {
+    label: "Modules",
+    description: "Group lessons under clear learning milestones.",
+    icon: ListChecks
+  },
+  {
+    label: "Lessons",
+    description: "Publish text, video, or quiz content for builders.",
+    icon: FileText
+  }
+];
+function AdminOverview() {
+  const { user } = useAuth();
+  return /* @__PURE__ */ jsx("div", { className: "grid gap-6 lg:grid-cols-2", children: /* @__PURE__ */ jsxs(Card, { className: "lg:col-span-2 border-forge-cream/80 bg-white/80", children: [
+    /* @__PURE__ */ jsxs(CardHeader, { className: "space-y-2", children: [
+      /* @__PURE__ */ jsxs(CardTitle, { className: "flex items-center gap-2 text-forge-dark", children: [
+        /* @__PURE__ */ jsx(ShieldCheck, { className: "h-5 w-5 text-forge-orange" }),
+        "Admin Access Granted"
+      ] }),
+      /* @__PURE__ */ jsx("p", { className: "text-sm text-forge-gray", children: (user == null ? void 0 : user.email) ? `Managing content as ${user.email}.` : "Manage platform content." })
+    ] }),
+    /* @__PURE__ */ jsx(CardContent, { className: "grid gap-4 md:grid-cols-2", children: overviewItems.map((item) => /* @__PURE__ */ jsxs(
+      "div",
+      {
+        className: "flex gap-3 rounded-xl border border-dashed border-forge-cream/60 bg-forge-cream/20 p-4",
+        children: [
+          /* @__PURE__ */ jsx("div", { className: "flex h-10 w-10 items-center justify-center rounded-full bg-forge-orange/10 text-forge-orange", children: /* @__PURE__ */ jsx(item.icon, { className: "h-5 w-5" }) }),
+          /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
+            /* @__PURE__ */ jsx("p", { className: "font-semibold text-forge-dark", children: item.label }),
+            /* @__PURE__ */ jsx("p", { className: "text-sm text-forge-gray", children: item.description })
+          ] })
+        ]
+      },
+      item.label
+    )) })
+  ] }) });
+}
+const Dialog = SheetPrimitive.Root;
+const DialogPortal = SheetPrimitive.Portal;
+const DialogOverlay = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  SheetPrimitive.Overlay,
+  {
+    ref,
+    className: cn(
+      "fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      className
+    ),
+    ...props
+  }
+));
+DialogOverlay.displayName = SheetPrimitive.Overlay.displayName;
+const DialogContent = React.forwardRef(({ className, children, ...props }, ref) => /* @__PURE__ */ jsxs(DialogPortal, { children: [
+  /* @__PURE__ */ jsx(DialogOverlay, {}),
+  /* @__PURE__ */ jsxs(
+    SheetPrimitive.Content,
+    {
+      ref,
+      className: cn(
+        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
+        className
+      ),
+      ...props,
+      children: [
+        children,
+        /* @__PURE__ */ jsxs(SheetPrimitive.Close, { className: "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground", children: [
+          /* @__PURE__ */ jsx(X, { className: "h-4 w-4" }),
+          /* @__PURE__ */ jsx("span", { className: "sr-only", children: "Close" })
+        ] })
+      ]
+    }
+  )
+] }));
+DialogContent.displayName = SheetPrimitive.Content.displayName;
+const DialogHeader = ({
+  className,
+  ...props
+}) => /* @__PURE__ */ jsx(
+  "div",
+  {
+    className: cn(
+      "flex flex-col space-y-1.5 text-center sm:text-left",
+      className
+    ),
+    ...props
+  }
+);
+DialogHeader.displayName = "DialogHeader";
+const DialogFooter = ({
+  className,
+  ...props
+}) => /* @__PURE__ */ jsx(
+  "div",
+  {
+    className: cn(
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+      className
+    ),
+    ...props
+  }
+);
+DialogFooter.displayName = "DialogFooter";
+const DialogTitle = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  SheetPrimitive.Title,
+  {
+    ref,
+    className: cn(
+      "text-lg font-semibold leading-none tracking-tight",
+      className
+    ),
+    ...props
+  }
+));
+DialogTitle.displayName = SheetPrimitive.Title.displayName;
+const DialogDescription = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  SheetPrimitive.Description,
+  {
+    ref,
+    className: cn("text-sm text-muted-foreground", className),
+    ...props
+  }
+));
+DialogDescription.displayName = SheetPrimitive.Description.displayName;
+const Form = FormProvider;
+const FormFieldContext = React.createContext(
+  {}
+);
+const FormField = ({
+  ...props
+}) => {
+  return /* @__PURE__ */ jsx(FormFieldContext.Provider, { value: { name: props.name }, children: /* @__PURE__ */ jsx(Controller, { ...props }) });
+};
+const useFormField = () => {
+  const fieldContext = React.useContext(FormFieldContext);
+  const itemContext = React.useContext(FormItemContext);
+  const { getFieldState, formState } = useFormContext();
+  const fieldState = getFieldState(fieldContext.name, formState);
+  if (!fieldContext) {
+    throw new Error("useFormField should be used within <FormField>");
+  }
+  const { id } = itemContext;
+  return {
+    id,
+    name: fieldContext.name,
+    formItemId: `${id}-form-item`,
+    formDescriptionId: `${id}-form-item-description`,
+    formMessageId: `${id}-form-item-message`,
+    ...fieldState
+  };
+};
+const FormItemContext = React.createContext(
+  {}
+);
+const FormItem = React.forwardRef(({ className, ...props }, ref) => {
+  const id = React.useId();
+  return /* @__PURE__ */ jsx(FormItemContext.Provider, { value: { id }, children: /* @__PURE__ */ jsx("div", { ref, className: cn("space-y-2", className), ...props }) });
+});
+FormItem.displayName = "FormItem";
+const FormLabel = React.forwardRef(({ className, ...props }, ref) => {
+  const { error, formItemId } = useFormField();
+  return /* @__PURE__ */ jsx(
+    Label,
+    {
+      ref,
+      className: cn(error && "text-destructive", className),
+      htmlFor: formItemId,
+      ...props
+    }
+  );
+});
+FormLabel.displayName = "FormLabel";
+const FormControl = React.forwardRef(({ ...props }, ref) => {
+  const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
+  return /* @__PURE__ */ jsx(
+    Slot,
+    {
+      ref,
+      id: formItemId,
+      "aria-describedby": !error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`,
+      "aria-invalid": !!error,
+      ...props
+    }
+  );
+});
+FormControl.displayName = "FormControl";
+const FormDescription = React.forwardRef(({ className, ...props }, ref) => {
+  const { formDescriptionId } = useFormField();
+  return /* @__PURE__ */ jsx(
+    "p",
+    {
+      ref,
+      id: formDescriptionId,
+      className: cn("text-sm text-muted-foreground", className),
+      ...props
+    }
+  );
+});
+FormDescription.displayName = "FormDescription";
+const FormMessage = React.forwardRef(({ className, children, ...props }, ref) => {
+  const { error, formMessageId } = useFormField();
+  const body = error ? String(error == null ? void 0 : error.message) : children;
+  if (!body) {
+    return null;
+  }
+  return /* @__PURE__ */ jsx(
+    "p",
+    {
+      ref,
+      id: formMessageId,
+      className: cn("text-sm font-medium text-destructive", className),
+      ...props,
+      children: body
+    }
+  );
+});
+FormMessage.displayName = "FormMessage";
+const Textarea = React.forwardRef(
+  ({ className, ...props }, ref) => {
+    return /* @__PURE__ */ jsx(
+      "textarea",
+      {
+        className: cn(
+          "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+          className
+        ),
+        ref,
+        ...props
+      }
+    );
+  }
+);
+Textarea.displayName = "Textarea";
+const Switch = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  SwitchPrimitives.Root,
+  {
+    className: cn(
+      "peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input",
+      className
+    ),
+    ...props,
+    ref,
+    children: /* @__PURE__ */ jsx(
+      SwitchPrimitives.Thumb,
+      {
+        className: cn(
+          "pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+        )
+      }
+    )
+  }
+));
+Switch.displayName = SwitchPrimitives.Root.displayName;
+const badgeVariants = cva(
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  {
+    variants: {
+      variant: {
+        default: "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+        secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        destructive: "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+        outline: "text-foreground"
+      }
+    },
+    defaultVariants: {
+      variant: "default"
+    }
+  }
+);
+function Badge({ className, variant, ...props }) {
+  return /* @__PURE__ */ jsx("div", { className: cn(badgeVariants({ variant }), className), ...props });
+}
+const AlertDialog = AlertDialogPrimitive.Root;
+const AlertDialogPortal = AlertDialogPrimitive.Portal;
+const AlertDialogOverlay = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  AlertDialogPrimitive.Overlay,
+  {
+    className: cn(
+      "fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      className
+    ),
+    ...props,
+    ref
+  }
+));
+AlertDialogOverlay.displayName = AlertDialogPrimitive.Overlay.displayName;
+const AlertDialogContent = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsxs(AlertDialogPortal, { children: [
+  /* @__PURE__ */ jsx(AlertDialogOverlay, {}),
+  /* @__PURE__ */ jsx(
+    AlertDialogPrimitive.Content,
+    {
+      ref,
+      className: cn(
+        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
+        className
+      ),
+      ...props
+    }
+  )
+] }));
+AlertDialogContent.displayName = AlertDialogPrimitive.Content.displayName;
+const AlertDialogHeader = ({
+  className,
+  ...props
+}) => /* @__PURE__ */ jsx(
+  "div",
+  {
+    className: cn(
+      "flex flex-col space-y-2 text-center sm:text-left",
+      className
+    ),
+    ...props
+  }
+);
+AlertDialogHeader.displayName = "AlertDialogHeader";
+const AlertDialogFooter = ({
+  className,
+  ...props
+}) => /* @__PURE__ */ jsx(
+  "div",
+  {
+    className: cn(
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+      className
+    ),
+    ...props
+  }
+);
+AlertDialogFooter.displayName = "AlertDialogFooter";
+const AlertDialogTitle = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  AlertDialogPrimitive.Title,
+  {
+    ref,
+    className: cn("text-lg font-semibold", className),
+    ...props
+  }
+));
+AlertDialogTitle.displayName = AlertDialogPrimitive.Title.displayName;
+const AlertDialogDescription = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  AlertDialogPrimitive.Description,
+  {
+    ref,
+    className: cn("text-sm text-muted-foreground", className),
+    ...props
+  }
+));
+AlertDialogDescription.displayName = AlertDialogPrimitive.Description.displayName;
+const AlertDialogAction = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  AlertDialogPrimitive.Action,
+  {
+    ref,
+    className: cn(buttonVariants(), className),
+    ...props
+  }
+));
+AlertDialogAction.displayName = AlertDialogPrimitive.Action.displayName;
+const AlertDialogCancel = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  AlertDialogPrimitive.Cancel,
+  {
+    ref,
+    className: cn(
+      buttonVariants({ variant: "outline" }),
+      "mt-2 sm:mt-0",
+      className
+    ),
+    ...props
+  }
+));
+AlertDialogCancel.displayName = AlertDialogPrimitive.Cancel.displayName;
+const slugify$3 = (value) => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
+const pathFormSchema = z.object({
+  title: z.string().min(3, "Title must have at least 3 characters"),
+  slug: z.string().min(3, "Slug must have at least 3 characters").regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers, and hyphens only"),
+  description: z.string().optional().or(z.literal("")),
+  is_published: z.boolean().default(false)
+});
+function AdminPaths() {
+  const supabase2 = useMemo(() => createClientBrowser(), []);
+  const queryClient = useQueryClient();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [editingPath, setEditingPath] = useState(null);
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const form = useForm({
+    resolver: zodResolver(pathFormSchema),
+    defaultValues: {
+      title: "",
+      slug: "",
+      description: "",
+      is_published: false
+    }
+  });
+  useEffect(() => {
+    if (!dialogOpen) {
+      form.reset();
+      setEditingPath(null);
+      setSlugManuallyEdited(false);
+    }
+  }, [dialogOpen, form]);
+  const watchedTitle = form.watch("title");
+  const watchedSlug = form.watch("slug");
+  useEffect(() => {
+    if (!slugManuallyEdited && !editingPath) {
+      const generated = slugify$3(watchedTitle ?? "");
+      if (generated && generated !== watchedSlug) {
+        form.setValue("slug", generated, { shouldValidate: false });
+      }
+    }
+  }, [watchedTitle, slugManuallyEdited, editingPath, watchedSlug, form]);
+  const { data: paths, isLoading } = useQuery({
+    queryKey: ["admin-paths"],
+    queryFn: async () => {
+      const { data, error } = await supabase2.from("learning_paths").select("id, title, slug, description, is_published, published_at, created_at, updated_at, courses:courses(id)").order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map((item) => ({
+        ...item,
+        courseCount: Array.isArray(item.courses) ? item.courses.length : 0
+      }));
+    }
+  });
+  const upsertMutation = useMutation({
+    mutationFn: async (values) => {
+      var _a;
+      const payload = {
+        title: values.title.trim(),
+        slug: values.slug.trim(),
+        description: ((_a = values.description) == null ? void 0 : _a.trim()) ? values.description.trim() : null,
+        is_published: values.is_published,
+        published_at: values.is_published ? (editingPath == null ? void 0 : editingPath.published_at) ?? (/* @__PURE__ */ new Date()).toISOString() : null
+      };
+      if (editingPath) {
+        const { error } = await supabase2.from("learning_paths").update(payload).eq("id", editingPath.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase2.from("learning_paths").insert({
+          ...payload,
+          published_at: values.is_published ? (/* @__PURE__ */ new Date()).toISOString() : null
+        });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-paths"] });
+      toast$1.success(editingPath ? "Learning path updated" : "Learning path created");
+      setDialogOpen(false);
+    },
+    onError: (error) => {
+      console.error("Error saving learning path", error);
+      toast$1.error(error instanceof Error ? error.message : "Failed to save learning path");
+    }
+  });
+  const publishMutation = useMutation({
+    mutationFn: async ({ id, publish }) => {
+      const { error } = await supabase2.from("learning_paths").update({
+        is_published: publish,
+        published_at: publish ? (/* @__PURE__ */ new Date()).toISOString() : null
+      }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-paths"] });
+      toast$1.success("Publish state updated");
+    },
+    onError: (error) => {
+      console.error("Error toggling publish", error);
+      toast$1.error(error instanceof Error ? error.message : "Failed to toggle publish state");
+    }
+  });
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
+      const { error } = await supabase2.from("learning_paths").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-paths"] });
+      toast$1.success("Learning path deleted");
+      setDeleteTarget(null);
+    },
+    onError: (error) => {
+      console.error("Error deleting learning path", error);
+      toast$1.error(error instanceof Error ? error.message : "Failed to delete learning path");
+    }
+  });
+  const openForCreate = () => {
+    setEditingPath(null);
+    setSlugManuallyEdited(false);
+    form.reset({ title: "", slug: "", description: "", is_published: false });
+    setDialogOpen(true);
+  };
+  const openForEdit = (path) => {
+    setEditingPath(path);
+    setSlugManuallyEdited(true);
+    form.reset({
+      title: path.title ?? "",
+      slug: path.slug ?? "",
+      description: path.description ?? "",
+      is_published: path.is_published
+    });
+    setDialogOpen(true);
+  };
+  const onSubmit = (values) => {
+    upsertMutation.mutate(values);
+  };
+  return /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
+    /* @__PURE__ */ jsxs("div", { className: "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between", children: [
+      /* @__PURE__ */ jsxs("div", { children: [
+        /* @__PURE__ */ jsx("h2", { className: "text-2xl font-semibold text-forge-dark", children: "Learning Paths" }),
+        /* @__PURE__ */ jsx("p", { className: "text-sm text-forge-gray", children: "Group courses into curated journeys. Control slug, visibility, and descriptions from here." })
+      ] }),
+      /* @__PURE__ */ jsxs(Button, { onClick: openForCreate, className: "self-start sm:self-auto", children: [
+        /* @__PURE__ */ jsx(Plus, { className: "mr-2 h-4 w-4" }),
+        "New Path"
+      ] })
+    ] }),
+    isLoading ? /* @__PURE__ */ jsx(Card, { className: "border-dashed border-forge-cream/70 bg-white/80", children: /* @__PURE__ */ jsxs(CardContent, { className: "flex items-center gap-3 p-8 text-forge-gray", children: [
+      /* @__PURE__ */ jsx(Loader2, { className: "h-4 w-4 animate-spin" }),
+      " Loading learning paths..."
+    ] }) }) : paths && paths.length > 0 ? /* @__PURE__ */ jsx("div", { className: "grid gap-4", children: paths.map((path) => /* @__PURE__ */ jsxs(Card, { className: "border border-forge-cream/70 bg-white/80", children: [
+      /* @__PURE__ */ jsxs(CardHeader, { className: "flex flex-row items-start justify-between gap-4", children: [
+        /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
+          /* @__PURE__ */ jsxs(CardTitle, { className: "flex items-center gap-2 text-forge-dark", children: [
+            path.title,
+            /* @__PURE__ */ jsx(Badge, { variant: path.is_published ? "default" : "outline", className: path.is_published ? "bg-forge-orange text-white hover:bg-forge-orange/90" : "", children: path.is_published ? "Published" : "Draft" })
+          ] }),
+          /* @__PURE__ */ jsx(CardDescription, { className: "text-sm text-forge-gray", children: path.description || "No description" })
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: "flex gap-2", children: [
+          /* @__PURE__ */ jsx(Button, { variant: "outline", size: "icon", onClick: () => openForEdit(path), children: /* @__PURE__ */ jsx(Pencil, { className: "h-4 w-4" }) }),
+          /* @__PURE__ */ jsx(
+            Button,
+            {
+              variant: "outline",
+              size: "icon",
+              className: "text-red-500 hover:text-red-600",
+              onClick: () => setDeleteTarget(path),
+              children: /* @__PURE__ */ jsx(Trash2, { className: "h-4 w-4" })
+            }
+          )
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxs(CardContent, { className: "space-y-3 text-sm text-forge-gray", children: [
+        /* @__PURE__ */ jsxs("div", { className: "flex flex-wrap items-center gap-4", children: [
+          /* @__PURE__ */ jsxs("div", { children: [
+            /* @__PURE__ */ jsx("span", { className: "font-semibold text-forge-dark", children: "Slug:" }),
+            " ",
+            path.slug
+          ] }),
+          /* @__PURE__ */ jsx(Separator, { orientation: "vertical", className: "hidden h-4 sm:block" }),
+          /* @__PURE__ */ jsxs("div", { children: [
+            /* @__PURE__ */ jsx("span", { className: "font-semibold text-forge-dark", children: "Courses:" }),
+            " ",
+            path.courseCount
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: "text-xs text-forge-gray/80", children: [
+          "Updated ",
+          path.updated_at ? formatDistanceToNow(new Date(path.updated_at), { addSuffix: true }) : "N/A"
+        ] })
+      ] }),
+      /* @__PURE__ */ jsx(CardFooter, { className: "flex items-center justify-between", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 text-sm", children: [
+        /* @__PURE__ */ jsx(
+          Switch,
+          {
+            id: `publish-${path.id}`,
+            checked: path.is_published,
+            onCheckedChange: (checked) => publishMutation.mutate({ id: path.id, publish: checked }),
+            disabled: publishMutation.isPending
+          }
+        ),
+        /* @__PURE__ */ jsx("label", { htmlFor: `publish-${path.id}`, className: "text-forge-gray", children: path.is_published ? "Unpublish" : "Publish" })
+      ] }) })
+    ] }, path.id)) }) : /* @__PURE__ */ jsx(Card, { className: "border-dashed border-forge-cream/70 bg-white/70", children: /* @__PURE__ */ jsx(CardContent, { className: "p-8 text-center text-forge-gray", children: "No learning paths yet. Create your first path to start structuring content." }) }),
+    /* @__PURE__ */ jsx(Dialog, { open: dialogOpen, onOpenChange: setDialogOpen, children: /* @__PURE__ */ jsxs(DialogContent, { className: "max-w-lg", children: [
+      /* @__PURE__ */ jsxs(DialogHeader, { children: [
+        /* @__PURE__ */ jsx(DialogTitle, { children: editingPath ? "Edit learning path" : "New learning path" }),
+        /* @__PURE__ */ jsx(DialogDescription, { children: editingPath ? "Update title, slug, or publication state. Changes go live immediately." : "Define the high-level journey for learners. You can add courses after saving." })
+      ] }),
+      /* @__PURE__ */ jsx(Form, { ...form, children: /* @__PURE__ */ jsxs("form", { onSubmit: form.handleSubmit(onSubmit), className: "space-y-6", children: [
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "title",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: "Title" }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Input, { placeholder: "e.g. Web Development Accelerator", ...field }) }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "slug",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: "Slug" }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(
+                Input,
+                {
+                  placeholder: "web-development-accelerator",
+                  ...field,
+                  onChange: (event) => {
+                    setSlugManuallyEdited(true);
+                    field.onChange(event);
+                  }
+                }
+              ) }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "description",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: "Description" }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(
+                Textarea,
+                {
+                  rows: 4,
+                  placeholder: "Summarize the journey learners will experience.",
+                  ...field
+                }
+              ) }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "is_published",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { className: "flex flex-row items-center justify-between rounded-lg border border-forge-cream/80 bg-forge-cream/30 p-3", children: [
+              /* @__PURE__ */ jsxs("div", { className: "space-y-0.5", children: [
+                /* @__PURE__ */ jsx(FormLabel, { className: "text-base", children: "Publish immediately" }),
+                /* @__PURE__ */ jsx(DialogDescription, { children: field.value ? "The path is visible to all enrolled learners." : "Keep as draft until you are ready to publish." })
+              ] }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(
+                Switch,
+                {
+                  checked: field.value,
+                  onCheckedChange: field.onChange,
+                  disabled: form.formState.isSubmitting
+                }
+              ) })
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsxs(DialogFooter, { children: [
+          /* @__PURE__ */ jsx(Button, { type: "button", variant: "outline", onClick: () => setDialogOpen(false), disabled: form.formState.isSubmitting, children: "Cancel" }),
+          /* @__PURE__ */ jsx(Button, { type: "submit", disabled: form.formState.isSubmitting, children: form.formState.isSubmitting ? /* @__PURE__ */ jsxs(Fragment, { children: [
+            /* @__PURE__ */ jsx(Loader2, { className: "mr-2 h-4 w-4 animate-spin" }),
+            " Saving..."
+          ] }) : editingPath ? "Save changes" : "Create path" })
+        ] })
+      ] }) })
+    ] }) }),
+    /* @__PURE__ */ jsx(AlertDialog, { open: Boolean(deleteTarget), onOpenChange: (open) => !open && setDeleteTarget(null), children: /* @__PURE__ */ jsxs(AlertDialogContent, { children: [
+      /* @__PURE__ */ jsxs(AlertDialogHeader, { children: [
+        /* @__PURE__ */ jsx(AlertDialogTitle, { children: "Delete learning path" }),
+        /* @__PURE__ */ jsxs(AlertDialogDescription, { children: [
+          "This action cannot be undone. Deleting a path will remove all associated courses, modules, and lessons. Make sure you really want to remove “",
+          deleteTarget == null ? void 0 : deleteTarget.title,
+          "”."
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxs(AlertDialogFooter, { children: [
+        /* @__PURE__ */ jsx(AlertDialogCancel, { disabled: deleteMutation.isPending, children: "Cancel" }),
+        /* @__PURE__ */ jsx(
+          AlertDialogAction,
+          {
+            onClick: () => deleteTarget && deleteMutation.mutate(deleteTarget.id),
+            className: "bg-red-500 hover:bg-red-600",
+            disabled: deleteMutation.isPending,
+            children: deleteMutation.isPending ? /* @__PURE__ */ jsxs(Fragment, { children: [
+              /* @__PURE__ */ jsx(Loader2, { className: "mr-2 h-4 w-4 animate-spin" }),
+              " Deleting..."
+            ] }) : "Delete"
+          }
+        )
+      ] })
+    ] }) })
+  ] });
+}
+const slugify$2 = (value) => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
+const courseFormSchema = z.object({
+  path_id: z.string().uuid("Select a learning path"),
+  title: z.string().min(3, "Title must have at least 3 characters"),
+  slug: z.string().min(3, "Slug must have at least 3 characters").regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers, and hyphens only"),
+  summary: z.string().max(200, "Summary is too long").optional().or(z.literal("")),
+  description: z.string().optional().or(z.literal("")),
+  order: z.coerce.number().int("Order must be an integer").min(1, "Order must be at least 1"),
+  duration_minutes: z.union([z.coerce.number().int().min(0), z.literal("")]).optional().transform((value) => value === "" || value === void 0 ? null : Number(value)),
+  thumbnail_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  is_published: z.boolean().default(false)
+});
+function AdminCourses() {
+  const supabase2 = useMemo(() => createClientBrowser(), []);
+  const queryClient = useQueryClient();
+  const [selectedPathFilter, setSelectedPathFilter] = useState("all");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingCourse, setEditingCourse] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const form = useForm({
+    resolver: zodResolver(courseFormSchema),
+    defaultValues: {
+      path_id: "",
+      title: "",
+      slug: "",
+      summary: "",
+      description: "",
+      order: 1,
+      duration_minutes: null,
+      thumbnail_url: "",
+      is_published: false
+    }
+  });
+  useEffect(() => {
+    if (!dialogOpen) {
+      form.reset();
+      setEditingCourse(null);
+      setSlugManuallyEdited(false);
+    }
+  }, [dialogOpen, form]);
+  const watchedTitle = form.watch("title");
+  const watchedSlug = form.watch("slug");
+  useEffect(() => {
+    if (!slugManuallyEdited && !editingCourse) {
+      const generated = slugify$2(watchedTitle ?? "");
+      if (generated && generated !== watchedSlug) {
+        form.setValue("slug", generated, { shouldValidate: false });
+      }
+    }
+  }, [watchedTitle, watchedSlug, slugManuallyEdited, editingCourse, form]);
+  const { data: learningPaths = [] } = useQuery({
+    queryKey: ["admin-courses-paths"],
+    queryFn: async () => {
+      const { data, error } = await supabase2.from("learning_paths").select("id, title, slug").order("title", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    }
+  });
+  const pathLookup = useMemo(() => {
+    return learningPaths.reduce((acc, path) => {
+      acc[path.id] = path;
+      return acc;
+    }, {});
+  }, [learningPaths]);
+  const { data: courses, isLoading } = useQuery({
+    queryKey: ["admin-courses"],
+    queryFn: async () => {
+      const { data, error } = await supabase2.from("courses").select(
+        "id, title, slug, summary, description, path_id, order, duration_minutes, is_published, published_at, thumbnail_url, updated_at, modules:modules(id)"
+      ).order("order", { ascending: true });
+      if (error) throw error;
+      return (data ?? []).map((item) => ({
+        ...item,
+        moduleCount: Array.isArray(item.modules) ? item.modules.length : 0
+      }));
+    }
+  });
+  const filteredCourses = useMemo(() => {
+    if (!courses) return [];
+    if (selectedPathFilter === "all") return courses;
+    return courses.filter((course) => course.path_id === selectedPathFilter);
+  }, [courses, selectedPathFilter]);
+  const upsertMutation = useMutation({
+    mutationFn: async (values) => {
+      var _a, _b, _c;
+      const payload = {
+        path_id: values.path_id,
+        title: values.title.trim(),
+        slug: values.slug.trim(),
+        summary: ((_a = values.summary) == null ? void 0 : _a.trim()) ? values.summary.trim() : null,
+        description: ((_b = values.description) == null ? void 0 : _b.trim()) ? values.description.trim() : null,
+        order: values.order,
+        duration_minutes: values.duration_minutes ?? null,
+        thumbnail_url: ((_c = values.thumbnail_url) == null ? void 0 : _c.trim()) ? values.thumbnail_url.trim() : null,
+        is_published: values.is_published,
+        published_at: values.is_published ? (editingCourse == null ? void 0 : editingCourse.published_at) ?? (/* @__PURE__ */ new Date()).toISOString() : null
+      };
+      if (editingCourse) {
+        const { error } = await supabase2.from("courses").update(payload).eq("id", editingCourse.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase2.from("courses").insert({
+          ...payload,
+          published_at: values.is_published ? (/* @__PURE__ */ new Date()).toISOString() : null
+        });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-courses"] });
+      toast$1.success(editingCourse ? "Course updated" : "Course created");
+      setDialogOpen(false);
+    },
+    onError: (error) => {
+      console.error("Error saving course", error);
+      toast$1.error(error instanceof Error ? error.message : "Failed to save course");
+    }
+  });
+  const publishMutation = useMutation({
+    mutationFn: async ({ id, publish }) => {
+      const { error } = await supabase2.from("courses").update({ is_published: publish, published_at: publish ? (/* @__PURE__ */ new Date()).toISOString() : null }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-courses"] });
+      toast$1.success("Publish state updated");
+    },
+    onError: (error) => {
+      console.error("Error toggling publish", error);
+      toast$1.error(error instanceof Error ? error.message : "Failed to toggle publish state");
+    }
+  });
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
+      const { error } = await supabase2.from("courses").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-courses"] });
+      toast$1.success("Course deleted");
+      setDeleteTarget(null);
+    },
+    onError: (error) => {
+      console.error("Error deleting course", error);
+      toast$1.error(error instanceof Error ? error.message : "Failed to delete course");
+    }
+  });
+  const openForCreate = () => {
+    setEditingCourse(null);
+    setSlugManuallyEdited(false);
+    form.reset({
+      path_id: selectedPathFilter !== "all" ? selectedPathFilter : "",
+      title: "",
+      slug: "",
+      summary: "",
+      description: "",
+      order: 1,
+      duration_minutes: null,
+      thumbnail_url: "",
+      is_published: false
+    });
+    setDialogOpen(true);
+  };
+  const openForEdit = (course) => {
+    setEditingCourse(course);
+    setSlugManuallyEdited(true);
+    form.reset({
+      path_id: course.path_id ?? "",
+      title: course.title ?? "",
+      slug: course.slug ?? "",
+      summary: course.summary ?? "",
+      description: course.description ?? "",
+      order: course.order ?? 1,
+      duration_minutes: course.duration_minutes ?? null,
+      thumbnail_url: course.thumbnail_url ?? "",
+      is_published: course.is_published
+    });
+    setDialogOpen(true);
+  };
+  const onSubmit = (values) => {
+    upsertMutation.mutate(values);
+  };
+  return /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
+    /* @__PURE__ */ jsxs("div", { className: "flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between", children: [
+      /* @__PURE__ */ jsxs("div", { children: [
+        /* @__PURE__ */ jsx("h2", { className: "text-2xl font-semibold text-forge-dark", children: "Courses" }),
+        /* @__PURE__ */ jsx("p", { className: "text-sm text-forge-gray", children: "Manage courses inside each learning path. Adjust order, metadata, and publish state." })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "flex flex-col gap-3 sm:flex-row sm:items-center", children: [
+        /* @__PURE__ */ jsxs(
+          Select,
+          {
+            value: selectedPathFilter,
+            onValueChange: (value) => setSelectedPathFilter(value),
+            children: [
+              /* @__PURE__ */ jsx(SelectTrigger, { className: "w-[240px]", children: /* @__PURE__ */ jsx(SelectValue, { placeholder: "Filter by path" }) }),
+              /* @__PURE__ */ jsxs(SelectContent, { children: [
+                /* @__PURE__ */ jsx(SelectItem, { value: "all", children: "All paths" }),
+                learningPaths.map((path) => /* @__PURE__ */ jsx(SelectItem, { value: path.id, children: path.title }, path.id))
+              ] })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxs(Button, { onClick: openForCreate, className: "sm:w-auto", children: [
+          /* @__PURE__ */ jsx(Plus, { className: "mr-2 h-4 w-4" }),
+          "New Course"
+        ] })
+      ] })
+    ] }),
+    isLoading ? /* @__PURE__ */ jsx(Card, { className: "border-dashed border-forge-cream/70 bg-white/80", children: /* @__PURE__ */ jsxs(CardContent, { className: "flex items-center gap-3 p-8 text-forge-gray", children: [
+      /* @__PURE__ */ jsx(Loader2, { className: "h-4 w-4 animate-spin" }),
+      " Loading courses..."
+    ] }) }) : filteredCourses && filteredCourses.length > 0 ? /* @__PURE__ */ jsx("div", { className: "grid gap-4", children: filteredCourses.map((course) => {
+      var _a;
+      return /* @__PURE__ */ jsxs(Card, { className: "border border-forge-cream/70 bg-white/80", children: [
+        /* @__PURE__ */ jsxs(CardHeader, { className: "flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between", children: [
+          /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
+            /* @__PURE__ */ jsxs(CardTitle, { className: "flex flex-wrap items-center gap-2 text-forge-dark", children: [
+              "#",
+              course.order,
+              " · ",
+              course.title,
+              /* @__PURE__ */ jsx(
+                Badge,
+                {
+                  variant: course.is_published ? "default" : "outline",
+                  className: course.is_published ? "bg-forge-orange text-white hover:bg-forge-orange/90" : "",
+                  children: course.is_published ? "Published" : "Draft"
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsx(CardDescription, { className: "text-sm text-forge-gray", children: course.summary || "No summary" })
+          ] }),
+          /* @__PURE__ */ jsxs("div", { className: "flex gap-2", children: [
+            /* @__PURE__ */ jsx(Button, { variant: "outline", size: "icon", onClick: () => openForEdit(course), children: /* @__PURE__ */ jsx(Pencil, { className: "h-4 w-4" }) }),
+            /* @__PURE__ */ jsx(
+              Button,
+              {
+                variant: "outline",
+                size: "icon",
+                className: "text-red-500 hover:text-red-600",
+                onClick: () => setDeleteTarget(course),
+                children: /* @__PURE__ */ jsx(Trash2, { className: "h-4 w-4" })
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxs(CardContent, { className: "space-y-3 text-sm text-forge-gray", children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex flex-wrap items-center gap-4", children: [
+            /* @__PURE__ */ jsxs("div", { children: [
+              /* @__PURE__ */ jsx("span", { className: "font-semibold text-forge-dark", children: "Path:" }),
+              " ",
+              course.path_id ? ((_a = pathLookup[course.path_id]) == null ? void 0 : _a.title) ?? "Unknown path" : "Unassigned"
+            ] }),
+            /* @__PURE__ */ jsx(Separator, { orientation: "vertical", className: "hidden h-4 sm:block" }),
+            /* @__PURE__ */ jsxs("div", { children: [
+              /* @__PURE__ */ jsx("span", { className: "font-semibold text-forge-dark", children: "Slug:" }),
+              " ",
+              course.slug
+            ] }),
+            /* @__PURE__ */ jsx(Separator, { orientation: "vertical", className: "hidden h-4 sm:block" }),
+            /* @__PURE__ */ jsxs("div", { children: [
+              /* @__PURE__ */ jsx("span", { className: "font-semibold text-forge-dark", children: "Modules:" }),
+              " ",
+              course.moduleCount
+            ] }),
+            course.duration_minutes != null && /* @__PURE__ */ jsxs(Fragment, { children: [
+              /* @__PURE__ */ jsx(Separator, { orientation: "vertical", className: "hidden h-4 sm:block" }),
+              /* @__PURE__ */ jsxs("div", { children: [
+                /* @__PURE__ */ jsx("span", { className: "font-semibold text-forge-dark", children: "Duration:" }),
+                " ",
+                course.duration_minutes,
+                " min"
+              ] })
+            ] })
+          ] }),
+          course.description && /* @__PURE__ */ jsx("p", { className: "text-xs text-forge-gray/90", children: course.description }),
+          course.thumbnail_url && /* @__PURE__ */ jsx(
+            "a",
+            {
+              href: course.thumbnail_url,
+              target: "_blank",
+              rel: "noopener noreferrer",
+              className: "text-xs font-medium text-forge-orange hover:underline",
+              children: "View thumbnail"
+            }
+          ),
+          /* @__PURE__ */ jsxs("div", { className: "text-xs text-forge-gray/80", children: [
+            "Updated ",
+            course.updated_at ? formatDistanceToNow(new Date(course.updated_at), { addSuffix: true }) : "N/A"
+          ] })
+        ] }),
+        /* @__PURE__ */ jsx(CardFooter, { className: "flex items-center justify-between", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 text-sm", children: [
+          /* @__PURE__ */ jsx(
+            Switch,
+            {
+              id: `course-publish-${course.id}`,
+              checked: course.is_published,
+              onCheckedChange: (checked) => publishMutation.mutate({ id: course.id, publish: checked }),
+              disabled: publishMutation.isPending
+            }
+          ),
+          /* @__PURE__ */ jsx("label", { htmlFor: `course-publish-${course.id}`, className: "text-forge-gray", children: course.is_published ? "Unpublish" : "Publish" })
+        ] }) })
+      ] }, course.id);
+    }) }) : /* @__PURE__ */ jsx(Card, { className: "border-dashed border-forge-cream/70 bg-white/70", children: /* @__PURE__ */ jsx(CardContent, { className: "p-8 text-center text-forge-gray", children: "No courses found for this filter. Create a new course to start building structure." }) }),
+    /* @__PURE__ */ jsx(Dialog, { open: dialogOpen, onOpenChange: setDialogOpen, children: /* @__PURE__ */ jsxs(DialogContent, { className: "max-w-2xl", children: [
+      /* @__PURE__ */ jsxs(DialogHeader, { children: [
+        /* @__PURE__ */ jsx(DialogTitle, { children: editingCourse ? "Edit course" : "New course" }),
+        /* @__PURE__ */ jsx(DialogDescription, { children: editingCourse ? "Update metadata, ordering, and visibility for this course." : "Create a course inside a learning path. You can attach modules after saving." })
+      ] }),
+      /* @__PURE__ */ jsx(Form, { ...form, children: /* @__PURE__ */ jsxs("form", { onSubmit: form.handleSubmit(onSubmit), className: "space-y-6", children: [
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "path_id",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: "Learning path" }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsxs(Select, { value: field.value, onValueChange: field.onChange, children: [
+                /* @__PURE__ */ jsx(SelectTrigger, { className: "w-full", children: /* @__PURE__ */ jsx(SelectValue, { placeholder: "Select a learning path" }) }),
+                /* @__PURE__ */ jsx(SelectContent, { children: learningPaths.map((path) => /* @__PURE__ */ jsx(SelectItem, { value: path.id, children: path.title }, path.id)) })
+              ] }) }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsxs("div", { className: "grid gap-6 md:grid-cols-2", children: [
+          /* @__PURE__ */ jsx(
+            FormField,
+            {
+              control: form.control,
+              name: "title",
+              render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+                /* @__PURE__ */ jsx(FormLabel, { children: "Title" }),
+                /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Input, { placeholder: "e.g. React & TypeScript Foundations", ...field }) }),
+                /* @__PURE__ */ jsx(FormMessage, {})
+              ] })
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            FormField,
+            {
+              control: form.control,
+              name: "slug",
+              render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+                /* @__PURE__ */ jsx(FormLabel, { children: "Slug" }),
+                /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(
+                  Input,
+                  {
+                    placeholder: "react-typescript-foundations",
+                    ...field,
+                    onChange: (event) => {
+                      setSlugManuallyEdited(true);
+                      field.onChange(event);
+                    }
+                  }
+                ) }),
+                /* @__PURE__ */ jsx(FormMessage, {})
+              ] })
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "summary",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: "Summary" }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Input, { placeholder: "Short one-liner for dashboards", ...field }) }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "description",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: "Description" }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Textarea, { rows: 4, placeholder: "Detailed course description", ...field }) }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsxs("div", { className: "grid gap-6 md:grid-cols-3", children: [
+          /* @__PURE__ */ jsx(
+            FormField,
+            {
+              control: form.control,
+              name: "order",
+              render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+                /* @__PURE__ */ jsx(FormLabel, { children: "Order" }),
+                /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Input, { type: "number", min: 1, ...field }) }),
+                /* @__PURE__ */ jsx(FormMessage, {})
+              ] })
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            FormField,
+            {
+              control: form.control,
+              name: "duration_minutes",
+              render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+                /* @__PURE__ */ jsx(FormLabel, { children: "Duration (minutes)" }),
+                /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Input, { type: "number", min: 0, placeholder: "Optional", ...field }) }),
+                /* @__PURE__ */ jsx(FormMessage, {})
+              ] })
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            FormField,
+            {
+              control: form.control,
+              name: "thumbnail_url",
+              render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+                /* @__PURE__ */ jsx(FormLabel, { children: "Thumbnail URL" }),
+                /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Input, { placeholder: "https://...", ...field }) }),
+                /* @__PURE__ */ jsx(FormDescription, { children: "Use a Supabase Storage public URL or any accessible image. Media uploads will be integrated soon." }),
+                /* @__PURE__ */ jsx(FormMessage, {})
+              ] })
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "is_published",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { className: "flex flex-row items-center justify-between rounded-lg border border-forge-cream/80 bg-forge-cream/30 p-3", children: [
+              /* @__PURE__ */ jsxs("div", { className: "space-y-0.5", children: [
+                /* @__PURE__ */ jsx(FormLabel, { className: "text-base", children: "Publish immediately" }),
+                /* @__PURE__ */ jsx(DialogDescription, { children: field.value ? "Published courses are visible to learners enrolled in the path." : "Keep as draft until modules and lessons are ready." })
+              ] }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(
+                Switch,
+                {
+                  checked: field.value,
+                  onCheckedChange: field.onChange,
+                  disabled: form.formState.isSubmitting
+                }
+              ) })
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsxs(DialogFooter, { children: [
+          /* @__PURE__ */ jsx(Button, { type: "button", variant: "outline", onClick: () => setDialogOpen(false), disabled: form.formState.isSubmitting, children: "Cancel" }),
+          /* @__PURE__ */ jsx(Button, { type: "submit", disabled: form.formState.isSubmitting, children: form.formState.isSubmitting ? /* @__PURE__ */ jsxs(Fragment, { children: [
+            /* @__PURE__ */ jsx(Loader2, { className: "mr-2 h-4 w-4 animate-spin" }),
+            " Saving..."
+          ] }) : editingCourse ? "Save changes" : "Create course" })
+        ] })
+      ] }) })
+    ] }) }),
+    /* @__PURE__ */ jsx(AlertDialog, { open: Boolean(deleteTarget), onOpenChange: (open) => !open && setDeleteTarget(null), children: /* @__PURE__ */ jsxs(AlertDialogContent, { children: [
+      /* @__PURE__ */ jsxs(AlertDialogHeader, { children: [
+        /* @__PURE__ */ jsx(AlertDialogTitle, { children: "Delete course" }),
+        /* @__PURE__ */ jsxs(AlertDialogDescription, { children: [
+          "Deleting a course will also remove its modules and lessons. This cannot be undone. Continue deleting “",
+          deleteTarget == null ? void 0 : deleteTarget.title,
+          "”?"
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxs(AlertDialogFooter, { children: [
+        /* @__PURE__ */ jsx(AlertDialogCancel, { disabled: deleteMutation.isPending, children: "Cancel" }),
+        /* @__PURE__ */ jsx(
+          AlertDialogAction,
+          {
+            onClick: () => deleteTarget && deleteMutation.mutate(deleteTarget.id),
+            className: "bg-red-500 hover:bg-red-600",
+            disabled: deleteMutation.isPending,
+            children: deleteMutation.isPending ? /* @__PURE__ */ jsxs(Fragment, { children: [
+              /* @__PURE__ */ jsx(Loader2, { className: "mr-2 h-4 w-4 animate-spin" }),
+              " Deleting..."
+            ] }) : "Delete"
+          }
+        )
+      ] })
+    ] }) })
+  ] });
+}
+const slugify$1 = (value) => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
+const moduleFormSchema = z.object({
+  course_id: z.string().uuid("Select a course"),
+  title: z.string().min(3, "Title must have at least 3 characters"),
+  slug: z.string().min(3, "Slug must have at least 3 characters").regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers, and hyphens only"),
+  summary: z.string().optional().or(z.literal("")),
+  order: z.coerce.number().int("Order must be an integer").min(1, "Order must be at least 1"),
+  is_published: z.boolean().default(false)
+});
+function AdminModules() {
+  const supabase2 = useMemo(() => createClientBrowser(), []);
+  const queryClient = useQueryClient();
+  const [selectedPathFilter, setSelectedPathFilter] = useState("all");
+  const [selectedCourseFilter, setSelectedCourseFilter] = useState("all");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingModule, setEditingModule] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const form = useForm({
+    resolver: zodResolver(moduleFormSchema),
+    defaultValues: {
+      course_id: "",
+      title: "",
+      slug: "",
+      summary: "",
+      order: 1,
+      is_published: false
+    }
+  });
+  useEffect(() => {
+    if (!dialogOpen) {
+      form.reset();
+      setEditingModule(null);
+      setSlugManuallyEdited(false);
+    }
+  }, [dialogOpen, form]);
+  const watchedTitle = form.watch("title");
+  const watchedSlug = form.watch("slug");
+  useEffect(() => {
+    if (!slugManuallyEdited && !editingModule) {
+      const generated = slugify$1(watchedTitle ?? "");
+      if (generated && generated !== watchedSlug) {
+        form.setValue("slug", generated, { shouldValidate: false });
+      }
+    }
+  }, [watchedTitle, watchedSlug, slugManuallyEdited, editingModule, form]);
+  const { data: learningPaths = [] } = useQuery({
+    queryKey: ["admin-modules-paths"],
+    queryFn: async () => {
+      const { data, error } = await supabase2.from("learning_paths").select("id, title").order("title", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    }
+  });
+  const { data: courses = [] } = useQuery({
+    queryKey: ["admin-modules-courses"],
+    queryFn: async () => {
+      const { data, error } = await supabase2.from("courses").select("id, title, path_id, order").order("path_id", { ascending: true }).order("order", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    }
+  });
+  const pathLookup = useMemo(() => {
+    return learningPaths.reduce((acc, path) => {
+      acc[path.id] = path;
+      return acc;
+    }, {});
+  }, [learningPaths]);
+  const courseLookup = useMemo(() => {
+    return courses.reduce((acc, course) => {
+      acc[course.id] = course;
+      return acc;
+    }, {});
+  }, [courses]);
+  const filteredCourses = useMemo(() => {
+    if (selectedPathFilter === "all") return courses;
+    return courses.filter((course) => course.path_id === selectedPathFilter);
+  }, [courses, selectedPathFilter]);
+  const { data: modules, isLoading } = useQuery({
+    queryKey: ["admin-modules"],
+    queryFn: async () => {
+      const { data, error } = await supabase2.from("modules").select("id, title, slug, summary, order, course_id, is_published, published_at, updated_at, lessons:lessons(id)").order("course_id", { ascending: true }).order("order", { ascending: true });
+      if (error) throw error;
+      return (data ?? []).map((item) => ({
+        ...item,
+        lessonCount: Array.isArray(item.lessons) ? item.lessons.length : 0
+      }));
+    }
+  });
+  const filteredModules = useMemo(() => {
+    if (!modules) return [];
+    return modules.filter((module) => {
+      if (selectedPathFilter !== "all") {
+        const course = module.course_id ? courseLookup[module.course_id] : null;
+        if (!course || course.path_id !== selectedPathFilter) return false;
+      }
+      if (selectedCourseFilter !== "all" && module.course_id !== selectedCourseFilter) {
+        return false;
+      }
+      return true;
+    });
+  }, [modules, selectedPathFilter, selectedCourseFilter, courseLookup]);
+  const upsertMutation = useMutation({
+    mutationFn: async (values) => {
+      var _a;
+      const payload = {
+        course_id: values.course_id,
+        title: values.title.trim(),
+        slug: values.slug.trim(),
+        summary: ((_a = values.summary) == null ? void 0 : _a.trim()) ? values.summary.trim() : null,
+        order: values.order,
+        is_published: values.is_published,
+        published_at: values.is_published ? (editingModule == null ? void 0 : editingModule.published_at) ?? (/* @__PURE__ */ new Date()).toISOString() : null
+      };
+      if (editingModule) {
+        const { error } = await supabase2.from("modules").update(payload).eq("id", editingModule.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase2.from("modules").insert({
+          ...payload,
+          published_at: values.is_published ? (/* @__PURE__ */ new Date()).toISOString() : null
+        });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-modules"] });
+      toast$1.success(editingModule ? "Module updated" : "Module created");
+      setDialogOpen(false);
+    },
+    onError: (error) => {
+      console.error("Error saving module", error);
+      toast$1.error(error instanceof Error ? error.message : "Failed to save module");
+    }
+  });
+  const publishMutation = useMutation({
+    mutationFn: async ({ id, publish }) => {
+      const { error } = await supabase2.from("modules").update({ is_published: publish, published_at: publish ? (/* @__PURE__ */ new Date()).toISOString() : null }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-modules"] });
+      toast$1.success("Publish state updated");
+    },
+    onError: (error) => {
+      console.error("Error toggling publish", error);
+      toast$1.error(error instanceof Error ? error.message : "Failed to toggle publish state");
+    }
+  });
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
+      const { error } = await supabase2.from("modules").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-modules"] });
+      toast$1.success("Module deleted");
+      setDeleteTarget(null);
+    },
+    onError: (error) => {
+      console.error("Error deleting module", error);
+      toast$1.error(error instanceof Error ? error.message : "Failed to delete module");
+    }
+  });
+  const openForCreate = () => {
+    setEditingModule(null);
+    setSlugManuallyEdited(false);
+    form.reset({
+      course_id: selectedCourseFilter !== "all" ? selectedCourseFilter : "",
+      title: "",
+      slug: "",
+      summary: "",
+      order: 1,
+      is_published: false
+    });
+    setDialogOpen(true);
+  };
+  const openForEdit = (module) => {
+    setEditingModule(module);
+    setSlugManuallyEdited(true);
+    form.reset({
+      course_id: module.course_id ?? "",
+      title: module.title ?? "",
+      slug: module.slug ?? "",
+      summary: module.summary ?? "",
+      order: module.order ?? 1,
+      is_published: module.is_published
+    });
+    setDialogOpen(true);
+  };
+  const onSubmit = (values) => {
+    upsertMutation.mutate(values);
+  };
+  return /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
+    /* @__PURE__ */ jsxs("div", { className: "flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between", children: [
+      /* @__PURE__ */ jsxs("div", { children: [
+        /* @__PURE__ */ jsx("h2", { className: "text-2xl font-semibold text-forge-dark", children: "Modules" }),
+        /* @__PURE__ */ jsx("p", { className: "text-sm text-forge-gray", children: "Structure lessons within courses. Manage ordering and publish visibility for each module." })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "flex flex-col gap-3 md:flex-row md:items-center", children: [
+        /* @__PURE__ */ jsxs(
+          Select,
+          {
+            value: selectedPathFilter,
+            onValueChange: (value) => {
+              setSelectedPathFilter(value);
+              setSelectedCourseFilter("all");
+            },
+            children: [
+              /* @__PURE__ */ jsx(SelectTrigger, { className: "w-[220px]", children: /* @__PURE__ */ jsx(SelectValue, { placeholder: "Filter by path" }) }),
+              /* @__PURE__ */ jsxs(SelectContent, { children: [
+                /* @__PURE__ */ jsx(SelectItem, { value: "all", children: "All paths" }),
+                learningPaths.map((path) => /* @__PURE__ */ jsx(SelectItem, { value: path.id, children: path.title }, path.id))
+              ] })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxs(
+          Select,
+          {
+            value: selectedCourseFilter,
+            onValueChange: (value) => setSelectedCourseFilter(value),
+            children: [
+              /* @__PURE__ */ jsx(SelectTrigger, { className: "w-[220px]", children: /* @__PURE__ */ jsx(SelectValue, { placeholder: "Filter by course" }) }),
+              /* @__PURE__ */ jsxs(SelectContent, { children: [
+                /* @__PURE__ */ jsx(SelectItem, { value: "all", children: "All courses" }),
+                filteredCourses.map((course) => /* @__PURE__ */ jsx(SelectItem, { value: course.id, children: course.title }, course.id))
+              ] })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxs(Button, { onClick: openForCreate, className: "md:w-auto", children: [
+          /* @__PURE__ */ jsx(Plus, { className: "mr-2 h-4 w-4" }),
+          "New Module"
+        ] })
+      ] })
+    ] }),
+    isLoading ? /* @__PURE__ */ jsx(Card, { className: "border-dashed border-forge-cream/70 bg-white/80", children: /* @__PURE__ */ jsxs(CardContent, { className: "flex items-center gap-3 p-8 text-forge-gray", children: [
+      /* @__PURE__ */ jsx(Loader2, { className: "h-4 w-4 animate-spin" }),
+      " Loading modules..."
+    ] }) }) : filteredModules && filteredModules.length > 0 ? /* @__PURE__ */ jsx("div", { className: "grid gap-4", children: filteredModules.map((module) => {
+      const course = module.course_id ? courseLookup[module.course_id] : null;
+      const path = (course == null ? void 0 : course.path_id) ? pathLookup[course.path_id] : null;
+      return /* @__PURE__ */ jsxs(Card, { className: "border border-forge-cream/70 bg-white/80", children: [
+        /* @__PURE__ */ jsxs(CardHeader, { className: "flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between", children: [
+          /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
+            /* @__PURE__ */ jsxs(CardTitle, { className: "flex flex-wrap items-center gap-2 text-forge-dark", children: [
+              "#",
+              module.order,
+              " · ",
+              module.title,
+              /* @__PURE__ */ jsx(
+                Badge,
+                {
+                  variant: module.is_published ? "default" : "outline",
+                  className: module.is_published ? "bg-forge-orange text-white hover:bg-forge-orange/90" : "",
+                  children: module.is_published ? "Published" : "Draft"
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsx(CardDescription, { className: "text-sm text-forge-gray", children: module.summary || "No summary" })
+          ] }),
+          /* @__PURE__ */ jsxs("div", { className: "flex gap-2", children: [
+            /* @__PURE__ */ jsx(Button, { variant: "outline", size: "icon", onClick: () => openForEdit(module), children: /* @__PURE__ */ jsx(Pencil, { className: "h-4 w-4" }) }),
+            /* @__PURE__ */ jsx(
+              Button,
+              {
+                variant: "outline",
+                size: "icon",
+                className: "text-red-500 hover:text-red-600",
+                onClick: () => setDeleteTarget(module),
+                children: /* @__PURE__ */ jsx(Trash2, { className: "h-4 w-4" })
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxs(CardContent, { className: "space-y-3 text-sm text-forge-gray", children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex flex-wrap items-center gap-4", children: [
+            /* @__PURE__ */ jsxs("div", { children: [
+              /* @__PURE__ */ jsx("span", { className: "font-semibold text-forge-dark", children: "Course:" }),
+              " ",
+              course ? course.title : "Unassigned"
+            ] }),
+            /* @__PURE__ */ jsx(Separator, { orientation: "vertical", className: "hidden h-4 sm:block" }),
+            /* @__PURE__ */ jsxs("div", { children: [
+              /* @__PURE__ */ jsx("span", { className: "font-semibold text-forge-dark", children: "Path:" }),
+              " ",
+              path ? path.title : "Unassigned"
+            ] }),
+            /* @__PURE__ */ jsx(Separator, { orientation: "vertical", className: "hidden h-4 sm:block" }),
+            /* @__PURE__ */ jsxs("div", { children: [
+              /* @__PURE__ */ jsx("span", { className: "font-semibold text-forge-dark", children: "Slug:" }),
+              " ",
+              module.slug
+            ] }),
+            /* @__PURE__ */ jsx(Separator, { orientation: "vertical", className: "hidden h-4 sm:block" }),
+            /* @__PURE__ */ jsxs("div", { children: [
+              /* @__PURE__ */ jsx("span", { className: "font-semibold text-forge-dark", children: "Lessons:" }),
+              " ",
+              module.lessonCount
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxs("div", { className: "text-xs text-forge-gray/80", children: [
+            "Updated ",
+            module.updated_at ? formatDistanceToNow(new Date(module.updated_at), { addSuffix: true }) : "N/A"
+          ] })
+        ] }),
+        /* @__PURE__ */ jsx(CardFooter, { className: "flex items-center justify-between", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 text-sm", children: [
+          /* @__PURE__ */ jsx(
+            Switch,
+            {
+              id: `module-publish-${module.id}`,
+              checked: module.is_published,
+              onCheckedChange: (checked) => publishMutation.mutate({ id: module.id, publish: checked }),
+              disabled: publishMutation.isPending
+            }
+          ),
+          /* @__PURE__ */ jsx("label", { htmlFor: `module-publish-${module.id}`, className: "text-forge-gray", children: module.is_published ? "Unpublish" : "Publish" })
+        ] }) })
+      ] }, module.id);
+    }) }) : /* @__PURE__ */ jsx(Card, { className: "border-dashed border-forge-cream/70 bg-white/70", children: /* @__PURE__ */ jsx(CardContent, { className: "p-8 text-center text-forge-gray", children: "No modules found for this filter. Create a new module to organize lessons." }) }),
+    /* @__PURE__ */ jsx(Dialog, { open: dialogOpen, onOpenChange: setDialogOpen, children: /* @__PURE__ */ jsxs(DialogContent, { className: "max-w-xl", children: [
+      /* @__PURE__ */ jsxs(DialogHeader, { children: [
+        /* @__PURE__ */ jsx(DialogTitle, { children: editingModule ? "Edit module" : "New module" }),
+        /* @__PURE__ */ jsx(DialogDescription, { children: editingModule ? "Adjust module metadata, ordering, and publish visibility." : "Create a module within a course to group related lessons." })
+      ] }),
+      /* @__PURE__ */ jsx(Form, { ...form, children: /* @__PURE__ */ jsxs("form", { onSubmit: form.handleSubmit(onSubmit), className: "space-y-6", children: [
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "course_id",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: "Course" }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsxs(Select, { value: field.value, onValueChange: field.onChange, children: [
+                /* @__PURE__ */ jsx(SelectTrigger, { className: "w-full", children: /* @__PURE__ */ jsx(SelectValue, { placeholder: "Select a course" }) }),
+                /* @__PURE__ */ jsx(SelectContent, { children: courses.map((course) => /* @__PURE__ */ jsx(SelectItem, { value: course.id, children: course.title }, course.id)) })
+              ] }) }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsxs("div", { className: "grid gap-6 md:grid-cols-2", children: [
+          /* @__PURE__ */ jsx(
+            FormField,
+            {
+              control: form.control,
+              name: "title",
+              render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+                /* @__PURE__ */ jsx(FormLabel, { children: "Title" }),
+                /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Input, { placeholder: "e.g. React Fundamentals", ...field }) }),
+                /* @__PURE__ */ jsx(FormMessage, {})
+              ] })
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            FormField,
+            {
+              control: form.control,
+              name: "slug",
+              render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+                /* @__PURE__ */ jsx(FormLabel, { children: "Slug" }),
+                /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(
+                  Input,
+                  {
+                    placeholder: "react-fundamentals",
+                    ...field,
+                    onChange: (event) => {
+                      setSlugManuallyEdited(true);
+                      field.onChange(event);
+                    }
+                  }
+                ) }),
+                /* @__PURE__ */ jsx(FormMessage, {})
+              ] })
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "summary",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: "Summary" }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Input, { placeholder: "Optional highlight for the module", ...field }) }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "order",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: "Order" }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Input, { type: "number", min: 1, ...field }) }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "is_published",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { className: "flex flex-row items-center justify-between rounded-lg border border-forge-cream/80 bg-forge-cream/30 p-3", children: [
+              /* @__PURE__ */ jsxs("div", { className: "space-y-0.5", children: [
+                /* @__PURE__ */ jsx(FormLabel, { className: "text-base", children: "Publish immediately" }),
+                /* @__PURE__ */ jsx(DialogDescription, { children: field.value ? "Published modules are available inside the course." : "Keep as draft until lessons are ready." })
+              ] }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(
+                Switch,
+                {
+                  checked: field.value,
+                  onCheckedChange: field.onChange,
+                  disabled: form.formState.isSubmitting
+                }
+              ) })
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsxs(DialogFooter, { children: [
+          /* @__PURE__ */ jsx(Button, { type: "button", variant: "outline", onClick: () => setDialogOpen(false), disabled: form.formState.isSubmitting, children: "Cancel" }),
+          /* @__PURE__ */ jsx(Button, { type: "submit", disabled: form.formState.isSubmitting, children: form.formState.isSubmitting ? /* @__PURE__ */ jsxs(Fragment, { children: [
+            /* @__PURE__ */ jsx(Loader2, { className: "mr-2 h-4 w-4 animate-spin" }),
+            " Saving..."
+          ] }) : editingModule ? "Save changes" : "Create module" })
+        ] })
+      ] }) })
+    ] }) }),
+    /* @__PURE__ */ jsx(AlertDialog, { open: Boolean(deleteTarget), onOpenChange: (open) => !open && setDeleteTarget(null), children: /* @__PURE__ */ jsxs(AlertDialogContent, { children: [
+      /* @__PURE__ */ jsxs(AlertDialogHeader, { children: [
+        /* @__PURE__ */ jsx(AlertDialogTitle, { children: "Delete module" }),
+        /* @__PURE__ */ jsxs(AlertDialogDescription, { children: [
+          "Deleting a module will remove all its lessons. This action cannot be undone. Continue deleting “",
+          deleteTarget == null ? void 0 : deleteTarget.title,
+          "”?"
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxs(AlertDialogFooter, { children: [
+        /* @__PURE__ */ jsx(AlertDialogCancel, { disabled: deleteMutation.isPending, children: "Cancel" }),
+        /* @__PURE__ */ jsx(
+          AlertDialogAction,
+          {
+            onClick: () => deleteTarget && deleteMutation.mutate(deleteTarget.id),
+            className: "bg-red-500 hover:bg-red-600",
+            disabled: deleteMutation.isPending,
+            children: deleteMutation.isPending ? /* @__PURE__ */ jsxs(Fragment, { children: [
+              /* @__PURE__ */ jsx(Loader2, { className: "mr-2 h-4 w-4 animate-spin" }),
+              " Deleting..."
+            ] }) : "Delete"
+          }
+        )
+      ] })
+    ] }) })
+  ] });
+}
+const slugify = (value) => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
+const lessonFormSchema = z.object({
+  module_id: z.string().uuid("Select a module"),
+  title: z.string().min(3, "Title must have at least 3 characters"),
+  slug: z.string().min(3, "Slug must have at least 3 characters").regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers, and hyphens only"),
+  lesson_type: z.enum(["text", "video", "quiz"]),
+  text_content: z.string().optional().or(z.literal("")),
+  video_url: z.string().optional().or(z.literal("")),
+  quiz_json: z.string().optional().or(z.literal("")),
+  xp_value: z.coerce.number().int().min(0, "XP must be zero or greater"),
+  order: z.coerce.number().int().min(1, "Order must be at least 1"),
+  duration_minutes: z.union([z.coerce.number().int().min(0), z.literal("")]).optional().transform((value) => value === "" || value === void 0 ? null : Number(value)),
+  thumbnail_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  is_published: z.boolean().default(false)
+}).refine(
+  (data) => {
+    var _a;
+    return data.lesson_type !== "text" || Boolean((_a = data.text_content) == null ? void 0 : _a.trim());
+  },
+  {
+    path: ["text_content"],
+    message: "Provide content for the text lesson"
+  }
+).refine(
+  (data) => {
+    var _a;
+    return data.lesson_type !== "video" || Boolean((_a = data.video_url) == null ? void 0 : _a.trim());
+  },
+  {
+    path: ["video_url"],
+    message: "Provide a video URL"
+  }
+).refine(
+  (data) => {
+    var _a;
+    if (data.lesson_type !== "quiz") return true;
+    if (!((_a = data.quiz_json) == null ? void 0 : _a.trim())) return false;
+    try {
+      const parsed = JSON.parse(data.quiz_json);
+      return Array.isArray(parsed);
+    } catch {
+      return false;
+    }
+  },
+  {
+    path: ["quiz_json"],
+    message: "Provide a valid JSON array of quiz questions"
+  }
+);
+function AdminLessons() {
+  const supabase2 = useMemo(() => createClientBrowser(), []);
+  const queryClient = useQueryClient();
+  const [selectedPathFilter, setSelectedPathFilter] = useState("all");
+  const [selectedCourseFilter, setSelectedCourseFilter] = useState("all");
+  const [selectedModuleFilter, setSelectedModuleFilter] = useState("all");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingLesson, setEditingLesson] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const form = useForm({
+    resolver: zodResolver(lessonFormSchema),
+    defaultValues: {
+      module_id: "",
+      title: "",
+      slug: "",
+      lesson_type: "text",
+      text_content: "",
+      video_url: "",
+      quiz_json: "",
+      xp_value: 10,
+      order: 1,
+      duration_minutes: null,
+      thumbnail_url: "",
+      is_published: false
+    }
+  });
+  useEffect(() => {
+    if (!dialogOpen) {
+      form.reset();
+      setEditingLesson(null);
+      setSlugManuallyEdited(false);
+    }
+  }, [dialogOpen, form]);
+  const watchedTitle = form.watch("title");
+  const watchedSlug = form.watch("slug");
+  useEffect(() => {
+    if (!slugManuallyEdited && !editingLesson) {
+      const generated = slugify(watchedTitle ?? "");
+      if (generated && generated !== watchedSlug) {
+        form.setValue("slug", generated, { shouldValidate: false });
+      }
+    }
+  }, [watchedTitle, watchedSlug, slugManuallyEdited, editingLesson, form]);
+  const { data: learningPaths = [] } = useQuery({
+    queryKey: ["admin-lessons-paths"],
+    queryFn: async () => {
+      const { data, error } = await supabase2.from("learning_paths").select("id, title").order("title", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    }
+  });
+  const { data: courses = [] } = useQuery({
+    queryKey: ["admin-lessons-courses"],
+    queryFn: async () => {
+      const { data, error } = await supabase2.from("courses").select("id, title, path_id, order").order("path_id", { ascending: true }).order("order", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    }
+  });
+  const { data: modules = [] } = useQuery({
+    queryKey: ["admin-lessons-modules"],
+    queryFn: async () => {
+      const { data, error } = await supabase2.from("modules").select("id, title, course_id, order").order("course_id", { ascending: true }).order("order", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    }
+  });
+  const moduleLookup = useMemo(() => {
+    return modules.reduce((acc, module) => {
+      acc[module.id] = module;
+      return acc;
+    }, {});
+  }, [modules]);
+  const courseLookup = useMemo(() => {
+    return courses.reduce((acc, course) => {
+      acc[course.id] = course;
+      return acc;
+    }, {});
+  }, [courses]);
+  const pathLookup = useMemo(() => {
+    return learningPaths.reduce((acc, path) => {
+      acc[path.id] = path;
+      return acc;
+    }, {});
+  }, [learningPaths]);
+  const filteredCourses = useMemo(() => {
+    if (selectedPathFilter === "all") return courses;
+    return courses.filter((course) => course.path_id === selectedPathFilter);
+  }, [courses, selectedPathFilter]);
+  const filteredModules = useMemo(() => {
+    return modules.filter((module) => {
+      if (selectedPathFilter !== "all") {
+        const course = module.course_id ? courseLookup[module.course_id] : null;
+        if (!course || course.path_id !== selectedPathFilter) return false;
+      }
+      if (selectedCourseFilter !== "all" && module.course_id !== selectedCourseFilter) {
+        return false;
+      }
+      return true;
+    });
+  }, [modules, selectedPathFilter, selectedCourseFilter, courseLookup]);
+  const { data: lessons2, isLoading } = useQuery({
+    queryKey: ["admin-lessons"],
+    queryFn: async () => {
+      const { data, error } = await supabase2.from("lessons").select(
+        "id, title, slug, lesson_type, module_id, order, content, xp_value, duration_minutes, thumbnail_url, is_published, published_at, updated_at"
+      ).order("module_id", { ascending: true }).order("order", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    }
+  });
+  const filteredLessons = useMemo(() => {
+    if (!lessons2) return [];
+    return lessons2.filter((lesson) => {
+      const module = lesson.module_id ? moduleLookup[lesson.module_id] : null;
+      const course = (module == null ? void 0 : module.course_id) ? courseLookup[module.course_id] : null;
+      const pathId = (course == null ? void 0 : course.path_id) ?? null;
+      if (selectedPathFilter !== "all" && pathId !== selectedPathFilter) return false;
+      if (selectedCourseFilter !== "all" && (module == null ? void 0 : module.course_id) !== selectedCourseFilter) return false;
+      if (selectedModuleFilter !== "all" && lesson.module_id !== selectedModuleFilter) return false;
+      return true;
+    });
+  }, [lessons2, selectedPathFilter, selectedCourseFilter, selectedModuleFilter, moduleLookup, courseLookup]);
+  const upsertMutation = useMutation({
+    mutationFn: async (values) => {
+      var _a, _b, _c;
+      let content = null;
+      if (values.lesson_type === "text") {
+        content = ((_a = values.text_content) == null ? void 0 : _a.trim()) ?? "";
+      } else if (values.lesson_type === "video") {
+        content = ((_b = values.video_url) == null ? void 0 : _b.trim()) ?? "";
+      } else {
+        content = JSON.parse(values.quiz_json ?? "[]");
+      }
+      const payload = {
+        module_id: values.module_id,
+        title: values.title.trim(),
+        slug: values.slug.trim(),
+        lesson_type: values.lesson_type,
+        content,
+        xp_value: values.xp_value,
+        order: values.order,
+        duration_minutes: values.duration_minutes ?? null,
+        thumbnail_url: ((_c = values.thumbnail_url) == null ? void 0 : _c.trim()) ? values.thumbnail_url.trim() : null,
+        is_published: values.is_published,
+        published_at: values.is_published ? (editingLesson == null ? void 0 : editingLesson.published_at) ?? (/* @__PURE__ */ new Date()).toISOString() : null
+      };
+      if (editingLesson) {
+        const { error } = await supabase2.from("lessons").update(payload).eq("id", editingLesson.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase2.from("lessons").insert({
+          ...payload,
+          published_at: values.is_published ? (/* @__PURE__ */ new Date()).toISOString() : null
+        });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-lessons"] });
+      toast$1.success(editingLesson ? "Lesson updated" : "Lesson created");
+      setDialogOpen(false);
+    },
+    onError: (error) => {
+      console.error("Error saving lesson", error);
+      toast$1.error(error instanceof Error ? error.message : "Failed to save lesson");
+    }
+  });
+  const publishMutation = useMutation({
+    mutationFn: async ({ id, publish }) => {
+      const { error } = await supabase2.from("lessons").update({ is_published: publish, published_at: publish ? (/* @__PURE__ */ new Date()).toISOString() : null }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-lessons"] });
+      toast$1.success("Publish state updated");
+    },
+    onError: (error) => {
+      console.error("Error toggling publish", error);
+      toast$1.error(error instanceof Error ? error.message : "Failed to toggle publish state");
+    }
+  });
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
+      const { error } = await supabase2.from("lessons").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-lessons"] });
+      toast$1.success("Lesson deleted");
+      setDeleteTarget(null);
+    },
+    onError: (error) => {
+      console.error("Error deleting lesson", error);
+      toast$1.error(error instanceof Error ? error.message : "Failed to delete lesson");
+    }
+  });
+  const openForCreate = () => {
+    setEditingLesson(null);
+    setSlugManuallyEdited(false);
+    form.reset({
+      module_id: selectedModuleFilter !== "all" ? selectedModuleFilter : "",
+      title: "",
+      slug: "",
+      lesson_type: "text",
+      text_content: "",
+      video_url: "",
+      quiz_json: "",
+      xp_value: 10,
+      order: 1,
+      duration_minutes: null,
+      thumbnail_url: "",
+      is_published: false
+    });
+    setDialogOpen(true);
+  };
+  const openForEdit = (lesson) => {
+    setEditingLesson(lesson);
+    setSlugManuallyEdited(true);
+    const moduleId = lesson.module_id ?? "";
+    const content = lesson.content;
+    let textContent = "";
+    let videoUrl = "";
+    let quizJson = "";
+    if (lesson.lesson_type === "text") {
+      textContent = typeof content === "string" ? content : "";
+    } else if (lesson.lesson_type === "video") {
+      videoUrl = typeof content === "string" ? content : "";
+    } else if (content) {
+      try {
+        quizJson = JSON.stringify(content, null, 2);
+      } catch {
+        quizJson = "";
+      }
+    }
+    form.reset({
+      module_id: moduleId,
+      title: lesson.title ?? "",
+      slug: lesson.slug ?? "",
+      lesson_type: lesson.lesson_type,
+      text_content: textContent,
+      video_url: videoUrl,
+      quiz_json: quizJson,
+      xp_value: lesson.xp_value ?? 0,
+      order: lesson.order ?? 1,
+      duration_minutes: lesson.duration_minutes ?? null,
+      thumbnail_url: lesson.thumbnail_url ?? "",
+      is_published: lesson.is_published
+    });
+    setDialogOpen(true);
+  };
+  const onSubmit = (values) => {
+    try {
+      upsertMutation.mutate(values);
+    } catch (error) {
+      if (error instanceof Error) {
+        toast$1.error(error.message);
+      }
+    }
+  };
+  const getLessonPreview = (lesson) => {
+    if (lesson.lesson_type === "text") {
+      const content = typeof lesson.content === "string" ? lesson.content : "";
+      return content.slice(0, 160);
+    }
+    if (lesson.lesson_type === "video") {
+      return typeof lesson.content === "string" ? lesson.content : "";
+    }
+    return "Quiz lesson contents";
+  };
+  return /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
+    /* @__PURE__ */ jsxs("div", { className: "flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between", children: [
+      /* @__PURE__ */ jsxs("div", { children: [
+        /* @__PURE__ */ jsx("h2", { className: "text-2xl font-semibold text-forge-dark", children: "Lessons" }),
+        /* @__PURE__ */ jsx("p", { className: "text-sm text-forge-gray", children: "Create and manage lesson content across modules. Support for text, video, and quiz formats." })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "grid gap-3 md:grid-cols-2 lg:grid-cols-4", children: [
+        /* @__PURE__ */ jsxs(
+          Select,
+          {
+            value: selectedPathFilter,
+            onValueChange: (value) => {
+              setSelectedPathFilter(value);
+              setSelectedCourseFilter("all");
+              setSelectedModuleFilter("all");
+            },
+            children: [
+              /* @__PURE__ */ jsx(SelectTrigger, { children: /* @__PURE__ */ jsx(SelectValue, { placeholder: "Filter by path" }) }),
+              /* @__PURE__ */ jsxs(SelectContent, { children: [
+                /* @__PURE__ */ jsx(SelectItem, { value: "all", children: "All paths" }),
+                learningPaths.map((path) => /* @__PURE__ */ jsx(SelectItem, { value: path.id, children: path.title }, path.id))
+              ] })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxs(
+          Select,
+          {
+            value: selectedCourseFilter,
+            onValueChange: (value) => {
+              setSelectedCourseFilter(value);
+              setSelectedModuleFilter("all");
+            },
+            children: [
+              /* @__PURE__ */ jsx(SelectTrigger, { children: /* @__PURE__ */ jsx(SelectValue, { placeholder: "Filter by course" }) }),
+              /* @__PURE__ */ jsxs(SelectContent, { children: [
+                /* @__PURE__ */ jsx(SelectItem, { value: "all", children: "All courses" }),
+                filteredCourses.map((course) => /* @__PURE__ */ jsx(SelectItem, { value: course.id, children: course.title }, course.id))
+              ] })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxs(
+          Select,
+          {
+            value: selectedModuleFilter,
+            onValueChange: (value) => setSelectedModuleFilter(value),
+            children: [
+              /* @__PURE__ */ jsx(SelectTrigger, { children: /* @__PURE__ */ jsx(SelectValue, { placeholder: "Filter by module" }) }),
+              /* @__PURE__ */ jsxs(SelectContent, { children: [
+                /* @__PURE__ */ jsx(SelectItem, { value: "all", children: "All modules" }),
+                filteredModules.map((module) => /* @__PURE__ */ jsxs(SelectItem, { value: module.id, children: [
+                  "#",
+                  module.order,
+                  " · ",
+                  module.title
+                ] }, module.id))
+              ] })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxs(Button, { onClick: openForCreate, className: "w-full", children: [
+          /* @__PURE__ */ jsx(Plus, { className: "mr-2 h-4 w-4" }),
+          "New Lesson"
+        ] })
+      ] })
+    ] }),
+    isLoading ? /* @__PURE__ */ jsx(Card, { className: "border-dashed border-forge-cream/70 bg-white/80", children: /* @__PURE__ */ jsxs(CardContent, { className: "flex items-center gap-3 p-8 text-forge-gray", children: [
+      /* @__PURE__ */ jsx(Loader2, { className: "h-4 w-4 animate-spin" }),
+      " Loading lessons..."
+    ] }) }) : filteredLessons && filteredLessons.length > 0 ? /* @__PURE__ */ jsx("div", { className: "grid gap-4", children: filteredLessons.map((lesson) => {
+      const module = lesson.module_id ? moduleLookup[lesson.module_id] : null;
+      const course = (module == null ? void 0 : module.course_id) ? courseLookup[module.course_id] : null;
+      const path = (course == null ? void 0 : course.path_id) ? pathLookup[course.path_id] : null;
+      return /* @__PURE__ */ jsxs(Card, { className: "border border-forge-cream/70 bg-white/80", children: [
+        /* @__PURE__ */ jsxs(CardHeader, { className: "flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between", children: [
+          /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
+            /* @__PURE__ */ jsxs(CardTitle, { className: "flex flex-wrap items-center gap-2 text-forge-dark", children: [
+              "#",
+              lesson.order,
+              " · ",
+              lesson.title,
+              /* @__PURE__ */ jsx(
+                Badge,
+                {
+                  variant: lesson.is_published ? "default" : "outline",
+                  className: lesson.is_published ? "bg-forge-orange text-white hover:bg-forge-orange/90" : "",
+                  children: lesson.is_published ? "Published" : "Draft"
+                }
+              ),
+              /* @__PURE__ */ jsxs(Badge, { variant: "outline", className: "flex items-center gap-1 text-xs", children: [
+                /* @__PURE__ */ jsx(BookOpenText, { className: "h-3.5 w-3.5" }),
+                " ",
+                lesson.lesson_type.toUpperCase()
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxs(CardDescription, { className: "text-sm text-forge-gray", children: [
+              module ? `${module.title} · ` : "",
+              course ? `${course.title} · ` : "",
+              path ? path.title : ""
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxs("div", { className: "flex gap-2", children: [
+            /* @__PURE__ */ jsx(Button, { variant: "outline", size: "icon", onClick: () => openForEdit(lesson), children: /* @__PURE__ */ jsx(Pencil, { className: "h-4 w-4" }) }),
+            /* @__PURE__ */ jsx(
+              Button,
+              {
+                variant: "outline",
+                size: "icon",
+                className: "text-red-500 hover:text-red-600",
+                onClick: () => setDeleteTarget(lesson),
+                children: /* @__PURE__ */ jsx(Trash2, { className: "h-4 w-4" })
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxs(CardContent, { className: "space-y-3 text-sm text-forge-gray", children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex flex-wrap items-center gap-4", children: [
+            /* @__PURE__ */ jsxs("div", { children: [
+              /* @__PURE__ */ jsx("span", { className: "font-semibold text-forge-dark", children: "Slug:" }),
+              " ",
+              lesson.slug
+            ] }),
+            /* @__PURE__ */ jsx(Separator, { orientation: "vertical", className: "hidden h-4 sm:block" }),
+            /* @__PURE__ */ jsxs("div", { children: [
+              /* @__PURE__ */ jsx("span", { className: "font-semibold text-forge-dark", children: "XP:" }),
+              " ",
+              lesson.xp_value
+            ] }),
+            lesson.duration_minutes != null && /* @__PURE__ */ jsxs(Fragment, { children: [
+              /* @__PURE__ */ jsx(Separator, { orientation: "vertical", className: "hidden h-4 sm:block" }),
+              /* @__PURE__ */ jsxs("div", { children: [
+                /* @__PURE__ */ jsx("span", { className: "font-semibold text-forge-dark", children: "Duration:" }),
+                " ",
+                lesson.duration_minutes,
+                " min"
+              ] })
+            ] }),
+            lesson.thumbnail_url && /* @__PURE__ */ jsxs(Fragment, { children: [
+              /* @__PURE__ */ jsx(Separator, { orientation: "vertical", className: "hidden h-4 sm:block" }),
+              /* @__PURE__ */ jsx(
+                "a",
+                {
+                  href: lesson.thumbnail_url,
+                  target: "_blank",
+                  rel: "noopener noreferrer",
+                  className: "text-xs font-medium text-forge-orange hover:underline",
+                  children: "Thumbnail"
+                }
+              )
+            ] })
+          ] }),
+          /* @__PURE__ */ jsx("p", { className: "text-xs text-forge-gray/90 line-clamp-3", children: getLessonPreview(lesson) }),
+          /* @__PURE__ */ jsxs("div", { className: "text-xs text-forge-gray/80", children: [
+            "Updated ",
+            lesson.updated_at ? formatDistanceToNow(new Date(lesson.updated_at), { addSuffix: true }) : "N/A"
+          ] })
+        ] }),
+        /* @__PURE__ */ jsx(CardFooter, { className: "flex items-center justify-between", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 text-sm", children: [
+          /* @__PURE__ */ jsx(
+            Switch,
+            {
+              id: `lesson-publish-${lesson.id}`,
+              checked: lesson.is_published,
+              onCheckedChange: (checked) => publishMutation.mutate({ id: lesson.id, publish: checked }),
+              disabled: publishMutation.isPending
+            }
+          ),
+          /* @__PURE__ */ jsx("label", { htmlFor: `lesson-publish-${lesson.id}`, className: "text-forge-gray", children: lesson.is_published ? "Unpublish" : "Publish" })
+        ] }) })
+      ] }, lesson.id);
+    }) }) : /* @__PURE__ */ jsx(Card, { className: "border-dashed border-forge-cream/70 bg-white/70", children: /* @__PURE__ */ jsx(CardContent, { className: "p-8 text-center text-forge-gray", children: "No lessons found for this filter. Create a lesson to deliver content to learners." }) }),
+    /* @__PURE__ */ jsx(Dialog, { open: dialogOpen, onOpenChange: setDialogOpen, children: /* @__PURE__ */ jsxs(DialogContent, { className: "max-w-3xl", children: [
+      /* @__PURE__ */ jsxs(DialogHeader, { children: [
+        /* @__PURE__ */ jsx(DialogTitle, { children: editingLesson ? "Edit lesson" : "New lesson" }),
+        /* @__PURE__ */ jsx(DialogDescription, { children: editingLesson ? "Update lesson metadata, content, and publication state." : "Compose new content and attach it to a module. Choose the appropriate lesson format." })
+      ] }),
+      /* @__PURE__ */ jsx(Form, { ...form, children: /* @__PURE__ */ jsxs("form", { onSubmit: form.handleSubmit(onSubmit), className: "space-y-6", children: [
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "module_id",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: "Module" }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsxs(Select, { value: field.value, onValueChange: field.onChange, children: [
+                /* @__PURE__ */ jsx(SelectTrigger, { className: "w-full", children: /* @__PURE__ */ jsx(SelectValue, { placeholder: "Select a module" }) }),
+                /* @__PURE__ */ jsx(SelectContent, { children: (filteredModules.length > 0 ? filteredModules : modules).map((module) => /* @__PURE__ */ jsxs(SelectItem, { value: module.id, children: [
+                  "#",
+                  module.order,
+                  " · ",
+                  module.title
+                ] }, module.id)) })
+              ] }) }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsxs("div", { className: "grid gap-6 md:grid-cols-2", children: [
+          /* @__PURE__ */ jsx(
+            FormField,
+            {
+              control: form.control,
+              name: "title",
+              render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+                /* @__PURE__ */ jsx(FormLabel, { children: "Title" }),
+                /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Input, { placeholder: "e.g. Understanding Components", ...field }) }),
+                /* @__PURE__ */ jsx(FormMessage, {})
+              ] })
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            FormField,
+            {
+              control: form.control,
+              name: "slug",
+              render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+                /* @__PURE__ */ jsx(FormLabel, { children: "Slug" }),
+                /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(
+                  Input,
+                  {
+                    placeholder: "understanding-components",
+                    ...field,
+                    onChange: (event) => {
+                      setSlugManuallyEdited(true);
+                      field.onChange(event);
+                    }
+                  }
+                ) }),
+                /* @__PURE__ */ jsx(FormMessage, {})
+              ] })
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: "grid gap-6 md:grid-cols-3", children: [
+          /* @__PURE__ */ jsx(
+            FormField,
+            {
+              control: form.control,
+              name: "lesson_type",
+              render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+                /* @__PURE__ */ jsx(FormLabel, { children: "Lesson type" }),
+                /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsxs(Select, { value: field.value, onValueChange: field.onChange, children: [
+                  /* @__PURE__ */ jsx(SelectTrigger, { children: /* @__PURE__ */ jsx(SelectValue, {}) }),
+                  /* @__PURE__ */ jsxs(SelectContent, { children: [
+                    /* @__PURE__ */ jsx(SelectItem, { value: "text", children: "Text" }),
+                    /* @__PURE__ */ jsx(SelectItem, { value: "video", children: "Video" }),
+                    /* @__PURE__ */ jsx(SelectItem, { value: "quiz", children: "Quiz" })
+                  ] })
+                ] }) }),
+                /* @__PURE__ */ jsx(FormMessage, {})
+              ] })
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            FormField,
+            {
+              control: form.control,
+              name: "order",
+              render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+                /* @__PURE__ */ jsx(FormLabel, { children: "Order" }),
+                /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Input, { type: "number", min: 1, ...field }) }),
+                /* @__PURE__ */ jsx(FormMessage, {})
+              ] })
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            FormField,
+            {
+              control: form.control,
+              name: "xp_value",
+              render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+                /* @__PURE__ */ jsx(FormLabel, { children: "XP value" }),
+                /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Input, { type: "number", min: 0, ...field }) }),
+                /* @__PURE__ */ jsx(FormMessage, {})
+              ] })
+            }
+          )
+        ] }),
+        form.watch("lesson_type") === "text" && /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "text_content",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: "Markdown content" }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Textarea, { rows: 8, placeholder: "Write lesson content in Markdown", ...field }) }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        form.watch("lesson_type") === "video" && /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "video_url",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: "Video URL" }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Input, { placeholder: "https://www.youtube.com/watch?v=...", ...field }) }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        form.watch("lesson_type") === "quiz" && /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "quiz_json",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: "Quiz JSON" }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(
+                Textarea,
+                {
+                  rows: 8,
+                  placeholder: '[\n  {\n    "question": "What is React?",\n    "options": ["Library", "Framework"],\n    "correctAnswer": "Library"\n  }\n]',
+                  ...field
+                }
+              ) }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsxs("div", { className: "grid gap-6 md:grid-cols-2", children: [
+          /* @__PURE__ */ jsx(
+            FormField,
+            {
+              control: form.control,
+              name: "duration_minutes",
+              render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+                /* @__PURE__ */ jsx(FormLabel, { children: "Duration (minutes)" }),
+                /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Input, { type: "number", min: 0, placeholder: "Optional", ...field }) }),
+                /* @__PURE__ */ jsx(FormMessage, {})
+              ] })
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            FormField,
+            {
+              control: form.control,
+              name: "thumbnail_url",
+              render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+                /* @__PURE__ */ jsx(FormLabel, { children: "Thumbnail URL" }),
+                /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Input, { placeholder: "https://...", ...field }) }),
+                /* @__PURE__ */ jsx(FormDescription, { children: "Store media in Supabase Storage and paste the public URL here. Upload widgets are planned for a next iteration." }),
+                /* @__PURE__ */ jsx(FormMessage, {})
+              ] })
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "is_published",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { className: "flex flex-row items-center justify-between rounded-lg border border-forge-cream/80 bg-forge-cream/30 p-3", children: [
+              /* @__PURE__ */ jsxs("div", { className: "space-y-0.5", children: [
+                /* @__PURE__ */ jsx(FormLabel, { className: "text-base", children: "Publish immediately" }),
+                /* @__PURE__ */ jsx(DialogDescription, { children: field.value ? "Published lessons appear instantly in the learner experience." : "Keep as draft until you are ready to release." })
+              ] }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(
+                Switch,
+                {
+                  checked: field.value,
+                  onCheckedChange: field.onChange,
+                  disabled: form.formState.isSubmitting
+                }
+              ) })
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsxs(DialogFooter, { children: [
+          /* @__PURE__ */ jsx(Button, { type: "button", variant: "outline", onClick: () => setDialogOpen(false), disabled: form.formState.isSubmitting, children: "Cancel" }),
+          /* @__PURE__ */ jsx(Button, { type: "submit", disabled: form.formState.isSubmitting, children: form.formState.isSubmitting ? /* @__PURE__ */ jsxs(Fragment, { children: [
+            /* @__PURE__ */ jsx(Loader2, { className: "mr-2 h-4 w-4 animate-spin" }),
+            " Saving..."
+          ] }) : editingLesson ? "Save changes" : "Create lesson" })
+        ] })
+      ] }) })
+    ] }) }),
+    /* @__PURE__ */ jsx(AlertDialog, { open: Boolean(deleteTarget), onOpenChange: (open) => !open && setDeleteTarget(null), children: /* @__PURE__ */ jsxs(AlertDialogContent, { children: [
+      /* @__PURE__ */ jsxs(AlertDialogHeader, { children: [
+        /* @__PURE__ */ jsx(AlertDialogTitle, { children: "Delete lesson" }),
+        /* @__PURE__ */ jsxs(AlertDialogDescription, { children: [
+          "Deleting a lesson cannot be undone. Learner progress for this lesson will be lost. Continue deleting “",
+          deleteTarget == null ? void 0 : deleteTarget.title,
+          "”?"
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxs(AlertDialogFooter, { children: [
+        /* @__PURE__ */ jsx(AlertDialogCancel, { disabled: deleteMutation.isPending, children: "Cancel" }),
+        /* @__PURE__ */ jsx(
+          AlertDialogAction,
+          {
+            onClick: () => deleteTarget && deleteMutation.mutate(deleteTarget.id),
+            className: "bg-red-500 hover:bg-red-600",
+            disabled: deleteMutation.isPending,
+            children: deleteMutation.isPending ? /* @__PURE__ */ jsxs(Fragment, { children: [
+              /* @__PURE__ */ jsx(Loader2, { className: "mr-2 h-4 w-4 animate-spin" }),
+              " Deleting..."
+            ] }) : "Delete"
+          }
+        )
+      ] })
+    ] }) })
+  ] });
+}
+const Tabs = TabsPrimitive.Root;
+const TabsList = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  TabsPrimitive.List,
+  {
+    ref,
+    className: cn(
+      "inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
+      className
+    ),
+    ...props
+  }
+));
+TabsList.displayName = TabsPrimitive.List.displayName;
+const TabsTrigger = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  TabsPrimitive.Trigger,
+  {
+    ref,
+    className: cn(
+      "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
+      className
+    ),
+    ...props
+  }
+));
+TabsTrigger.displayName = TabsPrimitive.Trigger.displayName;
+const TabsContent = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  TabsPrimitive.Content,
+  {
+    ref,
+    className: cn(
+      "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+      className
+    ),
+    ...props
+  }
+));
+TabsContent.displayName = TabsPrimitive.Content.displayName;
+const MOCK_GLOBAL_SCOREBOARD = [
+  {
+    id: "1",
+    name: "Ana Silva",
+    email: "ana.silva@email.com",
+    xp: 3420,
+    completedLessons: 28,
+    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face"
+  },
+  {
+    id: "2",
+    name: "Carlos Santos",
+    email: "carlos.santos@email.com",
+    xp: 3180,
+    completedLessons: 26,
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face"
+  },
+  {
+    id: "3",
+    name: "Maria Oliveira",
+    email: "maria.oliveira@email.com",
+    xp: 2950,
+    completedLessons: 24,
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face"
+  },
+  {
+    id: "4",
+    name: "João Pedro",
+    email: "joao.pedro@email.com",
+    xp: 2820,
+    completedLessons: 23,
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face"
+  },
+  {
+    id: "5",
+    name: "Lucia Costa",
+    email: "lucia.costa@email.com",
+    xp: 2650,
+    completedLessons: 22,
+    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face"
+  },
+  {
+    id: "6",
+    name: "Rafael Mendes",
+    email: "rafael.mendes@email.com",
+    xp: 2480,
+    completedLessons: 20,
+    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop&crop=face"
+  },
+  {
+    id: "7",
+    name: "Fernanda Lima",
+    email: "fernanda.lima@email.com",
+    xp: 2320,
+    completedLessons: 19,
+    avatar: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=400&fit=crop&crop=face"
+  },
+  {
+    id: "8",
+    name: "Thiago Rocha",
+    email: "thiago.rocha@email.com",
+    xp: 2180,
+    completedLessons: 18,
+    avatar: "https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?w=400&h=400&fit=crop&crop=face"
+  }
+];
+const MOCK_PATH_SCOREBOARDS = {
+  "blockchain-web3": {
+    name: "Blockchain e Web3",
+    entries: [
+      {
+        id: "1",
+        name: "Ana Silva",
+        email: "ana.silva@email.com",
+        xp: 1850,
+        completedLessons: 15,
+        pathName: "Blockchain e Web3",
+        avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face"
+      },
+      {
+        id: "2",
+        name: "Carlos Santos",
+        email: "carlos.santos@email.com",
+        xp: 1720,
+        completedLessons: 14,
+        pathName: "Blockchain e Web3",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face"
+      },
+      {
+        id: "4",
+        name: "João Pedro",
+        email: "joao.pedro@email.com",
+        xp: 1650,
+        completedLessons: 13,
+        pathName: "Blockchain e Web3",
+        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face"
+      },
+      {
+        id: "6",
+        name: "Rafael Mendes",
+        email: "rafael.mendes@email.com",
+        xp: 1480,
+        completedLessons: 12,
+        pathName: "Blockchain e Web3",
+        avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop&crop=face"
+      },
+      {
+        id: "8",
+        name: "Thiago Rocha",
+        email: "thiago.rocha@email.com",
+        xp: 1320,
+        completedLessons: 11,
+        pathName: "Blockchain e Web3",
+        avatar: "https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?w=400&h=400&fit=crop&crop=face"
+      }
+    ]
+  },
+  "defi-protocols": {
+    name: "Protocolos DeFi",
+    entries: [
+      {
+        id: "3",
+        name: "Maria Oliveira",
+        email: "maria.oliveira@email.com",
+        xp: 1680,
+        completedLessons: 14,
+        pathName: "Protocolos DeFi",
+        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face"
+      },
+      {
+        id: "5",
+        name: "Lucia Costa",
+        email: "lucia.costa@email.com",
+        xp: 1520,
+        completedLessons: 13,
+        pathName: "Protocolos DeFi",
+        avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face"
+      },
+      {
+        id: "7",
+        name: "Fernanda Lima",
+        email: "fernanda.lima@email.com",
+        xp: 1420,
+        completedLessons: 12,
+        pathName: "Protocolos DeFi",
+        avatar: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=400&fit=crop&crop=face"
+      },
+      {
+        id: "2",
+        name: "Carlos Santos",
+        email: "carlos.santos@email.com",
+        xp: 1380,
+        completedLessons: 11,
+        pathName: "Protocolos DeFi",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face"
+      },
+      {
+        id: "1",
+        name: "Ana Silva",
+        email: "ana.silva@email.com",
+        xp: 1280,
+        completedLessons: 10,
+        pathName: "Protocolos DeFi",
+        avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face"
+      }
+    ]
+  },
+  "smart-contracts": {
+    name: "Smart Contracts Avançados",
+    entries: [
+      {
+        id: "6",
+        name: "Rafael Mendes",
+        email: "rafael.mendes@email.com",
+        xp: 980,
+        completedLessons: 8,
+        pathName: "Smart Contracts Avançados",
+        avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop&crop=face"
+      },
+      {
+        id: "4",
+        name: "João Pedro",
+        email: "joao.pedro@email.com",
+        xp: 920,
+        completedLessons: 7,
+        pathName: "Smart Contracts Avançados",
+        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face"
+      },
+      {
+        id: "8",
+        name: "Thiago Rocha",
+        email: "thiago.rocha@email.com",
+        xp: 860,
+        completedLessons: 7,
+        pathName: "Smart Contracts Avançados",
+        avatar: "https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?w=400&h=400&fit=crop&crop=face"
+      },
+      {
+        id: "3",
+        name: "Maria Oliveira",
+        email: "maria.oliveira@email.com",
+        xp: 820,
+        completedLessons: 6,
+        pathName: "Smart Contracts Avançados",
+        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face"
+      },
+      {
+        id: "7",
+        name: "Fernanda Lima",
+        email: "fernanda.lima@email.com",
+        xp: 780,
+        completedLessons: 6,
+        pathName: "Smart Contracts Avançados",
+        avatar: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=400&fit=crop&crop=face"
+      }
+    ]
+  }
+};
+function getRankIcon(position) {
+  switch (position) {
+    case 1:
+      return /* @__PURE__ */ jsx(Trophy, { className: "h-6 w-6 text-yellow-500" });
+    case 2:
+      return /* @__PURE__ */ jsx(Medal, { className: "h-6 w-6 text-gray-400" });
+    case 3:
+      return /* @__PURE__ */ jsx(Award, { className: "h-6 w-6 text-amber-600" });
+    default:
+      return /* @__PURE__ */ jsxs("div", { className: "h-6 w-6 flex items-center justify-center text-sm font-bold text-gray-500", children: [
+        "#",
+        position
+      ] });
+  }
+}
+function getRankBadgeColor(position) {
+  switch (position) {
+    case 1:
+      return "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white";
+    case 2:
+      return "bg-gradient-to-r from-gray-300 to-gray-500 text-white";
+    case 3:
+      return "bg-gradient-to-r from-amber-400 to-amber-600 text-white";
+    default:
+      return "bg-gray-100 text-gray-700";
+  }
+}
+function ScoreboardList({ entries, title }) {
+  const { t } = useTranslation();
+  return /* @__PURE__ */ jsxs(Card, { children: [
+    /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsxs(CardTitle, { className: "flex items-center gap-2", children: [
+      /* @__PURE__ */ jsx(Trophy, { className: "h-5 w-5 text-forge-orange" }),
+      title
+    ] }) }),
+    /* @__PURE__ */ jsx(CardContent, { className: "p-0", children: /* @__PURE__ */ jsx("div", { className: "space-y-0", children: entries.map((entry, index) => {
+      const position = index + 1;
+      return /* @__PURE__ */ jsxs(
+        "div",
+        {
+          className: `flex items-center justify-between p-4 border-b last:border-b-0 transition-colors hover:bg-gray-50 ${position <= 3 ? "bg-gradient-to-r from-orange-50 to-transparent" : ""}`,
+          children: [
+            /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-4 flex-1", children: [
+              /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
+                /* @__PURE__ */ jsxs(Badge, { className: `${getRankBadgeColor(position)} font-bold px-2 py-1`, children: [
+                  "#",
+                  position
+                ] }),
+                getRankIcon(position)
+              ] }),
+              /* @__PURE__ */ jsxs(Avatar, { className: "h-10 w-10", children: [
+                /* @__PURE__ */ jsx(AvatarImage, { src: entry.avatar, alt: entry.name }),
+                /* @__PURE__ */ jsx(AvatarFallback, { className: "bg-forge-orange text-white", children: entry.name.split(" ").map((n) => n[0]).join("").toUpperCase() })
+              ] }),
+              /* @__PURE__ */ jsxs("div", { className: "flex-1", children: [
+                /* @__PURE__ */ jsx("h4", { className: "font-semibold text-gray-900", children: entry.name }),
+                /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-500", children: entry.email })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxs("div", { className: "text-right", children: [
+              /* @__PURE__ */ jsxs("div", { className: "font-bold text-lg text-forge-orange", children: [
+                entry.xp.toLocaleString(),
+                " ",
+                t("scoreboard.xp")
+              ] }),
+              /* @__PURE__ */ jsxs("div", { className: "text-sm text-gray-500", children: [
+                entry.completedLessons,
+                " ",
+                t("scoreboard.lessons")
+              ] })
+            ] })
+          ]
+        },
+        entry.id
+      );
+    }) }) })
+  ] });
+}
+function Scoreboard() {
+  const { t } = useTranslation();
+  const [selectedPath, setSelectedPath] = useState("blockchain-web3");
+  return /* @__PURE__ */ jsxs("div", { className: "max-w-6xl mx-auto space-y-6", children: [
+    /* @__PURE__ */ jsxs("div", { className: "space-y-2", children: [
+      /* @__PURE__ */ jsx("h1", { className: "text-3xl font-bold tracking-tight text-gray-900", children: t("scoreboard.title") }),
+      /* @__PURE__ */ jsx("p", { className: "text-gray-600", children: t("scoreboard.subtitle") })
+    ] }),
+    /* @__PURE__ */ jsxs(Tabs, { defaultValue: "global", className: "space-y-6", children: [
+      /* @__PURE__ */ jsxs(TabsList, { className: "grid w-full grid-cols-2", children: [
+        /* @__PURE__ */ jsx(TabsTrigger, { value: "global", children: t("scoreboard.global") }),
+        /* @__PURE__ */ jsx(TabsTrigger, { value: "by-path", children: t("scoreboard.byPath") })
+      ] }),
+      /* @__PURE__ */ jsx(TabsContent, { value: "global", className: "space-y-6", children: /* @__PURE__ */ jsx(
+        ScoreboardList,
+        {
+          entries: MOCK_GLOBAL_SCOREBOARD,
+          title: t("scoreboard.rankingGlobal")
+        }
+      ) }),
+      /* @__PURE__ */ jsxs(TabsContent, { value: "by-path", className: "space-y-6", children: [
+        /* @__PURE__ */ jsx("div", { className: "flex gap-2 flex-wrap", children: Object.entries(MOCK_PATH_SCOREBOARDS).map(([key, path]) => /* @__PURE__ */ jsx(
+          "button",
+          {
+            onClick: () => setSelectedPath(key),
+            className: `px-4 py-2 rounded-lg font-medium transition-colors ${selectedPath === key ? "bg-forge-orange text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`,
+            children: path.name
+          },
+          key
+        )) }),
+        /* @__PURE__ */ jsx(
+          ScoreboardList,
+          {
+            entries: MOCK_PATH_SCOREBOARDS[selectedPath].entries,
+            title: t("scoreboard.ranking", { pathName: MOCK_PATH_SCOREBOARDS[selectedPath].name })
+          }
+        )
+      ] })
+    ] })
+  ] });
+}
+const CATEGORY_CONFIGS = {
+  community: {
+    label: "achievements.categories.community",
+    color: "text-blue-600",
+    bgColor: "bg-blue-50",
+    borderColor: "border-blue-200",
+    icon: Users
+  },
+  profile: {
+    label: "achievements.categories.profile",
+    color: "text-purple-600",
+    bgColor: "bg-purple-50",
+    borderColor: "border-purple-200",
+    icon: Target
+  },
+  learning: {
+    label: "achievements.categories.learning",
+    color: "text-green-600",
+    bgColor: "bg-green-50",
+    borderColor: "border-green-200",
+    icon: BookOpen
+  },
+  social: {
+    label: "achievements.categories.social",
+    color: "text-pink-600",
+    bgColor: "bg-pink-50",
+    borderColor: "border-pink-200",
+    icon: Share2
+  }
+};
+function AchievementProgress({ current, max }) {
+  const { t } = useTranslation();
+  const percentage = Math.round(current / max * 100);
+  const progressColor = percentage >= 75 ? "bg-green-500" : percentage >= 50 ? "bg-blue-500" : "bg-forge-orange";
+  const textColor = percentage >= 75 ? "text-green-600" : percentage >= 50 ? "text-blue-600" : "text-forge-orange";
+  return /* @__PURE__ */ jsxs("div", { className: "space-y-1.5", children: [
+    /* @__PURE__ */ jsxs("div", { className: "flex justify-between text-sm", children: [
+      /* @__PURE__ */ jsx("span", { className: "text-gray-600 font-medium", children: t("achievements.progress") }),
+      /* @__PURE__ */ jsxs("span", { className: cn("font-semibold", textColor), children: [
+        current,
+        "/",
+        max,
+        " ",
+        /* @__PURE__ */ jsxs("span", { className: "text-xs text-gray-500", children: [
+          "(",
+          percentage,
+          "%)"
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsx("div", { className: "relative h-2.5 w-full overflow-hidden rounded-full bg-gray-200", children: /* @__PURE__ */ jsx(
+      "div",
+      {
+        className: cn(
+          "h-full transition-all duration-500 ease-out rounded-full",
+          progressColor,
+          percentage >= 90 && "animate-pulse"
+        ),
+        style: { width: `${percentage}%` }
+      }
+    ) })
+  ] });
+}
+const AchievementCard = memo(({
+  achievement,
+  onActionClick,
+  onHover,
+  isSelected = false
+}) => {
+  const { t } = useTranslation();
+  const Icon = achievement.icon;
+  const config = CATEGORY_CONFIGS[achievement.category];
+  const CategoryIcon = config.icon;
+  const isCompleted = achievement.status === "completed";
+  const isLocked = achievement.status === "locked";
+  const cardClassName = cn(
+    "relative overflow-hidden transition-all duration-300 cursor-pointer",
+    "h-full flex flex-col",
+    // Equal height cards with flex layout
+    "hover:shadow-lg hover:scale-[1.02]",
+    isSelected && "ring-2 ring-forge-orange shadow-lg scale-[1.02]",
+    isCompleted && "border-green-300 bg-green-50/30",
+    isLocked && "opacity-60 border-gray-200",
+    !isCompleted && !isLocked && "border-forge-cream"
+  );
+  return /* @__PURE__ */ jsxs(
+    Card,
+    {
+      className: cardClassName,
+      onMouseEnter: () => onHover == null ? void 0 : onHover(achievement),
+      onMouseLeave: () => onHover == null ? void 0 : onHover(null),
+      onClick: () => onHover == null ? void 0 : onHover(achievement),
+      children: [
+        isCompleted && /* @__PURE__ */ jsx("div", { className: "absolute top-2 right-2", children: /* @__PURE__ */ jsx("div", { className: "relative", children: /* @__PURE__ */ jsx(CheckCircle2, { className: "h-6 w-6 text-green-600 animate-in zoom-in duration-300" }) }) }),
+        isLocked && /* @__PURE__ */ jsx("div", { className: "absolute top-2 right-2", children: /* @__PURE__ */ jsx(Lock, { className: "h-6 w-6 text-gray-400" }) }),
+        /* @__PURE__ */ jsx(CardHeader, { className: "pb-3", children: /* @__PURE__ */ jsxs("div", { className: "flex items-start gap-4", children: [
+          /* @__PURE__ */ jsx("div", { className: cn(
+            config.bgColor,
+            "p-3.5 rounded-xl shadow-sm flex-shrink-0 transition-all duration-300",
+            isCompleted && "ring-2 ring-green-300",
+            !isLocked && !isCompleted && "ring-1 ring-gray-200 hover:ring-2 hover:ring-forge-orange/50"
+          ), children: /* @__PURE__ */ jsx(Icon, { className: cn("h-7 w-7", config.color) }) }),
+          /* @__PURE__ */ jsxs("div", { className: "flex-1 min-w-0", children: [
+            /* @__PURE__ */ jsx(CardTitle, { className: "text-xl font-semibold leading-tight mb-2 min-h-[28px]", children: achievement.title }),
+            /* @__PURE__ */ jsx(CardDescription, { className: "text-sm leading-relaxed line-clamp-2 min-h-[40px]", children: achievement.description })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsxs(CardContent, { className: "flex-1 flex flex-col space-y-3", children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between", children: [
+            /* @__PURE__ */ jsxs(Badge, { variant: "outline", className: cn(config.borderColor, config.color), children: [
+              CategoryIcon && /* @__PURE__ */ jsx(CategoryIcon, { className: "h-3 w-3 mr-1" }),
+              t(config.label)
+            ] }),
+            /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1", children: [
+              /* @__PURE__ */ jsx(Award, { className: "h-4 w-4 text-forge-orange" }),
+              /* @__PURE__ */ jsxs("span", { className: "font-bold text-forge-orange", children: [
+                achievement.xpReward,
+                " XP"
+              ] })
+            ] })
+          ] }),
+          achievement.progress !== void 0 && achievement.maxProgress && /* @__PURE__ */ jsx(
+            AchievementProgress,
+            {
+              current: achievement.progress,
+              max: achievement.maxProgress
+            }
+          ),
+          /* @__PURE__ */ jsx("div", { className: "flex-1" }),
+          /* @__PURE__ */ jsxs("div", { className: "mt-auto space-y-2", children: [
+            achievement.action && !isCompleted && !isLocked && /* @__PURE__ */ jsx(
+              Button,
+              {
+                className: "w-full bg-forge-orange hover:bg-forge-orange/90",
+                onClick: () => onActionClick(achievement),
+                children: achievement.action.label
+              }
+            ),
+            isCompleted && /* @__PURE__ */ jsx("div", { className: "text-center text-sm font-medium text-green-700 bg-green-100 py-2 rounded-md", children: t("achievements.completedBadge") }),
+            isLocked && /* @__PURE__ */ jsx("div", { className: "text-center text-sm text-gray-500 bg-gray-100 py-2 rounded-md", children: t("achievements.locked") })
+          ] })
+        ] })
+      ]
+    }
+  );
+});
+AchievementCard.displayName = "AchievementCard";
+function AchievementTabs({
+  selectedCategory,
+  onCategoryChange,
+  achievements: achievements2,
+  onAchievementAction,
+  onAchievementHover,
+  selectedAchievementId
+}) {
+  const { t } = useTranslation();
+  return /* @__PURE__ */ jsxs(
+    Tabs,
+    {
+      value: selectedCategory,
+      onValueChange: (v) => onCategoryChange(v),
+      className: "space-y-6",
+      children: [
+        /* @__PURE__ */ jsxs(TabsList, { className: "grid w-full grid-cols-5", children: [
+          /* @__PURE__ */ jsx(TabsTrigger, { value: "all", children: t("achievements.all") }),
+          /* @__PURE__ */ jsx(TabsTrigger, { value: "community", children: t("achievements.categories.community") }),
+          /* @__PURE__ */ jsx(TabsTrigger, { value: "profile", children: t("achievements.categories.profile") }),
+          /* @__PURE__ */ jsx(TabsTrigger, { value: "learning", children: t("achievements.categories.learning") }),
+          /* @__PURE__ */ jsx(TabsTrigger, { value: "social", children: t("achievements.categories.social") })
+        ] }),
+        /* @__PURE__ */ jsx(TabsContent, { value: selectedCategory, className: "space-y-4", children: achievements2.length === 0 ? /* @__PURE__ */ jsx(Card, { className: "border-dashed border-2 border-gray-300", children: /* @__PURE__ */ jsxs(CardContent, { className: "flex flex-col items-center justify-center py-16 text-center", children: [
+          /* @__PURE__ */ jsx("div", { className: "w-16 h-16 mb-4 rounded-full bg-gray-100 flex items-center justify-center", children: /* @__PURE__ */ jsx(Sparkles, { className: "w-8 h-8 text-gray-400" }) }),
+          /* @__PURE__ */ jsx("h3", { className: "text-lg font-semibold text-gray-900 mb-2", children: t("achievements.emptyState.title") }),
+          /* @__PURE__ */ jsx("p", { className: "text-gray-600 max-w-md", children: selectedCategory === "all" ? t("achievements.emptyState.descriptionAll") : t("achievements.emptyState.descriptionCategory", {
+            category: t(`achievements.categories.${selectedCategory}`)
+          }) })
+        ] }) }) : /* @__PURE__ */ jsx("div", { className: "grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr", children: achievements2.map((achievement) => /* @__PURE__ */ jsx(
+          AchievementCard,
+          {
+            achievement,
+            onActionClick: onAchievementAction,
+            onHover: onAchievementHover,
+            isSelected: achievement.id === selectedAchievementId
+          },
+          achievement.id
+        )) }) })
+      ]
+    }
+  );
+}
+function AchievementsSidebar({
+  stats,
+  selectedAchievement,
+  suggestedAchievement,
+  onActionClick
+}) {
+  const { t } = useTranslation();
+  if (selectedAchievement) {
+    const Icon = selectedAchievement.icon;
+    const config = CATEGORY_CONFIGS[selectedAchievement.category];
+    const CategoryIcon = config.icon;
+    const isCompleted = selectedAchievement.status === "completed";
+    const isLocked = selectedAchievement.status === "locked";
+    return /* @__PURE__ */ jsxs("div", { className: "w-96 shrink-0 hidden lg:block sticky top-6 self-start space-y-4", children: [
+      /* @__PURE__ */ jsxs(Card, { className: cn(
+        "border-2",
+        isCompleted && "border-green-300 bg-green-50/20",
+        isLocked && "border-gray-200",
+        !isCompleted && !isLocked && "border-forge-orange/30"
+      ), children: [
+        /* @__PURE__ */ jsxs(CardHeader, { children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3 mb-3", children: [
+            /* @__PURE__ */ jsx("div", { className: cn(
+              config.bgColor,
+              "p-4 rounded-xl shadow-sm",
+              isCompleted && "ring-2 ring-green-300",
+              !isLocked && !isCompleted && "ring-1 ring-gray-200"
+            ), children: /* @__PURE__ */ jsx(Icon, { className: cn("h-8 w-8", config.color) }) }),
+            /* @__PURE__ */ jsxs("div", { className: "flex-1", children: [
+              /* @__PURE__ */ jsxs(Badge, { variant: "outline", className: cn(config.borderColor, config.color, "mb-2"), children: [
+                CategoryIcon && /* @__PURE__ */ jsx(CategoryIcon, { className: "h-3 w-3 mr-1" }),
+                t(config.label)
+              ] }),
+              isCompleted && /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1 text-green-600", children: [
+                /* @__PURE__ */ jsx(CheckCircle2, { className: "h-4 w-4" }),
+                /* @__PURE__ */ jsx("span", { className: "text-xs font-medium", children: t("achievements.completedBadge") })
+              ] }),
+              isLocked && /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1 text-gray-400", children: [
+                /* @__PURE__ */ jsx(Lock, { className: "h-4 w-4" }),
+                /* @__PURE__ */ jsx("span", { className: "text-xs font-medium", children: t("achievements.locked") })
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsx(CardTitle, { className: "text-2xl leading-tight", children: selectedAchievement.title }),
+          /* @__PURE__ */ jsx(CardDescription, { className: "text-sm leading-relaxed mt-2", children: selectedAchievement.description })
+        ] }),
+        /* @__PURE__ */ jsxs(CardContent, { className: "space-y-4", children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between p-3 bg-orange-50 rounded-lg border border-orange-200", children: [
+            /* @__PURE__ */ jsx("span", { className: "text-sm font-medium text-gray-700", children: t("achievements.xpReward") }),
+            /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1", children: [
+              /* @__PURE__ */ jsx(Award, { className: "h-5 w-5 text-forge-orange" }),
+              /* @__PURE__ */ jsxs("span", { className: "text-xl font-bold text-forge-orange", children: [
+                selectedAchievement.xpReward,
+                " XP"
+              ] })
+            ] })
+          ] }),
+          selectedAchievement.progress !== void 0 && selectedAchievement.maxProgress && /* @__PURE__ */ jsx("div", { children: /* @__PURE__ */ jsx(
+            AchievementProgress,
+            {
+              current: selectedAchievement.progress,
+              max: selectedAchievement.maxProgress
+            }
+          ) }),
+          selectedAchievement.action && !isCompleted && !isLocked && /* @__PURE__ */ jsx(
+            Button,
+            {
+              className: "w-full bg-forge-orange hover:bg-forge-orange/90",
+              onClick: () => onActionClick(selectedAchievement),
+              children: selectedAchievement.action.label
+            }
+          ),
+          isCompleted && /* @__PURE__ */ jsxs("div", { className: "text-center text-sm font-medium text-green-700 bg-green-100 py-3 rounded-md", children: [
+            "✓ ",
+            t("achievements.completedBadge")
+          ] }),
+          isLocked && /* @__PURE__ */ jsxs("div", { className: "text-center text-sm text-gray-500 bg-gray-100 py-3 rounded-md", children: [
+            "🔒 ",
+            t("achievements.locked")
+          ] })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxs(Card, { children: [
+        /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsxs(CardTitle, { className: "text-sm flex items-center gap-2", children: [
+          /* @__PURE__ */ jsx(Sparkles, { className: "h-4 w-4 text-forge-orange" }),
+          t("achievements.sidebar.tips")
+        ] }) }),
+        /* @__PURE__ */ jsxs(CardContent, { className: "text-xs text-gray-600 space-y-2", children: [
+          /* @__PURE__ */ jsxs("p", { children: [
+            "• ",
+            t("achievements.sidebar.tip1")
+          ] }),
+          /* @__PURE__ */ jsxs("p", { children: [
+            "• ",
+            t("achievements.sidebar.tip2")
+          ] }),
+          /* @__PURE__ */ jsxs("p", { children: [
+            "• ",
+            t("achievements.sidebar.tip3")
+          ] })
+        ] })
+      ] })
+    ] });
+  }
+  return /* @__PURE__ */ jsxs("div", { className: "w-96 shrink-0 hidden lg:block sticky top-6 self-start space-y-4", children: [
+    /* @__PURE__ */ jsxs(Card, { children: [
+      /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsxs(CardTitle, { className: "text-lg flex items-center gap-2", children: [
+        /* @__PURE__ */ jsx(Target, { className: "h-5 w-5 text-forge-orange" }),
+        t("achievements.sidebar.overview")
+      ] }) }),
+      /* @__PURE__ */ jsxs(CardContent, { className: "space-y-3", children: [
+        /* @__PURE__ */ jsxs("div", { children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex justify-between text-xs text-gray-600 mb-1.5", children: [
+            /* @__PURE__ */ jsx("span", { className: "font-medium", children: t("achievements.overallProgress") }),
+            /* @__PURE__ */ jsxs("span", { className: "font-bold text-forge-orange", children: [
+              stats.completionPercentage,
+              "%"
+            ] })
+          ] }),
+          /* @__PURE__ */ jsx("div", { className: "relative h-2 w-full overflow-hidden rounded-full bg-gray-200", children: /* @__PURE__ */ jsx(
+            "div",
+            {
+              className: "h-full transition-all duration-500 ease-out rounded-full bg-forge-orange",
+              style: { width: `${stats.completionPercentage}%` }
+            }
+          ) })
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between pt-2", children: [
+          /* @__PURE__ */ jsx("span", { className: "text-sm text-gray-600", children: t("achievements.completed") }),
+          /* @__PURE__ */ jsxs("span", { className: "text-lg font-bold", children: [
+            stats.completed,
+            /* @__PURE__ */ jsxs("span", { className: "text-gray-400", children: [
+              "/",
+              stats.total
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between", children: [
+          /* @__PURE__ */ jsx("span", { className: "text-sm text-gray-600", children: t("achievements.inProgress") }),
+          /* @__PURE__ */ jsx("span", { className: "text-lg font-bold text-blue-600", children: stats.inProgress })
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between pt-2 border-t", children: [
+          /* @__PURE__ */ jsx("span", { className: "text-sm text-gray-600", children: "XP" }),
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
+            /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1", children: [
+              /* @__PURE__ */ jsx(Award, { className: "h-4 w-4 text-forge-orange" }),
+              /* @__PURE__ */ jsx("span", { className: "text-sm font-bold text-forge-orange", children: stats.totalXP })
+            ] }),
+            /* @__PURE__ */ jsxs("span", { className: "text-xs text-gray-400", children: [
+              "of ",
+              stats.totalXP + stats.availableXP
+            ] })
+          ] })
+        ] })
+      ] })
+    ] }),
+    suggestedAchievement && /* @__PURE__ */ jsxs(Card, { className: "border-2 border-forge-orange/40 bg-orange-50/30", children: [
+      /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 mb-2", children: [
+        /* @__PURE__ */ jsx(Sparkles, { className: "h-5 w-5 text-forge-orange" }),
+        /* @__PURE__ */ jsx(CardTitle, { className: "text-base", children: t("achievements.sidebar.nextSuggested") })
+      ] }) }),
+      /* @__PURE__ */ jsxs(CardContent, { className: "space-y-3", children: [
+        /* @__PURE__ */ jsxs("div", { className: "flex items-start gap-3", children: [
+          /* @__PURE__ */ jsx("div", { className: cn(
+            CATEGORY_CONFIGS[suggestedAchievement.category].bgColor,
+            "p-2.5 rounded-lg"
+          ), children: /* @__PURE__ */ jsx(
+            suggestedAchievement.icon,
+            {
+              className: cn("h-5 w-5", CATEGORY_CONFIGS[suggestedAchievement.category].color)
+            }
+          ) }),
+          /* @__PURE__ */ jsxs("div", { className: "flex-1 min-w-0", children: [
+            /* @__PURE__ */ jsx("p", { className: "font-semibold text-sm leading-tight mb-1", children: suggestedAchievement.title }),
+            /* @__PURE__ */ jsx("p", { className: "text-xs text-gray-600 line-clamp-2", children: suggestedAchievement.description })
+          ] })
+        ] }),
+        suggestedAchievement.progress !== void 0 && suggestedAchievement.maxProgress && /* @__PURE__ */ jsx(
+          AchievementProgress,
+          {
+            current: suggestedAchievement.progress,
+            max: suggestedAchievement.maxProgress
+          }
+        ),
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between pt-2", children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1", children: [
+            /* @__PURE__ */ jsx(Award, { className: "h-4 w-4 text-forge-orange" }),
+            /* @__PURE__ */ jsxs("span", { className: "text-sm font-bold text-forge-orange", children: [
+              suggestedAchievement.xpReward,
+              " XP"
+            ] })
+          ] }),
+          suggestedAchievement.action && /* @__PURE__ */ jsx(
+            Button,
+            {
+              size: "sm",
+              className: "bg-forge-orange hover:bg-forge-orange/90",
+              onClick: () => onActionClick(suggestedAchievement),
+              children: suggestedAchievement.action.label
+            }
+          )
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxs(Card, { className: "border-blue-200 bg-blue-50/30", children: [
+      /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsxs(CardTitle, { className: "text-sm flex items-center gap-2", children: [
+        /* @__PURE__ */ jsx(Sparkles, { className: "h-4 w-4 text-blue-600" }),
+        stats.completed === 0 ? t("achievements.sidebar.gettingStarted") : t("achievements.sidebar.keepGoing")
+      ] }) }),
+      /* @__PURE__ */ jsxs(CardContent, { className: "text-xs text-gray-700 space-y-2", children: [
+        /* @__PURE__ */ jsx("p", { className: "leading-relaxed", children: /* @__PURE__ */ jsx("strong", { children: t("achievements.sidebar.hoverTip") }) }),
+        stats.inProgress > 0 && /* @__PURE__ */ jsx("p", { className: "text-blue-700 font-medium", children: t("achievements.sidebar.inProgressMessage", { count: stats.inProgress }) }),
+        stats.completed === 0 && /* @__PURE__ */ jsx("p", { className: "text-forge-orange font-medium", children: t("achievements.sidebar.quickWinsTip") }),
+        stats.completionPercentage >= 50 && stats.completionPercentage < 100 && /* @__PURE__ */ jsx("p", { className: "text-green-700 font-medium", children: t("achievements.sidebar.halfwayThere", {
+          remaining: stats.total - stats.completed
+        }) }),
+        stats.completionPercentage === 100 && /* @__PURE__ */ jsxs("p", { className: "text-green-700 font-medium", children: [
+          "🎉 ",
+          t("achievements.sidebar.allComplete")
+        ] })
+      ] })
+    ] })
+  ] });
+}
+const getAchievementsData = (t) => [
+  // Community Achievements
+  {
+    id: "telegram-join",
+    title: t("achievements.tasks.telegramJoin.title"),
+    description: t("achievements.tasks.telegramJoin.description"),
+    xpReward: 100,
+    status: "in_progress",
+    category: "community",
+    icon: MessageCircle,
+    action: {
+      label: t("achievements.tasks.telegramJoin.action"),
+      url: "https://t.me/forgecollege",
+      type: "external"
+    }
+  },
+  {
+    id: "discord-join",
+    title: t("achievements.tasks.discordJoin.title"),
+    description: t("achievements.tasks.discordJoin.description"),
+    xpReward: 100,
+    status: "in_progress",
+    category: "community",
+    icon: Users,
+    action: {
+      label: t("achievements.tasks.discordJoin.action"),
+      url: "https://discord.gg/forgecollege",
+      type: "external"
+    }
+  },
+  {
+    id: "first-message",
+    title: t("achievements.tasks.firstMessage.title"),
+    description: t("achievements.tasks.firstMessage.description"),
+    xpReward: 50,
+    status: "locked",
+    category: "community",
+    icon: MessageCircle
+  },
+  // Profile Achievements
+  {
+    id: "email-verify",
+    title: t("achievements.tasks.emailVerify.title"),
+    description: t("achievements.tasks.emailVerify.description"),
+    xpReward: 150,
+    status: "completed",
+    category: "profile",
+    icon: Mail,
+    action: {
+      label: t("achievements.tasks.emailVerify.action")
+    }
+  },
+  {
+    id: "complete-profile",
+    title: t("achievements.tasks.completeProfile.title"),
+    description: t("achievements.tasks.completeProfile.description"),
+    xpReward: 200,
+    status: "in_progress",
+    category: "profile",
+    progress: 7,
+    maxProgress: 10,
+    icon: Target,
+    action: {
+      label: t("achievements.tasks.completeProfile.action"),
+      url: "/dashboard/profile",
+      type: "internal"
+    }
+  },
+  {
+    id: "github-connect",
+    title: t("achievements.tasks.githubConnect.title"),
+    description: t("achievements.tasks.githubConnect.description"),
+    xpReward: 100,
+    status: "in_progress",
+    category: "profile",
+    icon: Github,
+    action: {
+      label: t("achievements.tasks.githubConnect.action")
+    }
+  },
+  {
+    id: "linkedin-connect",
+    title: t("achievements.tasks.linkedinConnect.title"),
+    description: t("achievements.tasks.linkedinConnect.description"),
+    xpReward: 100,
+    status: "in_progress",
+    category: "profile",
+    icon: Linkedin,
+    action: {
+      label: t("achievements.tasks.linkedinConnect.action")
+    }
+  },
+  // Social Achievements
+  {
+    id: "twitter-follow",
+    title: t("achievements.tasks.twitterFollow.title"),
+    description: t("achievements.tasks.twitterFollow.description"),
+    xpReward: 75,
+    status: "in_progress",
+    category: "social",
+    icon: Twitter,
+    action: {
+      label: t("achievements.tasks.twitterFollow.action"),
+      url: "https://twitter.com/forgecollege",
+      type: "external"
+    }
+  },
+  {
+    id: "share-progress",
+    title: t("achievements.tasks.shareProgress.title"),
+    description: t("achievements.tasks.shareProgress.description"),
+    xpReward: 150,
+    status: "locked",
+    category: "social",
+    icon: Sparkles
+  },
+  // Learning Achievements
+  {
+    id: "first-lesson",
+    title: t("achievements.tasks.firstLesson.title"),
+    description: t("achievements.tasks.firstLesson.description"),
+    xpReward: 50,
+    status: "completed",
+    category: "learning",
+    icon: BookOpen
+  },
+  {
+    id: "week-streak",
+    title: t("achievements.tasks.weekStreak.title"),
+    description: t("achievements.tasks.weekStreak.description"),
+    xpReward: 300,
+    status: "in_progress",
+    category: "learning",
+    progress: 4,
+    maxProgress: 7,
+    icon: Clock
+  },
+  {
+    id: "complete-path",
+    title: t("achievements.tasks.completePath.title"),
+    description: t("achievements.tasks.completePath.description"),
+    xpReward: 500,
+    status: "in_progress",
+    category: "learning",
+    progress: 12,
+    maxProgress: 28,
+    icon: Star
+  },
+  {
+    id: "perfect-quiz",
+    title: t("achievements.tasks.perfectQuiz.title"),
+    description: t("achievements.tasks.perfectQuiz.description"),
+    xpReward: 200,
+    status: "locked",
+    category: "learning",
+    icon: Target
+  }
+];
+function filterAchievements(achievements2, filters) {
+  let results = achievements2;
+  if (filters.category !== "all") {
+    results = results.filter((a) => a.category === filters.category);
+  }
+  if (filters.status && filters.status.length > 0) {
+    results = results.filter((a) => filters.status.includes(a.status));
+  }
+  if (filters.searchQuery && filters.searchQuery.trim()) {
+    const query = filters.searchQuery.toLowerCase();
+    results = results.filter(
+      (a) => a.title.toLowerCase().includes(query) || a.description.toLowerCase().includes(query)
+    );
+  }
+  if (filters.sortBy === "xp") {
+    results = results.sort((a, b) => b.xpReward - a.xpReward);
+  } else if (filters.sortBy === "progress") {
+    results = results.sort((a, b) => {
+      const progressA = a.progress && a.maxProgress ? a.progress / a.maxProgress : 0;
+      const progressB = b.progress && b.maxProgress ? b.progress / b.maxProgress : 0;
+      return progressB - progressA;
+    });
+  } else if (filters.sortBy === "status") {
+    const statusPriority = { in_progress: 1, locked: 2, completed: 3 };
+    results = results.sort((a, b) => statusPriority[a.status] - statusPriority[b.status]);
+  }
+  return results;
+}
+function useAchievements(filters) {
+  const { t } = useTranslation();
+  const rawAchievements = useMemo(() => getAchievementsData(t), [t]);
+  const filteredAchievements = useMemo(() => {
+    if (!filters) return rawAchievements;
+    return filterAchievements(rawAchievements, filters);
+  }, [rawAchievements, filters]);
+  return {
+    achievements: filteredAchievements,
+    isLoading: false,
+    error: null
+  };
+}
+function useAchievementStats(achievements2) {
+  return useMemo(() => {
+    const completed = achievements2.filter((a) => a.status === "completed");
+    const inProgress = achievements2.filter((a) => a.status === "in_progress");
+    const locked = achievements2.filter((a) => a.status === "locked");
+    const totalXP = completed.reduce((sum, a) => sum + a.xpReward, 0);
+    const availableXP = achievements2.filter((a) => a.status !== "completed").reduce((sum, a) => sum + a.xpReward, 0);
+    const completionPercentage = achievements2.length > 0 ? Math.round(completed.length / achievements2.length * 100) : 0;
+    return {
+      total: achievements2.length,
+      completed: completed.length,
+      inProgress: inProgress.length,
+      locked: locked.length,
+      totalXP,
+      availableXP,
+      completionPercentage
+    };
+  }, [achievements2]);
+}
+function useAchievementActions() {
+  const navigate = useNavigate();
+  const handleAchievementAction = useCallback((achievement) => {
+    if (!achievement.action) return;
+    const { url, type, handler } = achievement.action;
+    if (handler) {
+      handler();
+      return;
+    }
+    if (url) {
+      if (type === "external" || url.startsWith("http")) {
+        window.open(url, "_blank", "noopener,noreferrer");
+      } else {
+        navigate(url);
+      }
+    }
+  }, [navigate]);
+  return {
+    handleAchievementAction
+  };
+}
+function useAchievementFilters() {
+  const [filters, setFilters] = useState({
+    category: "all",
+    sortBy: "status"
+  });
+  const setCategory = useCallback((category) => {
+    setFilters((prev) => ({ ...prev, category }));
+  }, []);
+  const setSearchQuery = useCallback((searchQuery) => {
+    setFilters((prev) => ({ ...prev, searchQuery }));
+  }, []);
+  const resetFilters = useCallback(() => {
+    setFilters({ category: "all", sortBy: "status" });
+  }, []);
+  return {
+    filters,
+    setCategory,
+    setSearchQuery,
+    resetFilters
+  };
+}
+function AchievementsPage() {
+  const { t } = useTranslation();
+  const { filters, setCategory } = useAchievementFilters();
+  const { achievements: achievements2 } = useAchievements(filters);
+  const stats = useAchievementStats(achievements2);
+  const { handleAchievementAction } = useAchievementActions();
+  const [selectedAchievement, setSelectedAchievement] = useState(null);
+  const { achievements: allAchievements } = useAchievements();
+  const suggestedAchievement = useMemo(() => {
+    const inProgress = allAchievements.filter((a) => a.status === "in_progress").sort((a, b) => {
+      const progressA = a.progress && a.maxProgress ? a.progress / a.maxProgress : 0;
+      const progressB = b.progress && b.maxProgress ? b.progress / b.maxProgress : 0;
+      return progressB - progressA;
+    });
+    if (filters.category === "all") {
+      return null;
+    }
+    const suggestionFromOtherCategory = inProgress.find((a) => a.category !== filters.category);
+    return suggestionFromOtherCategory || null;
+  }, [allAchievements, filters.category]);
+  return /* @__PURE__ */ jsxs("div", { className: "flex gap-6 max-w-[1800px] mx-auto", children: [
+    /* @__PURE__ */ jsxs("div", { className: "flex-1 space-y-4 min-w-0", children: [
+      /* @__PURE__ */ jsxs("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ jsx("h1", { className: "text-3xl font-bold tracking-tight text-gray-900", children: t("achievements.title") }),
+        /* @__PURE__ */ jsx("p", { className: "text-gray-600", children: t("achievements.subtitle") })
+      ] }),
+      /* @__PURE__ */ jsx(
+        AchievementTabs,
+        {
+          selectedCategory: filters.category,
+          onCategoryChange: setCategory,
+          achievements: achievements2,
+          onAchievementAction: handleAchievementAction,
+          onAchievementHover: setSelectedAchievement,
+          selectedAchievementId: selectedAchievement == null ? void 0 : selectedAchievement.id
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsx(
+      AchievementsSidebar,
+      {
+        stats,
+        selectedAchievement,
+        suggestedAchievement,
+        onActionClick: handleAchievementAction
+      }
+    )
+  ] });
+}
 const App = () => {
   try {
     return /* @__PURE__ */ jsxs(TooltipProvider, { children: [
       /* @__PURE__ */ jsx(Toaster$1, {}),
       /* @__PURE__ */ jsx(Toaster, {}),
-      /* @__PURE__ */ jsx(BrowserRouter, { children: /* @__PURE__ */ jsx(OAuthProvider, { children: /* @__PURE__ */ jsxs(Routes, { children: [
+      /* @__PURE__ */ jsx(AuthErrorBoundary, { children: /* @__PURE__ */ jsx(OAuthProvider, { children: /* @__PURE__ */ jsxs(Routes, { children: [
+        /* @__PURE__ */ jsx(Route, { path: ROOT, element: /* @__PURE__ */ jsx(Navigate, { to: DASHBOARD, replace: true }) }),
         /* @__PURE__ */ jsxs(Route, { element: /* @__PURE__ */ jsx(PublicLayout, {}), children: [
-          /* @__PURE__ */ jsx(Route, { path: ROOT, element: /* @__PURE__ */ jsx(Professionals, {}) }),
+          /* @__PURE__ */ jsx(Route, { path: OLD_HIDDEN, element: /* @__PURE__ */ jsx(Professionals, {}) }),
           /* @__PURE__ */ jsx(Route, { path: COMPANIES, element: /* @__PURE__ */ jsx(Companies, {}) }),
           /* @__PURE__ */ jsx(Route, { path: INVESTORS, element: /* @__PURE__ */ jsx(Investors, {}) })
         ] }),
@@ -5969,8 +11122,24 @@ const App = () => {
               /* @__PURE__ */ jsx(Route, { index: true, element: /* @__PURE__ */ jsx(DashboardHome, {}) }),
               /* @__PURE__ */ jsx(Route, { path: "explore", element: /* @__PURE__ */ jsx(AvailablePaths, {}) }),
               /* @__PURE__ */ jsx(Route, { path: "profile", element: /* @__PURE__ */ jsx(Profile, {}) }),
+              /* @__PURE__ */ jsx(Route, { path: "scoreboard", element: /* @__PURE__ */ jsx(Scoreboard, {}) }),
+              /* @__PURE__ */ jsx(Route, { path: "achievements", element: /* @__PURE__ */ jsx(AchievementsPage, {}) }),
               /* @__PURE__ */ jsx(Route, { path: "learn/course/:courseId", element: /* @__PURE__ */ jsx(CourseView, {}) }),
-              /* @__PURE__ */ jsx(Route, { path: "learn/path/:pathId", element: /* @__PURE__ */ jsx(PathOverview, {}) })
+              /* @__PURE__ */ jsx(Route, { path: "learn/path/:pathId", element: /* @__PURE__ */ jsx(PathOverview, {}) }),
+              /* @__PURE__ */ jsxs(
+                Route,
+                {
+                  path: "admin",
+                  element: /* @__PURE__ */ jsx(RequireAdmin, { children: /* @__PURE__ */ jsx(AdminLayout, {}) }),
+                  children: [
+                    /* @__PURE__ */ jsx(Route, { index: true, element: /* @__PURE__ */ jsx(AdminOverview, {}) }),
+                    /* @__PURE__ */ jsx(Route, { path: "paths", element: /* @__PURE__ */ jsx(AdminPaths, {}) }),
+                    /* @__PURE__ */ jsx(Route, { path: "courses", element: /* @__PURE__ */ jsx(AdminCourses, {}) }),
+                    /* @__PURE__ */ jsx(Route, { path: "modules", element: /* @__PURE__ */ jsx(AdminModules, {}) }),
+                    /* @__PURE__ */ jsx(Route, { path: "lessons", element: /* @__PURE__ */ jsx(AdminLessons, {}) })
+                  ]
+                }
+              )
             ]
           }
         ),
