@@ -451,6 +451,57 @@
       }
     }
   },
+  "diagnostics": {
+    "testPage": {
+      "title": "🧪 Página de Teste - Forge College",
+      "description": "Esta é uma página de teste estática sem dependências externas.",
+      "systemStatus": {
+        "title": "Status do sistema",
+        "react": "✅ React funcionando",
+        "typescript": "✅ TypeScript funcionando",
+        "build": "✅ Build funcionando",
+        "deploy": "✅ Deploy funcionando",
+        "ssr": "✅ SSR funcionando (timestamp: {{timestamp}})"
+      },
+      "environment": {
+        "title": "Informações do ambiente (SSR)",
+        "serverTimestamp": "Timestamp do servidor:",
+        "noJsMessage": "Se você vê este texto sem JavaScript, o SSR está OK."
+      },
+      "clientTest": {
+        "title": "Teste de JavaScript (client-side)",
+        "instructions": "Se o JavaScript estiver funcionando, você verá informações adicionais abaixo:",
+        "loading": "Carregando informações do cliente...",
+        "button": "Testar JavaScript"
+      },
+      "alerts": {
+        "jsWorking": "JavaScript está funcionando!"
+      },
+      "footer": "Se você está vendo esta página, o problema não é de infraestrutura.",
+      "js": {
+        "clientReady": "✅ JavaScript funcionando!",
+        "userAgent": "User agent:",
+        "url": "URL:",
+        "clientTimestamp": "Timestamp do cliente:"
+      }
+    },
+    "ssrCanary": {
+      "title": "Teste Canary de SSR",
+      "status": "SSR CANARY OK: {{timestamp}}",
+      "instructions": "Se você vê este texto, o SSR está funcionando.",
+      "timestamp": "Timestamp: {{timestamp}}",
+      "renderMode": "Esta página renderiza HTML estático no servidor.",
+      "runtime": "Runtime: Node.js",
+      "dynamicMode": "Dinâmico: force-dynamic"
+    },
+    "staticBare": {
+      "title": "Teste Static Bare SSR",
+      "status": "STATIC BARE SSR OK: {{timestamp}}",
+      "instructions": "Se você vê este texto, o SSR está funcionando.",
+      "timestamp": "Timestamp: {{timestamp}}",
+      "renderMode": "Esta página renderiza HTML estático no servidor."
+    }
+  },
   "projects": {
     "errors": {
       "loginRequired": "Você precisa estar logado para enviar projetos.",
