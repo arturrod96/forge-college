@@ -164,6 +164,7 @@
     },
     "fields": {
       "yearsExperience": "Years of Experience in Technology",
+      "yearsExperiencePlaceholder": "0",
       "positionCompany": "Position & Company",
       "positionPlaceholder": "e.g., Senior Backend @ ACME",
       "stacksDominated": "Stacks Dominated",
