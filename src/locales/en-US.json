@@ -573,5 +573,11 @@
       "anonymous": "Anonymous",
       "dateUnknown": "Date unknown"
     }
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. Please reload the page.",
+    "reload": "Reload page",
+    "detailsTitle": "Error details (development)"
   }
 }
