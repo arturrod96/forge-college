@@ -180,6 +180,10 @@
       "languagePreference": "Language Preference",
       "selectLanguage": "Select your preferred language"
     },
+    "languageOptions": {
+      "enUS": "English (US)",
+      "ptBR": "Portuguese (BR)"
+    },
     "errors": {
       "fullNameRequired": "Full name is required",
       "countryRequired": "Country is required",
