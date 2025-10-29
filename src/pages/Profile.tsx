@@ -350,7 +350,7 @@ export default function Profile() {
                       min="0"
                       value={profile.yearsExperience}
                       onChange={(e) => updateField('yearsExperience', parseInt(e.target.value) || 0)}
-                      placeholder="0"
+                      placeholder={t('profile.fields.yearsExperiencePlaceholder')}
                       className="pl-10"
                     />
                   </div>
