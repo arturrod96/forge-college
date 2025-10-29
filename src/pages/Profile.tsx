@@ -13,12 +13,45 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Save, User, Mail, MapPin, Globe, Briefcase, Target, Building, Linkedin, Github, BookOpen, Languages } from 'lucide-react';
 
-const countries = [
-  'Brazil', 'United States', 'Canada', 'United Kingdom', 'Germany', 'France', 'Spain', 'Italy',
-  'Netherlands', 'Sweden', 'Norway', 'Denmark', 'Finland', 'Switzerland', 'Austria', 'Belgium',
-  'Portugal', 'Ireland', 'Australia', 'New Zealand', 'Japan', 'South Korea', 'Singapore', 'India',
-  'China', 'Mexico', 'Argentina', 'Chile', 'Colombia', 'Peru', 'Uruguay', 'Paraguay', 'Venezuela',
-  'Ecuador', 'Bolivia', 'Guyana', 'Suriname', 'French Guiana'
+const COUNTRY_LIST = [
+  { value: 'Brazil', key: 'brazil' },
+  { value: 'United States', key: 'unitedStates' },
+  { value: 'Canada', key: 'canada' },
+  { value: 'United Kingdom', key: 'unitedKingdom' },
+  { value: 'Germany', key: 'germany' },
+  { value: 'France', key: 'france' },
+  { value: 'Spain', key: 'spain' },
+  { value: 'Italy', key: 'italy' },
+  { value: 'Netherlands', key: 'netherlands' },
+  { value: 'Sweden', key: 'sweden' },
+  { value: 'Norway', key: 'norway' },
+  { value: 'Denmark', key: 'denmark' },
+  { value: 'Finland', key: 'finland' },
+  { value: 'Switzerland', key: 'switzerland' },
+  { value: 'Austria', key: 'austria' },
+  { value: 'Belgium', key: 'belgium' },
+  { value: 'Portugal', key: 'portugal' },
+  { value: 'Ireland', key: 'ireland' },
+  { value: 'Australia', key: 'australia' },
+  { value: 'New Zealand', key: 'newZealand' },
+  { value: 'Japan', key: 'japan' },
+  { value: 'South Korea', key: 'southKorea' },
+  { value: 'Singapore', key: 'singapore' },
+  { value: 'India', key: 'india' },
+  { value: 'China', key: 'china' },
+  { value: 'Mexico', key: 'mexico' },
+  { value: 'Argentina', key: 'argentina' },
+  { value: 'Chile', key: 'chile' },
+  { value: 'Colombia', key: 'colombia' },
+  { value: 'Peru', key: 'peru' },
+  { value: 'Uruguay', key: 'uruguay' },
+  { value: 'Paraguay', key: 'paraguay' },
+  { value: 'Venezuela', key: 'venezuela' },
+  { value: 'Ecuador', key: 'ecuador' },
+  { value: 'Bolivia', key: 'bolivia' },
+  { value: 'Guyana', key: 'guyana' },
+  { value: 'Suriname', key: 'suriname' },
+  { value: 'French Guiana', key: 'frenchGuiana' }
 ];
 
 export default function Profile() {
