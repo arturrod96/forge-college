@@ -18,7 +18,6 @@ export type {
   Achievement,
   AchievementStatus,
   AchievementCategory,
-  AchievementStats,
   AchievementFilters,
   AchievementAction,
   CategoryConfig
