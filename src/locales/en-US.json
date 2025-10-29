@@ -326,6 +326,42 @@
     "timelineImmediate": "Immediate (next 30 days)",
     "timelineQuarter": "This quarter"
   },
+  "applicationForm": {
+    "accessibility": {
+      "close": "Close dialog"
+    },
+    "messages": {
+      "success": "Thank you for your application! We'll be in touch soon."
+    },
+    "fields": {
+      "name": "Full name",
+      "email": "Email address",
+      "company": "Company / organization",
+      "experienceLabel": "Current experience level",
+      "experiencePlaceholder": "Select your level",
+      "experienceOptions": {
+        "beginner": "Beginner (0-2 years)",
+        "intermediate": "Intermediate (2-5 years)",
+        "advanced": "Advanced (5+ years)"
+      },
+      "portfolio": "Portfolio / LinkedIn URL",
+      "investmentAmountLabel": "Investment amount range",
+      "investmentAmountPlaceholder": "Select range",
+      "investmentAmountOptions": {
+        "10k_50k": "$10k - $50k",
+        "50k_100k": "$50k - $100k",
+        "100k_500k": "$100k - $500k",
+        "500k_plus": "$500k+"
+      },
+      "timelineLabel": "Investment timeline",
+      "timelineOptions": {
+        "year": "This year",
+        "exploring": "Just exploring"
+      },
+      "message": "Message",
+      "messagePlaceholder": "Tell us more about your interest..."
+    }
+  },
   "scoreboard": {
     "title": "Scoreboard",
     "subtitle": "Check out the rankings of students with the most XP",
