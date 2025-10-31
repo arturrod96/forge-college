@@ -1,5 +1,4 @@
 import { ContinueLearningCard } from '@/components/dashboard/ContinueLearningCard';
-import { ContinueLearningCard } from '@/components/dashboard/ContinueLearningCard';
 import { UserStats } from '@/components/dashboard/UserStats';
 import { AvailablePaths } from '@/components/dashboard/AvailablePaths';
 import { LearningHabits } from '@/components/dashboard/LearningHabits';
