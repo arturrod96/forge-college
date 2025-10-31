@@ -31,7 +31,8 @@
       "country": "País",
       "city": "Cidade",
       "languages": "Idiomas",
-      "language": "Idioma"
+      "language": "Idioma",
+      "user": "Usuário"
     },
     "placeholders": {
       "email": "m@exemplo.com",
@@ -218,7 +219,7 @@
       "new": "Nova trilha de aprendizado",
       "edit": "Editar trilha de aprendizado",
       "delete": "Excluir trilha de aprendizado",
-      "deleteConfirm": "Esta ação não pode ser desfeita. Excluir uma trilha removerá todos os cursos, módulos e lições associados. Tem certeza de que deseja remover \"{{title}}\"?",
+      "deleteConfirm": "Esta ação não pode ser desfeita. Excluir uma trilha removerá todos os cursos, m��dulos e lições associados. Tem certeza de que deseja remover \"{{title}}\"?",
       "created": "Trilha de aprendizado criada",
       "updated": "Trilha de aprendizado atualizada",
       "deleted": "Trilha de aprendizado excluída",
