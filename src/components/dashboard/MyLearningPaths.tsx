@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { createClientBrowser } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useOAuth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Link } from 'react-router-dom';
 import { DASHBOARD_LEARN_PATH } from '@/routes/paths';
-import { DASHBOARD_STRINGS } from '@/strings/dashboard';
 import { useQuery } from '@tanstack/react-query';
 import EnhancedButton from '@/components/ui/enhanced-button';
+import { useTranslation } from 'react-i18next';
 
 interface InProgressPath {
   id: string;
@@ -19,6 +19,8 @@ interface InProgressPath {
 
 export function MyLearningPaths() {
   const { user } = useAuth();
+  const { t } = useTranslation();
+  const supabase = useMemo(() => createClientBrowser(), []);
 
   const { data: myPaths = [], isLoading } = useQuery<InProgressPath[]>({
     queryKey: ['myPaths', user?.id],
@@ -83,8 +85,8 @@ export function MyLearningPaths() {
         <Card>
           <CardContent className="p-6 text-center">
             <div className="text-gray-500">
-              <p className="mb-2">{DASHBOARD_STRINGS.myLearningPaths.emptyTitle}</p>
-              <p className="text-sm">{DASHBOARD_STRINGS.myLearningPaths.emptySubtitle}</p>
+              <p className="mb-2">{t('dashboard.myLearningPaths.emptyTitle')}</p>
+              <p className="text-sm">{t('dashboard.myLearningPaths.emptySubtitle')}</p>
             </div>
           </CardContent>
         </Card>
@@ -114,10 +116,12 @@ export function MyLearningPaths() {
             </CardHeader>
             <CardContent className="mt-auto">
               <div className="flex items-center justify-between mb-2">
-                <div className={`text-xs rounded-full px-2 py-1 bg-gradient-to-br ${progressColor(path.progress)} inline-block`}>{path.progress}{DASHBOARD_STRINGS.myLearningPaths.progressSuffix}</div>
+                <div className={`text-xs rounded-full px-2 py-1 bg-gradient-to-br ${progressColor(path.progress)} inline-block`}>
+                  {t('dashboard.myLearningPaths.progressLabel', { progress: path.progress })}
+                </div>
                 <Link to={DASHBOARD_LEARN_PATH(path.id)}>
                   <EnhancedButton size="sm" withGradient>
-                    {DASHBOARD_STRINGS.pathOverview.continue}
+                    {t('dashboard.pathOverview.continue')}
                   </EnhancedButton>
                 </Link>
               </div>
