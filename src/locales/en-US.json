@@ -231,7 +231,59 @@
     "nothingToContinue": "Nothing to continue right now.",
     "emptyTitle": "No paths yet",
     "emptySubtitle": "Enroll in a path to get started",
-    "progressSuffix": "complete"
+    "progressSuffix": "complete",
+    "home": {
+      "badge": "Welcome back",
+      "headlineSuffix": ", ready to continue your journey?",
+      "exploreCta": "View all paths"
+    },
+    "continueLearning": {
+      "title": "Pick up where you left off",
+      "subtitle": "You were studying:"
+    },
+    "availablePaths": {
+      "enrolledBadge": "Enrolled",
+      "courses_one": "{{count}} course",
+      "courses_other": "{{count}} courses"
+    },
+    "learningHabits": {
+      "title": "Study habits",
+      "currentStreak": "Current streak",
+      "dayCount_one": "{{count}} day",
+      "dayCount_other": "{{count}} days",
+      "keepGoing": "Keep it going daily",
+      "weeklyGoal": "Weekly goal",
+      "weekProgress": "{{completed}}/{{goal}} lessons",
+      "completions_one": "{{count}} completion",
+      "completions_other": "{{count}} completions",
+      "loadError": "Failed to load learning habits"
+    },
+    "userStats": {
+      "totalXp": "Total XP",
+      "completedLessons": "Completed lessons",
+      "activePaths": "Active paths",
+      "studyTime": "Study time",
+      "studyTimeValue": "{{minutes}} min",
+      "errors": {
+        "loadProgress": "Failed to load user progress",
+        "loadLessons": "Failed to load lessons"
+      }
+    },
+    "myLearningPaths": {
+      "emptyTitle": "You are not enrolled in any path yet.",
+      "emptySubtitle": "Explore available paths and enroll to get started.",
+      "progressLabel": "{{progress}}% complete"
+    },
+    "pathOverview": {
+      "badge": "Path",
+      "notFound": "Learning path not found.",
+      "continue": "Continue",
+      "courses": "Courses"
+    },
+    "errors": {
+      "notAuthenticated": "Not authenticated",
+      "failedToEnroll": "Failed to enroll"
+    }
   },
   "lessons": {
     "selectToBegin": "Select a lesson to begin.",
