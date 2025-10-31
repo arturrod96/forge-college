@@ -31,7 +31,8 @@
       "country": "Country",
       "city": "City",
       "languages": "Languages",
-      "language": "Language"
+      "language": "Language",
+      "user": "User"
     },
     "placeholders": {
       "email": "m@example.com",
