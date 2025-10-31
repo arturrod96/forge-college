@@ -4,6 +4,7 @@ import { createClientBrowser } from '@/lib/supabase';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { useTranslation } from 'react-i18next';
 
 type ProgressRow = {
   completed_at: string | null;
@@ -18,6 +19,7 @@ type LearningHabitsProps = {
 export function LearningHabits({ className }: LearningHabitsProps) {
   const { user } = useAuth();
   const supabase = useMemo(() => createClientBrowser(), []);
+  const { t } = useTranslation();
 
   const { data: completions = [], isLoading } = useQuery<ProgressRow[]>({
     queryKey: ['learningHabits', user?.id],
@@ -35,7 +37,7 @@ export function LearningHabits({ className }: LearningHabitsProps) {
         .not('completed_at', 'is', null)
         .order('completed_at', { ascending: false })
         .limit(200);
-      if (error) throw new Error(error.message || 'Failed to load learning habits');
+      if (error) throw new Error(error.message || t('dashboard.learningHabits.loadError'));
       return data as ProgressRow[];
     },
   });
@@ -87,26 +89,31 @@ export function LearningHabits({ className }: LearningHabitsProps) {
     };
   }, [completions]);
 
+  const streakText = isLoading ? '-' : t('dashboard.learningHabits.dayCount', { count: streakDays });
+  const weeklyProgressText = isLoading
+    ? '-'
+    : t('dashboard.learningHabits.weekProgress', { completed: weekCount, goal: WEEKLY_GOAL });
+
   return (
     <Card className={`h-full min-h-[220px] flex flex-col ${className || ''}`}>
       <CardHeader>
-        <CardTitle className="text-lg">Study habits</CardTitle>
+        <CardTitle className="text-lg">{t('dashboard.learningHabits.title')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Streak */}
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-sm text-gray-600">Current streak</div>
-            <div className="text-2xl font-semibold">{isLoading ? '-' : streakDays} day{!isLoading && streakDays !== 1 ? 's' : ''}</div>
+            <div className="text-sm text-gray-600">{t('dashboard.learningHabits.currentStreak')}</div>
+            <div className="text-2xl font-semibold">{streakText}</div>
           </div>
-          <div className="text-xs text-gray-500">Keep it going daily</div>
+          <div className="text-xs text-gray-500">{t('dashboard.learningHabits.keepGoing')}</div>
         </div>
 
         {/* Weekly goal */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <div className="text-sm text-gray-600">Weekly goal</div>
-            <div className="text-sm font-medium">{isLoading ? '-' : weekCount}/{WEEKLY_GOAL} lessons</div>
+            <div className="text-sm text-gray-600">{t('dashboard.learningHabits.weeklyGoal')}</div>
+            <div className="text-sm font-medium">{weeklyProgressText}</div>
           </div>
           <Progress value={Math.min(100, (weekCount / WEEKLY_GOAL) * 100)} />
         </div>
@@ -118,7 +125,7 @@ export function LearningHabits({ className }: LearningHabitsProps) {
               <div
                 className="w-6 rounded bg-forge-orange/20"
                 style={{ height: Math.max(6, Math.min(28, v * 8)) }}
-                title={`${v} completions`}
+                title={t('dashboard.learningHabits.completions', { count: v })}
               />
             </div>
           ))}
