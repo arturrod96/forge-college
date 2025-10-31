@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { createClientBrowser } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useOAuth';
 import { toast } from 'sonner';
 import { BookOpen, Users, Flame } from 'lucide-react';
 import EnhancedButton from '@/components/ui/enhanced-button';
 import { DASHBOARD_LEARN_PATH } from '@/routes/paths';
-import { DASHBOARD_STRINGS } from '@/strings/dashboard';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
 interface LearningPath {
   id: string;
@@ -26,6 +25,7 @@ type AvailablePathsProps = {
 
 export function AvailablePaths({ limit, className }: AvailablePathsProps) {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [enrollingId, setEnrollingId] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const supabase = createClientBrowser();
@@ -71,31 +71,31 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
 
   const enrollMutation = useMutation({
     mutationFn: async (pathId: string) => {
-      if (!user) throw new Error('Not authenticated');
+      if (!user) throw new Error(t('dashboard.errors.notAuthenticated'));
       const { error } = await supabase
         .from('user_enrollments')
         .insert({ user_id: user.id, learning_path_id: pathId });
-      if (error) throw new Error(error.message || 'Failed to enroll');
+      if (error) throw new Error(error.message || t('dashboard.errors.failedToEnroll'));
       return pathId;
     },
     onMutate: (pathId) => {
       setEnrollingId(pathId);
     },
     onSuccess: () => {
-      toast.success(DASHBOARD_STRINGS.availablePaths.enrollSuccess);
+      toast.success(t('dashboard.enrollSuccess'));
       queryClient.invalidateQueries({ queryKey: ['availablePaths'] });
       queryClient.invalidateQueries({ queryKey: ['myPaths'] });
     },
     onError: (error) => {
       console.error('Error enrolling:', error);
-      toast.error(DASHBOARD_STRINGS.availablePaths.enrollError);
+      toast.error(t('dashboard.enrollError'));
     },
     onSettled: () => setEnrollingId(null),
   });
 
   const handleEnroll = async (pathId: string) => {
     if (!user) {
-      toast.error(DASHBOARD_STRINGS.availablePaths.mustLoginToEnroll);
+      toast.error(t('dashboard.mustLoginToEnroll'));
       return;
     }
     enrollMutation.mutate(pathId);
@@ -131,7 +131,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
           >
             {path.isEnrolled && (
               <div className="absolute top-2 right-2 bg-forge-orange text-white px-1.5 py-0.5 rounded-full text-[10px] font-medium flex items-center gap-1 shadow-sm">
-                <Flame className="h-3 w-3" />{DASHBOARD_STRINGS.availablePaths.enrolledBadge}
+                <Flame className="h-3 w-3" />{t('dashboard.availablePaths.enrolledBadge')}
               </div>
             )}
             <CardHeader className="space-y-2">
@@ -144,14 +144,14 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
               </CardDescription>
               <div className="flex items-center gap-2 text-xs text-forge-gray">
                 <Users className="h-3.5 w-3.5 text-forge-orange" />
-                {DASHBOARD_STRINGS.availablePaths.courses(path.courseCount || 0)}
+                {t('dashboard.availablePaths.courses', { count: path.courseCount || 0 })}
               </div>
             </CardHeader>
             <CardContent className="space-y-2 mt-auto">
               {path.isEnrolled ? (
                 <EnhancedButton className="w-full text-sm py-2" size="sm" withGradient asChild>
                   <Link to={DASHBOARD_LEARN_PATH(path.id)}>
-                    {DASHBOARD_STRINGS.availablePaths.continueLearning}
+                    {t('common.buttons.continueLearning')}
                   </Link>
                 </EnhancedButton>
               ) : (
@@ -163,12 +163,12 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
                     variant="outline"
                     size="sm"
                   >
-                    {enrollingId === path.id ? DASHBOARD_STRINGS.availablePaths.enrolling : DASHBOARD_STRINGS.availablePaths.enroll}
+                    {enrollingId === path.id ? t('dashboard.enrolling') : t('dashboard.enroll')}
                   </EnhancedButton>
                   {user && (
                     <EnhancedButton variant="ghost" size="sm" className="w-full" asChild>
                       <Link to={DASHBOARD_LEARN_PATH(path.id)}>
-                        {DASHBOARD_STRINGS.availablePaths.viewDetails}
+                        {t('dashboard.viewDetails')}
                       </Link>
                     </EnhancedButton>
                   )}
