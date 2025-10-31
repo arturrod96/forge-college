@@ -31,7 +31,8 @@
       "country": "Country",
       "city": "City",
       "languages": "Languages",
-      "language": "Language"
+      "language": "Language",
+      "user": "User"
     },
     "placeholders": {
       "email": "m@example.com",
@@ -40,6 +41,46 @@
       "selectCountry": "Select your country",
       "enterCity": "Enter your city",
       "typeLanguage": "Type a language and press Enter"
+    },
+    "countries": {
+      "brazil": "Brazil",
+      "unitedStates": "United States",
+      "canada": "Canada",
+      "unitedKingdom": "United Kingdom",
+      "germany": "Germany",
+      "france": "France",
+      "spain": "Spain",
+      "italy": "Italy",
+      "netherlands": "Netherlands",
+      "sweden": "Sweden",
+      "norway": "Norway",
+      "denmark": "Denmark",
+      "finland": "Finland",
+      "switzerland": "Switzerland",
+      "austria": "Austria",
+      "belgium": "Belgium",
+      "portugal": "Portugal",
+      "ireland": "Ireland",
+      "australia": "Australia",
+      "newZealand": "New Zealand",
+      "japan": "Japan",
+      "southKorea": "South Korea",
+      "singapore": "Singapore",
+      "india": "India",
+      "china": "China",
+      "mexico": "Mexico",
+      "argentina": "Argentina",
+      "chile": "Chile",
+      "colombia": "Colombia",
+      "peru": "Peru",
+      "uruguay": "Uruguay",
+      "paraguay": "Paraguay",
+      "venezuela": "Venezuela",
+      "ecuador": "Ecuador",
+      "bolivia": "Bolivia",
+      "guyana": "Guyana",
+      "suriname": "Suriname",
+      "frenchGuiana": "French Guiana"
     },
     "errors": {
       "required": "This field is required",
@@ -57,10 +98,12 @@
     "admin": "Admin",
     "scoreboard": "Scoreboard",
     "achievements": "Achievements",
+    "communityProjects": "Community Projects",
     "learn": "Learn",
     "course": "Course",
     "path": "Path",
-    "myProfile": "My Profile"
+    "myProfile": "My Profile",
+    "page": "Page"
   },
   "auth": {
     "login": {
@@ -122,6 +165,7 @@
     },
     "fields": {
       "yearsExperience": "Years of Experience in Technology",
+      "yearsExperiencePlaceholder": "0",
       "positionCompany": "Position & Company",
       "positionPlaceholder": "e.g., Senior Backend @ ACME",
       "stacksDominated": "Stacks Dominated",
@@ -136,6 +180,10 @@
       "githubPlaceholder": "https://github.com/username",
       "languagePreference": "Language Preference",
       "selectLanguage": "Select your preferred language"
+    },
+    "languageOptions": {
+      "enUS": "English (US)",
+      "ptBR": "Portuguese (BR)"
     },
     "errors": {
       "fullNameRequired": "Full name is required",
@@ -162,6 +210,10 @@
     "connectWallet": "Connect Wallet"
   },
   "dashboard": {
+    "layout": {
+      "openMenu": "Open menu",
+      "loading": "Loading dashboard..."
+    },
     "welcomeBack": "Welcome back",
     "loading": "Loading...",
     "notFound": "Not found",
@@ -179,7 +231,59 @@
     "nothingToContinue": "Nothing to continue right now.",
     "emptyTitle": "No paths yet",
     "emptySubtitle": "Enroll in a path to get started",
-    "progressSuffix": "complete"
+    "progressSuffix": "complete",
+    "home": {
+      "badge": "Welcome back",
+      "headlineSuffix": ", ready to continue your journey?",
+      "exploreCta": "View all paths"
+    },
+    "continueLearning": {
+      "title": "Pick up where you left off",
+      "subtitle": "You were studying:"
+    },
+    "availablePaths": {
+      "enrolledBadge": "Enrolled",
+      "courses_one": "{{count}} course",
+      "courses_other": "{{count}} courses"
+    },
+    "learningHabits": {
+      "title": "Study habits",
+      "currentStreak": "Current streak",
+      "dayCount_one": "{{count}} day",
+      "dayCount_other": "{{count}} days",
+      "keepGoing": "Keep it going daily",
+      "weeklyGoal": "Weekly goal",
+      "weekProgress": "{{completed}}/{{goal}} lessons",
+      "completions_one": "{{count}} completion",
+      "completions_other": "{{count}} completions",
+      "loadError": "Failed to load learning habits"
+    },
+    "userStats": {
+      "totalXp": "Total XP",
+      "completedLessons": "Completed lessons",
+      "activePaths": "Active paths",
+      "studyTime": "Study time",
+      "studyTimeValue": "{{minutes}} min",
+      "errors": {
+        "loadProgress": "Failed to load user progress",
+        "loadLessons": "Failed to load lessons"
+      }
+    },
+    "myLearningPaths": {
+      "emptyTitle": "You are not enrolled in any path yet.",
+      "emptySubtitle": "Explore available paths and enroll to get started.",
+      "progressLabel": "{{progress}}% complete"
+    },
+    "pathOverview": {
+      "badge": "Path",
+      "notFound": "Learning path not found.",
+      "continue": "Continue",
+      "courses": "Courses"
+    },
+    "errors": {
+      "notAuthenticated": "Not authenticated",
+      "failedToEnroll": "Failed to enroll"
+    }
   },
   "lessons": {
     "selectToBegin": "Select a lesson to begin.",
@@ -194,6 +298,19 @@
     "completionError": "Error marking lesson as completed"
   },
   "admin": {
+    "layout": {
+      "kicker": "Admin",
+      "title": "Content Management",
+      "subtitle": "Create, organize, and publish learning experiences for the community.",
+      "nav": {
+        "overview": "Overview",
+        "paths": "Learning Paths",
+        "courses": "Courses",
+        "modules": "Modules",
+        "lessons": "Lessons",
+        "projects": "Projects"
+      }
+    },
     "paths": {
       "title": "Learning Paths",
       "new": "New learning path",
@@ -238,6 +355,67 @@
       "created": "Lesson created",
       "updated": "Lesson updated",
       "deleted": "Lesson deleted"
+    },
+    "projects": {
+      "title": "Projects",
+      "subtitle": "Link projects to modules to reinforce applied learning at the end of each module.",
+      "actions": {
+        "newProject": "New project"
+      },
+      "filters": {
+        "modulePlaceholder": "Filter by module",
+        "allModules": "All modules"
+      },
+      "loading": "Loading projects...",
+      "emptyState": "No projects found for the current filters.",
+      "unassignedModule": "Unassigned module",
+      "labels": {
+        "course": "Course: {{course}}",
+        "projectNumber": "Project #{{number}}",
+        "inactive": "Inactive",
+        "xpValue": "XP {{xp}}"
+      },
+      "markdown": {
+        "loading": "Loading editor...",
+        "ariaLabel": "Markdown editor"
+      },
+      "dialog": {
+        "editTitle": "Edit project",
+        "createTitle": "Create project",
+        "description": "Provide details and expectations for the module project."
+      },
+      "form": {
+        "module": "Module",
+        "modulePlaceholder": "Select a module",
+        "title": "Title",
+        "titlePlaceholder": "Project title",
+        "description": "Project description",
+        "descriptionPlaceholder": "Describe the project goals, deliverables, and any resources students should consult. Supports HTML content.",
+        "descriptionHelp": "You can use HTML to format the content (headings, lists, links, etc.).",
+        "xpValue": "XP reward",
+        "xpValuePlaceholder": "Optional XP value",
+        "xpValueHelp": "Leave empty if this project does not grant XP.",
+        "activeLabel": "Project visibility",
+        "activeDescription": "Toggle to hide this project from students while editing."
+      },
+      "validation": {
+        "moduleRequired": "Select a module",
+        "titleMin": "Title must have at least 3 characters",
+        "xpMin": "XP value must be zero or greater"
+      },
+      "notifications": {
+        "loadError": "Failed to load projects",
+        "created": "Project created",
+        "updated": "Project updated",
+        "saveError": "Failed to save project",
+        "deleted": "Project deleted",
+        "deleteError": "Failed to delete project"
+      },
+      "delete": {
+        "title": "Delete project",
+        "description": "This action cannot be undone. Make sure you really want to remove \"{{title}}\".",
+        "confirm": "Delete project"
+      }
     }
   },
   "application": {
@@ -245,6 +423,42 @@
     "selectTimeline": "Select timeline",
     "timelineImmediate": "Immediate (next 30 days)",
     "timelineQuarter": "This quarter"
+  },
+  "applicationForm": {
+    "accessibility": {
+      "close": "Close dialog"
+    },
+    "messages": {
+      "success": "Thank you for your application! We'll be in touch soon."
+    },
+    "fields": {
+      "name": "Full name",
+      "email": "Email address",
+      "company": "Company / organization",
+      "experienceLabel": "Current experience level",
+      "experiencePlaceholder": "Select your level",
+      "experienceOptions": {
+        "beginner": "Beginner (0-2 years)",
+        "intermediate": "Intermediate (2-5 years)",
+        "advanced": "Advanced (5+ years)"
+      },
+      "portfolio": "Portfolio / LinkedIn URL",
+      "investmentAmountLabel": "Investment amount range",
+      "investmentAmountPlaceholder": "Select range",
+      "investmentAmountOptions": {
+        "10k_50k": "$10k - $50k",
+        "50k_100k": "$50k - $100k",
+        "100k_500k": "$100k - $500k",
+        "500k_plus": "$500k+"
+      },
+      "timelineLabel": "Investment timeline",
+      "timelineOptions": {
+        "year": "This year",
+        "exploring": "Just exploring"
+      },
+      "message": "Message",
+      "messagePlaceholder": "Tell us more about your interest..."
+    }
   },
   "scoreboard": {
     "title": "Scoreboard",
@@ -353,5 +567,115 @@
         "description": "Score 100% on a quiz"
       }
     }
+  },
+  "diagnostics": {
+    "testPage": {
+      "title": "🧪 Test Page - Forge College",
+      "description": "This is a static test page without external dependencies.",
+      "systemStatus": {
+        "title": "System status",
+        "react": "✅ React running",
+        "typescript": "✅ TypeScript running",
+        "build": "✅ Build running",
+        "deploy": "✅ Deployment running",
+        "ssr": "✅ SSR running (timestamp: {{timestamp}})"
+      },
+      "environment": {
+        "title": "Environment information (SSR)",
+        "serverTimestamp": "Server timestamp:",
+        "noJsMessage": "If you can read this text without JavaScript, SSR is OK."
+      },
+      "clientTest": {
+        "title": "Client-side JavaScript test",
+        "instructions": "If JavaScript is working, you will see additional information below:",
+        "loading": "Loading client information...",
+        "button": "Test JavaScript"
+      },
+      "alerts": {
+        "jsWorking": "JavaScript is working!"
+      },
+      "footer": "If you are seeing this page, the issue is not infrastructure related.",
+      "js": {
+        "clientReady": "✅ JavaScript running!",
+        "userAgent": "User agent:",
+        "url": "URL:",
+        "clientTimestamp": "Client timestamp:"
+      }
+    },
+    "ssrCanary": {
+      "title": "SSR Canary Test",
+      "status": "SSR CANARY OK: {{timestamp}}",
+      "instructions": "If you can see this text, SSR is working.",
+      "timestamp": "Timestamp: {{timestamp}}",
+      "renderMode": "This page renders static HTML on the server.",
+      "runtime": "Runtime: Node.js",
+      "dynamicMode": "Dynamic: force-dynamic"
+    },
+    "staticBare": {
+      "title": "Static Bare SSR Test",
+      "status": "STATIC BARE SSR OK: {{timestamp}}",
+      "instructions": "If you can see this text, SSR is working.",
+      "timestamp": "Timestamp: {{timestamp}}",
+      "renderMode": "This page renders static HTML on the server."
+    }
+  },
+  "projects": {
+    "errors": {
+      "loginRequired": "You need to be logged in to submit projects.",
+      "required": "Enter the GitHub repository URL.",
+      "invalidUrl": "Enter a valid URL.",
+      "githubOnly": "Please submit a GitHub repository link.",
+      "submitFailed": "Could not submit the project. Try again."
+    },
+    "notifications": {
+      "fetchError": "Failed to load your project submissions.",
+      "submitError": "Failed to submit project.",
+      "submitted": "Project submitted! Great job applying your knowledge.",
+      "updated": "Project submission updated."
+    },
+    "module": {
+      "title": "Module projects: {{module}}",
+      "subtitle": "Apply what you learned in this module by completing one of the projects below.",
+      "noProjects": "This module does not have projects yet.",
+      "communityLink": "See community submissions",
+      "projectOrder": "Project #{{order}}",
+      "xpValue": "XP {{xp}}",
+      "startProject": "Start project",
+      "updateSubmission": "Update submission",
+      "yourSubmission": "Your submission:",
+      "dialog": {
+        "title": "Project: {{project}}",
+        "subtitle": "Review the description and submit your GitHub repository link.",
+        "repositoryLabel": "GitHub repository URL",
+        "repositoryPlaceholder": "https://github.com/username/repository",
+        "repositoryHelp": "Share a public GitHub repository showcasing your implementation.",
+        "submitting": "Submitting...",
+        "submit": "Submit project"
+      }
+    },
+    "community": {
+      "loadError": "Failed to load community projects.",
+      "loading": "Loading community projects...",
+      "title": "Community Projects",
+      "subtitle": "Check what other students are building and get inspired.",
+      "empty": "No community submissions yet. Be the first to share your solution!",
+      "courseLabel": "Course: {{course}}",
+      "unknownCourse": "Unassigned course",
+      "projectCount": "Projects: {{count}}",
+      "projectOrder": "Project #{{order}}",
+      "xpValue": "XP {{xp}}",
+      "noSubmissions": "No submissions yet.",
+      "submissions": "Submissions: {{count}}",
+      "visitRepository": "View repository",
+      "submittedBy": "Submitted by {{user}} · {{date}}",
+      "anonymous": "Anonymous",
+      "dateUnknown": "Date unknown"
+    }
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. Please reload the page.",
+    "reload": "Reload page",
+    "detailsTitle": "Error details (development)"
   }
 }

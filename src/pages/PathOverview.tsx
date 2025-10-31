@@ -1,12 +1,12 @@
-import { useParams, Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useOAuth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createClientBrowser } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import EnhancedButton from '@/components/ui/enhanced-button';
 import { DASHBOARD_LEARN_COURSE } from '@/routes/paths';
-import { DASHBOARD_STRINGS } from '@/strings/dashboard';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 interface CourseSummary {
   id: string;
@@ -26,6 +26,7 @@ export default function PathOverview() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const supabase = createClientBrowser();
+  const { t } = useTranslation();
 
   const { data, isLoading, error } = useQuery<{ path: LearningPathDetail; isEnrolled: boolean } | null>({
     queryKey: ['pathOverview', pathId, user?.id],
@@ -68,19 +69,19 @@ export default function PathOverview() {
 
   const enrollMutation = useMutation({
     mutationFn: async () => {
-      if (!user || !pathId) throw new Error('Not authenticated');
+      if (!user || !pathId) throw new Error(t('dashboard.errors.notAuthenticated'));
       const { error } = await supabase
         .from('user_enrollments')
         .insert({ user_id: user.id, learning_path_id: pathId });
-      if (error) throw new Error(error.message || 'Failed to enroll');
+      if (error) throw new Error(error.message || t('dashboard.errors.failedToEnroll'));
     },
     onSuccess: () => {
-      toast.success(DASHBOARD_STRINGS.pathOverview.continue);
+      toast.success(t('dashboard.pathOverview.continue'));
       queryClient.invalidateQueries({ queryKey: ['availablePaths'] });
       queryClient.invalidateQueries({ queryKey: ['myPaths'] });
       queryClient.invalidateQueries({ queryKey: ['pathOverview'] });
     },
-    onError: () => toast.error(DASHBOARD_STRINGS.availablePaths.enrollError),
+    onError: () => toast.error(t('dashboard.enrollError')),
   });
 
   if (isLoading) {
@@ -106,7 +107,7 @@ export default function PathOverview() {
   }
 
   if (!data) {
-    return <div className="text-gray-500">{DASHBOARD_STRINGS.pathOverview.notFound}</div>;
+    return <div className="text-gray-500">{t('dashboard.pathOverview.notFound')}</div>;
   }
 
   const { path, isEnrolled } = data;
@@ -115,7 +116,7 @@ export default function PathOverview() {
     <div className="space-y-6">
       <header>
         <div className="inline-flex items-center px-2 py-1 rounded bg-forge-orange/10 text-forge-orange text-xs font-medium">
-          {DASHBOARD_STRINGS.pathOverview.badge}
+          {t('dashboard.pathOverview.badge')}
         </div>
         <h1 className="text-3xl font-bold mt-2 text-forge-dark">{path.title}</h1>
         {path.description && (
@@ -130,21 +131,21 @@ export default function PathOverview() {
             disabled={!user || enrollMutation.isPending}
             withGradient
           >
-            {enrollMutation.isPending ? DASHBOARD_STRINGS.pathOverview.enrolling : DASHBOARD_STRINGS.pathOverview.enroll}
+            {enrollMutation.isPending ? t('dashboard.enrolling') : t('dashboard.enroll')}
           </EnhancedButton>
         </div>
       ) : (
         <div>
           <EnhancedButton asChild withGradient>
             <Link to={path.courses[0] ? DASHBOARD_LEARN_COURSE(path.courses[0].id) : '#'}>
-              {DASHBOARD_STRINGS.pathOverview.continue}
+              {t('dashboard.pathOverview.continue')}
             </Link>
           </EnhancedButton>
         </div>
       )}
 
       <section className="space-y-3">
-        <h2 className="text-xl font-semibold">Courses</h2>
+        <h2 className="text-xl font-semibold">{t('dashboard.pathOverview.courses')}</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {path.courses.map((course) => (
             <Card key={course.id} className="border-forge-cream">
@@ -157,7 +158,7 @@ export default function PathOverview() {
               <CardContent>
                 <EnhancedButton asChild variant="outline" className="w-full">
                   <Link to={DASHBOARD_LEARN_COURSE(course.id)}>
-                    {DASHBOARD_STRINGS.availablePaths.viewDetails}
+                    {t('dashboard.viewDetails')}
                   </Link>
                 </EnhancedButton>
               </CardContent>

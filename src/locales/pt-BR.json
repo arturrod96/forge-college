@@ -31,7 +31,8 @@
       "country": "País",
       "city": "Cidade",
       "languages": "Idiomas",
-      "language": "Idioma"
+      "language": "Idioma",
+      "user": "Usuário"
     },
     "placeholders": {
       "email": "m@exemplo.com",
@@ -57,10 +58,12 @@
     "admin": "Admin",
     "scoreboard": "Placar",
     "achievements": "Conquistas",
+    "communityProjects": "Projetos da Comunidade",
     "learn": "Aprender",
     "course": "Curso",
     "path": "Trilha",
-    "myProfile": "Meu Perfil"
+    "myProfile": "Meu Perfil",
+    "page": "Página"
   },
   "auth": {
     "login": {
@@ -162,6 +165,10 @@
     "connectWallet": "Conectar Carteira"
   },
   "dashboard": {
+    "layout": {
+      "openMenu": "Abrir menu",
+      "loading": "Carregando painel..."
+    },
     "welcomeBack": "Bem-vindo de volta",
     "loading": "Carregando...",
     "notFound": "Não encontrado",
@@ -179,7 +186,59 @@
     "nothingToContinue": "Nada para continuar agora.",
     "emptyTitle": "Sem trilhas ainda",
     "emptySubtitle": "Inscreva-se em uma trilha para começar",
-    "progressSuffix": "completo"
+    "progressSuffix": "completo",
+    "home": {
+      "badge": "Bem-vindo de volta",
+      "headlineSuffix": ", pronto para continuar sua jornada?",
+      "exploreCta": "Ver todas as trilhas"
+    },
+    "continueLearning": {
+      "title": "Retome de onde parou",
+      "subtitle": "Você estava estudando:"
+    },
+    "availablePaths": {
+      "enrolledBadge": "Inscrito",
+      "courses_one": "{{count}} curso",
+      "courses_other": "{{count}} cursos"
+    },
+    "learningHabits": {
+      "title": "Hábitos de estudo",
+      "currentStreak": "Sequência atual",
+      "dayCount_one": "{{count}} dia",
+      "dayCount_other": "{{count}} dias",
+      "keepGoing": "Mantenha o ritmo diariamente",
+      "weeklyGoal": "Meta semanal",
+      "weekProgress": "{{completed}}/{{goal}} lições",
+      "completions_one": "{{count}} conclusão",
+      "completions_other": "{{count}} conclusões",
+      "loadError": "Falha ao carregar hábitos de aprendizado"
+    },
+    "userStats": {
+      "totalXp": "XP total",
+      "completedLessons": "Lições concluídas",
+      "activePaths": "Trilhas ativas",
+      "studyTime": "Tempo de estudo",
+      "studyTimeValue": "{{minutes}} min",
+      "errors": {
+        "loadProgress": "Falha ao carregar progresso do usuário",
+        "loadLessons": "Falha ao carregar lições"
+      }
+    },
+    "myLearningPaths": {
+      "emptyTitle": "Você ainda não está inscrito em nenhuma trilha.",
+      "emptySubtitle": "Explore as trilhas disponíveis e inscreva-se para começar.",
+      "progressLabel": "{{progress}}% concluído"
+    },
+    "pathOverview": {
+      "badge": "Trilha",
+      "notFound": "Trilha de aprendizado não encontrada.",
+      "continue": "Continuar",
+      "courses": "Cursos"
+    },
+    "errors": {
+      "notAuthenticated": "Não autenticado",
+      "failedToEnroll": "Falha ao inscrever"
+    }
   },
   "lessons": {
     "selectToBegin": "Selecione uma lição para começar.",
@@ -194,6 +253,19 @@
     "completionError": "Erro ao marcar lição como concluída"
   },
   "admin": {
+    "layout": {
+      "kicker": "Admin",
+      "title": "Gestão de Conteúdo",
+      "subtitle": "Crie, organize e publique experiências de aprendizado para a comunidade.",
+      "nav": {
+        "overview": "Visão geral",
+        "paths": "Trilhas",
+        "courses": "Cursos",
+        "modules": "Módulos",
+        "lessons": "Lições",
+        "projects": "Projetos"
+      }
+    },
     "paths": {
       "title": "Trilhas de Aprendizado",
       "new": "Nova trilha de aprendizado",
@@ -238,6 +310,67 @@
       "created": "Lição criada",
       "updated": "Lição atualizada",
       "deleted": "Lição excluída"
+    },
+    "projects": {
+      "title": "Projetos",
+      "subtitle": "Associe projetos aos módulos para reforçar o aprendizado aplicado ao final de cada módulo.",
+      "actions": {
+        "newProject": "Novo projeto"
+      },
+      "filters": {
+        "modulePlaceholder": "Filtrar por módulo",
+        "allModules": "Todos os módulos"
+      },
+      "loading": "Carregando projetos...",
+      "emptyState": "Nenhum projeto encontrado para os filtros atuais.",
+      "unassignedModule": "Módulo sem atribuição",
+      "labels": {
+        "course": "Curso: {{course}}",
+        "projectNumber": "Projeto #{{number}}",
+        "inactive": "Inativo",
+        "xpValue": "XP {{xp}}"
+      },
+      "markdown": {
+        "loading": "Carregando editor...",
+        "ariaLabel": "Editor de Markdown"
+      },
+      "dialog": {
+        "editTitle": "Editar projeto",
+        "createTitle": "Criar projeto",
+        "description": "Descreva expectativas e orientações para o projeto do módulo."
+      },
+      "form": {
+        "module": "Módulo",
+        "modulePlaceholder": "Selecione um módulo",
+        "title": "Título",
+        "titlePlaceholder": "Título do projeto",
+        "description": "Descrição do projeto",
+        "descriptionPlaceholder": "Descreva objetivos, entregáveis e recursos que os estudantes devem consultar. Suporta conteúdo HTML.",
+        "descriptionHelp": "Você pode usar HTML para formatar o conteúdo (títulos, listas, links, etc.).",
+        "xpValue": "Recompensa de XP",
+        "xpValuePlaceholder": "XP opcional",
+        "xpValueHelp": "Deixe em branco se este projeto não conceder XP.",
+        "activeLabel": "Visibilidade do projeto",
+        "activeDescription": "Use para ocultar o projeto dos alunos enquanto realiza ajustes."
+      },
+      "validation": {
+        "moduleRequired": "Selecione um módulo",
+        "titleMin": "O título deve ter pelo menos 3 caracteres",
+        "xpMin": "O XP deve ser zero ou maior"
+      },
+      "notifications": {
+        "loadError": "Falha ao carregar projetos",
+        "created": "Projeto criado",
+        "updated": "Projeto atualizado",
+        "saveError": "Falha ao salvar projeto",
+        "deleted": "Projeto excluído",
+        "deleteError": "Falha ao excluir projeto"
+      },
+      "delete": {
+        "title": "Excluir projeto",
+        "description": "Esta ação não pode ser desfeita. Tem certeza de que deseja remover \"{{title}}\"?",
+        "confirm": "Excluir projeto"
+      }
     }
   },
   "application": {
@@ -245,6 +378,42 @@
     "selectTimeline": "Selecionar prazo",
     "timelineImmediate": "Imediato (próximos 30 dias)",
     "timelineQuarter": "Este trimestre"
+  },
+  "applicationForm": {
+    "accessibility": {
+      "close": "Fechar janela"
+    },
+    "messages": {
+      "success": "Obrigado pela sua aplicação! Entraremos em contato em breve."
+    },
+    "fields": {
+      "name": "Nome completo",
+      "email": "Endereço de e-mail",
+      "company": "Empresa / organização",
+      "experienceLabel": "Nível de experiência atual",
+      "experiencePlaceholder": "Selecione seu nível",
+      "experienceOptions": {
+        "beginner": "Iniciante (0-2 anos)",
+        "intermediate": "Intermediário (2-5 anos)",
+        "advanced": "Avançado (5+ anos)"
+      },
+      "portfolio": "URL do portfólio / LinkedIn",
+      "investmentAmountLabel": "Faixa de investimento",
+      "investmentAmountPlaceholder": "Selecione a faixa",
+      "investmentAmountOptions": {
+        "10k_50k": "$10k - $50k",
+        "50k_100k": "$50k - $100k",
+        "100k_500k": "$100k - $500k",
+        "500k_plus": "$500k+"
+      },
+      "timelineLabel": "Prazo de investimento",
+      "timelineOptions": {
+        "year": "Este ano",
+        "exploring": "Apenas explorando"
+      },
+      "message": "Mensagem",
+      "messagePlaceholder": "Conte-nos mais sobre o seu interesse..."
+    }
   },
   "scoreboard": {
     "title": "Scoreboard",
@@ -334,5 +503,115 @@
         "description": "Acerte 100% das questões em um quiz"
       }
     }
+  },
+  "diagnostics": {
+    "testPage": {
+      "title": "🧪 Página de Teste - Forge College",
+      "description": "Esta é uma página de teste estática sem dependências externas.",
+      "systemStatus": {
+        "title": "Status do sistema",
+        "react": "✅ React funcionando",
+        "typescript": "✅ TypeScript funcionando",
+        "build": "✅ Build funcionando",
+        "deploy": "✅ Deploy funcionando",
+        "ssr": "✅ SSR funcionando (timestamp: {{timestamp}})"
+      },
+      "environment": {
+        "title": "Informações do ambiente (SSR)",
+        "serverTimestamp": "Timestamp do servidor:",
+        "noJsMessage": "Se você vê este texto sem JavaScript, o SSR está OK."
+      },
+      "clientTest": {
+        "title": "Teste de JavaScript (client-side)",
+        "instructions": "Se o JavaScript estiver funcionando, você verá informações adicionais abaixo:",
+        "loading": "Carregando informações do cliente...",
+        "button": "Testar JavaScript"
+      },
+      "alerts": {
+        "jsWorking": "JavaScript está funcionando!"
+      },
+      "footer": "Se você está vendo esta página, o problema não é de infraestrutura.",
+      "js": {
+        "clientReady": "✅ JavaScript funcionando!",
+        "userAgent": "User agent:",
+        "url": "URL:",
+        "clientTimestamp": "Timestamp do cliente:"
+      }
+    },
+    "ssrCanary": {
+      "title": "Teste Canary de SSR",
+      "status": "SSR CANARY OK: {{timestamp}}",
+      "instructions": "Se você vê este texto, o SSR está funcionando.",
+      "timestamp": "Timestamp: {{timestamp}}",
+      "renderMode": "Esta página renderiza HTML estático no servidor.",
+      "runtime": "Runtime: Node.js",
+      "dynamicMode": "Dinâmico: force-dynamic"
+    },
+    "staticBare": {
+      "title": "Teste Static Bare SSR",
+      "status": "STATIC BARE SSR OK: {{timestamp}}",
+      "instructions": "Se você vê este texto, o SSR está funcionando.",
+      "timestamp": "Timestamp: {{timestamp}}",
+      "renderMode": "Esta página renderiza HTML estático no servidor."
+    }
+  },
+  "projects": {
+    "errors": {
+      "loginRequired": "Você precisa estar logado para enviar projetos.",
+      "required": "Informe a URL do repositório no GitHub.",
+      "invalidUrl": "Insira uma URL válida.",
+      "githubOnly": "Envie um link de repositório do GitHub.",
+      "submitFailed": "Não foi possível enviar o projeto. Tente novamente."
+    },
+    "notifications": {
+      "fetchError": "Falha ao carregar seus envios de projeto.",
+      "submitError": "Falha ao enviar projeto.",
+      "submitted": "Projeto enviado! Excelente aplicação do que você aprendeu.",
+      "updated": "Envio do projeto atualizado."
+    },
+    "module": {
+      "title": "Projetos do módulo: {{module}}",
+      "subtitle": "Coloque em prática o que aprendeu neste módulo completando um dos projetos abaixo.",
+      "noProjects": "Este módulo ainda não possui projetos.",
+      "communityLink": "Ver envios da comunidade",
+      "projectOrder": "Projeto #{{order}}",
+      "xpValue": "XP {{xp}}",
+      "startProject": "Iniciar projeto",
+      "updateSubmission": "Atualizar envio",
+      "yourSubmission": "Seu envio:",
+      "dialog": {
+        "title": "Projeto: {{project}}",
+        "subtitle": "Revise a descrição e envie o link do seu repositório no GitHub.",
+        "repositoryLabel": "URL do repositório no GitHub",
+        "repositoryPlaceholder": "https://github.com/usuario/repositorio",
+        "repositoryHelp": "Compartilhe um repositório público no GitHub mostrando sua implementação.",
+        "submitting": "Enviando...",
+        "submit": "Enviar projeto"
+      }
+    },
+    "community": {
+      "loadError": "Falha ao carregar projetos da comunidade.",
+      "loading": "Carregando projetos da comunidade...",
+      "title": "Projetos da Comunidade",
+      "subtitle": "Veja o que outros estudantes estão construindo e inspire-se.",
+      "empty": "Ainda não há envios da comunidade. Seja o primeiro a compartilhar sua solução!",
+      "courseLabel": "Curso: {{course}}",
+      "unknownCourse": "Curso não atribuído",
+      "projectCount": "Projetos: {{count}}",
+      "projectOrder": "Projeto #{{order}}",
+      "xpValue": "XP {{xp}}",
+      "noSubmissions": "Nenhum envio ainda.",
+      "submissions": "Envios: {{count}}",
+      "visitRepository": "Ver repositório",
+      "submittedBy": "Enviado por {{user}} · {{date}}",
+      "anonymous": "Anônimo",
+      "dateUnknown": "Data desconhecida"
+    }
+  },
+  "errorBoundary": {
+    "title": "Algo deu errado",
+    "description": "Ocorreu um erro inesperado. Por favor, recarregue a página.",
+    "reload": "Recarregar página",
+    "detailsTitle": "Detalhes do erro (desenvolvimento)"
   }
 }

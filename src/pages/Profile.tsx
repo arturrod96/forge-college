@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useOAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -13,12 +13,45 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Save, User, Mail, MapPin, Globe, Briefcase, Target, Building, Linkedin, Github, BookOpen, Languages } from 'lucide-react';
 
-const countries = [
-  'Brazil', 'United States', 'Canada', 'United Kingdom', 'Germany', 'France', 'Spain', 'Italy',
-  'Netherlands', 'Sweden', 'Norway', 'Denmark', 'Finland', 'Switzerland', 'Austria', 'Belgium',
-  'Portugal', 'Ireland', 'Australia', 'New Zealand', 'Japan', 'South Korea', 'Singapore', 'India',
-  'China', 'Mexico', 'Argentina', 'Chile', 'Colombia', 'Peru', 'Uruguay', 'Paraguay', 'Venezuela',
-  'Ecuador', 'Bolivia', 'Guyana', 'Suriname', 'French Guiana'
+const COUNTRY_LIST = [
+  { value: 'Brazil', key: 'brazil' },
+  { value: 'United States', key: 'unitedStates' },
+  { value: 'Canada', key: 'canada' },
+  { value: 'United Kingdom', key: 'unitedKingdom' },
+  { value: 'Germany', key: 'germany' },
+  { value: 'France', key: 'france' },
+  { value: 'Spain', key: 'spain' },
+  { value: 'Italy', key: 'italy' },
+  { value: 'Netherlands', key: 'netherlands' },
+  { value: 'Sweden', key: 'sweden' },
+  { value: 'Norway', key: 'norway' },
+  { value: 'Denmark', key: 'denmark' },
+  { value: 'Finland', key: 'finland' },
+  { value: 'Switzerland', key: 'switzerland' },
+  { value: 'Austria', key: 'austria' },
+  { value: 'Belgium', key: 'belgium' },
+  { value: 'Portugal', key: 'portugal' },
+  { value: 'Ireland', key: 'ireland' },
+  { value: 'Australia', key: 'australia' },
+  { value: 'New Zealand', key: 'newZealand' },
+  { value: 'Japan', key: 'japan' },
+  { value: 'South Korea', key: 'southKorea' },
+  { value: 'Singapore', key: 'singapore' },
+  { value: 'India', key: 'india' },
+  { value: 'China', key: 'china' },
+  { value: 'Mexico', key: 'mexico' },
+  { value: 'Argentina', key: 'argentina' },
+  { value: 'Chile', key: 'chile' },
+  { value: 'Colombia', key: 'colombia' },
+  { value: 'Peru', key: 'peru' },
+  { value: 'Uruguay', key: 'uruguay' },
+  { value: 'Paraguay', key: 'paraguay' },
+  { value: 'Venezuela', key: 'venezuela' },
+  { value: 'Ecuador', key: 'ecuador' },
+  { value: 'Bolivia', key: 'bolivia' },
+  { value: 'Guyana', key: 'guyana' },
+  { value: 'Suriname', key: 'suriname' },
+  { value: 'French Guiana', key: 'frenchGuiana' }
 ];
 
 export default function Profile() {
@@ -31,6 +64,23 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [errors, setErrors] = useState<Partial<StudentProfile>>({});
+
+  const countryOptions = useMemo(
+    () =>
+      COUNTRY_LIST.map(({ value, key }) => ({
+        value,
+        label: t(`common.countries.${key}`)
+      })),
+    [t]
+  );
+
+  const languageOptions = useMemo(
+    () => [
+      { value: 'en-US', label: t('profile.languageOptions.enUS') },
+      { value: 'pt-BR', label: t('profile.languageOptions.ptBR') }
+    ],
+    [t]
+  );
 
   // Load profile on component mount
   useEffect(() => {
@@ -225,9 +275,9 @@ export default function Profile() {
                         <SelectValue placeholder={t('common.placeholders.selectCountry')} />
                       </SelectTrigger>
                       <SelectContent>
-                        {countries.map((country) => (
-                          <SelectItem key={country} value={country}>
-                            {country}
+                        {countryOptions.map(({ value, label }) => (
+                          <SelectItem key={value} value={value}>
+                            {label}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -275,8 +325,11 @@ export default function Profile() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="en-US">English (US)</SelectItem>
-                          <SelectItem value="pt-BR">Português (BR)</SelectItem>
+                          {languageOptions.map(({ value, label }) => (
+                            <SelectItem key={value} value={value}>
+                              {label}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -300,7 +353,7 @@ export default function Profile() {
                       min="0"
                       value={profile.yearsExperience}
                       onChange={(e) => updateField('yearsExperience', parseInt(e.target.value) || 0)}
-                      placeholder="0"
+                      placeholder={t('profile.fields.yearsExperiencePlaceholder')}
                       className="pl-10"
                     />
                   </div>

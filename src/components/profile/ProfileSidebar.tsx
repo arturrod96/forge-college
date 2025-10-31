@@ -1,4 +1,6 @@
 import React from 'react';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { User, Briefcase, BookOpen, Target } from 'lucide-react';
 
@@ -7,34 +9,39 @@ interface ProfileSidebarProps {
   onTabChange: (tab: string) => void;
 }
 
-const tabs = [
-  {
-    id: 'personal',
-    label: 'Personal Information',
-    icon: User,
-    description: 'Basic personal details and contact information'
-  },
-  {
-    id: 'professional',
-    label: 'Professional Profile',
-    icon: Briefcase,
-    description: 'Work experience, skills, and career information'
-  },
-  {
-    id: 'learning',
-    label: 'Learning Progress',
-    icon: BookOpen,
-    description: 'Track your learning journey and achievements'
-  },
-  {
-    id: 'career',
-    label: 'Career Preferences',
-    icon: Target,
-    description: 'Job preferences and career goals'
-  }
-];
-
 export function ProfileSidebar({ activeTab, onTabChange }: ProfileSidebarProps) {
+  const { t } = useTranslation();
+
+  const tabs = useMemo(
+    () => [
+      {
+        id: 'personal',
+        label: t('profile.sections.personal'),
+        icon: User,
+        description: t('profile.sections.personalDesc')
+      },
+      {
+        id: 'professional',
+        label: t('profile.sections.professional'),
+        icon: Briefcase,
+        description: t('profile.sections.professionalDesc')
+      },
+      {
+        id: 'learning',
+        label: t('profile.sections.learning'),
+        icon: BookOpen,
+        description: t('profile.sections.learningDesc')
+      },
+      {
+        id: 'career',
+        label: t('profile.sections.career'),
+        icon: Target,
+        description: t('profile.sections.careerDesc')
+      }
+    ],
+    [t]
+  );
+
   return (
     <div className="space-y-2">
       {tabs.map((tab) => {

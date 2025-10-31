@@ -18,11 +18,11 @@ export type {
   Achievement,
   AchievementStatus,
   AchievementCategory,
-  AchievementStats,
   AchievementFilters,
   AchievementAction,
   CategoryConfig
 } from './types/achievement.types';
+export type { AchievementStats as AchievementStatsData } from './types/achievement.types';
 
 // Constants
 export { CATEGORY_CONFIGS, STATUS_PRIORITY } from './constants/categoryConfig';

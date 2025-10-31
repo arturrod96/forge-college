@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import MDEditor from '@uiw/react-md-editor';
 import '@uiw/react-md-editor/markdown-editor.css';
 import '@uiw/react-markdown-preview/markdown.css';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
 type MarkdownEditorProps = {
@@ -21,6 +22,7 @@ export function MarkdownEditor({
   className,
   onBlur,
 }: MarkdownEditorProps) {
+  const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export function MarkdownEditor({
   if (!isMounted) {
     return (
       <div className={cn('rounded-md border p-4 text-sm text-muted-foreground', className)}>
-        Carregando editor…
+        {t('admin.projects.markdown.loading')}
       </div>
     );
   }
@@ -47,7 +49,7 @@ export function MarkdownEditor({
           disabled,
           onBlur,
         }}
-        aria-label="Markdown editor"
+        aria-label={t('admin.projects.markdown.ariaLabel')}
       />
     </div>
   );

@@ -1,6 +1,6 @@
-
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ApplicationFormProps {
   isOpen: boolean;
@@ -10,6 +10,7 @@ interface ApplicationFormProps {
 }
 
 const ApplicationForm = ({ isOpen, onClose, title, formType }: ApplicationFormProps) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -23,39 +24,41 @@ const ApplicationForm = ({ isOpen, onClose, title, formType }: ApplicationFormPr
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
     console.log('Form submitted:', formData);
-    // Here you would typically send the data to your backend
-    alert('Thank you for your application! We\'ll be in touch soon.');
+    alert(t('applicationForm.messages.success'));
     onClose();
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+  const handleInputChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    setFormData((previous) => ({
+      ...previous,
+      [event.target.name]: event.target.value
+    }));
   };
 
+  const requiredMarker = <span className="text-red-500"> *</span>;
+
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white">
         <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
+          <div className="mb-6 flex items-center justify-between">
             <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <X size={24} />
+            <button onClick={onClose} className="text-gray-400 transition-colors hover:text-gray-600">
+              <X size={24} aria-hidden />
+              <span className="sr-only">{t('applicationForm.accessibility.close')}</span>
             </button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Full Name *
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                {t('applicationForm.fields.name')}
+                {requiredMarker}
               </label>
               <input
                 type="text"
@@ -63,13 +66,14 @@ const ApplicationForm = ({ isOpen, onClose, title, formType }: ApplicationFormPr
                 required
                 value={formData.name}
                 onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address *
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                {t('applicationForm.fields.email')}
+                {requiredMarker}
               </label>
               <input
                 type="email"
@@ -77,14 +81,15 @@ const ApplicationForm = ({ isOpen, onClose, title, formType }: ApplicationFormPr
                 required
                 value={formData.email}
                 onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
             {formType !== 'professional' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Company/Organization *
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  {t('applicationForm.fields.company')}
+                  {requiredMarker}
                 </label>
                 <input
                   type="text"
@@ -92,7 +97,7 @@ const ApplicationForm = ({ isOpen, onClose, title, formType }: ApplicationFormPr
                   required
                   value={formData.company}
                   onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             )}
@@ -100,32 +105,32 @@ const ApplicationForm = ({ isOpen, onClose, title, formType }: ApplicationFormPr
             {formType === 'professional' && (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Current Experience Level
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    {t('applicationForm.fields.experienceLabel')}
                   </label>
                   <select
                     name="experience"
                     value={formData.experience}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="">Select your level</option>
-                    <option value="beginner">Beginner (0-2 years)</option>
-                    <option value="intermediate">Intermediate (2-5 years)</option>
-                    <option value="advanced">Advanced (5+ years)</option>
+                    <option value="">{t('applicationForm.fields.experiencePlaceholder')}</option>
+                    <option value="beginner">{t('applicationForm.fields.experienceOptions.beginner')}</option>
+                    <option value="intermediate">{t('applicationForm.fields.experienceOptions.intermediate')}</option>
+                    <option value="advanced">{t('applicationForm.fields.experienceOptions.advanced')}</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Portfolio/LinkedIn URL
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    {t('applicationForm.fields.portfolio')}
                   </label>
                   <input
                     type="url"
                     name="portfolio"
                     value={formData.portfolio}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </>
@@ -134,62 +139,62 @@ const ApplicationForm = ({ isOpen, onClose, title, formType }: ApplicationFormPr
             {formType === 'investor' && (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Investment Amount Range
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    {t('applicationForm.fields.investmentAmountLabel')}
                   </label>
                   <select
                     name="investmentAmount"
                     value={formData.investmentAmount}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="">Select range</option>
-                    <option value="10k-50k">$10k - $50k</option>
-                    <option value="50k-100k">$50k - $100k</option>
-                    <option value="100k-500k">$100k - $500k</option>
-                    <option value="500k+">$500k+</option>
+                    <option value="">{t('applicationForm.fields.investmentAmountPlaceholder')}</option>
+                    <option value="10k-50k">{t('applicationForm.fields.investmentAmountOptions.10k_50k')}</option>
+                    <option value="50k-100k">{t('applicationForm.fields.investmentAmountOptions.50k_100k')}</option>
+                    <option value="100k-500k">{t('applicationForm.fields.investmentAmountOptions.100k_500k')}</option>
+                    <option value="500k+">{t('applicationForm.fields.investmentAmountOptions.500k_plus')}</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Investment Timeline
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    {t('applicationForm.fields.timelineLabel')}
                   </label>
                   <select
                     name="timeline"
                     value={formData.timeline}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="">Select timeline</option>
-                    <option value="immediate">Immediate (next 30 days)</option>
-                    <option value="quarter">This quarter</option>
-                    <option value="year">This year</option>
-                    <option value="exploring">Just exploring</option>
+                    <option value="">{t('application.selectTimeline')}</option>
+                    <option value="immediate">{t('application.timelineImmediate')}</option>
+                    <option value="quarter">{t('application.timelineQuarter')}</option>
+                    <option value="year">{t('applicationForm.fields.timelineOptions.year')}</option>
+                    <option value="exploring">{t('applicationForm.fields.timelineOptions.exploring')}</option>
                   </select>
                 </div>
               </>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Message
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                {t('applicationForm.fields.message')}
               </label>
               <textarea
                 name="message"
                 rows={4}
                 value={formData.message}
                 onChange={handleInputChange}
-                placeholder="Tell us more about your interest..."
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder={t('applicationForm.fields.messagePlaceholder')}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+              className="w-full rounded-lg bg-blue-600 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
             >
-              Submit Application
+              {t('application.submit')}
             </button>
           </form>
         </div>

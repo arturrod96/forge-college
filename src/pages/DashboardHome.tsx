@@ -5,10 +5,11 @@ import { LearningHabits } from '@/components/dashboard/LearningHabits';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useOAuth';
 import * as R from '@/routes/paths';
-import { DASHBOARD_STRINGS } from '@/strings/dashboard';
+import { useTranslation } from 'react-i18next';
 
 export default function DashboardHome() {
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const getUserDisplayName = () => {
     // Debug: log user data
@@ -25,7 +26,7 @@ export default function DashboardHome() {
     if (user?.email) {
       return user.email.split('@')[0]; // Primeira parte do email
     }
-    return 'User';
+    return t('common.labels.user');
   };
 
   return (
@@ -34,10 +35,10 @@ export default function DashboardHome() {
       <div className="space-y-2">
         <div className="text-gray-500">
           <span className="inline-flex items-center gap-2 text-sm rounded-full bg-forge-cream text-forge-dark px-2 py-0.5 mr-2">
-            {DASHBOARD_STRINGS.dashboardHome.badge}
+            {t('dashboard.home.badge')}
           </span>
           <span className="font-medium text-forge-dark">{getUserDisplayName()}</span>
-          {DASHBOARD_STRINGS.dashboardHome.headlineSuffix}
+          {t('dashboard.home.headlineSuffix')}
         </div>
       </div>
 
@@ -60,9 +61,9 @@ export default function DashboardHome() {
       {/* Paths section below */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold tracking-tight">{R.ROUTE_LABELS[R.DASHBOARD_EXPLORE]}</h2>
+          <h2 className="text-xl font-semibold tracking-tight">{t(R.ROUTE_LABELS[R.DASHBOARD_EXPLORE])}</h2>
           <Link to={R.DASHBOARD_EXPLORE} className="text-forge-orange hover:underline">
-            {DASHBOARD_STRINGS.dashboardHome.exploreCta}
+            {t('dashboard.home.exploreCta')}
           </Link>
         </div>
         <AvailablePaths className="mt-2" />

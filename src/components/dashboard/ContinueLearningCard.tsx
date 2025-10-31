@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { DASHBOARD_LEARN_COURSE } from '@/routes/paths';
+import { useTranslation } from 'react-i18next';
 
 interface RecentCourse {
   id: string;
@@ -19,6 +20,8 @@ type ContinueLearningCardProps = {
 
 export function ContinueLearningCard({ className }: ContinueLearningCardProps) {
   const { user } = useAuth();
+  const supabase = useMemo(() => createClientBrowser(), []);
+  const { t } = useTranslation();
   const [recentCourse, setRecentCourse] = useState<RecentCourse | null>(null);
 
   const { isLoading } = useQuery({
@@ -61,8 +64,8 @@ export function ContinueLearningCard({ className }: ContinueLearningCardProps) {
   const placeholder = (
     <Card className={`bg-blue-50/60 border-blue-100 mb-8 h-full min-h-[220px] flex flex-col ${className || ''}`}>
       <CardHeader>
-        <CardTitle className="text-2xl">Pick up where you left off</CardTitle>
-        <CardDescription>You were studying:</CardDescription>
+        <CardTitle className="text-2xl">{t('dashboard.continueLearning.title')}</CardTitle>
+        <CardDescription>{t('dashboard.continueLearning.subtitle')}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="h-10 w-2/3 bg-blue-100 animate-pulse rounded" />
@@ -76,13 +79,13 @@ export function ContinueLearningCard({ className }: ContinueLearningCardProps) {
   return (
     <Card className={`bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 mb-8 h-full min-h-[220px] flex flex-col ${className || ''}`}>
       <CardHeader>
-        <CardTitle className="text-2xl tracking-tight">Pick up where you left off</CardTitle>
-        <CardDescription>You were studying:</CardDescription>
+        <CardTitle className="text-2xl tracking-tight">{t('dashboard.continueLearning.title')}</CardTitle>
+        <CardDescription>{t('dashboard.continueLearning.subtitle')}</CardDescription>
         <p className="text-xl font-semibold pt-2">{recentCourse.title}</p>
       </CardHeader>
       <CardContent>
         <Link to={DASHBOARD_LEARN_COURSE(recentCourse.id)}>
-          <Button size="lg" className="w-full md:w-auto">Continue learning</Button>
+          <Button size="lg" className="w-full md:w-auto">{t('common.buttons.continueLearning')}</Button>
         </Link>
       </CardContent>
     </Card>

@@ -1,5 +1,3 @@
-// Centralized route path constants and labels for the app
-
 // Public routes
 export const ROOT = "/";
 export const COMPANIES = "/companies";
@@ -16,21 +14,23 @@ export const DASHBOARD_EXPLORE = "/dashboard/explore";
 export const DASHBOARD_ADMIN = "/dashboard/admin";
 export const DASHBOARD_SCOREBOARD = "/dashboard/scoreboard";
 export const DASHBOARD_ACHIEVEMENTS = "/dashboard/achievements";
+export const DASHBOARD_COMMUNITY_PROJECTS = "/dashboard/community-projects";
 
 // Dashboard learning routes (builders)
 export const DASHBOARD_LEARN_COURSE = (courseId: string) => `/dashboard/learn/course/${courseId}`;
 export const DASHBOARD_LEARN_PATH = (pathId: string) => `/dashboard/learn/path/${pathId}`;
 
-// Labels for breadcrumbs and UI
+// Labels for breadcrumbs and UI (translation keys)
 export const ROUTE_LABELS = {
-  [DASHBOARD]: "Dashboard",
-  [DASHBOARD_EXPLORE]: "Paths",
-  [DASHBOARD_ADMIN]: "Admin",
-  [DASHBOARD_SCOREBOARD]: "Scoreboard",
-  [DASHBOARD_ACHIEVEMENTS]: "Achievements",
-  LEARN: "Learn",
-  COURSE: "Course",
-  PATH: "Path",
-  PROFILE: "My Profile",
-  PAGE: "Page",
+  [DASHBOARD]: "nav.dashboard",
+  [DASHBOARD_EXPLORE]: "nav.paths",
+  [DASHBOARD_ADMIN]: "nav.admin",
+  [DASHBOARD_SCOREBOARD]: "nav.scoreboard",
+  [DASHBOARD_ACHIEVEMENTS]: "nav.achievements",
+  [DASHBOARD_COMMUNITY_PROJECTS]: "nav.communityProjects",
+  LEARN: "nav.learn",
+  COURSE: "nav.course",
+  PATH: "nav.path",
+  PROFILE: "nav.myProfile",
+  PAGE: "nav.page",
 } as const;
