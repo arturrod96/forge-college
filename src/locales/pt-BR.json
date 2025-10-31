@@ -186,7 +186,59 @@
     "nothingToContinue": "Nada para continuar agora.",
     "emptyTitle": "Sem trilhas ainda",
     "emptySubtitle": "Inscreva-se em uma trilha para começar",
-    "progressSuffix": "completo"
+    "progressSuffix": "completo",
+    "home": {
+      "badge": "Bem-vindo de volta",
+      "headlineSuffix": ", pronto para continuar sua jornada?",
+      "exploreCta": "Ver todas as trilhas"
+    },
+    "continueLearning": {
+      "title": "Retome de onde parou",
+      "subtitle": "Você estava estudando:"
+    },
+    "availablePaths": {
+      "enrolledBadge": "Inscrito",
+      "courses_one": "{{count}} curso",
+      "courses_other": "{{count}} cursos"
+    },
+    "learningHabits": {
+      "title": "Hábitos de estudo",
+      "currentStreak": "Sequência atual",
+      "dayCount_one": "{{count}} dia",
+      "dayCount_other": "{{count}} dias",
+      "keepGoing": "Mantenha o ritmo diariamente",
+      "weeklyGoal": "Meta semanal",
+      "weekProgress": "{{completed}}/{{goal}} lições",
+      "completions_one": "{{count}} conclusão",
+      "completions_other": "{{count}} conclusões",
+      "loadError": "Falha ao carregar hábitos de aprendizado"
+    },
+    "userStats": {
+      "totalXp": "XP total",
+      "completedLessons": "Lições concluídas",
+      "activePaths": "Trilhas ativas",
+      "studyTime": "Tempo de estudo",
+      "studyTimeValue": "{{minutes}} min",
+      "errors": {
+        "loadProgress": "Falha ao carregar progresso do usuário",
+        "loadLessons": "Falha ao carregar lições"
+      }
+    },
+    "myLearningPaths": {
+      "emptyTitle": "Você ainda não está inscrito em nenhuma trilha.",
+      "emptySubtitle": "Explore as trilhas disponíveis e inscreva-se para começar.",
+      "progressLabel": "{{progress}}% concluído"
+    },
+    "pathOverview": {
+      "badge": "Trilha",
+      "notFound": "Trilha de aprendizado não encontrada.",
+      "continue": "Continuar",
+      "courses": "Cursos"
+    },
+    "errors": {
+      "notAuthenticated": "Não autenticado",
+      "failedToEnroll": "Falha ao inscrever"
+    }
   },
   "lessons": {
     "selectToBegin": "Selecione uma lição para começar.",
@@ -219,7 +271,7 @@
       "new": "Nova trilha de aprendizado",
       "edit": "Editar trilha de aprendizado",
       "delete": "Excluir trilha de aprendizado",
-      "deleteConfirm": "Esta ação não pode ser desfeita. Excluir uma trilha removerá todos os cursos, m��dulos e lições associados. Tem certeza de que deseja remover \"{{title}}\"?",
+      "deleteConfirm": "Esta ação não pode ser desfeita. Excluir uma trilha removerá todos os cursos, módulos e lições associados. Tem certeza de que deseja remover \"{{title}}\"?",
       "created": "Trilha de aprendizado criada",
       "updated": "Trilha de aprendizado atualizada",
       "deleted": "Trilha de aprendizado excluída",
