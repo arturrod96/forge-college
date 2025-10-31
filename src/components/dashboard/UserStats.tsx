@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useOAuth';
 import { createClientBrowser } from '@/lib/supabase';
 import { Card, CardContent } from '@/components/ui/card';
 import { Trophy, BookOpen, Clock, Target } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface UserStats {
   totalXP: number;
@@ -21,6 +22,7 @@ const MOCK_STATS: UserStats = {
 export function UserStats() {
   const { user } = useAuth();
   const supabase = useMemo(() => createClientBrowser(), []);
+  const { t } = useTranslation();
   const [stats, setStats] = useState<UserStats>({
     totalXP: 0,
     completedLessons: 0,
@@ -45,7 +47,7 @@ export function UserStats() {
           .select('lesson_id, status')
           .eq('user_id', user.id)
           .in('status', ['in_progress', 'completed']);
-        if (progressError) throw new Error(progressError.message || 'Failed to load user progress');
+        if (progressError) throw new Error(progressError.message || t('dashboard.userStats.errors.loadProgress'));
 
         const rows = (progressRows || []) as any[];
         const completedLessons = rows.filter((r: any) => r.status === 'completed').length;
@@ -61,7 +63,7 @@ export function UserStats() {
               .from('lessons')
               .select('id, xp_value, modules(courses(path_id))')
               .in('id', chunk);
-            if (lerr) throw new Error(lerr.message || 'Failed to load lessons');
+            if (lerr) throw new Error(lerr.message || t('dashboard.userStats.errors.loadLessons'));
             lessons = lessons.concat(ldata || []);
           }
         }
@@ -108,29 +110,29 @@ export function UserStats() {
 
   const statCards = [
     {
-      title: 'Total XP',
+      title: t('dashboard.userStats.totalXp'),
       value: display.totalXP,
       icon: Trophy,
       color: 'text-yellow-600',
       bgColor: 'bg-gradient-to-br from-yellow-50 to-yellow-100'
     },
     {
-      title: 'Completed Lessons',
+      title: t('dashboard.userStats.completedLessons'),
       value: display.completedLessons,
       icon: BookOpen,
       color: 'text-green-600',
       bgColor: 'bg-gradient-to-br from-green-50 to-green-100'
     },
     {
-      title: 'Active Paths',
+      title: t('dashboard.userStats.activePaths'),
       value: display.inProgressPaths,
       icon: Target,
       color: 'text-blue-600',
       bgColor: 'bg-gradient-to-br from-blue-50 to-blue-100'
     },
     {
-      title: 'Study Time',
-      value: `${display.totalTimeSpent} min`,
+      title: t('dashboard.userStats.studyTime'),
+      value: t('dashboard.userStats.studyTimeValue', { minutes: display.totalTimeSpent }),
       icon: Clock,
       color: 'text-purple-600',
       bgColor: 'bg-gradient-to-br from-purple-50 to-purple-100'
