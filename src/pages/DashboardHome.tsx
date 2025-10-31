@@ -1,8 +1,8 @@
 import { ContinueLearningCard } from '@/components/dashboard/ContinueLearningCard';
+import { ContinueLearningCard } from '@/components/dashboard/ContinueLearningCard';
 import { UserStats } from '@/components/dashboard/UserStats';
 import { AvailablePaths } from '@/components/dashboard/AvailablePaths';
 import { LearningHabits } from '@/components/dashboard/LearningHabits';
-import { ContinueLearningCard } from '@/components/dashboard/ContinueLearningCard';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useOAuth';
 import * as R from '@/routes/paths';
