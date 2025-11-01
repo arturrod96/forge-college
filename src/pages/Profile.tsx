@@ -87,13 +87,6 @@ export default function Profile() {
     loadProfile();
   }, []);
 
-  // Check for changes - simplified for now
-  useEffect(() => {
-    if (profile) {
-      setHasChanges(true);
-    }
-  }, [profile]);
-
   const loadProfile = async () => {
     try {
       setLoading(true);
@@ -103,8 +96,13 @@ export default function Profile() {
       if (user?.email) {
         data.email = user.email;
       }
+
+      if (data.communicationLanguage && data.communicationLanguage !== i18n.language) {
+        i18n.changeLanguage(data.communicationLanguage);
+      }
       
       setProfile(data);
+      setHasChanges(false);
     } catch (error) {
       toast({
         title: t('common.errors.unexpectedError'),
@@ -168,10 +166,8 @@ export default function Profile() {
   const updateField = (field: keyof StudentProfile, value: any) => {
     if (!profile) return;
     
-    setProfile({
-      ...profile,
-      [field]: value
-    });
+    setProfile(prev => prev ? { ...prev, [field]: value } : prev);
+    setHasChanges(true);
     
     // Clear error for this field
     if (errors[field]) {
@@ -312,17 +308,14 @@ export default function Profile() {
                     <div className="relative">
                       <Languages className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <Select
-                        value={i18n.language}
+                        value={profile.communicationLanguage}
                         onValueChange={(value) => {
+                          updateField('communicationLanguage', value as StudentProfile['communicationLanguage']);
                           i18n.changeLanguage(value);
-                          toast({
-                            title: t('common.buttons.save'),
-                            description: t('profile.messages.updateSuccess'),
-                          });
                         }}
                       >
                         <SelectTrigger className="pl-10">
-                          <SelectValue />
+                          <SelectValue placeholder={t('profile.fields.selectLanguage')} />
                         </SelectTrigger>
                         <SelectContent>
                           {languageOptions.map(({ value, label }) => (
