@@ -67,6 +67,7 @@ const courseFormSchema = z.object({
     .transform((value) => (value === '' || value === undefined ? null : Number(value))),
   thumbnail_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   is_published: z.boolean().default(false),
+  status: z.enum(['draft', 'published', 'coming_soon']),
 })
 
 type CourseFormValues = z.infer<typeof courseFormSchema>
@@ -102,6 +103,7 @@ export default function AdminCourses() {
       duration_minutes: null,
       thumbnail_url: '',
       is_published: false,
+      status: 'draft',
     },
   })
 
@@ -150,7 +152,7 @@ export default function AdminCourses() {
       const { data, error } = await supabase
         .from('courses')
         .select(
-          'id, title, slug, summary, description, path_id, order, duration_minutes, is_published, published_at, thumbnail_url, updated_at, modules:modules(id)'
+          'id, title, slug, summary, description, path_id, order, duration_minutes, status, is_published, published_at, thumbnail_url, updated_at, modules:modules(id)'
         )
         .order('order', { ascending: true })
 
@@ -173,6 +175,16 @@ export default function AdminCourses() {
 
   const upsertMutation = useMutation({
     mutationFn: async (values: CourseFormValues) => {
+      const baseStatus = values.status
+      const statusFromSelection = baseStatus === 'published' || baseStatus === 'coming_soon'
+      const effectiveStatus = statusFromSelection
+        ? baseStatus
+        : values.is_published
+          ? 'published'
+          : 'draft'
+
+      const isPublishedFlag = effectiveStatus !== 'draft'
+
       const payload = {
         path_id: values.path_id,
         title: values.title.trim(),
@@ -182,8 +194,9 @@ export default function AdminCourses() {
         order: values.order,
         duration_minutes: values.duration_minutes ?? null,
         thumbnail_url: values.thumbnail_url?.trim() ? values.thumbnail_url.trim() : null,
-        is_published: values.is_published,
-        published_at: values.is_published
+        status: effectiveStatus,
+        is_published: isPublishedFlag,
+        published_at: isPublishedFlag
           ? editingCourse?.published_at ?? new Date().toISOString()
           : null,
       }
@@ -196,7 +209,7 @@ export default function AdminCourses() {
           .from('courses')
           .insert({
             ...payload,
-            published_at: values.is_published ? new Date().toISOString() : null,
+            published_at: isPublishedFlag ? new Date().toISOString() : null,
           })
         if (error) throw error
       }
@@ -213,10 +226,34 @@ export default function AdminCourses() {
   })
 
   const publishMutation = useMutation({
-    mutationFn: async ({ id, publish }: { id: string; publish: boolean }) => {
+    mutationFn: async ({
+      id,
+      publish,
+      previousStatus,
+      previousPublishedAt,
+    }: {
+      id: string
+      publish: boolean
+      previousStatus: CourseFormValues['status']
+      previousPublishedAt: string | null
+    }) => {
+      const nextStatus = publish
+        ? previousStatus === 'coming_soon'
+          ? 'coming_soon'
+          : 'published'
+        : 'draft'
+
+      const nextIsPublished = nextStatus !== 'draft'
+
       const { error } = await supabase
         .from('courses')
-        .update({ is_published: publish, published_at: publish ? new Date().toISOString() : null })
+        .update({
+          status: nextStatus,
+          is_published: nextIsPublished,
+          published_at: nextIsPublished
+            ? previousPublishedAt ?? new Date().toISOString()
+            : null,
+        })
         .eq('id', id)
       if (error) throw error
     },
@@ -259,6 +296,7 @@ export default function AdminCourses() {
       duration_minutes: null,
       thumbnail_url: '',
       is_published: false,
+      status: 'draft',
     })
     setDialogOpen(true)
   }
@@ -276,6 +314,7 @@ export default function AdminCourses() {
       duration_minutes: course.duration_minutes ?? null,
       thumbnail_url: course.thumbnail_url ?? '',
       is_published: course.is_published,
+      status: course.status ?? 'draft',
     })
     setDialogOpen(true)
   }
@@ -332,10 +371,10 @@ export default function AdminCourses() {
                   <CardTitle className="flex flex-wrap items-center gap-2 text-forge-dark">
                     #{course.order} · {course.title}
                     <Badge
-                      variant={course.is_published ? 'default' : 'outline'}
-                      className={course.is_published ? 'bg-forge-orange text-white hover:bg-forge-orange/90' : ''}
+                      variant={course.status === 'published' ? 'default' : course.status === 'coming_soon' ? 'secondary' : 'outline'}
+                      className={course.status === 'published' ? 'bg-forge-orange text-white hover:bg-forge-orange/90' : ''}
                     >
-                      {course.is_published ? 'Published' : 'Draft'}
+                      {course.status === 'published' ? 'Published' : course.status === 'coming_soon' ? 'Coming Soon' : 'Draft'}
                     </Badge>
                   </CardTitle>
                   <CardDescription className="text-sm text-forge-gray">
@@ -402,7 +441,14 @@ export default function AdminCourses() {
                   <Switch
                     id={`course-publish-${course.id}`}
                     checked={course.is_published}
-                    onCheckedChange={(checked) => publishMutation.mutate({ id: course.id, publish: checked })}
+                    onCheckedChange={(checked) =>
+                      publishMutation.mutate({
+                        id: course.id,
+                        publish: checked,
+                        previousStatus: course.status ?? 'draft',
+                        previousPublishedAt: course.published_at ?? null,
+                      })
+                    }
                     disabled={publishMutation.isPending}
                   />
                   <label htmlFor={`course-publish-${course.id}`} className="text-forge-gray">
@@ -571,6 +617,37 @@ export default function AdminCourses() {
 
               <FormField
                 control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <FormControl>
+                      <select
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        value={field.value}
+                        onChange={(event) => {
+                          const value = event.target.value as CourseFormValues['status']
+                          field.onChange(value)
+                          form.setValue('is_published', value !== 'draft', {
+                            shouldDirty: true,
+                          })
+                        }}
+                      >
+                        <option value="draft">Draft</option>
+                        <option value="published">Published</option>
+                        <option value="coming_soon">Coming Soon</option>
+                      </select>
+                    </FormControl>
+                    <FormDescription>
+                      Coming soon keeps the course visible while you collect early interest.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="is_published"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border border-forge-cream/80 bg-forge-cream/30 p-3">
@@ -585,7 +662,16 @@ export default function AdminCourses() {
                     <FormControl>
                       <Switch
                         checked={field.value}
-                        onCheckedChange={field.onChange}
+                        onCheckedChange={(checked) => {
+                          field.onChange(checked)
+                          const currentStatus = form.getValues('status')
+                          if (checked && currentStatus === 'draft') {
+                            form.setValue('status', 'published', { shouldDirty: true })
+                          }
+                          if (!checked && currentStatus !== 'draft') {
+                            form.setValue('status', 'draft', { shouldDirty: true })
+                          }
+                        }}
                         disabled={form.formState.isSubmitting}
                       />
                     </FormControl>

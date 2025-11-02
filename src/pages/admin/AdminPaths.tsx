@@ -41,7 +41,7 @@ import { Separator } from '@/components/ui/separator'
 import { Loader2, Plus, Pencil, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { formatDistanceToNow } from 'date-fns'
-import { Clock, Eye } from 'lucide-react'
+import { Clock } from 'lucide-react'
 
 const slugify = (value: string) =>
   value
@@ -129,13 +129,29 @@ export default function AdminPaths() {
 
   const upsertMutation = useMutation({
     mutationFn: async (values: PathFormData) => {
-      const payload = {
-        title: values.title.trim(),
-        slug: values.slug.trim(),
-        description: values.description?.trim() ? values.description.trim() : null,
-        is_published: values.is_published,
-        status: values.status,
-        published_at: values.is_published
+      const trimmedTitle = values.title.trim()
+      const trimmedSlug = values.slug.trim()
+      const trimmedDescription = values.description?.trim()
+        ? values.description.trim()
+        : null
+
+      const baseStatus = values.status
+      const statusFromSelection = baseStatus === 'published' || baseStatus === 'coming_soon'
+      const effectiveStatus = statusFromSelection
+        ? baseStatus
+        : values.is_published
+          ? 'published'
+          : 'draft'
+
+      const shouldPublish = effectiveStatus !== 'draft'
+
+      const payload: LearningPathInsert = {
+        title: trimmedTitle,
+        slug: trimmedSlug,
+        description: trimmedDescription,
+        is_published: shouldPublish,
+        status: effectiveStatus,
+        published_at: shouldPublish
           ? editingPath?.published_at ?? new Date().toISOString()
           : null,
       }
@@ -149,7 +165,7 @@ export default function AdminPaths() {
       } else {
         const { error } = await supabase.from('learning_paths').insert({
           ...payload,
-          published_at: values.is_published ? new Date().toISOString() : null,
+          published_at: shouldPublish ? new Date().toISOString() : null,
         })
         if (error) throw error
       }
@@ -166,12 +182,33 @@ export default function AdminPaths() {
   })
 
   const publishMutation = useMutation({
-    mutationFn: async ({ id, publish }: { id: string; publish: boolean }) => {
+    mutationFn: async ({
+      id,
+      publish,
+      previousStatus,
+      previousPublishedAt,
+    }: {
+      id: string
+      publish: boolean
+      previousStatus: PathFormData['status']
+      previousPublishedAt: string | null
+    }) => {
+      const nextStatus = publish
+        ? previousStatus === 'coming_soon'
+          ? 'coming_soon'
+          : 'published'
+        : 'draft'
+
+      const nextIsPublished = nextStatus !== 'draft'
+
       const { error } = await supabase
         .from('learning_paths')
         .update({
-          is_published: publish,
-          published_at: publish ? new Date().toISOString() : null,
+          is_published: nextIsPublished,
+          status: nextStatus,
+          published_at: nextIsPublished
+            ? previousPublishedAt ?? new Date().toISOString()
+            : null,
         })
         .eq('id', id)
 
@@ -206,7 +243,7 @@ export default function AdminPaths() {
   const openForCreate = () => {
     setEditingPath(null)
     setSlugManuallyEdited(false)
-    form.reset({ title: '', slug: '', description: '', is_published: false })
+    form.reset({ title: '', slug: '', description: '', is_published: false, status: 'draft' })
     setDialogOpen(true)
   }
 
@@ -218,11 +255,12 @@ export default function AdminPaths() {
       slug: path.slug ?? '',
       description: path.description ?? '',
       is_published: path.is_published,
+      status: path.status ?? 'draft',
     })
     setDialogOpen(true)
   }
 
-  const onSubmit = (values: PathFormValues) => {
+  const onSubmit = (values: PathFormData) => {
     upsertMutation.mutate(values)
   }
 
@@ -306,7 +344,12 @@ export default function AdminPaths() {
                     id={`publish-${path.id}`}
                     checked={path.is_published}
                     onCheckedChange={(checked) =>
-                      publishMutation.mutate({ id: path.id, publish: checked })
+                      publishMutation.mutate({
+                        id: path.id,
+                        publish: checked,
+                        previousStatus: path.status,
+                        previousPublishedAt: path.published_at ?? null,
+                      })
                     }
                     disabled={publishMutation.isPending}
                   />
@@ -401,7 +444,14 @@ export default function AdminPaths() {
                     <FormControl>
                       <select
                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        {...field}
+                        value={field.value}
+                        onChange={(event) => {
+                          const value = event.target.value as PathFormData['status']
+                          field.onChange(value)
+                          form.setValue('is_published', value !== 'draft', {
+                            shouldDirty: true,
+                          })
+                        }}
                       >
                         <option value="draft">Draft</option>
                         <option value="published">Published</option>
@@ -429,7 +479,16 @@ export default function AdminPaths() {
                     <FormControl>
                       <Switch
                         checked={field.value}
-                        onCheckedChange={field.onChange}
+                        onCheckedChange={(checked) => {
+                          field.onChange(checked)
+                          const currentStatus = form.getValues('status')
+                          if (checked && currentStatus === 'draft') {
+                            form.setValue('status', 'published', { shouldDirty: true })
+                          }
+                          if (!checked && currentStatus !== 'draft') {
+                            form.setValue('status', 'draft', { shouldDirty: true })
+                          }
+                        }}
                         disabled={form.formState.isSubmitting}
                       />
                     </FormControl>

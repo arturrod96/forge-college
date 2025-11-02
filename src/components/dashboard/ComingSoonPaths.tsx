@@ -8,6 +8,8 @@ import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
+import { LoadingGrid } from '@/components/ui/loading-states';
+import { EmptyState } from '@/components/ui/empty-state';
 
 interface LearningPath {
   id: string;
@@ -16,6 +18,13 @@ interface LearningPath {
   courseCount?: number;
   waitingListCount?: number;
 }
+
+type ComingSoonPathRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  courses: { id: string }[] | null;
+};
 
 type ComingSoonPathsProps = {
   limit?: number;
@@ -40,34 +49,41 @@ export function ComingSoonPaths({ limit, className }: ComingSoonPathsProps) {
         .from('learning_paths')
         .select(`
           id, title, description,
-          courses!inner(id)
+          courses(id)
         `)
         .eq('status', 'coming_soon');
       if (pathsError) throw pathsError;
 
       // Get waiting list counts for each path
-      const pathIds = (pathsData || []).map((path: any) => path.id);
+      const rows = (pathsData ?? []) as ComingSoonPathRow[];
+      const pathIds = rows.map((path) => path.id);
       let waitingListCounts: Record<string, number> = {};
-      
+
       if (pathIds.length > 0) {
-        const { data: waitingListData, error: waitingListError } = await supabase
-          .from('waiting_list')
-          .select('learning_path_id')
-          .in('learning_path_id', pathIds);
-        
-        if (!waitingListError && waitingListData) {
-          waitingListCounts = waitingListData.reduce((acc: Record<string, number>, item: any) => {
-            acc[item.learning_path_id] = (acc[item.learning_path_id] || 0) + 1;
-            return acc;
-          }, {});
-        }
+        const results = await Promise.all(
+          pathIds.map(async (id: string) => {
+            const { data: count, error: countError } = await supabase.rpc('get_waiting_list_count', {
+              p_learning_path_id: id,
+            });
+            if (countError) {
+              console.error('Error fetching waitlist count', countError);
+              return { id, count: 0 };
+            }
+            return { id, count: count ?? 0 };
+          })
+        );
+
+        waitingListCounts = results.reduce<Record<string, number>>((acc, { id, count }) => {
+          acc[id] = count;
+          return acc;
+        }, {});
       }
 
-      return (pathsData || []).map((path: any) => ({
+      return rows.map((path) => ({
         id: path.id,
         title: path.title,
-        description: path.description,
-        courseCount: path.courses.length,
+        description: path.description ?? '',
+        courseCount: Array.isArray(path.courses) ? path.courses.length : 0,
         waitingListCount: waitingListCounts[path.id] || 0,
       }));
     },
@@ -84,7 +100,12 @@ export function ComingSoonPaths({ limit, className }: ComingSoonPathsProps) {
           learning_path_id: pathId,
           email: user.email || ''
         });
-      if (error) throw new Error(error.message || 'Failed to join waiting list');
+      if (error) {
+        if (error.code === '23505') {
+          throw new Error('You are already on this waiting list');
+        }
+        throw new Error(error.message || 'Failed to join waiting list');
+      }
       return pathId;
     },
     onMutate: (pathId) => {
@@ -96,7 +117,8 @@ export function ComingSoonPaths({ limit, className }: ComingSoonPathsProps) {
     },
     onError: (error) => {
       console.error('Error joining waiting list:', error);
-      toast.error(error.message || 'Failed to join waiting list');
+      const message = error instanceof Error ? error.message : 'Failed to join waiting list';
+      toast.error(message);
     },
     onSettled: () => setJoiningId(null),
   });
@@ -113,29 +135,24 @@ export function ComingSoonPaths({ limit, className }: ComingSoonPathsProps) {
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {[...Array(3)].map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <CardHeader>
-              <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-              <div className="h-4 bg-gray-200 rounded w-full"></div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-10 bg-gray-200 rounded"></div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <LoadingGrid
+        count={limit || 3}
+        columns={{ sm: 1, md: 2, lg: 3 }}
+        aspectRatio="portrait"
+        showContent={true}
+      />
     );
   }
 
   if (displayPaths.length === 0) {
     return (
-      <div className="text-center py-8">
-        <Clock className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No coming soon paths</h3>
-        <p className="text-gray-500">Check back later for new learning paths!</p>
-      </div>
+      <EmptyState
+        variant="no-data"
+        icon={Clock}
+        title={t('dashboard.comingSoonPaths.empty.title')}
+        description={t('dashboard.comingSoonPaths.empty.description')}
+        size="md"
+      />
     );
   }
 
@@ -148,8 +165,12 @@ export function ComingSoonPaths({ limit, className }: ComingSoonPathsProps) {
               <div className="space-y-1">
                 <CardTitle className="text-lg flex items-center gap-2">
                   {path.title}
-                  <Badge variant="secondary" className="bg-blue-100 text-blue-800 hover:bg-blue-200">
-                    <Clock className="h-3 w-3 mr-1" />
+                  <Badge
+                    variant="coming-soon"
+                    size="md"
+                    icon={Clock}
+                    iconPosition="left"
+                  >
                     Coming Soon
                   </Badge>
                 </CardTitle>

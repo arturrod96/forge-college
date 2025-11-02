@@ -17,9 +17,10 @@ import CourseView from './pages/dashboard/CourseView';
 import PathOverview from './pages/dashboard/PathOverview';
 import { AvailablePaths } from './components/dashboard/AvailablePaths';
 import { PublicLayout } from './pages/PublicLayout';
-import { FormationsPage } from './pages/FormationsPage';
-import { ComingSoonPage } from './pages/ComingSoonPage';
+import FormationsPage from './pages/FormationsPage';
+import ComingSoonPage from './pages/ComingSoonPage';
 import DashboardHome from './pages/dashboard/DashboardHome';
+import FormationDetailPage from './pages/dashboard/FormationDetailPage';
 import { MyLearningPaths } from './components/dashboard/MyLearningPaths';
 import Profile from './pages/Profile';
 import RequireAuth from '@/routes/RequireAuth';
@@ -85,6 +86,7 @@ const App = () => {
                 <Route index element={<DashboardHome />} />
                 <Route path="explore" element={<AvailablePaths />} />
                 <Route path="formations" element={<FormationsPage />} />
+                <Route path="formations/:formationId" element={<FormationDetailPage />} />
                 <Route path="coming-soon" element={<ComingSoonPage />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="community-projects" element={<CommunityProjects />} />

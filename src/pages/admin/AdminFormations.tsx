@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createClientBrowser } from '@/lib/supabase'
 import type { Tables } from '@/types/supabase'
+import { useAuth } from '@/hooks/useOAuth'
 import {
   Card,
   CardHeader,
@@ -22,7 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
@@ -38,7 +39,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Separator } from '@/components/ui/separator'
-import { Loader2, Plus, Pencil, Trash2, BookOpen, Users } from 'lucide-react'
+import { Loader2, Plus, Pencil, Trash2, BookOpen } from 'lucide-react'
 import { toast } from 'sonner'
 import { formatDistanceToNow } from 'date-fns'
 import { LearningPathSelector } from '@/components/admin/LearningPathSelector'
@@ -52,6 +53,17 @@ const slugify = (value: string) =>
 
 type FormationRow = Tables<'formations'>['Row']
 type FormationInsert = Tables<'formations'>['Insert']
+
+type FormationPathRow = Tables<'formation_paths'>['Row']
+type LearningPathRow = Tables<'learning_paths'>['Row']
+
+type FormationQueryRow = FormationRow & {
+  formation_paths?: Array<
+    Pick<FormationPathRow, 'order'> & {
+      learning_paths: Pick<LearningPathRow, 'id' | 'title'> | null
+    }
+  > | null
+}
 
 interface FormationWithMeta extends FormationRow {
   paths_count?: number
@@ -68,6 +80,7 @@ const formationSchema = z.object({
   slug: z.string().min(1, 'Slug is required'),
   thumbnail_url: z.string().url().optional().or(z.literal('')),
   is_published: z.boolean(),
+  status: z.enum(['draft', 'published', 'coming_soon']),
 })
 
 type FormationFormData = z.infer<typeof formationSchema>
@@ -78,9 +91,13 @@ export function AdminFormations() {
   const [editingFormation, setEditingFormation] = useState<FormationWithMeta | null>(null)
   const [deletingFormation, setDeletingFormation] = useState<FormationWithMeta | null>(null)
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false)
+  const [selectedPathsState, setSelectedPathsState] = useState<
+    Array<{ id: string; title: string; order: number }>
+  >([])
 
   const queryClient = useQueryClient()
   const supabase = createClientBrowser()
+  const { user } = useAuth()
 
   const form = useForm<FormationFormData>({
     resolver: zodResolver(formationSchema),
@@ -90,19 +107,88 @@ export function AdminFormations() {
       slug: '',
       thumbnail_url: '',
       is_published: false,
+      status: 'draft',
     },
   })
 
+  const buildFormationPayload = (values: FormationFormData) => {
+    const baseStatus = values.status
+    const statusFromSelection = baseStatus === 'published' || baseStatus === 'coming_soon'
+    const effectiveStatus = statusFromSelection
+      ? baseStatus
+      : values.is_published
+        ? 'published'
+        : 'draft'
+
+    const isPublishedFlag = effectiveStatus !== 'draft'
+
+    return {
+      title: values.title.trim(),
+      description: values.description?.trim() ? values.description.trim() : null,
+      slug: values.slug.trim(),
+      thumbnail_url: values.thumbnail_url?.trim()
+        ? values.thumbnail_url.trim()
+        : null,
+      status: effectiveStatus,
+      is_published: isPublishedFlag,
+    }
+  }
+
+  const resetFormForCreate = useCallback(() => {
+    form.reset({
+      title: '',
+      description: '',
+      slug: '',
+      thumbnail_url: '',
+      is_published: false,
+      status: 'draft',
+    })
+    setSlugManuallyEdited(false)
+    setSelectedPathsState([])
+  }, [form])
+
+  useEffect(() => {
+    if (dialogOpen && editingFormation) {
+      form.reset({
+        title: editingFormation.title,
+        description: editingFormation.description || '',
+        slug: editingFormation.slug || '',
+        thumbnail_url: editingFormation.thumbnail_url || '',
+        is_published: editingFormation.is_published,
+        status: editingFormation.status ?? 'draft',
+      })
+
+      const orderedPaths =
+        editingFormation.paths?.slice().sort((a, b) => a.order - b.order) ?? []
+      setSelectedPathsState(orderedPaths)
+    } else if (dialogOpen) {
+      resetFormForCreate()
+    }
+  }, [dialogOpen, editingFormation, form, resetFormForCreate])
+
+  useEffect(() => {
+    if (!dialogOpen) {
+      resetFormForCreate()
+      setEditingFormation(null)
+      setDeletingFormation(null)
+    }
+  }, [dialogOpen, resetFormForCreate])
+
   const createMutation = useMutation({
-    mutationFn: async (data: FormationInsert) => {
-      const { error } = await supabase.from('formations').insert(data)
+    mutationFn: async (payload: ReturnType<typeof buildFormationPayload>) => {
+      const insertPayload: FormationInsert = {
+        ...payload,
+        created_by: user?.id ?? undefined,
+        updated_by: user?.id ?? undefined,
+        published_at: payload.is_published ? new Date().toISOString() : null,
+      }
+      const { error } = await supabase.from('formations').insert(insertPayload)
       if (error) throw error
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-formations'] })
       setDialogOpen(false)
-      form.reset()
-      setSlugManuallyEdited(false)
+      resetFormForCreate()
       toast.success('Formation created successfully')
     },
     onError: (error) => {
@@ -111,16 +197,30 @@ export function AdminFormations() {
   })
 
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: FormationInsert }) => {
-      const { error } = await supabase.from('formations').update(data).eq('id', id)
+    mutationFn: async ({
+      id,
+      payload,
+      previous,
+    }: {
+      id: string
+      payload: ReturnType<typeof buildFormationPayload>
+      previous: FormationWithMeta
+    }) => {
+      const updatePayload: FormationInsert = {
+        ...payload,
+        updated_by: user?.id ?? undefined,
+        published_at: payload.is_published
+          ? previous.published_at ?? new Date().toISOString()
+          : null,
+      }
+      const { error } = await supabase.from('formations').update(updatePayload).eq('id', id)
       if (error) throw error
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-formations'] })
       setDialogOpen(false)
       setEditingFormation(null)
-      form.reset()
-      setSlugManuallyEdited(false)
+      resetFormForCreate()
       toast.success('Formation updated successfully')
     },
     onError: (error) => {
@@ -144,27 +244,6 @@ export function AdminFormations() {
     },
   })
 
-  useEffect(() => {
-    if (dialogOpen && editingFormation) {
-      form.reset({
-        title: editingFormation.title,
-        description: editingFormation.description || '',
-        slug: editingFormation.slug || '',
-        thumbnail_url: editingFormation.thumbnail_url || '',
-        is_published: editingFormation.is_published,
-      })
-    } else if (dialogOpen) {
-      form.reset({
-        title: '',
-        description: '',
-        slug: '',
-        thumbnail_url: '',
-        is_published: false,
-      })
-      setSlugManuallyEdited(false)
-    }
-  }, [dialogOpen, form, editingFormation])
-
   const watchedTitle = form.watch('title')
   const watchedSlug = form.watch('slug')
 
@@ -183,32 +262,52 @@ export function AdminFormations() {
       const { data, error } = await supabase
         .from('formations')
         .select(`
-          id, title, slug, description, is_published, published_at, created_at, updated_at,
-          formation_paths!inner(
-            learning_paths!inner(id, title)
+          id, title, slug, description, is_published, status, published_at, created_at, updated_at,
+          formation_paths(
+            order,
+            learning_paths(id, title)
           )
         `)
         .order('created_at', { ascending: false })
 
       if (error) throw error
 
-      return data.map((formation) => ({
-        ...formation,
-        paths_count: formation.formation_paths?.length || 0,
-        paths: formation.formation_paths?.map((fp: any) => ({
-          id: fp.learning_paths.id,
-          title: fp.learning_paths.title,
-          order: fp.order,
-        })) || [],
-      }))
+      const rows = (data ?? []) as FormationQueryRow[]
+
+      return rows.map((formation) => {
+        const { formation_paths: rawPaths = [], ...rest } = formation
+
+        const paths = rawPaths
+          .map((fp) => {
+            if (!fp.learning_paths) return null
+            return {
+              id: fp.learning_paths.id,
+              title: fp.learning_paths.title,
+              order: fp.order ?? 0,
+            }
+          })
+          .filter((path): path is { id: string; title: string; order: number } => Boolean(path))
+          .sort((a, b) => a.order - b.order)
+
+        return {
+          ...rest,
+          paths_count: paths.length,
+          paths,
+        } as FormationWithMeta
+      })
     },
   })
 
   const handleSubmit = (data: FormationFormData) => {
+    const payload = buildFormationPayload(data)
     if (editingFormation) {
-      updateMutation.mutate({ id: editingFormation.id, data })
+      updateMutation.mutate({
+        id: editingFormation.id,
+        payload,
+        previous: editingFormation,
+      })
     } else {
-      createMutation.mutate(data)
+      createMutation.mutate(payload)
     }
   }
 
@@ -230,6 +329,7 @@ export function AdminFormations() {
 
   const handleAddNew = () => {
     setEditingFormation(null)
+    resetFormForCreate()
     setDialogOpen(true)
   }
 
@@ -262,13 +362,17 @@ export function AdminFormations() {
                 <div className="space-y-1">
                   <CardTitle className="flex items-center gap-2">
                     {formation.title}
-                    {formation.is_published ? (
+                    {formation.status === 'published' ? (
                       <Badge variant="default">Published</Badge>
+                    ) : formation.status === 'coming_soon' ? (
+                      <Badge variant="secondary">Coming Soon</Badge>
                     ) : (
-                      <Badge variant="secondary">Draft</Badge>
+                      <Badge variant="outline">Draft</Badge>
                     )}
                   </CardTitle>
-                  <CardDescription>{formation.description}</CardDescription>
+                  <CardDescription>
+                    {formation.description || 'No description provided'}
+                  </CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
@@ -317,7 +421,7 @@ export function AdminFormations() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[640px]">
           <DialogHeader>
             <DialogTitle>
               {editingFormation ? 'Edit Formation' : 'Create Formation'}
@@ -395,6 +499,36 @@ export function AdminFormations() {
               />
               <FormField
                 control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <FormControl>
+                      <select
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        value={field.value}
+                        onChange={(event) => {
+                          const value = event.target.value as FormationFormData['status']
+                          field.onChange(value)
+                          form.setValue('is_published', value !== 'draft', {
+                            shouldDirty: true,
+                          })
+                        }}
+                      >
+                        <option value="draft">Draft</option>
+                        <option value="published">Published</option>
+                        <option value="coming_soon">Coming Soon</option>
+                      </select>
+                    </FormControl>
+                    <FormDescription>
+                      Draft formations stay private. Coming soon keeps it visible but routes users to the waiting list.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="is_published"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
@@ -407,12 +541,44 @@ export function AdminFormations() {
                     <FormControl>
                       <Switch
                         checked={field.value}
-                        onCheckedChange={field.onChange}
+                        onCheckedChange={(checked) => {
+                          field.onChange(checked)
+                          const currentStatus = form.getValues('status')
+                          if (checked && currentStatus === 'draft') {
+                            form.setValue('status', 'published', { shouldDirty: true })
+                          }
+                          if (!checked && currentStatus !== 'draft') {
+                            form.setValue('status', 'draft', { shouldDirty: true })
+                          }
+                        }}
                       />
                     </FormControl>
                   </FormItem>
                 )}
               />
+              {editingFormation ? (
+                <div className="space-y-3">
+                  <Separator />
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-semibold text-forge-dark">Learning paths</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Add or reorder learning paths for this formation. Changes are saved immediately.
+                    </p>
+                    <LearningPathSelector
+                      formationId={editingFormation.id}
+                      selectedPaths={selectedPathsState}
+                      onPathsChange={setSelectedPathsState}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Separator />
+                  <p className="text-sm text-muted-foreground">
+                    Save the formation first to associate learning paths.
+                  </p>
+                </div>
+              )}
               <DialogFooter>
                 <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
                   {(createMutation.isPending || updateMutation.isPending) && (

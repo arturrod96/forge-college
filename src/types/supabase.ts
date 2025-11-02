@@ -20,6 +20,7 @@ export type Database = {
           duration_minutes: number | null
           id: string
           is_published: boolean
+          status: Database["public"]["Enums"]["learning_path_status"]
           order: number
           path_id: string | null
           published_at: string | null
@@ -37,6 +38,7 @@ export type Database = {
           duration_minutes?: number | null
           id?: string
           is_published?: boolean
+          status?: Database["public"]["Enums"]["learning_path_status"]
           order: number
           path_id?: string | null
           published_at?: string | null
@@ -54,6 +56,7 @@ export type Database = {
           duration_minutes?: number | null
           id?: string
           is_published?: boolean
+          status?: Database["public"]["Enums"]["learning_path_status"]
           order?: number
           path_id?: string | null
           published_at?: string | null
@@ -125,6 +128,7 @@ export type Database = {
           is_published: boolean
           published_at: string | null
           slug: string | null
+          status: Database["public"]["Enums"]["learning_path_status"]
           thumbnail_url: string | null
           title: string
           updated_at: string
@@ -138,6 +142,7 @@ export type Database = {
           is_published?: boolean
           published_at?: string | null
           slug?: string | null
+          status?: Database["public"]["Enums"]["learning_path_status"]
           thumbnail_url?: string | null
           title: string
           updated_at?: string
@@ -151,6 +156,7 @@ export type Database = {
           is_published?: boolean
           published_at?: string | null
           slug?: string | null
+          status?: Database["public"]["Enums"]["learning_path_status"]
           thumbnail_url?: string | null
           title?: string
           updated_at?: string

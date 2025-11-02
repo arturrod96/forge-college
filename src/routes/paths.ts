@@ -12,6 +12,7 @@ export const UPDATE_PASSWORD = "/update-password";
 export const DASHBOARD = "/dashboard";
 export const DASHBOARD_EXPLORE = "/dashboard/explore";
 export const DASHBOARD_FORMATIONS = "/dashboard/formations";
+export const DASHBOARD_FORMATION_DETAIL = (formationId: string) => `/dashboard/formations/${formationId}`;
 export const DASHBOARD_COMING_SOON = "/dashboard/coming-soon";
 export const DASHBOARD_ADMIN = "/dashboard/admin";
 export const DASHBOARD_ADMIN_FORMATIONS = "/dashboard/admin/formations";

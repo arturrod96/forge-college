@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useOAuth';
 import { createClientBrowser } from '@/lib/supabase';
-import { Card, CardContent } from '@/components/ui/card';
+import { StatCard } from '@/components/ui/stat-card';
 import { Trophy, BookOpen, Clock, Target } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -110,55 +110,45 @@ export function UserStats() {
 
   const statCards = [
     {
-      title: t('dashboard.userStats.totalXp'),
+      label: t('dashboard.userStats.totalXp'),
       value: display.totalXP,
       icon: Trophy,
-      color: 'text-yellow-600',
-      bgColor: 'bg-gradient-to-br from-yellow-50 to-yellow-100'
+      colorScheme: 'yellow' as const,
     },
     {
-      title: t('dashboard.userStats.completedLessons'),
+      label: t('dashboard.userStats.completedLessons'),
       value: display.completedLessons,
       icon: BookOpen,
-      color: 'text-green-600',
-      bgColor: 'bg-gradient-to-br from-green-50 to-green-100'
+      colorScheme: 'green' as const,
     },
     {
-      title: t('dashboard.userStats.activePaths'),
+      label: t('dashboard.userStats.activePaths'),
       value: display.inProgressPaths,
       icon: Target,
-      color: 'text-blue-600',
-      bgColor: 'bg-gradient-to-br from-blue-50 to-blue-100'
+      colorScheme: 'blue' as const,
     },
     {
-      title: t('dashboard.userStats.studyTime'),
+      label: t('dashboard.userStats.studyTime'),
       value: t('dashboard.userStats.studyTimeValue', { minutes: display.totalTimeSpent }),
       icon: Clock,
-      color: 'text-purple-600',
-      bgColor: 'bg-gradient-to-br from-purple-50 to-purple-100'
+      colorScheme: 'purple' as const,
     }
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-4">
-      {statCards.map((stat, index) => {
-        const Icon = stat.icon;
-        return (
-          <Card key={index}>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className={`${stat.bgColor} p-2 rounded-md shadow-inner`}>
-                  <Icon className={`h-6 w-6 ${stat.color}`} />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                  <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        );
-      })}
+    <div className="grid gap-card-gap md:grid-cols-4">
+      {statCards.map((stat, index) => (
+        <StatCard
+          key={index}
+          label={stat.label}
+          value={stat.value}
+          icon={stat.icon}
+          colorScheme={stat.colorScheme}
+          variant="gradient"
+          isLoading={loading}
+          aria-label={`${stat.label}: ${stat.value}`}
+        />
+      ))}
     </div>
   );
 }

@@ -67,4 +67,5 @@ const EnhancedButton = ({
   );
 };
 
+export { EnhancedButton };
 export default EnhancedButton;

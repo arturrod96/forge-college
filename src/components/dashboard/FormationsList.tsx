@@ -1,28 +1,42 @@
-import { useState } from 'react';
 import { createClientBrowser } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
-import { useAuth } from '@/hooks/useOAuth';
-import { toast } from 'sonner';
-import { GraduationCap, BookOpen, Users, Star } from 'lucide-react';
+import { GraduationCap, BookOpen, Star } from 'lucide-react';
 import { EnhancedButton } from '@/components/ui/enhanced-button';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
-import { Badge } from '@/components/ui/badge';
+import { useQuery } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
+import { cn } from '@/lib/utils';
+import * as R from '@/routes/paths';
+import type { Tables } from '@/types/supabase';
+import { LoadingGrid } from '@/components/ui/loading-states';
+import { EmptyState } from '@/components/ui/empty-state';
+import { Badge } from '@/components/ui/badge';
 
-interface Formation {
+type FormationRow = Tables<'formations'>['Row'];
+type FormationPathRow = Tables<'formation_paths'>['Row'];
+type LearningPathSummary = Pick<Tables<'learning_paths'>['Row'], 'id' | 'title'>;
+
+type FormationQueryRow = FormationRow & {
+  formation_paths?: Array<
+    Pick<FormationPathRow, 'order'> & {
+      learning_paths: LearningPathSummary | null
+    }
+  > | null
+};
+
+interface FormationCardModel {
   id: string;
   title: string;
-  description: string;
-  thumbnail_url?: string;
-  paths_count?: number;
-  paths?: Array<{
+  description?: string | null;
+  thumbnail_url?: string | null;
+  status: Tables<'formations'>['Row']['status'];
+  paths_count: number;
+  paths: Array<{
     id: string;
     title: string;
     order: number;
   }>;
-  created_at: string;
+  created_at: string | null;
 }
 
 type FormationsListProps = {
@@ -31,44 +45,55 @@ type FormationsListProps = {
 };
 
 export function FormationsList({ limit, className }: FormationsListProps) {
-  const { user } = useAuth();
-  const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const supabase = createClientBrowser();
 
-  const { data: formations = [], isLoading } = useQuery<Formation[]>({
+  const { data: formations = [], isLoading } = useQuery<FormationCardModel[]>({
     queryKey: ['formations'],
     enabled: true,
     staleTime: 60_000,
     refetchOnWindowFocus: false,
     keepPreviousData: true,
-    queryFn: async (): Promise<Formation[]> => {
+    queryFn: async (): Promise<FormationCardModel[]> => {
       const { data, error } = await supabase
         .from('formations')
         .select(`
-          id, title, description, thumbnail_url, created_at,
-          formation_paths!inner(
-            learning_paths!inner(id, title)
+          id, title, description, thumbnail_url, created_at, status,
+          formation_paths(
+            order,
+            learning_paths(id, title)
           )
         `)
-        .eq('is_published', true)
+        .in('status', ['published', 'coming_soon'])
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      return data.map((formation: any) => ({
-        id: formation.id,
-        title: formation.title,
-        description: formation.description,
-        thumbnail_url: formation.thumbnail_url,
-        paths_count: formation.formation_paths?.length || 0,
-        paths: formation.formation_paths?.map((fp: any) => ({
-          id: fp.learning_paths.id,
-          title: fp.learning_paths.title,
-          order: fp.order,
-        })) || [],
-        created_at: formation.created_at,
-      }));
+      const rows = (data ?? []) as FormationQueryRow[];
+
+      return rows.map((formation) => {
+        const paths = (formation.formation_paths ?? [])
+          .map((fp) => {
+            if (!fp.learning_paths) return null;
+            return {
+              id: fp.learning_paths.id,
+              title: fp.learning_paths.title,
+              order: fp.order ?? 0,
+            };
+          })
+          .filter((path): path is { id: string; title: string; order: number } => Boolean(path))
+          .sort((a, b) => a.order - b.order);
+
+        return {
+          id: formation.id,
+          title: formation.title,
+          description: formation.description,
+          thumbnail_url: formation.thumbnail_url,
+          status: formation.status,
+          paths_count: paths.length,
+          paths,
+          created_at: formation.created_at,
+        } as FormationCardModel;
+      });
     },
   });
 
@@ -76,42 +101,35 @@ export function FormationsList({ limit, className }: FormationsListProps) {
 
   if (isLoading) {
     return (
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {[...Array(3)].map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <div className="h-48 bg-gray-200 rounded-t-lg"></div>
-            <CardHeader>
-              <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-              <div className="h-4 bg-gray-200 rounded w-full"></div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="h-4 bg-gray-200 rounded"></div>
-                <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-                <div className="h-10 bg-gray-200 rounded mt-4"></div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <LoadingGrid
+        count={limit || 3}
+        columns={{ sm: 1, md: 2, lg: 3 }}
+        aspectRatio="portrait"
+        showContent={true}
+      />
     );
   }
 
   if (displayFormations.length === 0) {
     return (
-      <div className="text-center py-12">
-        <GraduationCap className="mx-auto h-16 w-16 text-gray-400 mb-4" />
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">No formations available</h3>
-        <p className="text-gray-500 max-w-md mx-auto">
-          Comprehensive learning programs will be available soon. Check back later!
-        </p>
-      </div>
+      <EmptyState
+        variant="no-data"
+        icon={GraduationCap}
+        title="No formations available"
+        description="Comprehensive learning programs will be available soon. Check back later!"
+        size="md"
+      />
     );
   }
 
   return (
-    <div className={`grid gap-6 md:grid-cols-2 lg:grid-cols-3 ${className}`}>
-      {displayFormations.map((formation) => (
+    <div className={cn('grid gap-6 md:grid-cols-2 lg:grid-cols-3', className)}>
+      {displayFormations.map((formation) => {
+        const createdAtDistance = formation.created_at
+          ? formatDistanceToNow(new Date(formation.created_at))
+          : null;
+
+        return (
         <Card key={formation.id} className="overflow-hidden hover:shadow-lg transition-shadow">
           {/* Thumbnail or placeholder */}
           <div className="h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
@@ -128,7 +146,12 @@ export function FormationsList({ limit, className }: FormationsListProps) {
 
           <CardHeader>
             <div className="space-y-2">
-              <CardTitle className="text-xl">{formation.title}</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-xl">
+                {formation.title}
+                <Badge variant={formation.status === 'published' ? 'default' : formation.status === 'coming_soon' ? 'secondary' : 'outline'}>
+                  {formation.status === 'published' ? 'Published' : formation.status === 'coming_soon' ? 'Coming Soon' : 'Draft'}
+                </Badge>
+              </CardTitle>
               <CardDescription className="text-sm line-clamp-3">
                 {formation.description || 'A comprehensive learning program to advance your skills.'}
               </CardDescription>
@@ -169,19 +192,20 @@ export function FormationsList({ limit, className }: FormationsListProps) {
             )}
 
             {/* Action button */}
-            <Link to={`/formations/${formation.id}`}>
+            <Link to={R.DASHBOARD_FORMATION_DETAIL(formation.id)}>
               <EnhancedButton className="w-full">
-                View Formation
+                {formation.status === 'coming_soon' ? 'Join Waitlist' : 'View Formation'}
               </EnhancedButton>
             </Link>
 
             {/* Creation date */}
             <div className="text-xs text-gray-500 text-center">
-              Created {formatDistanceToNow(new Date(formation.created_at))} ago
+              {createdAtDistance ? `Created ${createdAtDistance} ago` : 'Recently added'}
             </div>
           </CardContent>
         </Card>
-      ))}
+        );
+      })}
     </div>
   );
 }

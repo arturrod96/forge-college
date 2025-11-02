@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Dispatch, SetStateAction, useMemo, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClientBrowser } from '@/lib/supabase'
 import type { Tables } from '@/types/supabase'
@@ -12,12 +12,10 @@ import { Loader2, Plus, X, ArrowUp, ArrowDown } from 'lucide-react'
 import { toast } from 'sonner'
 
 type LearningPath = Tables<'learning_paths'>['Row']
-type FormationPath = Tables<'formation_paths'>['Row']
-
 interface LearningPathSelectorProps {
   formationId: string
   selectedPaths: Array<{ id: string; title: string; order: number }>
-  onPathsChange: (paths: Array<{ id: string; title: string; order: number }>) => void
+  onPathsChange: Dispatch<SetStateAction<Array<{ id: string; title: string; order: number }>>>
 }
 
 export function LearningPathSelector({ formationId, selectedPaths, onPathsChange }: LearningPathSelectorProps) {
@@ -52,13 +50,14 @@ export function LearningPathSelector({ formationId, selectedPaths, onPathsChange
   })
 
   const addPathMutation = useMutation({
-    mutationFn: async ({ pathId, order }: { pathId: string; order: number }) => {
+    mutationFn: async ({ path, order }: { path: LearningPath; order: number }) => {
       const { error } = await supabase.from('formation_paths').insert({
         formation_id: formationId,
-        learning_path_id: pathId,
+        learning_path_id: path.id,
         order,
       })
       if (error) throw error
+      return path
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['available-learning-paths', formationId] })
@@ -107,13 +106,33 @@ export function LearningPathSelector({ formationId, selectedPaths, onPathsChange
     },
   })
 
-  const handleAddPath = (path: LearningPath) => {
+  const handleAddPath = async (path: LearningPath) => {
     const nextOrder = selectedPaths.length + 1
-    addPathMutation.mutate({ pathId: path.id, order: nextOrder })
+    try {
+      await addPathMutation.mutateAsync({ path, order: nextOrder })
+      onPathsChange((current) => [
+        ...current,
+        { id: path.id, title: path.title, order: nextOrder },
+      ])
+    } catch {
+      // toast already handled in mutation onError
+    }
   }
 
-  const handleRemovePath = (pathId: string) => {
-    removePathMutation.mutate(pathId)
+  const handleRemovePath = async (pathId: string) => {
+    try {
+      await removePathMutation.mutateAsync(pathId)
+      onPathsChange((current) => {
+        const remaining = current.filter((path) => path.id !== pathId)
+        return remaining
+          .map((path, index) => ({
+            ...path,
+            order: index + 1,
+          }))
+      })
+    } catch {
+      // toast handled
+    }
   }
 
   const handleMovePath = (pathId: string, direction: 'up' | 'down') => {
@@ -143,6 +162,11 @@ export function LearningPathSelector({ formationId, selectedPaths, onPathsChange
     path.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     path.slug?.toLowerCase().includes(searchTerm.toLowerCase())
   ) || []
+
+  const sortedSelectedPaths = useMemo(
+    () => [...selectedPaths].sort((a, b) => a.order - b.order),
+    [selectedPaths]
+  )
 
   return (
     <div className="space-y-4">
@@ -199,9 +223,7 @@ export function LearningPathSelector({ formationId, selectedPaths, onPathsChange
           <div>
             <Label>Selected Paths ({selectedPaths.length})</Label>
             <div className="mt-2 space-y-2">
-              {selectedPaths
-                .sort((a, b) => a.order - b.order)
-                .map((path, index) => (
+              {sortedSelectedPaths.map((path, index) => (
                   <div
                     key={path.id}
                     className="flex items-center justify-between p-2 border rounded"
