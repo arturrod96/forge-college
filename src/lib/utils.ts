@@ -5,9 +5,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const shortAddress = (addr?: string) =>
-  addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : null;
-
 // Compute a safe OAuth redirect URL, forcing app subdomain in production
 export function getOAuthRedirectUrl(): string {
   try {
