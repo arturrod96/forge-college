@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
-import { Settings, Layers3, BookOpen, ListChecks, FileText, FolderGit2 } from 'lucide-react'
+import { Settings, GraduationCap, Layers3, BookOpen, ListChecks, FileText, FolderGit2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 
@@ -11,6 +11,7 @@ export default function AdminLayout() {
   const navItems = useMemo(
     () => [
       { to: '/dashboard/admin', label: t('admin.layout.nav.overview'), icon: Settings, end: true },
+      { to: '/dashboard/admin/formations', label: 'Formations', icon: GraduationCap },
       { to: '/dashboard/admin/paths', label: t('admin.layout.nav.paths'), icon: Layers3 },
       { to: '/dashboard/admin/courses', label: t('admin.layout.nav.courses'), icon: BookOpen },
       { to: '/dashboard/admin/modules', label: t('admin.layout.nav.modules'), icon: ListChecks },

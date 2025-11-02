@@ -16,6 +16,7 @@ interface LearningPath {
   description: string;
   isEnrolled?: boolean;
   courseCount?: number;
+  status?: 'draft' | 'published' | 'coming_soon';
 }
 
 type AvailablePathsProps = {
@@ -40,9 +41,10 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
       const { data: pathsData, error: pathsError } = await supabase
         .from('learning_paths')
         .select(`
-          id, title, description,
+          id, title, description, status,
           courses!inner(id)
-        `);
+        `)
+        .eq('status', 'published');
       if (pathsError) throw pathsError;
 
       let enrolledPaths: string[] = [];
@@ -63,6 +65,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
         id: path.id,
         title: path.title,
         description: path.description,
+        status: path.status,
         isEnrolled: enrolledPaths.includes(path.id),
         courseCount: path.courses.length,
       }));
