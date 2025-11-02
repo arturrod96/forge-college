@@ -17,7 +17,10 @@ import CourseView from './pages/dashboard/CourseView';
 import PathOverview from './pages/dashboard/PathOverview';
 import { AvailablePaths } from './components/dashboard/AvailablePaths';
 import { PublicLayout } from './pages/PublicLayout';
+import FormationsPage from './pages/FormationsPage';
+import ComingSoonPage from './pages/ComingSoonPage';
 import DashboardHome from './pages/dashboard/DashboardHome';
+import FormationDetailPage from './pages/dashboard/FormationDetailPage';
 import { MyLearningPaths } from './components/dashboard/MyLearningPaths';
 import Profile from './pages/Profile';
 import RequireAuth from '@/routes/RequireAuth';
@@ -34,6 +37,7 @@ import AuthErrorBoundary from './components/auth/AuthErrorBoundary';
 import * as R from '@/routes/paths';
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminOverview from './pages/admin/AdminOverview';
+import { AdminFormations } from './pages/admin/AdminFormations';
 import AdminPaths from './pages/admin/AdminPaths';
 import AdminCourses from './pages/admin/AdminCourses';
 import AdminModules from './pages/admin/AdminModules';
@@ -81,6 +85,9 @@ const App = () => {
               >
                 <Route index element={<DashboardHome />} />
                 <Route path="explore" element={<AvailablePaths />} />
+                <Route path="formations" element={<FormationsPage />} />
+                <Route path="formations/:formationId" element={<FormationDetailPage />} />
+                <Route path="coming-soon" element={<ComingSoonPage />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="community-projects" element={<CommunityProjects />} />
                 <Route path="scoreboard" element={<Scoreboard />} />
@@ -96,6 +103,7 @@ const App = () => {
                   }
                 >
                   <Route index element={<AdminOverview />} />
+                  <Route path="formations" element={<AdminFormations />} />
                   <Route path="paths" element={<AdminPaths />} />
                   <Route path="courses" element={<AdminCourses />} />
                   <Route path="modules" element={<AdminModules />} />

@@ -11,7 +11,16 @@ export const UPDATE_PASSWORD = "/update-password";
 // Dashboard base
 export const DASHBOARD = "/dashboard";
 export const DASHBOARD_EXPLORE = "/dashboard/explore";
+export const DASHBOARD_FORMATIONS = "/dashboard/formations";
+export const DASHBOARD_FORMATION_DETAIL = (formationId: string) => `/dashboard/formations/${formationId}`;
+export const DASHBOARD_COMING_SOON = "/dashboard/coming-soon";
 export const DASHBOARD_ADMIN = "/dashboard/admin";
+export const DASHBOARD_ADMIN_FORMATIONS = "/dashboard/admin/formations";
+export const DASHBOARD_ADMIN_PATHS = "/dashboard/admin/paths";
+export const DASHBOARD_ADMIN_COURSES = "/dashboard/admin/courses";
+export const DASHBOARD_ADMIN_MODULES = "/dashboard/admin/modules";
+export const DASHBOARD_ADMIN_LESSONS = "/dashboard/admin/lessons";
+export const DASHBOARD_ADMIN_PROJECTS = "/dashboard/admin/projects";
 export const DASHBOARD_SCOREBOARD = "/dashboard/scoreboard";
 export const DASHBOARD_ACHIEVEMENTS = "/dashboard/achievements";
 export const DASHBOARD_COMMUNITY_PROJECTS = "/dashboard/community-projects";

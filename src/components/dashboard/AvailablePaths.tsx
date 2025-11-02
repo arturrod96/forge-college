@@ -9,6 +9,8 @@ import EnhancedButton from '@/components/ui/enhanced-button';
 import { DASHBOARD_LEARN_PATH } from '@/routes/paths';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { Badge } from '@/components/ui/badge';
+import { LoadingGrid } from '@/components/ui/loading-states';
 
 interface LearningPath {
   id: string;
@@ -16,6 +18,7 @@ interface LearningPath {
   description: string;
   isEnrolled?: boolean;
   courseCount?: number;
+  status?: 'draft' | 'published' | 'coming_soon';
 }
 
 type AvailablePathsProps = {
@@ -40,9 +43,10 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
       const { data: pathsData, error: pathsError } = await supabase
         .from('learning_paths')
         .select(`
-          id, title, description,
+          id, title, description, status,
           courses!inner(id)
-        `);
+        `)
+        .eq('status', 'published');
       if (pathsError) throw pathsError;
 
       let enrolledPaths: string[] = [];
@@ -63,6 +67,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
         id: path.id,
         title: path.title,
         description: path.description,
+        status: path.status,
         isEnrolled: enrolledPaths.includes(path.id),
         courseCount: path.courses.length,
       }));
@@ -103,19 +108,12 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {[...Array(limit || 3)].map((_, i) => (
-          <Card key={i}>
-            <CardContent className="p-6">
-              <div className="animate-pulse space-y-2">
-                <div className="h-6 bg-gray-200 rounded" />
-                <div className="h-4 bg-gray-200 rounded" />
-                <div className="h-8 bg-gray-200 rounded mt-4" />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <LoadingGrid
+        count={limit || 6}
+        columns={{ sm: 1, md: 2, lg: 3 }}
+        aspectRatio="portrait"
+        showContent={true}
+      />
     );
   }
 
@@ -130,8 +128,15 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
             className={`relative overflow-hidden border-forge-cream/80 hover:shadow-md transition-shadow h-full min-h-[300px] flex flex-col ${path.isEnrolled ? 'ring-1 ring-forge-orange/20' : ''}`}
           >
             {path.isEnrolled && (
-              <div className="absolute top-2 right-2 bg-forge-orange text-white px-1.5 py-0.5 rounded-full text-[10px] font-medium flex items-center gap-1 shadow-sm">
-                <Flame className="h-3 w-3" />{t('dashboard.availablePaths.enrolledBadge')}
+              <div className="absolute top-2 right-2">
+                <Badge
+                  variant="enrolled"
+                  size="sm"
+                  icon={Flame}
+                  iconPosition="left"
+                >
+                  {t('dashboard.availablePaths.enrolledBadge')}
+                </Badge>
               </div>
             )}
             <CardHeader className="space-y-2">

@@ -7,7 +7,7 @@ import { StaticRouter } from "react-router-dom/server.mjs";
 import i18n from "i18next";
 import { initReactI18next, useTranslation } from "react-i18next";
 import * as React from "react";
-import React__default, { createContext, useState, useRef, useMemo, useEffect, useContext, Component, memo, useCallback } from "react";
+import { createContext, useState, useRef, useMemo, useEffect, useContext, Fragment as Fragment$1, useCallback, Component, memo } from "react";
 import { FunctionsClient } from "@supabase/functions-js";
 import { PostgrestClient } from "@supabase/postgrest-js";
 import { RealtimeClient } from "@supabase/realtime-js";
@@ -17,7 +17,7 @@ import { AuthClient } from "@supabase/auth-js";
 import "cookie";
 import * as ToastPrimitives from "@radix-ui/react-toast";
 import { cva } from "class-variance-authority";
-import { X, Flame, ArrowRight, Zap, Target, DollarSign, TrendingUp, Code, Briefcase, Trophy, CheckCircle, Users, Coins, BarChart3, PieChart, Shield, Github, Bug, ChevronLeft, ChevronRight, Check, Circle, User, Wallet, LogOut, LayoutDashboard, BookOpen, Award, Lock, Menu, ChevronDown, Play, Bot, Clock, ChevronUp, Loader2, Mail, Globe, MapPin, Languages, Building, Linkedin, Save, AlertTriangle, RefreshCw, Settings, Layers3, ListChecks, FileText, ShieldCheck, Plus, Pencil, Trash2, BookOpenText, Medal, Share2, CheckCircle2, Sparkles, MessageCircle, Twitter, Star } from "lucide-react";
+import { X, Flame, ArrowRight, Zap, Target, DollarSign, TrendingUp, Code, Briefcase, Trophy, CheckCircle, Users, Coins, BarChart3, PieChart, Shield, Github, Bug, ChevronLeft, ChevronRight, Check, Circle, User, Wallet, LogOut, LayoutDashboard, BookOpen, FolderGit2, Award, Menu, ChevronDown, Play, Bot, ExternalLink, ArrowUpRight, Inbox, FileX, AlertCircle, Search, GraduationCap, Star, Clock, Bell, TrendingDown, ArrowLeft, ChevronUp, Loader2, Mail, Globe, MapPin, Languages, Building, Linkedin, Save, AlertTriangle, RefreshCw, Settings, Layers3, ListChecks, FileText, ShieldCheck, Plus, ArrowUp, ArrowDown, Pencil, Trash2, BookOpenText, Medal, Share2, CheckCircle2, Lock, Sparkles, MessageCircle, Twitter } from "lucide-react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { useTheme } from "next-themes";
@@ -31,10 +31,11 @@ import * as SeparatorPrimitive from "@radix-ui/react-separator";
 import * as SheetPrimitive from "@radix-ui/react-dialog";
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import * as AvatarPrimitive from "@radix-ui/react-avatar";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import ReactMarkdown from "react-markdown";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
+import { formatDistanceToNow } from "date-fns";
 import * as ProgressPrimitive from "@radix-ui/react-progress";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { useFormContext, FormProvider, Controller, useForm } from "react-hook-form";
@@ -42,8 +43,9 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as SwitchPrimitives from "@radix-ui/react-switch";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
-import { formatDistanceToNow } from "date-fns";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
+import MDEditor from "@uiw/react-md-editor";
+/* empty css                       */
 const common$1 = {
   buttons: {
     login: "Login",
@@ -76,7 +78,8 @@ const common$1 = {
     country: "Country",
     city: "City",
     languages: "Languages",
-    language: "Language"
+    language: "Language",
+    user: "User"
   },
   placeholders: {
     email: "m@example.com",
@@ -85,6 +88,46 @@ const common$1 = {
     selectCountry: "Select your country",
     enterCity: "Enter your city",
     typeLanguage: "Type a language and press Enter"
+  },
+  countries: {
+    brazil: "Brazil",
+    unitedStates: "United States",
+    canada: "Canada",
+    unitedKingdom: "United Kingdom",
+    germany: "Germany",
+    france: "France",
+    spain: "Spain",
+    italy: "Italy",
+    netherlands: "Netherlands",
+    sweden: "Sweden",
+    norway: "Norway",
+    denmark: "Denmark",
+    finland: "Finland",
+    switzerland: "Switzerland",
+    austria: "Austria",
+    belgium: "Belgium",
+    portugal: "Portugal",
+    ireland: "Ireland",
+    australia: "Australia",
+    newZealand: "New Zealand",
+    japan: "Japan",
+    southKorea: "South Korea",
+    singapore: "Singapore",
+    india: "India",
+    china: "China",
+    mexico: "Mexico",
+    argentina: "Argentina",
+    chile: "Chile",
+    colombia: "Colombia",
+    peru: "Peru",
+    uruguay: "Uruguay",
+    paraguay: "Paraguay",
+    venezuela: "Venezuela",
+    ecuador: "Ecuador",
+    bolivia: "Bolivia",
+    guyana: "Guyana",
+    suriname: "Suriname",
+    frenchGuiana: "French Guiana"
   },
   errors: {
     required: "This field is required",
@@ -102,10 +145,12 @@ const nav$1 = {
   admin: "Admin",
   scoreboard: "Scoreboard",
   achievements: "Achievements",
+  communityProjects: "Community Projects",
   learn: "Learn",
   course: "Course",
   path: "Path",
-  myProfile: "My Profile"
+  myProfile: "My Profile",
+  page: "Page"
 };
 const auth$1 = {
   login: {
@@ -167,6 +212,7 @@ const profile$1 = {
   },
   fields: {
     yearsExperience: "Years of Experience in Technology",
+    yearsExperiencePlaceholder: "0",
     positionCompany: "Position & Company",
     positionPlaceholder: "e.g., Senior Backend @ ACME",
     stacksDominated: "Stacks Dominated",
@@ -181,6 +227,10 @@ const profile$1 = {
     githubPlaceholder: "https://github.com/username",
     languagePreference: "Language Preference",
     selectLanguage: "Select your preferred language"
+  },
+  languageOptions: {
+    enUS: "English (US)",
+    ptBR: "Portuguese (BR)"
   },
   errors: {
     fullNameRequired: "Full name is required",
@@ -207,6 +257,10 @@ const profileDropdown$1 = {
   connectWallet: "Connect Wallet"
 };
 const dashboard$1 = {
+  layout: {
+    openMenu: "Open menu",
+    loading: "Loading dashboard..."
+  },
   welcomeBack: "Welcome back",
   loading: "Loading...",
   notFound: "Not found",
@@ -224,7 +278,59 @@ const dashboard$1 = {
   nothingToContinue: "Nothing to continue right now.",
   emptyTitle: "No paths yet",
   emptySubtitle: "Enroll in a path to get started",
-  progressSuffix: "complete"
+  progressSuffix: "complete",
+  home: {
+    badge: "Welcome back",
+    headlineSuffix: ", ready to continue your journey?",
+    exploreCta: "View all paths"
+  },
+  continueLearning: {
+    title: "Pick up where you left off",
+    subtitle: "You were studying:"
+  },
+  availablePaths: {
+    enrolledBadge: "Enrolled",
+    courses_one: "{{count}} course",
+    courses_other: "{{count}} courses"
+  },
+  learningHabits: {
+    title: "Study habits",
+    currentStreak: "Current streak",
+    dayCount_one: "{{count}} day",
+    dayCount_other: "{{count}} days",
+    keepGoing: "Keep it going daily",
+    weeklyGoal: "Weekly goal",
+    weekProgress: "{{completed}}/{{goal}} lessons",
+    completions_one: "{{count}} completion",
+    completions_other: "{{count}} completions",
+    loadError: "Failed to load learning habits"
+  },
+  userStats: {
+    totalXp: "Total XP",
+    completedLessons: "Completed lessons",
+    activePaths: "Active paths",
+    studyTime: "Study time",
+    studyTimeValue: "{{minutes}} min",
+    errors: {
+      loadProgress: "Failed to load user progress",
+      loadLessons: "Failed to load lessons"
+    }
+  },
+  myLearningPaths: {
+    emptyTitle: "You are not enrolled in any path yet.",
+    emptySubtitle: "Explore available paths and enroll to get started.",
+    progressLabel: "{{progress}}% complete"
+  },
+  pathOverview: {
+    badge: "Path",
+    notFound: "Learning path not found.",
+    "continue": "Continue",
+    courses: "Courses"
+  },
+  errors: {
+    notAuthenticated: "Not authenticated",
+    failedToEnroll: "Failed to enroll"
+  }
 };
 const lessons$1 = {
   selectToBegin: "Select a lesson to begin.",
@@ -239,6 +345,19 @@ const lessons$1 = {
   completionError: "Error marking lesson as completed"
 };
 const admin$1 = {
+  layout: {
+    kicker: "Admin",
+    title: "Content Management",
+    subtitle: "Create, organize, and publish learning experiences for the community.",
+    nav: {
+      overview: "Overview",
+      paths: "Learning Paths",
+      courses: "Courses",
+      modules: "Modules",
+      lessons: "Lessons",
+      projects: "Projects"
+    }
+  },
   paths: {
     title: "Learning Paths",
     "new": "New learning path",
@@ -283,6 +402,67 @@ const admin$1 = {
     created: "Lesson created",
     updated: "Lesson updated",
     deleted: "Lesson deleted"
+  },
+  projects: {
+    title: "Projects",
+    subtitle: "Link projects to modules to reinforce applied learning at the end of each module.",
+    actions: {
+      newProject: "New project"
+    },
+    filters: {
+      modulePlaceholder: "Filter by module",
+      allModules: "All modules"
+    },
+    loading: "Loading projects...",
+    emptyState: "No projects found for the current filters.",
+    unassignedModule: "Unassigned module",
+    labels: {
+      course: "Course: {{course}}",
+      projectNumber: "Project #{{number}}",
+      inactive: "Inactive",
+      xpValue: "XP {{xp}}"
+    },
+    markdown: {
+      loading: "Loading editor...",
+      ariaLabel: "Markdown editor"
+    },
+    dialog: {
+      editTitle: "Edit project",
+      createTitle: "Create project",
+      description: "Provide details and expectations for the module project."
+    },
+    form: {
+      module: "Module",
+      modulePlaceholder: "Select a module",
+      title: "Title",
+      titlePlaceholder: "Project title",
+      description: "Project description",
+      descriptionPlaceholder: "Describe the project goals, deliverables, and any resources students should consult. Supports HTML content.",
+      descriptionHelp: "You can use HTML to format the content (headings, lists, links, etc.).",
+      xpValue: "XP reward",
+      xpValuePlaceholder: "Optional XP value",
+      xpValueHelp: "Leave empty if this project does not grant XP.",
+      activeLabel: "Project visibility",
+      activeDescription: "Toggle to hide this project from students while editing."
+    },
+    validation: {
+      moduleRequired: "Select a module",
+      titleMin: "Title must have at least 3 characters",
+      xpMin: "XP value must be zero or greater"
+    },
+    notifications: {
+      loadError: "Failed to load projects",
+      created: "Project created",
+      updated: "Project updated",
+      saveError: "Failed to save project",
+      deleted: "Project deleted",
+      deleteError: "Failed to delete project"
+    },
+    "delete": {
+      title: "Delete project",
+      description: 'This action cannot be undone. Make sure you really want to remove "{{title}}".',
+      confirm: "Delete project"
+    }
   }
 };
 const application$1 = {
@@ -290,6 +470,42 @@ const application$1 = {
   selectTimeline: "Select timeline",
   timelineImmediate: "Immediate (next 30 days)",
   timelineQuarter: "This quarter"
+};
+const applicationForm$1 = {
+  accessibility: {
+    close: "Close dialog"
+  },
+  messages: {
+    success: "Thank you for your application! We'll be in touch soon."
+  },
+  fields: {
+    name: "Full name",
+    email: "Email address",
+    company: "Company / organization",
+    experienceLabel: "Current experience level",
+    experiencePlaceholder: "Select your level",
+    experienceOptions: {
+      beginner: "Beginner (0-2 years)",
+      intermediate: "Intermediate (2-5 years)",
+      advanced: "Advanced (5+ years)"
+    },
+    portfolio: "Portfolio / LinkedIn URL",
+    investmentAmountLabel: "Investment amount range",
+    investmentAmountPlaceholder: "Select range",
+    investmentAmountOptions: {
+      "10k_50k": "$10k - $50k",
+      "50k_100k": "$50k - $100k",
+      "100k_500k": "$100k - $500k",
+      "500k_plus": "$500k+"
+    },
+    timelineLabel: "Investment timeline",
+    timelineOptions: {
+      year: "This year",
+      exploring: "Just exploring"
+    },
+    message: "Message",
+    messagePlaceholder: "Tell us more about your interest..."
+  }
 };
 const scoreboard$1 = {
   title: "Scoreboard",
@@ -399,6 +615,116 @@ const achievements$1 = {
     }
   }
 };
+const diagnostics$1 = {
+  testPage: {
+    title: "🧪 Test Page - Forge College",
+    description: "This is a static test page without external dependencies.",
+    systemStatus: {
+      title: "System status",
+      react: "✅ React running",
+      typescript: "✅ TypeScript running",
+      build: "✅ Build running",
+      deploy: "✅ Deployment running",
+      ssr: "✅ SSR running (timestamp: {{timestamp}})"
+    },
+    environment: {
+      title: "Environment information (SSR)",
+      serverTimestamp: "Server timestamp:",
+      noJsMessage: "If you can read this text without JavaScript, SSR is OK."
+    },
+    clientTest: {
+      title: "Client-side JavaScript test",
+      instructions: "If JavaScript is working, you will see additional information below:",
+      loading: "Loading client information...",
+      button: "Test JavaScript"
+    },
+    alerts: {
+      jsWorking: "JavaScript is working!"
+    },
+    footer: "If you are seeing this page, the issue is not infrastructure related.",
+    js: {
+      clientReady: "✅ JavaScript running!",
+      userAgent: "User agent:",
+      url: "URL:",
+      clientTimestamp: "Client timestamp:"
+    }
+  },
+  ssrCanary: {
+    title: "SSR Canary Test",
+    status: "SSR CANARY OK: {{timestamp}}",
+    instructions: "If you can see this text, SSR is working.",
+    timestamp: "Timestamp: {{timestamp}}",
+    renderMode: "This page renders static HTML on the server.",
+    runtime: "Runtime: Node.js",
+    dynamicMode: "Dynamic: force-dynamic"
+  },
+  staticBare: {
+    title: "Static Bare SSR Test",
+    status: "STATIC BARE SSR OK: {{timestamp}}",
+    instructions: "If you can see this text, SSR is working.",
+    timestamp: "Timestamp: {{timestamp}}",
+    renderMode: "This page renders static HTML on the server."
+  }
+};
+const projects$1 = {
+  errors: {
+    loginRequired: "You need to be logged in to submit projects.",
+    required: "Enter the GitHub repository URL.",
+    invalidUrl: "Enter a valid URL.",
+    githubOnly: "Please submit a GitHub repository link.",
+    submitFailed: "Could not submit the project. Try again."
+  },
+  notifications: {
+    fetchError: "Failed to load your project submissions.",
+    submitError: "Failed to submit project.",
+    submitted: "Project submitted! Great job applying your knowledge.",
+    updated: "Project submission updated."
+  },
+  module: {
+    title: "Module projects: {{module}}",
+    subtitle: "Apply what you learned in this module by completing one of the projects below.",
+    noProjects: "This module does not have projects yet.",
+    communityLink: "See community submissions",
+    projectOrder: "Project #{{order}}",
+    xpValue: "XP {{xp}}",
+    startProject: "Start project",
+    updateSubmission: "Update submission",
+    yourSubmission: "Your submission:",
+    dialog: {
+      title: "Project: {{project}}",
+      subtitle: "Review the description and submit your GitHub repository link.",
+      repositoryLabel: "GitHub repository URL",
+      repositoryPlaceholder: "https://github.com/username/repository",
+      repositoryHelp: "Share a public GitHub repository showcasing your implementation.",
+      submitting: "Submitting...",
+      submit: "Submit project"
+    }
+  },
+  community: {
+    loadError: "Failed to load community projects.",
+    loading: "Loading community projects...",
+    title: "Community Projects",
+    subtitle: "Check what other students are building and get inspired.",
+    empty: "No community submissions yet. Be the first to share your solution!",
+    courseLabel: "Course: {{course}}",
+    unknownCourse: "Unassigned course",
+    projectCount: "Projects: {{count}}",
+    projectOrder: "Project #{{order}}",
+    xpValue: "XP {{xp}}",
+    noSubmissions: "No submissions yet.",
+    submissions: "Submissions: {{count}}",
+    visitRepository: "View repository",
+    submittedBy: "Submitted by {{user}} · {{date}}",
+    anonymous: "Anonymous",
+    dateUnknown: "Date unknown"
+  }
+};
+const errorBoundary$1 = {
+  title: "Something went wrong",
+  description: "An unexpected error occurred. Please reload the page.",
+  reload: "Reload page",
+  detailsTitle: "Error details (development)"
+};
 const enUS = {
   common: common$1,
   nav: nav$1,
@@ -409,8 +735,12 @@ const enUS = {
   lessons: lessons$1,
   admin: admin$1,
   application: application$1,
+  applicationForm: applicationForm$1,
   scoreboard: scoreboard$1,
-  achievements: achievements$1
+  achievements: achievements$1,
+  diagnostics: diagnostics$1,
+  projects: projects$1,
+  errorBoundary: errorBoundary$1
 };
 const common = {
   buttons: {
@@ -444,7 +774,8 @@ const common = {
     country: "País",
     city: "Cidade",
     languages: "Idiomas",
-    language: "Idioma"
+    language: "Idioma",
+    user: "Usuário"
   },
   placeholders: {
     email: "m@exemplo.com",
@@ -470,10 +801,12 @@ const nav = {
   admin: "Admin",
   scoreboard: "Placar",
   achievements: "Conquistas",
+  communityProjects: "Projetos da Comunidade",
   learn: "Aprender",
   course: "Curso",
   path: "Trilha",
-  myProfile: "Meu Perfil"
+  myProfile: "Meu Perfil",
+  page: "Página"
 };
 const auth = {
   login: {
@@ -575,6 +908,10 @@ const profileDropdown = {
   connectWallet: "Conectar Carteira"
 };
 const dashboard = {
+  layout: {
+    openMenu: "Abrir menu",
+    loading: "Carregando painel..."
+  },
   welcomeBack: "Bem-vindo de volta",
   loading: "Carregando...",
   notFound: "Não encontrado",
@@ -592,7 +929,59 @@ const dashboard = {
   nothingToContinue: "Nada para continuar agora.",
   emptyTitle: "Sem trilhas ainda",
   emptySubtitle: "Inscreva-se em uma trilha para começar",
-  progressSuffix: "completo"
+  progressSuffix: "completo",
+  home: {
+    badge: "Bem-vindo de volta",
+    headlineSuffix: ", pronto para continuar sua jornada?",
+    exploreCta: "Ver todas as trilhas"
+  },
+  continueLearning: {
+    title: "Retome de onde parou",
+    subtitle: "Você estava estudando:"
+  },
+  availablePaths: {
+    enrolledBadge: "Inscrito",
+    courses_one: "{{count}} curso",
+    courses_other: "{{count}} cursos"
+  },
+  learningHabits: {
+    title: "Hábitos de estudo",
+    currentStreak: "Sequência atual",
+    dayCount_one: "{{count}} dia",
+    dayCount_other: "{{count}} dias",
+    keepGoing: "Mantenha o ritmo diariamente",
+    weeklyGoal: "Meta semanal",
+    weekProgress: "{{completed}}/{{goal}} lições",
+    completions_one: "{{count}} conclusão",
+    completions_other: "{{count}} conclusões",
+    loadError: "Falha ao carregar hábitos de aprendizado"
+  },
+  userStats: {
+    totalXp: "XP total",
+    completedLessons: "Lições concluídas",
+    activePaths: "Trilhas ativas",
+    studyTime: "Tempo de estudo",
+    studyTimeValue: "{{minutes}} min",
+    errors: {
+      loadProgress: "Falha ao carregar progresso do usuário",
+      loadLessons: "Falha ao carregar lições"
+    }
+  },
+  myLearningPaths: {
+    emptyTitle: "Você ainda não está inscrito em nenhuma trilha.",
+    emptySubtitle: "Explore as trilhas disponíveis e inscreva-se para começar.",
+    progressLabel: "{{progress}}% concluído"
+  },
+  pathOverview: {
+    badge: "Trilha",
+    notFound: "Trilha de aprendizado não encontrada.",
+    "continue": "Continuar",
+    courses: "Cursos"
+  },
+  errors: {
+    notAuthenticated: "Não autenticado",
+    failedToEnroll: "Falha ao inscrever"
+  }
 };
 const lessons = {
   selectToBegin: "Selecione uma lição para começar.",
@@ -607,6 +996,19 @@ const lessons = {
   completionError: "Erro ao marcar lição como concluída"
 };
 const admin = {
+  layout: {
+    kicker: "Admin",
+    title: "Gestão de Conteúdo",
+    subtitle: "Crie, organize e publique experiências de aprendizado para a comunidade.",
+    nav: {
+      overview: "Visão geral",
+      paths: "Trilhas",
+      courses: "Cursos",
+      modules: "Módulos",
+      lessons: "Lições",
+      projects: "Projetos"
+    }
+  },
   paths: {
     title: "Trilhas de Aprendizado",
     "new": "Nova trilha de aprendizado",
@@ -651,6 +1053,67 @@ const admin = {
     created: "Lição criada",
     updated: "Lição atualizada",
     deleted: "Lição excluída"
+  },
+  projects: {
+    title: "Projetos",
+    subtitle: "Associe projetos aos módulos para reforçar o aprendizado aplicado ao final de cada módulo.",
+    actions: {
+      newProject: "Novo projeto"
+    },
+    filters: {
+      modulePlaceholder: "Filtrar por módulo",
+      allModules: "Todos os módulos"
+    },
+    loading: "Carregando projetos...",
+    emptyState: "Nenhum projeto encontrado para os filtros atuais.",
+    unassignedModule: "Módulo sem atribuição",
+    labels: {
+      course: "Curso: {{course}}",
+      projectNumber: "Projeto #{{number}}",
+      inactive: "Inativo",
+      xpValue: "XP {{xp}}"
+    },
+    markdown: {
+      loading: "Carregando editor...",
+      ariaLabel: "Editor de Markdown"
+    },
+    dialog: {
+      editTitle: "Editar projeto",
+      createTitle: "Criar projeto",
+      description: "Descreva expectativas e orientações para o projeto do módulo."
+    },
+    form: {
+      module: "Módulo",
+      modulePlaceholder: "Selecione um módulo",
+      title: "Título",
+      titlePlaceholder: "Título do projeto",
+      description: "Descrição do projeto",
+      descriptionPlaceholder: "Descreva objetivos, entregáveis e recursos que os estudantes devem consultar. Suporta conteúdo HTML.",
+      descriptionHelp: "Você pode usar HTML para formatar o conteúdo (títulos, listas, links, etc.).",
+      xpValue: "Recompensa de XP",
+      xpValuePlaceholder: "XP opcional",
+      xpValueHelp: "Deixe em branco se este projeto não conceder XP.",
+      activeLabel: "Visibilidade do projeto",
+      activeDescription: "Use para ocultar o projeto dos alunos enquanto realiza ajustes."
+    },
+    validation: {
+      moduleRequired: "Selecione um módulo",
+      titleMin: "O título deve ter pelo menos 3 caracteres",
+      xpMin: "O XP deve ser zero ou maior"
+    },
+    notifications: {
+      loadError: "Falha ao carregar projetos",
+      created: "Projeto criado",
+      updated: "Projeto atualizado",
+      saveError: "Falha ao salvar projeto",
+      deleted: "Projeto excluído",
+      deleteError: "Falha ao excluir projeto"
+    },
+    "delete": {
+      title: "Excluir projeto",
+      description: 'Esta ação não pode ser desfeita. Tem certeza de que deseja remover "{{title}}"?',
+      confirm: "Excluir projeto"
+    }
   }
 };
 const application = {
@@ -658,6 +1121,42 @@ const application = {
   selectTimeline: "Selecionar prazo",
   timelineImmediate: "Imediato (próximos 30 dias)",
   timelineQuarter: "Este trimestre"
+};
+const applicationForm = {
+  accessibility: {
+    close: "Fechar janela"
+  },
+  messages: {
+    success: "Obrigado pela sua aplicação! Entraremos em contato em breve."
+  },
+  fields: {
+    name: "Nome completo",
+    email: "Endereço de e-mail",
+    company: "Empresa / organização",
+    experienceLabel: "Nível de experiência atual",
+    experiencePlaceholder: "Selecione seu nível",
+    experienceOptions: {
+      beginner: "Iniciante (0-2 anos)",
+      intermediate: "Intermediário (2-5 anos)",
+      advanced: "Avançado (5+ anos)"
+    },
+    portfolio: "URL do portfólio / LinkedIn",
+    investmentAmountLabel: "Faixa de investimento",
+    investmentAmountPlaceholder: "Selecione a faixa",
+    investmentAmountOptions: {
+      "10k_50k": "$10k - $50k",
+      "50k_100k": "$50k - $100k",
+      "100k_500k": "$100k - $500k",
+      "500k_plus": "$500k+"
+    },
+    timelineLabel: "Prazo de investimento",
+    timelineOptions: {
+      year: "Este ano",
+      exploring: "Apenas explorando"
+    },
+    message: "Mensagem",
+    messagePlaceholder: "Conte-nos mais sobre o seu interesse..."
+  }
 };
 const scoreboard = {
   title: "Scoreboard",
@@ -748,6 +1247,116 @@ const achievements = {
     }
   }
 };
+const diagnostics = {
+  testPage: {
+    title: "🧪 Página de Teste - Forge College",
+    description: "Esta é uma página de teste estática sem dependências externas.",
+    systemStatus: {
+      title: "Status do sistema",
+      react: "✅ React funcionando",
+      typescript: "✅ TypeScript funcionando",
+      build: "✅ Build funcionando",
+      deploy: "✅ Deploy funcionando",
+      ssr: "✅ SSR funcionando (timestamp: {{timestamp}})"
+    },
+    environment: {
+      title: "Informações do ambiente (SSR)",
+      serverTimestamp: "Timestamp do servidor:",
+      noJsMessage: "Se você vê este texto sem JavaScript, o SSR está OK."
+    },
+    clientTest: {
+      title: "Teste de JavaScript (client-side)",
+      instructions: "Se o JavaScript estiver funcionando, você verá informações adicionais abaixo:",
+      loading: "Carregando informações do cliente...",
+      button: "Testar JavaScript"
+    },
+    alerts: {
+      jsWorking: "JavaScript está funcionando!"
+    },
+    footer: "Se você está vendo esta página, o problema não é de infraestrutura.",
+    js: {
+      clientReady: "✅ JavaScript funcionando!",
+      userAgent: "User agent:",
+      url: "URL:",
+      clientTimestamp: "Timestamp do cliente:"
+    }
+  },
+  ssrCanary: {
+    title: "Teste Canary de SSR",
+    status: "SSR CANARY OK: {{timestamp}}",
+    instructions: "Se você vê este texto, o SSR está funcionando.",
+    timestamp: "Timestamp: {{timestamp}}",
+    renderMode: "Esta página renderiza HTML estático no servidor.",
+    runtime: "Runtime: Node.js",
+    dynamicMode: "Dinâmico: force-dynamic"
+  },
+  staticBare: {
+    title: "Teste Static Bare SSR",
+    status: "STATIC BARE SSR OK: {{timestamp}}",
+    instructions: "Se você vê este texto, o SSR está funcionando.",
+    timestamp: "Timestamp: {{timestamp}}",
+    renderMode: "Esta página renderiza HTML estático no servidor."
+  }
+};
+const projects = {
+  errors: {
+    loginRequired: "Você precisa estar logado para enviar projetos.",
+    required: "Informe a URL do repositório no GitHub.",
+    invalidUrl: "Insira uma URL válida.",
+    githubOnly: "Envie um link de repositório do GitHub.",
+    submitFailed: "Não foi possível enviar o projeto. Tente novamente."
+  },
+  notifications: {
+    fetchError: "Falha ao carregar seus envios de projeto.",
+    submitError: "Falha ao enviar projeto.",
+    submitted: "Projeto enviado! Excelente aplicação do que você aprendeu.",
+    updated: "Envio do projeto atualizado."
+  },
+  module: {
+    title: "Projetos do módulo: {{module}}",
+    subtitle: "Coloque em prática o que aprendeu neste módulo completando um dos projetos abaixo.",
+    noProjects: "Este módulo ainda não possui projetos.",
+    communityLink: "Ver envios da comunidade",
+    projectOrder: "Projeto #{{order}}",
+    xpValue: "XP {{xp}}",
+    startProject: "Iniciar projeto",
+    updateSubmission: "Atualizar envio",
+    yourSubmission: "Seu envio:",
+    dialog: {
+      title: "Projeto: {{project}}",
+      subtitle: "Revise a descrição e envie o link do seu repositório no GitHub.",
+      repositoryLabel: "URL do repositório no GitHub",
+      repositoryPlaceholder: "https://github.com/usuario/repositorio",
+      repositoryHelp: "Compartilhe um repositório público no GitHub mostrando sua implementação.",
+      submitting: "Enviando...",
+      submit: "Enviar projeto"
+    }
+  },
+  community: {
+    loadError: "Falha ao carregar projetos da comunidade.",
+    loading: "Carregando projetos da comunidade...",
+    title: "Projetos da Comunidade",
+    subtitle: "Veja o que outros estudantes estão construindo e inspire-se.",
+    empty: "Ainda não há envios da comunidade. Seja o primeiro a compartilhar sua solução!",
+    courseLabel: "Curso: {{course}}",
+    unknownCourse: "Curso não atribuído",
+    projectCount: "Projetos: {{count}}",
+    projectOrder: "Projeto #{{order}}",
+    xpValue: "XP {{xp}}",
+    noSubmissions: "Nenhum envio ainda.",
+    submissions: "Envios: {{count}}",
+    visitRepository: "Ver repositório",
+    submittedBy: "Enviado por {{user}} · {{date}}",
+    anonymous: "Anônimo",
+    dateUnknown: "Data desconhecida"
+  }
+};
+const errorBoundary = {
+  title: "Algo deu errado",
+  description: "Ocorreu um erro inesperado. Por favor, recarregue a página.",
+  reload: "Recarregar página",
+  detailsTitle: "Detalhes do erro (desenvolvimento)"
+};
 const ptBR = {
   common,
   nav,
@@ -758,8 +1367,12 @@ const ptBR = {
   lessons,
   admin,
   application,
+  applicationForm,
   scoreboard,
-  achievements
+  achievements,
+  diagnostics,
+  projects,
+  errorBoundary
 };
 const LANGUAGE_COOKIE = "app_language";
 const getLanguageFromCookie = () => {
@@ -1633,6 +2246,7 @@ const TooltipContent = React.forwardRef(({ className, sideOffset = 4, ...props }
 ));
 TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 const ApplicationForm = ({ isOpen, onClose, title, formType }) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -1644,33 +2258,33 @@ const ApplicationForm = ({ isOpen, onClose, title, formType }) => {
     timeline: ""
   });
   if (!isOpen) return null;
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = (event) => {
+    event.preventDefault();
     console.log("Form submitted:", formData);
-    alert("Thank you for your application! We'll be in touch soon.");
+    alert(t("applicationForm.messages.success"));
     onClose();
   };
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+  const handleInputChange = (event) => {
+    setFormData((previous) => ({
+      ...previous,
+      [event.target.name]: event.target.value
+    }));
   };
-  return /* @__PURE__ */ jsx("div", { className: "fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4", children: /* @__PURE__ */ jsx("div", { className: "bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto", children: /* @__PURE__ */ jsxs("div", { className: "p-6", children: [
-    /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between mb-6", children: [
+  const requiredMarker = /* @__PURE__ */ jsx("span", { className: "text-red-500", children: " *" });
+  return /* @__PURE__ */ jsx("div", { className: "fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4", children: /* @__PURE__ */ jsx("div", { className: "max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white", children: /* @__PURE__ */ jsxs("div", { className: "p-6", children: [
+    /* @__PURE__ */ jsxs("div", { className: "mb-6 flex items-center justify-between", children: [
       /* @__PURE__ */ jsx("h2", { className: "text-2xl font-bold text-gray-900", children: title }),
-      /* @__PURE__ */ jsx(
-        "button",
-        {
-          onClick: onClose,
-          className: "text-gray-400 hover:text-gray-600 transition-colors",
-          children: /* @__PURE__ */ jsx(X, { size: 24 })
-        }
-      )
+      /* @__PURE__ */ jsxs("button", { onClick: onClose, className: "text-gray-400 transition-colors hover:text-gray-600", children: [
+        /* @__PURE__ */ jsx(X, { size: 24, "aria-hidden": true }),
+        /* @__PURE__ */ jsx("span", { className: "sr-only", children: t("applicationForm.accessibility.close") })
+      ] })
     ] }),
     /* @__PURE__ */ jsxs("form", { onSubmit: handleSubmit, className: "space-y-4", children: [
       /* @__PURE__ */ jsxs("div", { children: [
-        /* @__PURE__ */ jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Full Name *" }),
+        /* @__PURE__ */ jsxs("label", { className: "mb-1 block text-sm font-medium text-gray-700", children: [
+          t("applicationForm.fields.name"),
+          requiredMarker
+        ] }),
         /* @__PURE__ */ jsx(
           "input",
           {
@@ -1679,12 +2293,15 @@ const ApplicationForm = ({ isOpen, onClose, title, formType }) => {
             required: true,
             value: formData.name,
             onChange: handleInputChange,
-            className: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className: "w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
           }
         )
       ] }),
       /* @__PURE__ */ jsxs("div", { children: [
-        /* @__PURE__ */ jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Email Address *" }),
+        /* @__PURE__ */ jsxs("label", { className: "mb-1 block text-sm font-medium text-gray-700", children: [
+          t("applicationForm.fields.email"),
+          requiredMarker
+        ] }),
         /* @__PURE__ */ jsx(
           "input",
           {
@@ -1693,12 +2310,15 @@ const ApplicationForm = ({ isOpen, onClose, title, formType }) => {
             required: true,
             value: formData.email,
             onChange: handleInputChange,
-            className: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className: "w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
           }
         )
       ] }),
       formType !== "professional" && /* @__PURE__ */ jsxs("div", { children: [
-        /* @__PURE__ */ jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Company/Organization *" }),
+        /* @__PURE__ */ jsxs("label", { className: "mb-1 block text-sm font-medium text-gray-700", children: [
+          t("applicationForm.fields.company"),
+          requiredMarker
+        ] }),
         /* @__PURE__ */ jsx(
           "input",
           {
@@ -1707,31 +2327,31 @@ const ApplicationForm = ({ isOpen, onClose, title, formType }) => {
             required: true,
             value: formData.company,
             onChange: handleInputChange,
-            className: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className: "w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
           }
         )
       ] }),
       formType === "professional" && /* @__PURE__ */ jsxs(Fragment, { children: [
         /* @__PURE__ */ jsxs("div", { children: [
-          /* @__PURE__ */ jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Current Experience Level" }),
+          /* @__PURE__ */ jsx("label", { className: "mb-1 block text-sm font-medium text-gray-700", children: t("applicationForm.fields.experienceLabel") }),
           /* @__PURE__ */ jsxs(
             "select",
             {
               name: "experience",
               value: formData.experience,
               onChange: handleInputChange,
-              className: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+              className: "w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500",
               children: [
-                /* @__PURE__ */ jsx("option", { value: "", children: "Select your level" }),
-                /* @__PURE__ */ jsx("option", { value: "beginner", children: "Beginner (0-2 years)" }),
-                /* @__PURE__ */ jsx("option", { value: "intermediate", children: "Intermediate (2-5 years)" }),
-                /* @__PURE__ */ jsx("option", { value: "advanced", children: "Advanced (5+ years)" })
+                /* @__PURE__ */ jsx("option", { value: "", children: t("applicationForm.fields.experiencePlaceholder") }),
+                /* @__PURE__ */ jsx("option", { value: "beginner", children: t("applicationForm.fields.experienceOptions.beginner") }),
+                /* @__PURE__ */ jsx("option", { value: "intermediate", children: t("applicationForm.fields.experienceOptions.intermediate") }),
+                /* @__PURE__ */ jsx("option", { value: "advanced", children: t("applicationForm.fields.experienceOptions.advanced") })
               ]
             }
           )
         ] }),
         /* @__PURE__ */ jsxs("div", { children: [
-          /* @__PURE__ */ jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Portfolio/LinkedIn URL" }),
+          /* @__PURE__ */ jsx("label", { className: "mb-1 block text-sm font-medium text-gray-700", children: t("applicationForm.fields.portfolio") }),
           /* @__PURE__ */ jsx(
             "input",
             {
@@ -1739,53 +2359,53 @@ const ApplicationForm = ({ isOpen, onClose, title, formType }) => {
               name: "portfolio",
               value: formData.portfolio,
               onChange: handleInputChange,
-              className: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className: "w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
             }
           )
         ] })
       ] }),
       formType === "investor" && /* @__PURE__ */ jsxs(Fragment, { children: [
         /* @__PURE__ */ jsxs("div", { children: [
-          /* @__PURE__ */ jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Investment Amount Range" }),
+          /* @__PURE__ */ jsx("label", { className: "mb-1 block text-sm font-medium text-gray-700", children: t("applicationForm.fields.investmentAmountLabel") }),
           /* @__PURE__ */ jsxs(
             "select",
             {
               name: "investmentAmount",
               value: formData.investmentAmount,
               onChange: handleInputChange,
-              className: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+              className: "w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500",
               children: [
-                /* @__PURE__ */ jsx("option", { value: "", children: "Select range" }),
-                /* @__PURE__ */ jsx("option", { value: "10k-50k", children: "$10k - $50k" }),
-                /* @__PURE__ */ jsx("option", { value: "50k-100k", children: "$50k - $100k" }),
-                /* @__PURE__ */ jsx("option", { value: "100k-500k", children: "$100k - $500k" }),
-                /* @__PURE__ */ jsx("option", { value: "500k+", children: "$500k+" })
+                /* @__PURE__ */ jsx("option", { value: "", children: t("applicationForm.fields.investmentAmountPlaceholder") }),
+                /* @__PURE__ */ jsx("option", { value: "10k-50k", children: t("applicationForm.fields.investmentAmountOptions.10k_50k") }),
+                /* @__PURE__ */ jsx("option", { value: "50k-100k", children: t("applicationForm.fields.investmentAmountOptions.50k_100k") }),
+                /* @__PURE__ */ jsx("option", { value: "100k-500k", children: t("applicationForm.fields.investmentAmountOptions.100k_500k") }),
+                /* @__PURE__ */ jsx("option", { value: "500k+", children: t("applicationForm.fields.investmentAmountOptions.500k_plus") })
               ]
             }
           )
         ] }),
         /* @__PURE__ */ jsxs("div", { children: [
-          /* @__PURE__ */ jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Investment Timeline" }),
+          /* @__PURE__ */ jsx("label", { className: "mb-1 block text-sm font-medium text-gray-700", children: t("applicationForm.fields.timelineLabel") }),
           /* @__PURE__ */ jsxs(
             "select",
             {
               name: "timeline",
               value: formData.timeline,
               onChange: handleInputChange,
-              className: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+              className: "w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500",
               children: [
-                /* @__PURE__ */ jsx("option", { value: "", children: "Select timeline" }),
-                /* @__PURE__ */ jsx("option", { value: "immediate", children: "Immediate (next 30 days)" }),
-                /* @__PURE__ */ jsx("option", { value: "quarter", children: "This quarter" }),
-                /* @__PURE__ */ jsx("option", { value: "year", children: "This year" }),
-                /* @__PURE__ */ jsx("option", { value: "exploring", children: "Just exploring" })
+                /* @__PURE__ */ jsx("option", { value: "", children: t("application.selectTimeline") }),
+                /* @__PURE__ */ jsx("option", { value: "immediate", children: t("application.timelineImmediate") }),
+                /* @__PURE__ */ jsx("option", { value: "quarter", children: t("application.timelineQuarter") }),
+                /* @__PURE__ */ jsx("option", { value: "year", children: t("applicationForm.fields.timelineOptions.year") }),
+                /* @__PURE__ */ jsx("option", { value: "exploring", children: t("applicationForm.fields.timelineOptions.exploring") })
               ]
             }
           )
         ] })
       ] }),
       /* @__PURE__ */ jsxs("div", { children: [
-        /* @__PURE__ */ jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Message" }),
+        /* @__PURE__ */ jsx("label", { className: "mb-1 block text-sm font-medium text-gray-700", children: t("applicationForm.fields.message") }),
         /* @__PURE__ */ jsx(
           "textarea",
           {
@@ -1793,8 +2413,8 @@ const ApplicationForm = ({ isOpen, onClose, title, formType }) => {
             rows: 4,
             value: formData.message,
             onChange: handleInputChange,
-            placeholder: "Tell us more about your interest...",
-            className: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder: t("applicationForm.fields.messagePlaceholder"),
+            className: "w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
           }
         )
       ] }),
@@ -1802,8 +2422,8 @@ const ApplicationForm = ({ isOpen, onClose, title, formType }) => {
         "button",
         {
           type: "submit",
-          className: "w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors",
-          children: "Submit Application"
+          className: "w-full rounded-lg bg-blue-600 py-3 font-semibold text-white transition-colors hover:bg-blue-700",
+          children: t("application.submit")
         }
       )
     ] })
@@ -3419,22 +4039,27 @@ const FORGOT_PASSWORD = "/forgot-password";
 const UPDATE_PASSWORD = "/update-password";
 const DASHBOARD = "/dashboard";
 const DASHBOARD_EXPLORE = "/dashboard/explore";
+const DASHBOARD_FORMATIONS = "/dashboard/formations";
+const DASHBOARD_FORMATION_DETAIL = (formationId) => `/dashboard/formations/${formationId}`;
+const DASHBOARD_COMING_SOON = "/dashboard/coming-soon";
 const DASHBOARD_ADMIN = "/dashboard/admin";
 const DASHBOARD_SCOREBOARD = "/dashboard/scoreboard";
 const DASHBOARD_ACHIEVEMENTS = "/dashboard/achievements";
+const DASHBOARD_COMMUNITY_PROJECTS = "/dashboard/community-projects";
 const DASHBOARD_LEARN_COURSE = (courseId) => `/dashboard/learn/course/${courseId}`;
 const DASHBOARD_LEARN_PATH = (pathId) => `/dashboard/learn/path/${pathId}`;
 const ROUTE_LABELS = {
-  [DASHBOARD]: "Dashboard",
-  [DASHBOARD_EXPLORE]: "Paths",
-  [DASHBOARD_ADMIN]: "Admin",
-  [DASHBOARD_SCOREBOARD]: "Scoreboard",
-  [DASHBOARD_ACHIEVEMENTS]: "Achievements",
-  LEARN: "Learn",
-  COURSE: "Course",
-  PATH: "Path",
-  PROFILE: "My Profile",
-  PAGE: "Page"
+  [DASHBOARD]: "nav.dashboard",
+  [DASHBOARD_EXPLORE]: "nav.paths",
+  [DASHBOARD_ADMIN]: "nav.admin",
+  [DASHBOARD_SCOREBOARD]: "nav.scoreboard",
+  [DASHBOARD_ACHIEVEMENTS]: "nav.achievements",
+  [DASHBOARD_COMMUNITY_PROJECTS]: "nav.communityProjects",
+  LEARN: "nav.learn",
+  COURSE: "nav.course",
+  PATH: "nav.path",
+  PROFILE: "nav.myProfile",
+  PAGE: "nav.page"
 };
 function Login() {
   const { t } = useTranslation();
@@ -4061,17 +4686,62 @@ const SheetDescription = React.forwardRef(({ className, ...props }, ref) => /* @
   }
 ));
 SheetDescription.displayName = SheetPrimitive.Description.displayName;
-function Skeleton({
-  className,
-  ...props
-}) {
+const skeletonVariants = cva("bg-muted", {
+  variants: {
+    variant: {
+      pulse: "animate-pulse",
+      shimmer: "relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-shimmer before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent",
+      wave: "relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-shimmer before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent"
+    },
+    shape: {
+      default: "rounded-md",
+      circle: "rounded-full",
+      rectangle: "rounded-none",
+      lg: "rounded-lg",
+      xl: "rounded-xl"
+    }
+  },
+  defaultVariants: {
+    variant: "shimmer",
+    shape: "default"
+  }
+});
+function Skeleton({ className, variant, shape, ...props }) {
   return /* @__PURE__ */ jsx(
     "div",
     {
-      className: cn("animate-pulse rounded-md bg-muted", className),
+      className: cn(skeletonVariants({ variant, shape }), className),
+      role: "status",
+      "aria-label": "Loading...",
       ...props
     }
   );
+}
+function SkeletonText({
+  className,
+  lines = 1,
+  ...props
+}) {
+  return /* @__PURE__ */ jsx("div", { className: cn("space-y-2", className), ...props, children: Array.from({ length: lines }).map((_, i) => /* @__PURE__ */ jsx(
+    Skeleton,
+    {
+      className: cn("h-4", i === lines - 1 && lines > 1 ? "w-4/5" : "w-full")
+    },
+    i
+  )) });
+}
+function SkeletonCircle({
+  className,
+  size = "md",
+  ...props
+}) {
+  const sizes = {
+    sm: "h-8 w-8",
+    md: "h-10 w-10",
+    lg: "h-12 w-12",
+    xl: "h-16 w-16"
+  };
+  return /* @__PURE__ */ jsx(Skeleton, { shape: "circle", className: cn(sizes[size], className), ...props });
 }
 const SIDEBAR_COOKIE_NAME = "sidebar:state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -4913,11 +5583,12 @@ const BreadcrumbSeparator = ({
 BreadcrumbSeparator.displayName = "BreadcrumbSeparator";
 function MobileMenuButton() {
   const { toggleSidebar } = useSidebar();
+  const { t } = useTranslation();
   return /* @__PURE__ */ jsx(
     "button",
     {
       className: "md:hidden p-2 rounded-lg border border-forge-orange/20 bg-forge-cream/90 text-forge-dark hover:text-forge-orange shadow-sm",
-      "aria-label": "Open menu",
+      "aria-label": t("dashboard.layout.openMenu"),
       onClick: toggleSidebar,
       children: /* @__PURE__ */ jsx(Menu, { size: 22 })
     }
@@ -4927,37 +5598,42 @@ function DashboardLayout() {
   var _a;
   const { user, loading } = useAuth();
   const location = useLocation();
+  const { t } = useTranslation();
   const isDashboard = location.pathname === DASHBOARD;
   const isExplore = location.pathname.startsWith(DASHBOARD_EXPLORE);
   const isAdminRoute = location.pathname.startsWith(DASHBOARD_ADMIN);
   const isScoreboard = location.pathname.startsWith(DASHBOARD_SCOREBOARD);
   const isAchievements = location.pathname.startsWith(DASHBOARD_ACHIEVEMENTS);
+  const isCommunityProjects = location.pathname.startsWith(DASHBOARD_COMMUNITY_PROJECTS);
   const [headerBreadcrumb, setHeaderBreadcrumb] = useState(null);
   let mockUser = null;
   const isAdmin = Boolean(((_a = user == null ? void 0 : user.app_metadata) == null ? void 0 : _a.is_admin) || (mockUser == null ? void 0 : mockUser.is_admin));
   const defaultBreadcrumbItems = useMemo(() => {
     const segments = location.pathname.split("/").filter(Boolean);
     const items = [];
-    items.push({ label: ROUTE_LABELS[DASHBOARD], to: DASHBOARD });
+    items.push({ label: t(ROUTE_LABELS[DASHBOARD]), to: DASHBOARD });
     if (segments.length <= 1) return items;
     const second = segments[1];
     if (second === "explore") {
-      items.push({ label: ROUTE_LABELS[DASHBOARD_EXPLORE] });
+      items.push({ label: t(ROUTE_LABELS[DASHBOARD_EXPLORE]) });
     } else if (second === "profile") {
-      items.push({ label: ROUTE_LABELS.PROFILE });
+      items.push({ label: t(ROUTE_LABELS.PROFILE) });
     } else if (second === "scoreboard") {
-      items.push({ label: ROUTE_LABELS[DASHBOARD_SCOREBOARD] });
+      items.push({ label: t(ROUTE_LABELS[DASHBOARD_SCOREBOARD]) });
     } else if (second === "achievements") {
-      items.push({ label: ROUTE_LABELS[DASHBOARD_ACHIEVEMENTS] });
+      items.push({ label: t(ROUTE_LABELS[DASHBOARD_ACHIEVEMENTS]) });
+    } else if (second === "community-projects") {
+      items.push({ label: t(ROUTE_LABELS[DASHBOARD_COMMUNITY_PROJECTS]) });
     } else if (second === "admin") {
-      items.push({ label: ROUTE_LABELS[DASHBOARD_ADMIN] });
+      items.push({ label: t(ROUTE_LABELS[DASHBOARD_ADMIN]) });
       const third = segments[2];
       if (third) {
         const labelMap = {
-          paths: "Learning Paths",
-          courses: "Courses",
-          modules: "Modules",
-          lessons: "Lessons"
+          paths: t("admin.layout.nav.paths"),
+          courses: t("admin.layout.nav.courses"),
+          modules: t("admin.layout.nav.modules"),
+          lessons: t("admin.layout.nav.lessons"),
+          projects: t("admin.layout.nav.projects")
         };
         const label = labelMap[third];
         if (label) {
@@ -4967,19 +5643,19 @@ function DashboardLayout() {
     } else if (second === "learn") {
       const third = segments[2];
       if (third === "course") {
-        items.push({ label: ROUTE_LABELS.LEARN, to: DASHBOARD_EXPLORE });
-        items.push({ label: ROUTE_LABELS.COURSE });
+        items.push({ label: t(ROUTE_LABELS.LEARN), to: DASHBOARD_EXPLORE });
+        items.push({ label: t(ROUTE_LABELS.COURSE) });
       } else if (third === "path") {
-        items.push({ label: ROUTE_LABELS.LEARN, to: DASHBOARD_EXPLORE });
-        items.push({ label: ROUTE_LABELS.PATH });
+        items.push({ label: t(ROUTE_LABELS.LEARN), to: DASHBOARD_EXPLORE });
+        items.push({ label: t(ROUTE_LABELS.PATH) });
       }
     }
     return items;
-  }, [location.pathname]);
+  }, [location.pathname, t]);
   if (loading) {
     return /* @__PURE__ */ jsx("div", { className: "min-h-screen flex items-center justify-center", children: /* @__PURE__ */ jsxs("div", { className: "text-center", children: [
       /* @__PURE__ */ jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-b-2 border-forge-orange mx-auto mb-4" }),
-      /* @__PURE__ */ jsx("p", { className: "text-forge-gray", children: "Loading dashboard..." })
+      /* @__PURE__ */ jsx("p", { className: "text-forge-gray", children: t("dashboard.layout.loading") })
     ] }) });
   }
   return /* @__PURE__ */ jsxs(SidebarProvider, { defaultOpen: false, children: [
@@ -4997,33 +5673,38 @@ function DashboardLayout() {
         /* @__PURE__ */ jsx(SidebarTrigger, { className: "h-8 w-8 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-800" })
       ] }) }),
       /* @__PURE__ */ jsx(SidebarContent, { children: /* @__PURE__ */ jsx(SidebarGroup, { children: /* @__PURE__ */ jsx(SidebarGroupContent, { children: /* @__PURE__ */ jsxs(SidebarMenu, { children: [
-        /* @__PURE__ */ jsx(SidebarMenuItem, { children: /* @__PURE__ */ jsx(SidebarMenuButton, { asChild: true, isActive: isDashboard, tooltip: "Dashboard", children: /* @__PURE__ */ jsxs(Link, { to: DASHBOARD, children: [
+        /* @__PURE__ */ jsx(SidebarMenuItem, { children: /* @__PURE__ */ jsx(SidebarMenuButton, { asChild: true, isActive: isDashboard, tooltip: t("nav.dashboard"), children: /* @__PURE__ */ jsxs(Link, { to: DASHBOARD, children: [
           /* @__PURE__ */ jsx(LayoutDashboard, {}),
-          /* @__PURE__ */ jsx("span", { className: "group-data-[collapsible=icon]:hidden", children: ROUTE_LABELS[DASHBOARD] })
+          /* @__PURE__ */ jsx("span", { className: "group-data-[collapsible=icon]:hidden", children: t("nav.dashboard") })
         ] }) }) }),
-        /* @__PURE__ */ jsx(SidebarMenuItem, { children: /* @__PURE__ */ jsx(SidebarMenuButton, { asChild: true, isActive: isExplore, tooltip: "Paths", children: /* @__PURE__ */ jsxs(Link, { to: DASHBOARD_EXPLORE, children: [
+        /* @__PURE__ */ jsx(SidebarMenuItem, { children: /* @__PURE__ */ jsx(SidebarMenuButton, { asChild: true, isActive: isExplore, tooltip: t("nav.paths"), children: /* @__PURE__ */ jsxs(Link, { to: DASHBOARD_EXPLORE, children: [
           /* @__PURE__ */ jsx(BookOpen, {}),
-          /* @__PURE__ */ jsx("span", { className: "group-data-[collapsible=icon]:hidden", children: "Paths" })
+          /* @__PURE__ */ jsx("span", { className: "group-data-[collapsible=icon]:hidden", children: t("nav.paths") })
         ] }) }) }),
-        /* @__PURE__ */ jsx(SidebarMenuItem, { children: /* @__PURE__ */ jsx(SidebarMenuButton, { asChild: true, isActive: isScoreboard, tooltip: "Scoreboard", children: /* @__PURE__ */ jsxs(Link, { to: DASHBOARD_SCOREBOARD, children: [
+        /* @__PURE__ */ jsx(SidebarMenuItem, { children: /* @__PURE__ */ jsx(
+          SidebarMenuButton,
+          {
+            asChild: true,
+            isActive: isCommunityProjects,
+            tooltip: t("nav.communityProjects"),
+            children: /* @__PURE__ */ jsxs(Link, { to: DASHBOARD_COMMUNITY_PROJECTS, children: [
+              /* @__PURE__ */ jsx(FolderGit2, {}),
+              /* @__PURE__ */ jsx("span", { className: "group-data-[collapsible=icon]:hidden", children: t("nav.communityProjects") })
+            ] })
+          }
+        ) }),
+        /* @__PURE__ */ jsx(SidebarMenuItem, { children: /* @__PURE__ */ jsx(SidebarMenuButton, { asChild: true, isActive: isScoreboard, tooltip: t("nav.scoreboard"), children: /* @__PURE__ */ jsxs(Link, { to: DASHBOARD_SCOREBOARD, children: [
           /* @__PURE__ */ jsx(Trophy, {}),
-          /* @__PURE__ */ jsx("span", { className: "group-data-[collapsible=icon]:hidden", children: "Scoreboard" })
+          /* @__PURE__ */ jsx("span", { className: "group-data-[collapsible=icon]:hidden", children: t("nav.scoreboard") })
         ] }) }) }),
-        /* @__PURE__ */ jsx(SidebarMenuItem, { children: /* @__PURE__ */ jsx(SidebarMenuButton, { asChild: true, isActive: isAchievements, tooltip: "Achievements", children: /* @__PURE__ */ jsxs(Link, { to: DASHBOARD_ACHIEVEMENTS, children: [
+        /* @__PURE__ */ jsx(SidebarMenuItem, { children: /* @__PURE__ */ jsx(SidebarMenuButton, { asChild: true, isActive: isAchievements, tooltip: t("nav.achievements"), children: /* @__PURE__ */ jsxs(Link, { to: DASHBOARD_ACHIEVEMENTS, children: [
           /* @__PURE__ */ jsx(Award, {}),
-          /* @__PURE__ */ jsx("span", { className: "group-data-[collapsible=icon]:hidden", children: "Achievements" })
+          /* @__PURE__ */ jsx("span", { className: "group-data-[collapsible=icon]:hidden", children: t("nav.achievements") })
         ] }) }) }),
-        isAdmin && /* @__PURE__ */ jsx(SidebarMenuItem, { children: /* @__PURE__ */ jsx(SidebarMenuButton, { asChild: true, isActive: isAdminRoute, tooltip: "Admin", children: /* @__PURE__ */ jsxs(Link, { to: DASHBOARD_ADMIN, children: [
+        isAdmin && /* @__PURE__ */ jsx(SidebarMenuItem, { children: /* @__PURE__ */ jsx(SidebarMenuButton, { asChild: true, isActive: isAdminRoute, tooltip: t("nav.admin"), children: /* @__PURE__ */ jsxs(Link, { to: DASHBOARD_ADMIN, children: [
           /* @__PURE__ */ jsx(Shield, {}),
-          /* @__PURE__ */ jsx("span", { className: "group-data-[collapsible=icon]:hidden", children: "Admin" })
-        ] }) }) }),
-        /* @__PURE__ */ jsx(SidebarMenuItem, { children: /* @__PURE__ */ jsxs(Tooltip, { children: [
-          /* @__PURE__ */ jsx(TooltipTrigger, { asChild: true, children: /* @__PURE__ */ jsxs(SidebarMenuButton, { disabled: true, children: [
-            /* @__PURE__ */ jsx(Lock, {}),
-            /* @__PURE__ */ jsx("span", { className: "group-data-[collapsible=icon]:hidden", children: "Real-World Project" })
-          ] }) }),
-          /* @__PURE__ */ jsx(TooltipContent, { side: "right", children: "Coming soon!" })
-        ] }) })
+          /* @__PURE__ */ jsx("span", { className: "group-data-[collapsible=icon]:hidden", children: t("nav.admin") })
+        ] }) }) })
       ] }) }) }) }),
       /* @__PURE__ */ jsx(SidebarFooter, { className: "p-2", children: /* @__PURE__ */ jsx(ProfileDropdown, {}) })
     ] }),
@@ -5033,7 +5714,7 @@ function DashboardLayout() {
           /* @__PURE__ */ jsx(MobileMenuButton, {}),
           headerBreadcrumb ? /* @__PURE__ */ jsx("div", { className: "hidden md:block", children: headerBreadcrumb }) : /* @__PURE__ */ jsx("div", { className: "hidden md:block", children: /* @__PURE__ */ jsx(Breadcrumb, { children: /* @__PURE__ */ jsx(BreadcrumbList, { children: defaultBreadcrumbItems.map((item, index) => {
             const isLast = index === defaultBreadcrumbItems.length - 1;
-            return /* @__PURE__ */ jsxs(React__default.Fragment, { children: [
+            return /* @__PURE__ */ jsxs(Fragment$1, { children: [
               /* @__PURE__ */ jsx(BreadcrumbItem, { children: isLast || !item.to ? /* @__PURE__ */ jsx(BreadcrumbPage, { children: item.label }) : /* @__PURE__ */ jsx(BreadcrumbLink, { asChild: true, children: /* @__PURE__ */ jsx(Link, { to: item.to, children: item.label }) }) }),
               !isLast && /* @__PURE__ */ jsx(BreadcrumbSeparator, {})
             ] }, `${item.label}-${index}`);
@@ -5243,32 +5924,134 @@ function CourseTableOfContents({ course, currentLessonId, onLessonClick }) {
   ] });
 }
 function TextLesson({ content }) {
-  return /* @__PURE__ */ jsx("div", { className: "prose max-w-none", children: /* @__PURE__ */ jsx(ReactMarkdown, { children: content }) });
+  return /* @__PURE__ */ jsx("div", { className: "prose prose-slate max-w-none", children: /* @__PURE__ */ jsx(
+    ReactMarkdown,
+    {
+      components: {
+        a: ({ node, ...props }) => /* @__PURE__ */ jsx("a", { ...props, target: "_blank", rel: "noopener noreferrer" })
+      },
+      children: content
+    }
+  ) });
 }
 function VideoLesson({ videoUrl }) {
-  const getYouTubeEmbedUrl = (url) => {
-    const regExp = new RegExp("^(?:https?:\\/\\/)?(?:www\\.)?(?:m\\.)?(?:youtube\\.com|youtu\\.be)\\/^(?:watch\\?v=|embed\\/|v\\/|)([^&?%]{11})");
-    const match = url.match(regExp);
-    if (match && match[1]) {
-      return `https://www.youtube.com/embed/${match[1]}`;
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const getYouTubeVideoId = (url) => {
+    if (!url || typeof url !== "string") return null;
+    url = url.trim();
+    const patterns = [
+      // youtube.com/watch?v=VIDEO_ID
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|m\.youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/,
+      // youtu.be/VIDEO_ID
+      /youtu\.be\/([a-zA-Z0-9_-]{11})/,
+      // youtube.com/embed/VIDEO_ID
+      /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+      // m.youtube.com/watch?v=VIDEO_ID
+      /m\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/
+    ];
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1]) {
+        return match[1];
+      }
     }
     return null;
   };
-  const embedUrl = getYouTubeEmbedUrl(videoUrl);
-  if (!embedUrl) {
-    return /* @__PURE__ */ jsx("div", { className: "text-red-500", children: "Invalid YouTube video URL provided." });
+  const getYouTubeEmbedUrl = (videoId2) => {
+    const params = new URLSearchParams({
+      // Parâmetros baseados na documentação YouTube Player Parameters
+      rel: "0",
+      // Não mostrar vídeos relacionados ao final
+      modestbranding: "1",
+      // Branding mínimo do YouTube
+      controls: "1",
+      // Mostrar controles do player
+      showinfo: "0",
+      // Não mostrar informações do vídeo (título, uploader)
+      fs: "1",
+      // Permitir botão de fullscreen
+      cc_load_policy: "1",
+      // Carregar legendas por padrão
+      hl: "pt-BR",
+      // Idioma da interface em português brasileiro
+      autoplay: "0",
+      // Não iniciar autoplay
+      disablekb: "0",
+      // Permitir controles de teclado
+      enablejsapi: "1",
+      // Habilitar JavaScript API
+      widget_referrer: window.location.origin
+      // Referrer para analytics
+    });
+    return `https://www.youtube.com/embed/${videoId2}?${params.toString()}`;
+  };
+  const videoId = getYouTubeVideoId(videoUrl);
+  if (!videoId) {
+    return /* @__PURE__ */ jsxs("div", { className: "flex flex-col items-center justify-center p-8 border border-red-200 rounded-lg bg-red-50", children: [
+      /* @__PURE__ */ jsx("div", { className: "text-red-600 font-medium mb-2", children: "URL de vídeo inválida" }),
+      /* @__PURE__ */ jsxs("div", { className: "text-red-500 text-sm text-center", children: [
+        "Por favor, forneça uma URL válida do YouTube. Formatos suportados:",
+        /* @__PURE__ */ jsxs("ul", { className: "mt-2 text-xs space-y-1", children: [
+          /* @__PURE__ */ jsx("li", { children: "• youtube.com/watch?v=ID_DO_VIDEO" }),
+          /* @__PURE__ */ jsx("li", { children: "• youtu.be/ID_DO_VIDEO" }),
+          /* @__PURE__ */ jsx("li", { children: "• youtube.com/embed/ID_DO_VIDEO" })
+        ] })
+      ] })
+    ] });
   }
-  return /* @__PURE__ */ jsx("div", { className: "relative", style: { paddingBottom: "56.25%", height: 0 }, children: /* @__PURE__ */ jsx(
-    "iframe",
-    {
-      src: embedUrl,
-      frameBorder: "0",
-      allow: "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture",
-      allowFullScreen: true,
-      className: "absolute top-0 left-0 w-full h-full",
-      title: "YouTube video player"
-    }
-  ) });
+  const embedUrl = getYouTubeEmbedUrl(videoId);
+  const handleIframeLoad = () => {
+    setIsLoading(false);
+    setHasError(false);
+  };
+  const handleIframeError = () => {
+    setIsLoading(false);
+    setHasError(true);
+  };
+  return /* @__PURE__ */ jsxs("div", { className: "relative w-full", children: [
+    /* @__PURE__ */ jsxs("div", { className: "relative", style: { paddingBottom: "56.25%", height: 0 }, children: [
+      isLoading && /* @__PURE__ */ jsx("div", { className: "absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg", children: /* @__PURE__ */ jsxs("div", { className: "flex flex-col items-center space-y-2", children: [
+        /* @__PURE__ */ jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" }),
+        /* @__PURE__ */ jsx("span", { className: "text-sm text-gray-600", children: "Carregando vídeo..." })
+      ] }) }),
+      hasError && /* @__PURE__ */ jsx("div", { className: "absolute inset-0 flex items-center justify-center bg-red-50 rounded-lg", children: /* @__PURE__ */ jsxs("div", { className: "text-center p-4", children: [
+        /* @__PURE__ */ jsx("div", { className: "text-red-600 font-medium mb-2", children: "Erro ao carregar vídeo" }),
+        /* @__PURE__ */ jsx("div", { className: "text-red-500 text-sm", children: "Não foi possível carregar o vídeo. Verifique a URL e sua conexão." }),
+        /* @__PURE__ */ jsx(
+          "button",
+          {
+            onClick: () => {
+              setIsLoading(true);
+              setHasError(false);
+              const iframe = document.querySelector("iframe[data-youtube-iframe]");
+              if (iframe) {
+                iframe.src = embedUrl;
+              }
+            },
+            className: "mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm",
+            children: "Tentar novamente"
+          }
+        )
+      ] }) }),
+      !hasError && /* @__PURE__ */ jsx(
+        "iframe",
+        {
+          "data-youtube-iframe": true,
+          src: embedUrl,
+          frameBorder: "0",
+          allow: "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share",
+          allowFullScreen: true,
+          className: "absolute top-0 left-0 w-full h-full rounded-lg shadow-lg",
+          title: "YouTube video player",
+          onLoad: handleIframeLoad,
+          onError: handleIframeError,
+          loading: "lazy"
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsx("div", { className: "mt-3 text-xs text-gray-500 text-center", children: "Player otimizado para experiência de aprendizado" })
+  ] });
 }
 const RadioGroup = React.forwardRef(({ className, ...props }, ref) => {
   return /* @__PURE__ */ jsx(
@@ -5665,11 +6448,345 @@ ${contextText}` }
     ] })
   ] });
 }
+const Dialog = SheetPrimitive.Root;
+const DialogPortal = SheetPrimitive.Portal;
+const DialogOverlay = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  SheetPrimitive.Overlay,
+  {
+    ref,
+    className: cn(
+      "fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      className
+    ),
+    ...props
+  }
+));
+DialogOverlay.displayName = SheetPrimitive.Overlay.displayName;
+const DialogContent = React.forwardRef(({ className, children, ...props }, ref) => /* @__PURE__ */ jsxs(DialogPortal, { children: [
+  /* @__PURE__ */ jsx(DialogOverlay, {}),
+  /* @__PURE__ */ jsxs(
+    SheetPrimitive.Content,
+    {
+      ref,
+      className: cn(
+        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
+        className
+      ),
+      ...props,
+      children: [
+        children,
+        /* @__PURE__ */ jsxs(SheetPrimitive.Close, { className: "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground", children: [
+          /* @__PURE__ */ jsx(X, { className: "h-4 w-4" }),
+          /* @__PURE__ */ jsx("span", { className: "sr-only", children: "Close" })
+        ] })
+      ]
+    }
+  )
+] }));
+DialogContent.displayName = SheetPrimitive.Content.displayName;
+const DialogHeader = ({
+  className,
+  ...props
+}) => /* @__PURE__ */ jsx(
+  "div",
+  {
+    className: cn(
+      "flex flex-col space-y-1.5 text-center sm:text-left",
+      className
+    ),
+    ...props
+  }
+);
+DialogHeader.displayName = "DialogHeader";
+const DialogFooter = ({
+  className,
+  ...props
+}) => /* @__PURE__ */ jsx(
+  "div",
+  {
+    className: cn(
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+      className
+    ),
+    ...props
+  }
+);
+DialogFooter.displayName = "DialogFooter";
+const DialogTitle = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  SheetPrimitive.Title,
+  {
+    ref,
+    className: cn(
+      "text-lg font-semibold leading-none tracking-tight",
+      className
+    ),
+    ...props
+  }
+));
+DialogTitle.displayName = SheetPrimitive.Title.displayName;
+const DialogDescription = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  SheetPrimitive.Description,
+  {
+    ref,
+    className: cn("text-sm text-muted-foreground", className),
+    ...props
+  }
+));
+DialogDescription.displayName = SheetPrimitive.Description.displayName;
+const alertVariants = cva(
+  "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground",
+  {
+    variants: {
+      variant: {
+        default: "bg-background text-foreground",
+        destructive: "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive"
+      }
+    },
+    defaultVariants: {
+      variant: "default"
+    }
+  }
+);
+const Alert = React.forwardRef(({ className, variant, ...props }, ref) => /* @__PURE__ */ jsx(
+  "div",
+  {
+    ref,
+    role: "alert",
+    className: cn(alertVariants({ variant }), className),
+    ...props
+  }
+));
+Alert.displayName = "Alert";
+const AlertTitle = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  "h5",
+  {
+    ref,
+    className: cn("mb-1 font-medium leading-none tracking-tight", className),
+    ...props
+  }
+));
+AlertTitle.displayName = "AlertTitle";
+const AlertDescription = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  "div",
+  {
+    ref,
+    className: cn("text-sm [&_p]:leading-relaxed", className),
+    ...props
+  }
+));
+AlertDescription.displayName = "AlertDescription";
+const badgeVariants = cva(
+  "inline-flex items-center gap-1 rounded-full border font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  {
+    variants: {
+      variant: {
+        default: "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+        secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        destructive: "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+        outline: "text-foreground",
+        // New semantic variants
+        success: "border-transparent bg-success text-white hover:bg-success/80",
+        warning: "border-transparent bg-warning text-white hover:bg-warning/80",
+        info: "border-transparent bg-info text-white hover:bg-info/80",
+        error: "border-transparent bg-error text-white hover:bg-error/80",
+        // Brand variants
+        brand: "border-transparent bg-forge-orange text-white hover:bg-forge-orange-500",
+        "brand-subtle": "border-forge-orange/20 bg-forge-orange-50 text-forge-orange-600 hover:bg-forge-orange-100",
+        // Additional variants
+        "coming-soon": "border-transparent bg-info-100 text-info-700 hover:bg-info-200",
+        enrolled: "border-transparent bg-forge-orange-100 text-forge-orange-700 hover:bg-forge-orange-200 ring-1 ring-forge-orange/20"
+      },
+      size: {
+        sm: "px-2 py-0.5 text-xs",
+        md: "px-2.5 py-0.5 text-xs",
+        lg: "px-3 py-1 text-sm"
+      },
+      shape: {
+        rounded: "rounded-full",
+        square: "rounded-md"
+      }
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "md",
+      shape: "rounded"
+    }
+  }
+);
+function Badge({
+  className,
+  variant,
+  size,
+  shape,
+  icon: Icon,
+  iconPosition = "left",
+  children,
+  ...props
+}) {
+  return /* @__PURE__ */ jsxs("div", { className: cn(badgeVariants({ variant, size, shape }), className), ...props, children: [
+    Icon && iconPosition === "left" && /* @__PURE__ */ jsx(Icon, { className: "h-3 w-3" }),
+    children,
+    Icon && iconPosition === "right" && /* @__PURE__ */ jsx(Icon, { className: "h-3 w-3" })
+  ] });
+}
+const sanitizeHtml = (value) => (value ?? "").replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "");
+function ModuleProjectsPanel({
+  moduleTitle,
+  projects: projects2,
+  submissions,
+  submittingProjectId,
+  onSubmit,
+  communityLink
+}) {
+  const { t } = useTranslation();
+  const [activeProjectId, setActiveProjectId] = useState(null);
+  const [repositoryUrl, setRepositoryUrl] = useState("");
+  const [error, setError] = useState(null);
+  const activeProject = useMemo(() => projects2.find((project) => project.id === activeProjectId) ?? null, [
+    activeProjectId,
+    projects2
+  ]);
+  useEffect(() => {
+    if (!activeProject) {
+      setRepositoryUrl("");
+      setError(null);
+      return;
+    }
+    const submission = submissions[activeProject.id];
+    setRepositoryUrl((submission == null ? void 0 : submission.repository_url) ?? "");
+    setError(null);
+  }, [activeProject, submissions]);
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (!activeProject) return;
+    if (!repositoryUrl.trim()) {
+      setError(t("projects.errors.required"));
+      return;
+    }
+    try {
+      const parsed = new URL(repositoryUrl.trim());
+      if (!parsed.hostname.includes("github.com")) {
+        setError(t("projects.errors.githubOnly"));
+        return;
+      }
+    } catch (error2) {
+      console.error("Invalid repository url", error2);
+      setError(t("projects.errors.invalidUrl"));
+      return;
+    }
+    setError(null);
+    try {
+      await onSubmit(activeProject.id, repositoryUrl.trim());
+      setActiveProjectId(null);
+    } catch (error2) {
+      console.error("Project submission failed", error2);
+      setError(t("projects.errors.submitFailed"));
+    }
+  };
+  if (projects2.length === 0) {
+    return /* @__PURE__ */ jsx(Card, { className: "border border-dashed border-forge-cream/70 bg-white/80", children: /* @__PURE__ */ jsxs(CardContent, { className: "flex items-center justify-between gap-3 p-5 text-sm text-forge-gray", children: [
+      /* @__PURE__ */ jsx("span", { children: t("projects.module.noProjects") }),
+      /* @__PURE__ */ jsx(Button, { asChild: true, variant: "outline", size: "sm", children: /* @__PURE__ */ jsxs(Link, { to: communityLink, children: [
+        t("projects.module.communityLink"),
+        /* @__PURE__ */ jsx(ExternalLink, { className: "ml-2 h-4 w-4" })
+      ] }) })
+    ] }) });
+  }
+  return /* @__PURE__ */ jsxs(Card, { className: "border border-forge-cream/70 bg-white/90", children: [
+    /* @__PURE__ */ jsxs(CardHeader, { className: "flex flex-col gap-2 md:flex-row md:items-center md:justify-between", children: [
+      /* @__PURE__ */ jsxs("div", { children: [
+        /* @__PURE__ */ jsxs(CardTitle, { className: "flex items-center gap-2 text-forge-dark", children: [
+          /* @__PURE__ */ jsx(FolderGit2, { className: "h-5 w-5 text-forge-orange" }),
+          t("projects.module.title", { module: moduleTitle })
+        ] }),
+        /* @__PURE__ */ jsx("p", { className: "text-sm text-forge-gray", children: t("projects.module.subtitle") })
+      ] }),
+      /* @__PURE__ */ jsx(Button, { asChild: true, variant: "outline", size: "sm", children: /* @__PURE__ */ jsxs(Link, { to: communityLink, children: [
+        t("projects.module.communityLink"),
+        /* @__PURE__ */ jsx(ArrowUpRight, { className: "ml-2 h-4 w-4" })
+      ] }) })
+    ] }),
+    /* @__PURE__ */ jsx(CardContent, { className: "space-y-4", children: projects2.map((project) => {
+      const submission = submissions[project.id];
+      return /* @__PURE__ */ jsx(
+        "div",
+        {
+          className: "rounded-lg border border-forge-cream/60 bg-white/80 p-4 shadow-sm",
+          children: /* @__PURE__ */ jsxs("div", { className: "flex flex-col gap-3 md:flex-row md:items-start md:justify-between", children: [
+            /* @__PURE__ */ jsxs("div", { className: "space-y-2", children: [
+              /* @__PURE__ */ jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
+                /* @__PURE__ */ jsx("span", { className: "rounded-full bg-forge-orange/10 px-2 py-0.5 text-xs font-medium text-forge-orange", children: t("projects.module.projectOrder", { order: project.order }) }),
+                /* @__PURE__ */ jsx("h3", { className: "text-lg font-semibold text-forge-dark", children: project.title }),
+                typeof project.xp_value === "number" && /* @__PURE__ */ jsx(Badge, { variant: "secondary", className: "bg-forge-cream text-forge-dark", children: t("projects.module.xpValue", { xp: project.xp_value }) })
+              ] }),
+              project.description && /* @__PURE__ */ jsx(
+                "div",
+                {
+                  className: "prose prose-sm max-w-none text-forge-gray",
+                  dangerouslySetInnerHTML: { __html: sanitizeHtml(project.description) }
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxs("div", { className: "flex flex-col items-start gap-2 md:items-end", children: [
+              /* @__PURE__ */ jsx(Button, { onClick: () => setActiveProjectId(project.id), children: submission ? t("projects.module.updateSubmission") : t("projects.module.startProject") }),
+              submission && /* @__PURE__ */ jsxs("div", { className: "text-xs text-forge-gray/80", children: [
+                t("projects.module.yourSubmission"),
+                " ",
+                /* @__PURE__ */ jsx(
+                  "a",
+                  {
+                    href: submission.repository_url,
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                    className: "font-medium text-forge-orange hover:underline",
+                    children: submission.repository_url
+                  }
+                )
+              ] })
+            ] })
+          ] })
+        },
+        project.id
+      );
+    }) }),
+    /* @__PURE__ */ jsx(Dialog, { open: Boolean(activeProject), onOpenChange: (open) => !open && setActiveProjectId(null), children: /* @__PURE__ */ jsxs(DialogContent, { className: "max-w-2xl", children: [
+      /* @__PURE__ */ jsxs(DialogHeader, { children: [
+        /* @__PURE__ */ jsx(DialogTitle, { children: activeProject ? t("projects.module.dialog.title", { project: activeProject.title }) : "" }),
+        /* @__PURE__ */ jsx(DialogDescription, { children: t("projects.module.dialog.subtitle") })
+      ] }),
+      activeProject && /* @__PURE__ */ jsxs("form", { className: "space-y-5", onSubmit: handleSubmit, children: [
+        activeProject.description && /* @__PURE__ */ jsx("div", { className: "max-h-64 overflow-y-auto rounded-md border border-forge-cream/60 bg-forge-cream/20 p-4 text-sm text-forge-dark", children: /* @__PURE__ */ jsx("div", { dangerouslySetInnerHTML: { __html: sanitizeHtml(activeProject.description) } }) }),
+        /* @__PURE__ */ jsxs("div", { className: "space-y-2", children: [
+          /* @__PURE__ */ jsx("label", { className: "text-sm font-medium text-forge-dark", htmlFor: "repository-url", children: t("projects.module.dialog.repositoryLabel") }),
+          /* @__PURE__ */ jsx(
+            Input,
+            {
+              id: "repository-url",
+              value: repositoryUrl,
+              onChange: (event) => setRepositoryUrl(event.target.value),
+              placeholder: t("projects.module.dialog.repositoryPlaceholder")
+            }
+          ),
+          /* @__PURE__ */ jsx("p", { className: "text-xs text-forge-gray/80", children: t("projects.module.dialog.repositoryHelp") })
+        ] }),
+        error && /* @__PURE__ */ jsx(Alert, { variant: "destructive", children: /* @__PURE__ */ jsx(AlertDescription, { children: error }) }),
+        /* @__PURE__ */ jsxs(DialogFooter, { children: [
+          /* @__PURE__ */ jsx(Button, { type: "button", variant: "outline", onClick: () => setActiveProjectId(null), children: t("common.buttons.cancel") }),
+          /* @__PURE__ */ jsx(Button, { type: "submit", disabled: submittingProjectId === activeProject.id, children: submittingProjectId === activeProject.id ? t("projects.module.dialog.submitting") : t("projects.module.dialog.submit") })
+        ] })
+      ] })
+    ] }) })
+  ] });
+}
 function CourseView() {
+  var _a;
   const { courseId } = useParams();
   const [currentLesson, setCurrentLesson] = useState(null);
   const supabase2 = createClientBrowser();
+  const queryClient = useQueryClient();
   const { setHeaderBreadcrumb } = useOutletContext();
+  const { user } = useAuth();
+  const { t } = useTranslation();
   const { data: course, isLoading } = useQuery({
     queryKey: ["courseView", courseId],
     enabled: Boolean(courseId),
@@ -5677,7 +6794,8 @@ function CourseView() {
       const { data: courseData, error } = await supabase2.from("courses").select(`
           id, title, description,
           modules:modules(id, title, order,
-            lessons:lessons(id, title, content, lesson_type, order, xp_value)
+            lessons:lessons(id, title, content, lesson_type, order, xp_value),
+            projects:module_projects(id, title, description, xp_value, is_active, created_at)
           )
         `).eq("id", courseId).single();
       if (error) throw new Error(error.message || "Failed to load course");
@@ -5695,6 +6813,18 @@ function CourseView() {
             content: lesson.content,
             lesson_type: lesson.lesson_type,
             xp_value: lesson.xp_value ?? 0
+          })),
+          projects: (module.projects ?? []).slice().filter((project) => project.is_active ?? true).sort((a, b) => {
+            const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+            const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+            if (dateA !== dateB) return dateA - dateB;
+            return a.title.localeCompare(b.title);
+          }).map((project, index) => ({
+            id: project.id,
+            title: project.title,
+            description: project.description ?? "",
+            order: index + 1,
+            xp_value: project.xp_value ?? null
           }))
         }))
       };
@@ -5704,12 +6834,79 @@ function CourseView() {
       return normalized;
     }
   });
+  const projectIds = useMemo(() => {
+    if (!course) return [];
+    return course.modules.flatMap((module) => module.projects.map((project) => project.id));
+  }, [course]);
+  const sortedProjectIds = useMemo(() => {
+    if (projectIds.length === 0) return [];
+    return Array.from(new Set(projectIds)).sort();
+  }, [projectIds]);
+  const projectIdsKey = useMemo(() => sortedProjectIds.join(","), [sortedProjectIds]);
+  const { data: submissionsMap = {} } = useQuery({
+    queryKey: ["module-project-submissions", user == null ? void 0 : user.id, projectIdsKey],
+    enabled: Boolean(user && sortedProjectIds.length > 0),
+    queryFn: async () => {
+      if (!user) return {};
+      const { data, error } = await supabase2.from("module_project_submissions").select("project_id, repository_url, submitted_at").eq("user_id", user.id).in("project_id", sortedProjectIds);
+      if (error) throw error;
+      const map = {};
+      for (const item of data ?? []) {
+        map[item.project_id] = {
+          repository_url: item.repository_url,
+          submitted_at: item.submitted_at
+        };
+      }
+      return map;
+    },
+    onError: (error) => {
+      console.error("Failed to load project submissions", error);
+      toast$1.error(t("projects.notifications.fetchError"));
+    }
+  });
+  const submitMutation = useMutation({
+    mutationFn: async ({ projectId, repositoryUrl }) => {
+      if (!user) throw new Error("AUTH_REQUIRED");
+      const { error } = await supabase2.from("module_project_submissions").upsert(
+        {
+          project_id: projectId,
+          user_id: user.id,
+          repository_url: repositoryUrl,
+          submitted_at: (/* @__PURE__ */ new Date()).toISOString()
+        },
+        { onConflict: "project_id,user_id" }
+      );
+      if (error) throw error;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["module-project-submissions", user == null ? void 0 : user.id, projectIdsKey] });
+      toast$1.success(
+        t(variables.isUpdate ? "projects.notifications.updated" : "projects.notifications.submitted")
+      );
+    },
+    onError: (error) => {
+      if (error instanceof Error && error.message === "AUTH_REQUIRED") {
+        toast$1.error(t("projects.errors.loginRequired"));
+        return;
+      }
+      console.error("Project submission failed", error);
+      toast$1.error(t("projects.notifications.submitError"));
+    }
+  });
+  const handleProjectSubmit = useCallback(
+    async (projectId, repositoryUrl) => {
+      const isUpdate = Boolean(submissionsMap[projectId]);
+      await submitMutation.mutateAsync({ projectId, repositoryUrl, isUpdate });
+    },
+    [submissionsMap, submitMutation]
+  );
+  const submittingProjectId = ((_a = submitMutation.variables) == null ? void 0 : _a.projectId) ?? null;
   useEffect(() => {
     if (!course) return;
     const crumb = /* @__PURE__ */ jsx(Breadcrumb, { children: /* @__PURE__ */ jsxs(BreadcrumbList, { children: [
-      /* @__PURE__ */ jsx(BreadcrumbItem, { children: /* @__PURE__ */ jsx(BreadcrumbLink, { asChild: true, children: /* @__PURE__ */ jsx(Link, { to: DASHBOARD, children: "Dashboard" }) }) }),
+      /* @__PURE__ */ jsx(BreadcrumbItem, { children: /* @__PURE__ */ jsx(BreadcrumbLink, { asChild: true, children: /* @__PURE__ */ jsx(Link, { to: DASHBOARD, children: t("nav.dashboard") }) }) }),
       /* @__PURE__ */ jsx(BreadcrumbSeparator, {}),
-      /* @__PURE__ */ jsx(BreadcrumbItem, { children: /* @__PURE__ */ jsx(BreadcrumbLink, { asChild: true, children: /* @__PURE__ */ jsx(Link, { to: DASHBOARD_EXPLORE, children: "Paths" }) }) }),
+      /* @__PURE__ */ jsx(BreadcrumbItem, { children: /* @__PURE__ */ jsx(BreadcrumbLink, { asChild: true, children: /* @__PURE__ */ jsx(Link, { to: DASHBOARD_EXPLORE, children: t("nav.paths") }) }) }),
       /* @__PURE__ */ jsx(BreadcrumbSeparator, {}),
       /* @__PURE__ */ jsx(BreadcrumbItem, { children: /* @__PURE__ */ jsx(BreadcrumbPage, { children: course.title }) }),
       currentLesson && /* @__PURE__ */ jsxs(Fragment, { children: [
@@ -5719,9 +6916,19 @@ function CourseView() {
     ] }) });
     setHeaderBreadcrumb(crumb);
     return () => setHeaderBreadcrumb(null);
-  }, [course == null ? void 0 : course.title, currentLesson == null ? void 0 : currentLesson.title, setHeaderBreadcrumb]);
-  return /* @__PURE__ */ jsxs("div", { className: "flex gap-6", children: [
-    /* @__PURE__ */ jsx("div", { className: "w-80 shrink-0 border rounded-md bg-white", children: isLoading || !course ? /* @__PURE__ */ jsx("div", { className: "p-4 text-gray-500", children: "Loading course..." }) : /* @__PURE__ */ jsx(
+  }, [course == null ? void 0 : course.title, currentLesson == null ? void 0 : currentLesson.title, setHeaderBreadcrumb, t]);
+  const currentModule = useMemo(() => {
+    if (!course || !currentLesson) return null;
+    return course.modules.find((module) => module.lessons.some((lesson) => lesson.id === currentLesson.id)) ?? null;
+  }, [course, currentLesson]);
+  const isLastLessonInModule = useMemo(() => {
+    if (!currentModule || !currentLesson) return false;
+    if (currentModule.lessons.length === 0) return false;
+    const lastLesson = currentModule.lessons[currentModule.lessons.length - 1];
+    return lastLesson.id === currentLesson.id;
+  }, [currentLesson, currentModule]);
+  return /* @__PURE__ */ jsxs("div", { className: "flex flex-col gap-6 xl:flex-row", children: [
+    /* @__PURE__ */ jsx("div", { className: "w-full xl:w-80 xl:shrink-0 xl:border xl:rounded-md xl:bg-white", children: isLoading || !course ? /* @__PURE__ */ jsx("div", { className: "p-4 text-gray-500", children: t("common.buttons.loading") }) : /* @__PURE__ */ jsx(
       CourseTableOfContents,
       {
         course,
@@ -5729,8 +6936,21 @@ function CourseView() {
         onLessonClick: setCurrentLesson
       }
     ) }),
-    /* @__PURE__ */ jsx("div", { className: "flex-1 border rounded-md bg-white min-h-[60vh]", children: /* @__PURE__ */ jsx(LessonViewer, { lesson: currentLesson, course: course ?? null, onLessonChange: setCurrentLesson }) }),
-    /* @__PURE__ */ jsx("div", { className: "w-96 shrink-0 hidden md:block sticky top-6 self-start h-[calc(100vh-7rem)] max-h-[calc(100vh-7rem)]", children: /* @__PURE__ */ jsx(
+    /* @__PURE__ */ jsxs("div", { className: "flex-1 space-y-6", children: [
+      /* @__PURE__ */ jsx("div", { className: "border rounded-md bg-white min-h-[60vh]", children: /* @__PURE__ */ jsx(LessonViewer, { lesson: currentLesson, course: course ?? null, onLessonChange: setCurrentLesson }) }),
+      currentModule && isLastLessonInModule && /* @__PURE__ */ jsx(
+        ModuleProjectsPanel,
+        {
+          moduleTitle: currentModule.title,
+          projects: currentModule.projects,
+          submissions: submissionsMap,
+          submittingProjectId,
+          onSubmit: handleProjectSubmit,
+          communityLink: DASHBOARD_COMMUNITY_PROJECTS
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsx("div", { className: "hidden w-full xl:flex xl:flex-col xl:w-96 xl:shrink-0 xl:sticky xl:top-6 xl:self-start xl:h-[calc(100vh-7rem)] xl:max-h-[calc(100vh-7rem)]", children: /* @__PURE__ */ jsx(
       LessonAIChat,
       {
         courseTitle: course == null ? void 0 : course.title,
@@ -5801,37 +7021,12 @@ const EnhancedButton = ({
     gradientOverlay
   ] });
 };
-const DASHBOARD_STRINGS = {
-  dashboardHome: {
-    badge: "Welcome back",
-    headlineSuffix: ", ready to continue your journey?",
-    exploreCta: "View all paths"
-  },
-  availablePaths: {
-    loadingError: "Error loading learning paths",
-    mustLoginToEnroll: "You must be logged in to enroll",
-    enrolledBadge: "Enrolled",
-    enroll: "Enroll",
-    enrolling: "Enrolling...",
-    enrollSuccess: "Enrolled successfully!",
-    enrollError: "Error while enrolling",
-    continueLearning: "Continue learning",
-    viewDetails: "View details",
-    courses: (count2) => `${count2} course${count2 !== 1 ? "s" : ""}`
-  },
-  pathOverview: {
-    notFound: "Learning path not found.",
-    badge: "Path",
-    continue: "Continue",
-    enroll: "Enroll",
-    enrolling: "Enrolling..."
-  }
-};
 function PathOverview() {
   const { pathId } = useParams();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const supabase2 = createClientBrowser();
+  const { t } = useTranslation();
   const { data, isLoading, error } = useQuery({
     queryKey: ["pathOverview", pathId, user == null ? void 0 : user.id],
     enabled: Boolean(pathId),
@@ -5858,17 +7053,17 @@ function PathOverview() {
   });
   const enrollMutation = useMutation({
     mutationFn: async () => {
-      if (!user || !pathId) throw new Error("Not authenticated");
+      if (!user || !pathId) throw new Error(t("dashboard.errors.notAuthenticated"));
       const { error: error2 } = await supabase2.from("user_enrollments").insert({ user_id: user.id, learning_path_id: pathId });
-      if (error2) throw new Error(error2.message || "Failed to enroll");
+      if (error2) throw new Error(error2.message || t("dashboard.errors.failedToEnroll"));
     },
     onSuccess: () => {
-      toast$1.success(DASHBOARD_STRINGS.pathOverview.continue);
+      toast$1.success(t("dashboard.pathOverview.continue"));
       queryClient.invalidateQueries({ queryKey: ["availablePaths"] });
       queryClient.invalidateQueries({ queryKey: ["myPaths"] });
       queryClient.invalidateQueries({ queryKey: ["pathOverview"] });
     },
-    onError: () => toast$1.error(DASHBOARD_STRINGS.availablePaths.enrollError)
+    onError: () => toast$1.error(t("dashboard.enrollError"))
   });
   if (isLoading) {
     return /* @__PURE__ */ jsx("div", { className: "space-y-4", children: [...Array(2)].map((_, i) => /* @__PURE__ */ jsx(Card, { children: /* @__PURE__ */ jsx(CardContent, { className: "p-6", children: /* @__PURE__ */ jsxs("div", { className: "animate-pulse", children: [
@@ -5881,12 +7076,12 @@ function PathOverview() {
     console.error("Supabase error loading path overview:", error);
   }
   if (!data) {
-    return /* @__PURE__ */ jsx("div", { className: "text-gray-500", children: DASHBOARD_STRINGS.pathOverview.notFound });
+    return /* @__PURE__ */ jsx("div", { className: "text-gray-500", children: t("dashboard.pathOverview.notFound") });
   }
   const { path, isEnrolled } = data;
   return /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
     /* @__PURE__ */ jsxs("header", { children: [
-      /* @__PURE__ */ jsx("div", { className: "inline-flex items-center px-2 py-1 rounded bg-forge-orange/10 text-forge-orange text-xs font-medium", children: DASHBOARD_STRINGS.pathOverview.badge }),
+      /* @__PURE__ */ jsx("div", { className: "inline-flex items-center px-2 py-1 rounded bg-forge-orange/10 text-forge-orange text-xs font-medium", children: t("dashboard.pathOverview.badge") }),
       /* @__PURE__ */ jsx("h1", { className: "text-3xl font-bold mt-2 text-forge-dark", children: path.title }),
       path.description && /* @__PURE__ */ jsx("p", { className: "mt-2 text-forge-gray", children: path.description })
     ] }),
@@ -5896,23 +7091,73 @@ function PathOverview() {
         onClick: () => enrollMutation.mutate(),
         disabled: !user || enrollMutation.isPending,
         withGradient: true,
-        children: enrollMutation.isPending ? DASHBOARD_STRINGS.pathOverview.enrolling : DASHBOARD_STRINGS.pathOverview.enroll
+        children: enrollMutation.isPending ? t("dashboard.enrolling") : t("dashboard.enroll")
       }
-    ) }) : /* @__PURE__ */ jsx("div", { children: /* @__PURE__ */ jsx(EnhancedButton, { asChild: true, withGradient: true, children: /* @__PURE__ */ jsx(Link, { to: path.courses[0] ? DASHBOARD_LEARN_COURSE(path.courses[0].id) : "#", children: DASHBOARD_STRINGS.pathOverview.continue }) }) }),
+    ) }) : /* @__PURE__ */ jsx("div", { children: /* @__PURE__ */ jsx(EnhancedButton, { asChild: true, withGradient: true, children: /* @__PURE__ */ jsx(Link, { to: path.courses[0] ? DASHBOARD_LEARN_COURSE(path.courses[0].id) : "#", children: t("dashboard.pathOverview.continue") }) }) }),
     /* @__PURE__ */ jsxs("section", { className: "space-y-3", children: [
-      /* @__PURE__ */ jsx("h2", { className: "text-xl font-semibold", children: "Courses" }),
+      /* @__PURE__ */ jsx("h2", { className: "text-xl font-semibold", children: t("dashboard.pathOverview.courses") }),
       /* @__PURE__ */ jsx("div", { className: "grid gap-4 md:grid-cols-2 lg:grid-cols-3", children: path.courses.map((course) => /* @__PURE__ */ jsxs(Card, { className: "border-forge-cream", children: [
         /* @__PURE__ */ jsxs(CardHeader, { children: [
           /* @__PURE__ */ jsx(CardTitle, { className: "text-forge-dark", children: course.title }),
           course.description && /* @__PURE__ */ jsx(CardDescription, { className: "text-forge-gray", children: course.description })
         ] }),
-        /* @__PURE__ */ jsx(CardContent, { children: /* @__PURE__ */ jsx(EnhancedButton, { asChild: true, variant: "outline", className: "w-full", children: /* @__PURE__ */ jsx(Link, { to: DASHBOARD_LEARN_COURSE(course.id), children: DASHBOARD_STRINGS.availablePaths.viewDetails }) }) })
+        /* @__PURE__ */ jsx(CardContent, { children: /* @__PURE__ */ jsx(EnhancedButton, { asChild: true, variant: "outline", className: "w-full", children: /* @__PURE__ */ jsx(Link, { to: DASHBOARD_LEARN_COURSE(course.id), children: t("dashboard.viewDetails") }) }) })
       ] }, course.id)) })
     ] })
   ] });
 }
+function LoadingCard({
+  className,
+  showHeader = true,
+  showFooter = false,
+  contentLines = 3,
+  showAvatar = false,
+  ...props
+}) {
+  return /* @__PURE__ */ jsxs(Card, { className: cn("", className), ...props, children: [
+    showHeader && /* @__PURE__ */ jsx(CardHeader, { className: "space-y-2", children: /* @__PURE__ */ jsxs("div", { className: "flex items-start justify-between gap-4", children: [
+      /* @__PURE__ */ jsxs("div", { className: "flex-1 space-y-2", children: [
+        /* @__PURE__ */ jsx(Skeleton, { className: "h-6 w-3/4" }),
+        /* @__PURE__ */ jsx(Skeleton, { className: "h-4 w-1/2" })
+      ] }),
+      showAvatar && /* @__PURE__ */ jsx(SkeletonCircle, { size: "md" })
+    ] }) }),
+    /* @__PURE__ */ jsx(CardContent, { className: showHeader ? "pt-0" : "", children: /* @__PURE__ */ jsx(SkeletonText, { lines: contentLines }) }),
+    showFooter && /* @__PURE__ */ jsx(CardContent, { className: "pt-0", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between gap-4", children: [
+      /* @__PURE__ */ jsx(Skeleton, { className: "h-9 w-24" }),
+      /* @__PURE__ */ jsx(Skeleton, { className: "h-9 w-24" })
+    ] }) })
+  ] });
+}
+function LoadingGrid({
+  className,
+  count: count2 = 6,
+  columns = { sm: 1, md: 2, lg: 3 },
+  aspectRatio = "video",
+  showContent = true,
+  ...props
+}) {
+  const aspectRatios = {
+    square: "aspect-square",
+    video: "aspect-video",
+    portrait: "aspect-[3/4]"
+  };
+  const gridClasses = [
+    columns.sm && `grid-cols-${columns.sm}`,
+    columns.md && `md:grid-cols-${columns.md}`,
+    columns.lg && `lg:grid-cols-${columns.lg}`
+  ].filter(Boolean).join(" ");
+  return /* @__PURE__ */ jsx("div", { className: cn("grid gap-card-gap", gridClasses, className), ...props, children: Array.from({ length: count2 }).map((_, i) => /* @__PURE__ */ jsxs("div", { className: "space-y-3", children: [
+    /* @__PURE__ */ jsx(Skeleton, { className: cn("w-full", aspectRatios[aspectRatio]), shape: "lg" }),
+    showContent && /* @__PURE__ */ jsxs("div", { className: "space-y-2", children: [
+      /* @__PURE__ */ jsx(Skeleton, { className: "h-5 w-3/4" }),
+      /* @__PURE__ */ jsx(Skeleton, { className: "h-4 w-1/2" })
+    ] })
+  ] }, i)) });
+}
 function AvailablePaths({ limit, className }) {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [enrollingId, setEnrollingId] = useState(null);
   const queryClient = useQueryClient();
   const supabase2 = createClientBrowser();
@@ -5924,9 +7169,9 @@ function AvailablePaths({ limit, className }) {
     keepPreviousData: true,
     queryFn: async () => {
       const { data: pathsData, error: pathsError } = await supabase2.from("learning_paths").select(`
-          id, title, description,
+          id, title, description, status,
           courses!inner(id)
-        `);
+        `).eq("status", "published");
       if (pathsError) throw pathsError;
       let enrolledPaths = [];
       if (user) {
@@ -5941,6 +7186,7 @@ function AvailablePaths({ limit, className }) {
         id: path.id,
         title: path.title,
         description: path.description,
+        status: path.status,
         isEnrolled: enrolledPaths.includes(path.id),
         courseCount: path.courses.length
       }));
@@ -5948,38 +7194,42 @@ function AvailablePaths({ limit, className }) {
   });
   const enrollMutation = useMutation({
     mutationFn: async (pathId) => {
-      if (!user) throw new Error("Not authenticated");
+      if (!user) throw new Error(t("dashboard.errors.notAuthenticated"));
       const { error } = await supabase2.from("user_enrollments").insert({ user_id: user.id, learning_path_id: pathId });
-      if (error) throw new Error(error.message || "Failed to enroll");
+      if (error) throw new Error(error.message || t("dashboard.errors.failedToEnroll"));
       return pathId;
     },
     onMutate: (pathId) => {
       setEnrollingId(pathId);
     },
     onSuccess: () => {
-      toast$1.success(DASHBOARD_STRINGS.availablePaths.enrollSuccess);
+      toast$1.success(t("dashboard.enrollSuccess"));
       queryClient.invalidateQueries({ queryKey: ["availablePaths"] });
       queryClient.invalidateQueries({ queryKey: ["myPaths"] });
     },
     onError: (error) => {
       console.error("Error enrolling:", error);
-      toast$1.error(DASHBOARD_STRINGS.availablePaths.enrollError);
+      toast$1.error(t("dashboard.enrollError"));
     },
     onSettled: () => setEnrollingId(null)
   });
   const handleEnroll = async (pathId) => {
     if (!user) {
-      toast$1.error(DASHBOARD_STRINGS.availablePaths.mustLoginToEnroll);
+      toast$1.error(t("dashboard.mustLoginToEnroll"));
       return;
     }
     enrollMutation.mutate(pathId);
   };
   if (isLoading) {
-    return /* @__PURE__ */ jsx("div", { className: "grid gap-4 md:grid-cols-2 lg:grid-cols-3", children: [...Array(limit || 3)].map((_, i) => /* @__PURE__ */ jsx(Card, { children: /* @__PURE__ */ jsx(CardContent, { className: "p-6", children: /* @__PURE__ */ jsxs("div", { className: "animate-pulse space-y-2", children: [
-      /* @__PURE__ */ jsx("div", { className: "h-6 bg-gray-200 rounded" }),
-      /* @__PURE__ */ jsx("div", { className: "h-4 bg-gray-200 rounded" }),
-      /* @__PURE__ */ jsx("div", { className: "h-8 bg-gray-200 rounded mt-4" })
-    ] }) }) }, i)) });
+    return /* @__PURE__ */ jsx(
+      LoadingGrid,
+      {
+        count: limit || 6,
+        columns: { sm: 1, md: 2, lg: 3 },
+        aspectRatio: "portrait",
+        showContent: true
+      }
+    );
   }
   const visiblePaths = typeof limit === "number" && limit > 0 ? paths.slice(0, limit) : paths;
   return /* @__PURE__ */ jsx("div", { className, children: /* @__PURE__ */ jsx("div", { className: "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 items-stretch", children: visiblePaths.map((path) => /* @__PURE__ */ jsxs(
@@ -5987,10 +7237,16 @@ function AvailablePaths({ limit, className }) {
     {
       className: `relative overflow-hidden border-forge-cream/80 hover:shadow-md transition-shadow h-full min-h-[300px] flex flex-col ${path.isEnrolled ? "ring-1 ring-forge-orange/20" : ""}`,
       children: [
-        path.isEnrolled && /* @__PURE__ */ jsxs("div", { className: "absolute top-2 right-2 bg-forge-orange text-white px-1.5 py-0.5 rounded-full text-[10px] font-medium flex items-center gap-1 shadow-sm", children: [
-          /* @__PURE__ */ jsx(Flame, { className: "h-3 w-3" }),
-          DASHBOARD_STRINGS.availablePaths.enrolledBadge
-        ] }),
+        path.isEnrolled && /* @__PURE__ */ jsx("div", { className: "absolute top-2 right-2", children: /* @__PURE__ */ jsx(
+          Badge,
+          {
+            variant: "enrolled",
+            size: "sm",
+            icon: Flame,
+            iconPosition: "left",
+            children: t("dashboard.availablePaths.enrolledBadge")
+          }
+        ) }),
         /* @__PURE__ */ jsxs(CardHeader, { className: "space-y-2", children: [
           /* @__PURE__ */ jsxs(CardTitle, { className: "flex items-start gap-2 text-forge-dark tracking-normal text-lg md:text-xl leading-tight line-clamp-2 break-words", children: [
             /* @__PURE__ */ jsx(BookOpen, { className: "h-4 w-4 mt-0.5 text-forge-orange shrink-0" }),
@@ -5999,10 +7255,10 @@ function AvailablePaths({ limit, className }) {
           /* @__PURE__ */ jsx(CardDescription, { className: "text-[13px] text-forge-gray line-clamp-3 min-h-[3.75rem]", children: path.description }),
           /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 text-xs text-forge-gray", children: [
             /* @__PURE__ */ jsx(Users, { className: "h-3.5 w-3.5 text-forge-orange" }),
-            DASHBOARD_STRINGS.availablePaths.courses(path.courseCount || 0)
+            t("dashboard.availablePaths.courses", { count: path.courseCount || 0 })
           ] })
         ] }),
-        /* @__PURE__ */ jsx(CardContent, { className: "space-y-2 mt-auto", children: path.isEnrolled ? /* @__PURE__ */ jsx(EnhancedButton, { className: "w-full text-sm py-2", size: "sm", withGradient: true, asChild: true, children: /* @__PURE__ */ jsx(Link, { to: DASHBOARD_LEARN_PATH(path.id), children: DASHBOARD_STRINGS.availablePaths.continueLearning }) }) : /* @__PURE__ */ jsxs(Fragment, { children: [
+        /* @__PURE__ */ jsx(CardContent, { className: "space-y-2 mt-auto", children: path.isEnrolled ? /* @__PURE__ */ jsx(EnhancedButton, { className: "w-full text-sm py-2", size: "sm", withGradient: true, asChild: true, children: /* @__PURE__ */ jsx(Link, { to: DASHBOARD_LEARN_PATH(path.id), children: t("common.buttons.continueLearning") }) }) : /* @__PURE__ */ jsxs(Fragment, { children: [
           /* @__PURE__ */ jsx(
             EnhancedButton,
             {
@@ -6011,10 +7267,10 @@ function AvailablePaths({ limit, className }) {
               className: "w-full text-sm py-2",
               variant: "outline",
               size: "sm",
-              children: enrollingId === path.id ? DASHBOARD_STRINGS.availablePaths.enrolling : DASHBOARD_STRINGS.availablePaths.enroll
+              children: enrollingId === path.id ? t("dashboard.enrolling") : t("dashboard.enroll")
             }
           ),
-          user && /* @__PURE__ */ jsx(EnhancedButton, { variant: "ghost", size: "sm", className: "w-full", asChild: true, children: /* @__PURE__ */ jsx(Link, { to: DASHBOARD_LEARN_PATH(path.id), children: DASHBOARD_STRINGS.availablePaths.viewDetails }) })
+          user && /* @__PURE__ */ jsx(EnhancedButton, { variant: "ghost", size: "sm", className: "w-full", asChild: true, children: /* @__PURE__ */ jsx(Link, { to: DASHBOARD_LEARN_PATH(path.id), children: t("dashboard.viewDetails") }) })
         ] }) })
       ]
     },
@@ -6230,16 +7486,655 @@ function PublicLayout() {
     /* @__PURE__ */ jsx("main", { children: /* @__PURE__ */ jsx(Outlet, {}) })
   ] });
 }
+const emptyStateVariants = cva("flex flex-col items-center justify-center text-center", {
+  variants: {
+    size: {
+      sm: "py-8 px-4",
+      md: "py-12 px-6",
+      lg: "py-16 px-8"
+    }
+  },
+  defaultVariants: {
+    size: "md"
+  }
+});
+const emptyStateIconVariants = cva("rounded-full flex items-center justify-center mb-4", {
+  variants: {
+    variant: {
+      default: "bg-muted text-muted-foreground",
+      search: "bg-info-100 text-info-600",
+      error: "bg-error-100 text-error-600",
+      "no-data": "bg-muted text-muted-foreground",
+      success: "bg-success-100 text-success-600"
+    },
+    size: {
+      sm: "h-12 w-12",
+      md: "h-16 w-16",
+      lg: "h-20 w-20"
+    }
+  },
+  defaultVariants: {
+    variant: "default",
+    size: "md"
+  }
+});
+const defaultIcons = {
+  default: Inbox,
+  search: Search,
+  error: AlertCircle,
+  "no-data": FileX,
+  success: Inbox
+};
+const EmptyState = React.forwardRef(
+  ({
+    className,
+    size = "md",
+    variant = "default",
+    icon,
+    title,
+    description,
+    action,
+    secondaryAction,
+    iconSize,
+    ...props
+  }, ref) => {
+    const Icon = icon || defaultIcons[variant || "default"];
+    const effectiveIconSize = iconSize || size;
+    const iconSizes = {
+      sm: "h-6 w-6",
+      md: "h-8 w-8",
+      lg: "h-10 w-10"
+    };
+    return /* @__PURE__ */ jsxs(
+      "div",
+      {
+        ref,
+        className: cn(emptyStateVariants({ size }), className),
+        role: "status",
+        "aria-live": "polite",
+        ...props,
+        children: [
+          /* @__PURE__ */ jsx(
+            "div",
+            {
+              className: cn(emptyStateIconVariants({ variant, size: effectiveIconSize })),
+              "aria-hidden": "true",
+              children: /* @__PURE__ */ jsx(Icon, { className: iconSizes[effectiveIconSize || "md"] })
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            "h3",
+            {
+              className: cn(
+                "font-semibold tracking-tight text-foreground",
+                size === "sm" && "text-lg",
+                size === "md" && "text-xl",
+                size === "lg" && "text-2xl"
+              ),
+              children: title
+            }
+          ),
+          description && /* @__PURE__ */ jsx(
+            "p",
+            {
+              className: cn(
+                "mt-2 text-muted-foreground max-w-md",
+                size === "sm" && "text-sm",
+                size === "md" && "text-base",
+                size === "lg" && "text-lg"
+              ),
+              children: description
+            }
+          ),
+          (action || secondaryAction) && /* @__PURE__ */ jsxs("div", { className: "mt-6 flex flex-col sm:flex-row gap-3 items-center justify-center", children: [
+            action && /* @__PURE__ */ jsxs(
+              Button,
+              {
+                onClick: action.onClick,
+                variant: action.variant || "default",
+                className: "w-full sm:w-auto",
+                "aria-label": action.label,
+                children: [
+                  action.icon && /* @__PURE__ */ jsx(action.icon, { className: "mr-2 h-4 w-4" }),
+                  action.label
+                ]
+              }
+            ),
+            secondaryAction && /* @__PURE__ */ jsxs(
+              Button,
+              {
+                onClick: secondaryAction.onClick,
+                variant: secondaryAction.variant || "outline",
+                className: "w-full sm:w-auto",
+                "aria-label": secondaryAction.label,
+                children: [
+                  secondaryAction.icon && /* @__PURE__ */ jsx(secondaryAction.icon, { className: "mr-2 h-4 w-4" }),
+                  secondaryAction.label
+                ]
+              }
+            )
+          ] })
+        ]
+      }
+    );
+  }
+);
+EmptyState.displayName = "EmptyState";
+function FormationsList({ limit, className }) {
+  const supabase2 = createClientBrowser();
+  const { data: formations = [], isLoading } = useQuery({
+    queryKey: ["formations"],
+    enabled: true,
+    staleTime: 6e4,
+    refetchOnWindowFocus: false,
+    keepPreviousData: true,
+    queryFn: async () => {
+      const { data, error } = await supabase2.from("formations").select(`
+          id, title, description, thumbnail_url, created_at, status,
+          formation_paths(
+            order,
+            learning_paths(id, title)
+          )
+        `).in("status", ["published", "coming_soon"]).order("created_at", { ascending: false });
+      if (error) throw error;
+      const rows = data ?? [];
+      return rows.map((formation) => {
+        const paths = (formation.formation_paths ?? []).map((fp) => {
+          if (!fp.learning_paths) return null;
+          return {
+            id: fp.learning_paths.id,
+            title: fp.learning_paths.title,
+            order: fp.order ?? 0
+          };
+        }).filter((path) => Boolean(path)).sort((a, b) => a.order - b.order);
+        return {
+          id: formation.id,
+          title: formation.title,
+          description: formation.description,
+          thumbnail_url: formation.thumbnail_url,
+          status: formation.status,
+          paths_count: paths.length,
+          paths,
+          created_at: formation.created_at
+        };
+      });
+    }
+  });
+  const displayFormations = limit ? formations.slice(0, limit) : formations;
+  if (isLoading) {
+    return /* @__PURE__ */ jsx(
+      LoadingGrid,
+      {
+        count: limit || 3,
+        columns: { sm: 1, md: 2, lg: 3 },
+        aspectRatio: "portrait",
+        showContent: true
+      }
+    );
+  }
+  if (displayFormations.length === 0) {
+    return /* @__PURE__ */ jsx(
+      EmptyState,
+      {
+        variant: "no-data",
+        icon: GraduationCap,
+        title: "No formations available",
+        description: "Comprehensive learning programs will be available soon. Check back later!",
+        size: "md"
+      }
+    );
+  }
+  return /* @__PURE__ */ jsx("div", { className: cn("grid gap-6 md:grid-cols-2 lg:grid-cols-3", className), children: displayFormations.map((formation) => {
+    const createdAtDistance = formation.created_at ? formatDistanceToNow(new Date(formation.created_at)) : null;
+    return /* @__PURE__ */ jsxs(Card, { className: "overflow-hidden hover:shadow-lg transition-shadow", children: [
+      /* @__PURE__ */ jsx("div", { className: "h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center", children: formation.thumbnail_url ? /* @__PURE__ */ jsx(
+        "img",
+        {
+          src: formation.thumbnail_url,
+          alt: formation.title,
+          className: "w-full h-full object-cover"
+        }
+      ) : /* @__PURE__ */ jsx(GraduationCap, { className: "h-16 w-16 text-blue-400" }) }),
+      /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsxs("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ jsxs(CardTitle, { className: "flex items-center gap-2 text-xl", children: [
+          formation.title,
+          /* @__PURE__ */ jsx(Badge, { variant: formation.status === "published" ? "default" : formation.status === "coming_soon" ? "secondary" : "outline", children: formation.status === "published" ? "Published" : formation.status === "coming_soon" ? "Coming Soon" : "Draft" })
+        ] }),
+        /* @__PURE__ */ jsx(CardDescription, { className: "text-sm line-clamp-3", children: formation.description || "A comprehensive learning program to advance your skills." })
+      ] }) }),
+      /* @__PURE__ */ jsxs(CardContent, { className: "space-y-4", children: [
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-4 text-sm text-gray-600", children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1", children: [
+            /* @__PURE__ */ jsx(BookOpen, { className: "h-4 w-4" }),
+            formation.paths_count,
+            " paths"
+          ] }),
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1", children: [
+            /* @__PURE__ */ jsx(Star, { className: "h-4 w-4" }),
+            "Program"
+          ] })
+        ] }),
+        formation.paths && formation.paths.length > 0 && /* @__PURE__ */ jsxs("div", { className: "space-y-2", children: [
+          /* @__PURE__ */ jsx("h4", { className: "font-medium text-sm text-gray-900", children: "Learning Paths:" }),
+          /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
+            formation.paths.slice(0, 3).map((path, index) => /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 text-xs text-gray-600", children: [
+              /* @__PURE__ */ jsxs("span", { className: "text-blue-500 font-medium", children: [
+                index + 1,
+                "."
+              ] }),
+              /* @__PURE__ */ jsx("span", { className: "truncate", children: path.title })
+            ] }, path.id)),
+            formation.paths.length > 3 && /* @__PURE__ */ jsxs("div", { className: "text-xs text-gray-500", children: [
+              "+",
+              formation.paths.length - 3,
+              " more paths"
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsx(Link, { to: DASHBOARD_FORMATION_DETAIL(formation.id), children: /* @__PURE__ */ jsx(EnhancedButton, { className: "w-full", children: formation.status === "coming_soon" ? "Join Waitlist" : "View Formation" }) }),
+        /* @__PURE__ */ jsx("div", { className: "text-xs text-gray-500 text-center", children: createdAtDistance ? `Created ${createdAtDistance} ago` : "Recently added" })
+      ] })
+    ] }, formation.id);
+  }) });
+}
+function FormationsPage() {
+  return /* @__PURE__ */ jsxs("div", { className: "space-y-8", children: [
+    /* @__PURE__ */ jsxs("div", { className: "space-y-4", children: [
+      /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
+        /* @__PURE__ */ jsx("div", { className: "p-3 bg-blue-100 rounded-lg", children: /* @__PURE__ */ jsx(GraduationCap, { className: "h-8 w-8 text-blue-600" }) }),
+        /* @__PURE__ */ jsxs("div", { children: [
+          /* @__PURE__ */ jsx("h1", { className: "text-3xl font-bold text-gray-900", children: "Learning Formations" }),
+          /* @__PURE__ */ jsx("p", { className: "text-gray-600", children: "Comprehensive learning programs designed to advance your career" })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "bg-blue-50 border border-blue-200 rounded-lg p-4", children: [
+        /* @__PURE__ */ jsx("h3", { className: "font-semibold text-blue-900 mb-2", children: "What are Formations?" }),
+        /* @__PURE__ */ jsx("p", { className: "text-blue-800 text-sm", children: "Formations are structured learning programs that combine multiple learning paths into a comprehensive curriculum. Each formation is carefully designed to take you from beginner to advanced level in specific career tracks." })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsx(FormationsList, {}),
+    /* @__PURE__ */ jsxs("div", { className: "text-center pt-8 border-t", children: [
+      /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-500 mb-3", children: "Are you an instructor? Create and manage formations." }),
+      /* @__PURE__ */ jsx(
+        Link,
+        {
+          to: "/dashboard/admin/formations",
+          className: "inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors",
+          children: "Admin Panel"
+        }
+      )
+    ] })
+  ] });
+}
+function ComingSoonPaths({ limit, className }) {
+  const { user } = useAuth();
+  const { t } = useTranslation();
+  const [joiningId, setJoiningId] = useState(null);
+  const queryClient = useQueryClient();
+  const supabase2 = createClientBrowser();
+  const { data: paths = [], isLoading } = useQuery({
+    queryKey: ["comingSoonPaths", user == null ? void 0 : user.id],
+    enabled: true,
+    staleTime: 6e4,
+    refetchOnWindowFocus: false,
+    keepPreviousData: true,
+    queryFn: async () => {
+      const { data: pathsData, error: pathsError } = await supabase2.from("learning_paths").select(`
+          id, title, description,
+          courses(id)
+        `).eq("status", "coming_soon");
+      if (pathsError) throw pathsError;
+      const rows = pathsData ?? [];
+      const pathIds = rows.map((path) => path.id);
+      let waitingListCounts = {};
+      if (pathIds.length > 0) {
+        const results = await Promise.all(
+          pathIds.map(async (id) => {
+            const { data: count2, error: countError } = await supabase2.rpc("get_waiting_list_count", {
+              p_learning_path_id: id
+            });
+            if (countError) {
+              console.error("Error fetching waitlist count", countError);
+              return { id, count: 0 };
+            }
+            return { id, count: count2 ?? 0 };
+          })
+        );
+        waitingListCounts = results.reduce((acc, { id, count: count2 }) => {
+          acc[id] = count2;
+          return acc;
+        }, {});
+      }
+      return rows.map((path) => ({
+        id: path.id,
+        title: path.title,
+        description: path.description ?? "",
+        courseCount: Array.isArray(path.courses) ? path.courses.length : 0,
+        waitingListCount: waitingListCounts[path.id] || 0
+      }));
+    }
+  });
+  const joinWaitingListMutation = useMutation({
+    mutationFn: async (pathId) => {
+      if (!user) throw new Error("Must be logged in to join waiting list");
+      const { error } = await supabase2.from("waiting_list").insert({
+        user_id: user.id,
+        learning_path_id: pathId,
+        email: user.email || ""
+      });
+      if (error) {
+        if (error.code === "23505") {
+          throw new Error("You are already on this waiting list");
+        }
+        throw new Error(error.message || "Failed to join waiting list");
+      }
+      return pathId;
+    },
+    onMutate: (pathId) => {
+      setJoiningId(pathId);
+    },
+    onSuccess: () => {
+      toast$1.success("You have been added to the waiting list!");
+      queryClient.invalidateQueries({ queryKey: ["comingSoonPaths"] });
+    },
+    onError: (error) => {
+      console.error("Error joining waiting list:", error);
+      const message = error instanceof Error ? error.message : "Failed to join waiting list";
+      toast$1.error(message);
+    },
+    onSettled: () => setJoiningId(null)
+  });
+  const handleJoinWaitingList = async (pathId) => {
+    if (!user) {
+      toast$1.error("You must be logged in to join the waiting list");
+      return;
+    }
+    joinWaitingListMutation.mutate(pathId);
+  };
+  const displayPaths = limit ? paths.slice(0, limit) : paths;
+  if (isLoading) {
+    return /* @__PURE__ */ jsx(
+      LoadingGrid,
+      {
+        count: limit || 3,
+        columns: { sm: 1, md: 2, lg: 3 },
+        aspectRatio: "portrait",
+        showContent: true
+      }
+    );
+  }
+  if (displayPaths.length === 0) {
+    return /* @__PURE__ */ jsx(
+      EmptyState,
+      {
+        variant: "no-data",
+        icon: Clock,
+        title: t("dashboard.comingSoonPaths.empty.title"),
+        description: t("dashboard.comingSoonPaths.empty.description"),
+        size: "md"
+      }
+    );
+  }
+  return /* @__PURE__ */ jsx("div", { className: `grid gap-4 md:grid-cols-2 lg:grid-cols-3 ${className}`, children: displayPaths.map((path) => /* @__PURE__ */ jsxs(Card, { className: "border-blue-200 bg-blue-50/30", children: [
+    /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsx("div", { className: "flex items-start justify-between gap-2", children: /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
+      /* @__PURE__ */ jsxs(CardTitle, { className: "text-lg flex items-center gap-2", children: [
+        path.title,
+        /* @__PURE__ */ jsx(
+          Badge,
+          {
+            variant: "coming-soon",
+            size: "md",
+            icon: Clock,
+            iconPosition: "left",
+            children: "Coming Soon"
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsx(CardDescription, { className: "text-sm", children: path.description || "Get ready for an amazing learning journey!" })
+    ] }) }) }),
+    /* @__PURE__ */ jsxs(CardContent, { className: "space-y-4", children: [
+      /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-4 text-sm text-gray-600", children: [
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1", children: [
+          /* @__PURE__ */ jsx(BookOpen, { className: "h-4 w-4" }),
+          path.courseCount,
+          " courses"
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1", children: [
+          /* @__PURE__ */ jsx(Users, { className: "h-4 w-4" }),
+          path.waitingListCount,
+          " on waitlist"
+        ] })
+      ] }),
+      /* @__PURE__ */ jsx(
+        EnhancedButton,
+        {
+          onClick: () => handleJoinWaitingList(path.id),
+          disabled: joiningId === path.id,
+          className: "w-full",
+          variant: "outline",
+          children: joiningId === path.id ? /* @__PURE__ */ jsxs(Fragment, { children: [
+            /* @__PURE__ */ jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2" }),
+            "Joining..."
+          ] }) : /* @__PURE__ */ jsxs(Fragment, { children: [
+            /* @__PURE__ */ jsx(Bell, { className: "h-4 w-4 mr-2" }),
+            "Join Waiting List"
+          ] })
+        }
+      )
+    ] })
+  ] }, path.id)) });
+}
+function ComingSoonPage() {
+  return /* @__PURE__ */ jsxs("div", { className: "space-y-8", children: [
+    /* @__PURE__ */ jsxs("div", { className: "space-y-4", children: [
+      /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
+        /* @__PURE__ */ jsx("div", { className: "p-3 bg-orange-100 rounded-lg", children: /* @__PURE__ */ jsx(Clock, { className: "h-8 w-8 text-orange-600" }) }),
+        /* @__PURE__ */ jsxs("div", { children: [
+          /* @__PURE__ */ jsx("h1", { className: "text-3xl font-bold text-gray-900", children: "Coming Soon" }),
+          /* @__PURE__ */ jsx("p", { className: "text-gray-600", children: "Be the first to know when new learning paths launch" })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "bg-orange-50 border border-orange-200 rounded-lg p-4", children: [
+        /* @__PURE__ */ jsx("h3", { className: "font-semibold text-orange-900 mb-2", children: "Join the Waiting List" }),
+        /* @__PURE__ */ jsx("p", { className: "text-orange-800 text-sm", children: "Get notified as soon as these learning paths become available. Join the waiting list to secure your spot and receive exclusive updates." })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsx(ComingSoonPaths, {}),
+    /* @__PURE__ */ jsxs("div", { className: "bg-gray-50 rounded-lg p-6 text-center", children: [
+      /* @__PURE__ */ jsx(Bell, { className: "h-12 w-12 text-gray-400 mx-auto mb-4" }),
+      /* @__PURE__ */ jsx("h3", { className: "text-lg font-semibold text-gray-900 mb-2", children: "Stay Updated" }),
+      /* @__PURE__ */ jsx("p", { className: "text-gray-600 max-w-md mx-auto", children: "We're constantly working on new learning paths. Check back regularly or join our waiting lists to be the first to know when new content is available." })
+    ] })
+  ] });
+}
+const enhancedCardVariants = cva(
+  "rounded-xl transition-all duration-200",
+  {
+    variants: {
+      variant: {
+        default: "bg-card text-card-foreground border shadow-sm hover:shadow-md",
+        elevated: "bg-card text-card-foreground shadow-md hover:shadow-lg",
+        outlined: "bg-transparent border-2 hover:border-forge-orange",
+        ghost: "bg-transparent hover:bg-accent/50",
+        gradient: "bg-gradient-soft-blue text-card-foreground border-0 shadow-sm",
+        "gradient-brand": "bg-gradient-brand text-white border-0 shadow-md",
+        "gradient-success": "bg-gradient-soft-green text-card-foreground border-0 shadow-sm",
+        "gradient-warning": "bg-gradient-soft-yellow text-card-foreground border-0 shadow-sm",
+        "gradient-purple": "bg-gradient-soft-purple text-card-foreground border-0 shadow-sm",
+        "gradient-orange": "bg-gradient-soft-orange text-card-foreground border-0 shadow-sm"
+      },
+      size: {
+        sm: "p-4",
+        md: "p-card-padding",
+        lg: "p-card-padding-lg"
+      },
+      hover: {
+        true: "cursor-pointer hover:scale-[1.02]",
+        false: ""
+      },
+      interactive: {
+        true: "hover:shadow-lg active:scale-[0.98]",
+        false: ""
+      }
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "md",
+      hover: false,
+      interactive: false
+    }
+  }
+);
+const EnhancedCard = React.forwardRef(
+  ({ className, variant, size, hover, interactive, as: Component2 = "div", ...props }, ref) => {
+    return /* @__PURE__ */ jsx(
+      Component2,
+      {
+        ref,
+        className: cn(enhancedCardVariants({ variant, size, hover, interactive }), className),
+        ...props
+      }
+    );
+  }
+);
+EnhancedCard.displayName = "EnhancedCard";
+const enhancedCardHeaderVariants = cva("flex flex-col", {
+  variants: {
+    spacing: {
+      none: "space-y-0",
+      sm: "space-y-1",
+      md: "space-y-1.5",
+      lg: "space-y-2"
+    }
+  },
+  defaultVariants: {
+    spacing: "md"
+  }
+});
+const EnhancedCardHeader = React.forwardRef(
+  ({ className, spacing, ...props }, ref) => /* @__PURE__ */ jsx(
+    "div",
+    {
+      ref,
+      className: cn(enhancedCardHeaderVariants({ spacing }), className),
+      ...props
+    }
+  )
+);
+EnhancedCardHeader.displayName = "EnhancedCardHeader";
+const enhancedCardTitleVariants = cva("font-semibold leading-none tracking-tight", {
+  variants: {
+    size: {
+      sm: "text-lg",
+      md: "text-xl lg:text-2xl",
+      lg: "text-2xl lg:text-3xl"
+    }
+  },
+  defaultVariants: {
+    size: "md"
+  }
+});
+const EnhancedCardTitle = React.forwardRef(
+  ({ className, size, as: Component2 = "h3", ...props }, ref) => /* @__PURE__ */ jsx(
+    Component2,
+    {
+      ref,
+      className: cn(enhancedCardTitleVariants({ size }), className),
+      ...props
+    }
+  )
+);
+EnhancedCardTitle.displayName = "EnhancedCardTitle";
+const enhancedCardDescriptionVariants = cva("text-muted-foreground", {
+  variants: {
+    size: {
+      sm: "text-xs",
+      md: "text-sm",
+      lg: "text-base"
+    }
+  },
+  defaultVariants: {
+    size: "md"
+  }
+});
+const EnhancedCardDescription = React.forwardRef(
+  ({ className, size, ...props }, ref) => /* @__PURE__ */ jsx(
+    "p",
+    {
+      ref,
+      className: cn(enhancedCardDescriptionVariants({ size }), className),
+      ...props
+    }
+  )
+);
+EnhancedCardDescription.displayName = "EnhancedCardDescription";
+const enhancedCardContentVariants = cva("", {
+  variants: {
+    spacing: {
+      none: "pt-0",
+      sm: "pt-2",
+      md: "pt-4",
+      lg: "pt-6"
+    }
+  },
+  defaultVariants: {
+    spacing: "md"
+  }
+});
+const EnhancedCardContent = React.forwardRef(
+  ({ className, spacing, ...props }, ref) => /* @__PURE__ */ jsx(
+    "div",
+    {
+      ref,
+      className: cn(enhancedCardContentVariants({ spacing }), className),
+      ...props
+    }
+  )
+);
+EnhancedCardContent.displayName = "EnhancedCardContent";
+const enhancedCardFooterVariants = cva("flex items-center", {
+  variants: {
+    spacing: {
+      none: "pt-0",
+      sm: "pt-2",
+      md: "pt-4",
+      lg: "pt-6"
+    },
+    justify: {
+      start: "justify-start",
+      center: "justify-center",
+      end: "justify-end",
+      between: "justify-between"
+    }
+  },
+  defaultVariants: {
+    spacing: "md",
+    justify: "start"
+  }
+});
+const EnhancedCardFooter = React.forwardRef(
+  ({ className, spacing, justify, ...props }, ref) => /* @__PURE__ */ jsx(
+    "div",
+    {
+      ref,
+      className: cn(enhancedCardFooterVariants({ spacing, justify }), className),
+      ...props
+    }
+  )
+);
+EnhancedCardFooter.displayName = "EnhancedCardFooter";
 function ContinueLearningCard({ className }) {
   const { user } = useAuth();
+  const supabase2 = useMemo(() => createClientBrowser(), []);
+  const { t } = useTranslation();
   const [recentCourse, setRecentCourse] = useState(null);
   const { isLoading } = useQuery({
     queryKey: ["continueLearning", user == null ? void 0 : user.id],
     enabled: !!(user == null ? void 0 : user.id),
     queryFn: async () => {
-      const { data: progressData } = await supabase.from("user_progress").select("lesson_id").eq("user_id", user.id).order("completed_at", { ascending: false }).limit(1).maybeSingle();
+      const { data: progressData } = await supabase2.from("user_progress").select("lesson_id").eq("user_id", user.id).order("completed_at", { ascending: false }).limit(1).maybeSingle();
       if (!progressData) return null;
-      const { data: lessonData, error: lessonError } = await supabase.from("lessons").select("modules(courses(id, title, description))").eq("id", progressData.lesson_id).single();
+      const { data: lessonData, error: lessonError } = await supabase2.from("lessons").select("modules(courses(id, title, description))").eq("id", progressData.lesson_id).single();
       if (lessonError || !lessonData) return null;
       const moduleEntry = Array.isArray(lessonData.modules) ? lessonData.modules[0] : lessonData.modules;
       const courseEntry = moduleEntry ? Array.isArray(moduleEntry.courses) ? moduleEntry.courses[0] : moduleEntry.courses : null;
@@ -6253,24 +8148,201 @@ function ContinueLearningCard({ className }) {
       return course;
     }
   });
-  const placeholder = /* @__PURE__ */ jsxs(Card, { className: `bg-blue-50/60 border-blue-100 mb-8 h-full min-h-[220px] flex flex-col ${className || ""}`, children: [
-    /* @__PURE__ */ jsxs(CardHeader, { children: [
-      /* @__PURE__ */ jsx(CardTitle, { className: "text-2xl", children: "Pick up where you left off" }),
-      /* @__PURE__ */ jsx(CardDescription, { children: "You were studying:" })
-    ] }),
-    /* @__PURE__ */ jsx(CardContent, { children: /* @__PURE__ */ jsx("div", { className: "h-10 w-2/3 bg-blue-100 animate-pulse rounded" }) })
-  ] });
-  if (isLoading) return placeholder;
-  if (!recentCourse) return null;
-  return /* @__PURE__ */ jsxs(Card, { className: `bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 mb-8 h-full min-h-[220px] flex flex-col ${className || ""}`, children: [
-    /* @__PURE__ */ jsxs(CardHeader, { children: [
-      /* @__PURE__ */ jsx(CardTitle, { className: "text-2xl tracking-tight", children: "Pick up where you left off" }),
-      /* @__PURE__ */ jsx(CardDescription, { children: "You were studying:" }),
-      /* @__PURE__ */ jsx("p", { className: "text-xl font-semibold pt-2", children: recentCourse.title })
-    ] }),
-    /* @__PURE__ */ jsx(CardContent, { children: /* @__PURE__ */ jsx(Link, { to: DASHBOARD_LEARN_COURSE(recentCourse.id), children: /* @__PURE__ */ jsx(Button, { size: "lg", className: "w-full md:w-auto", children: "Continue learning" }) }) })
-  ] });
+  if (isLoading) {
+    return /* @__PURE__ */ jsx(
+      LoadingCard,
+      {
+        className,
+        showHeader: true,
+        contentLines: 2,
+        showFooter: true
+      }
+    );
+  }
+  if (!recentCourse) {
+    return /* @__PURE__ */ jsx(
+      EnhancedCard,
+      {
+        variant: "gradient",
+        size: "lg",
+        className,
+        children: /* @__PURE__ */ jsx(
+          EmptyState,
+          {
+            variant: "no-data",
+            icon: BookOpen,
+            title: t("dashboard.continueLearning.empty.title"),
+            description: t("dashboard.continueLearning.empty.description"),
+            size: "sm"
+          }
+        )
+      }
+    );
+  }
+  return /* @__PURE__ */ jsxs(
+    EnhancedCard,
+    {
+      variant: "gradient",
+      size: "lg",
+      className,
+      "aria-label": t("dashboard.continueLearning.ariaLabel", { course: recentCourse.title }),
+      children: [
+        /* @__PURE__ */ jsxs(EnhancedCardHeader, { children: [
+          /* @__PURE__ */ jsx(EnhancedCardTitle, { size: "lg", children: t("dashboard.continueLearning.title") }),
+          /* @__PURE__ */ jsx(EnhancedCardDescription, { size: "md", children: t("dashboard.continueLearning.subtitle") }),
+          /* @__PURE__ */ jsx("p", { className: "text-xl font-semibold pt-2 text-foreground", children: recentCourse.title })
+        ] }),
+        /* @__PURE__ */ jsx(EnhancedCardContent, { children: /* @__PURE__ */ jsx(Link, { to: DASHBOARD_LEARN_COURSE(recentCourse.id), children: /* @__PURE__ */ jsx(
+          Button,
+          {
+            size: "lg",
+            className: "w-full md:w-auto",
+            "aria-label": t("common.buttons.continueLearning") + " - " + recentCourse.title,
+            children: t("common.buttons.continueLearning")
+          }
+        ) }) })
+      ]
+    }
+  );
 }
+const statCardVariants = cva("", {
+  variants: {
+    variant: {
+      default: "",
+      gradient: "",
+      minimal: ""
+    },
+    colorScheme: {
+      blue: "bg-gradient-soft-blue",
+      green: "bg-gradient-soft-green",
+      yellow: "bg-gradient-soft-yellow",
+      purple: "bg-gradient-soft-purple",
+      orange: "bg-gradient-soft-orange",
+      brand: "bg-gradient-brand text-white"
+    },
+    size: {
+      sm: "",
+      md: "",
+      lg: ""
+    }
+  },
+  defaultVariants: {
+    variant: "default",
+    colorScheme: "blue",
+    size: "md"
+  }
+});
+const StatCard = React.forwardRef(
+  ({
+    className,
+    variant = "default",
+    colorScheme,
+    size = "md",
+    icon: Icon,
+    label,
+    value,
+    description,
+    trend,
+    isLoading = false,
+    iconColor,
+    cardVariant,
+    ...props
+  }, ref) => {
+    const effectiveCardVariant = cardVariant || (variant === "gradient" ? "gradient" : "default");
+    const iconSizes = {
+      sm: "h-8 w-8",
+      md: "h-10 w-10",
+      lg: "h-12 w-12"
+    };
+    const valueSizes = {
+      sm: "text-2xl font-bold",
+      md: "text-3xl font-bold",
+      lg: "text-4xl font-bold"
+    };
+    const labelSizes = {
+      sm: "text-xs",
+      md: "text-sm",
+      lg: "text-base"
+    };
+    const getIconColor = () => {
+      if (iconColor) return iconColor;
+      const colorMap = {
+        blue: "text-info",
+        green: "text-success",
+        yellow: "text-warning",
+        purple: "text-purple-600",
+        orange: "text-forge-orange",
+        brand: "text-white"
+      };
+      return colorMap[colorScheme || "blue"];
+    };
+    if (isLoading) {
+      return /* @__PURE__ */ jsx(
+        EnhancedCard,
+        {
+          ref,
+          variant: effectiveCardVariant,
+          className: cn(statCardVariants({ variant, colorScheme }), className),
+          ...props,
+          children: /* @__PURE__ */ jsx(EnhancedCardContent, { spacing: "md", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between", children: [
+            /* @__PURE__ */ jsxs("div", { className: "space-y-2 flex-1", children: [
+              /* @__PURE__ */ jsx("div", { className: "h-4 bg-muted animate-pulse rounded w-20" }),
+              /* @__PURE__ */ jsx("div", { className: "h-8 bg-muted animate-pulse rounded w-24" })
+            ] }),
+            /* @__PURE__ */ jsx("div", { className: cn("rounded-full bg-muted animate-pulse", iconSizes[size || "md"]) })
+          ] }) })
+        }
+      );
+    }
+    return /* @__PURE__ */ jsxs(
+      EnhancedCard,
+      {
+        ref,
+        variant: effectiveCardVariant,
+        className: cn(statCardVariants({ variant, colorScheme }), "relative overflow-hidden", className),
+        ...props,
+        children: [
+          /* @__PURE__ */ jsx(EnhancedCardContent, { spacing: "md", children: /* @__PURE__ */ jsxs("div", { className: "flex items-start justify-between", children: [
+            /* @__PURE__ */ jsxs("div", { className: "space-y-1 flex-1", children: [
+              /* @__PURE__ */ jsx("p", { className: cn("font-medium text-muted-foreground", labelSizes[size || "md"]), children: label }),
+              /* @__PURE__ */ jsx("p", { className: cn(valueSizes[size || "md"], "tracking-tight"), children: value }),
+              description && /* @__PURE__ */ jsx("p", { className: "text-xs text-muted-foreground mt-1", children: description }),
+              trend && /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1 mt-2", children: [
+                trend.direction === "up" && /* @__PURE__ */ jsx(TrendingUp, { className: "h-4 w-4 text-success" }),
+                trend.direction === "down" && /* @__PURE__ */ jsx(TrendingDown, { className: "h-4 w-4 text-error" }),
+                /* @__PURE__ */ jsx(
+                  "span",
+                  {
+                    className: cn(
+                      "text-xs font-medium",
+                      trend.direction === "up" && "text-success",
+                      trend.direction === "down" && "text-error",
+                      trend.direction === "neutral" && "text-muted-foreground"
+                    ),
+                    children: trend.value
+                  }
+                ),
+                trend.label && /* @__PURE__ */ jsx("span", { className: "text-xs text-muted-foreground", children: trend.label })
+              ] })
+            ] }),
+            Icon && /* @__PURE__ */ jsx(
+              "div",
+              {
+                className: cn(
+                  "rounded-full p-2 bg-background/50",
+                  iconSizes[size || "md"]
+                ),
+                children: /* @__PURE__ */ jsx(Icon, { className: cn("h-full w-full", getIconColor()) })
+              }
+            )
+          ] }) }),
+          variant === "gradient" && /* @__PURE__ */ jsx("div", { className: "absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" })
+        ]
+      }
+    );
+  }
+);
+StatCard.displayName = "StatCard";
 const MOCK_STATS = {
   totalXP: 1320,
   completedLessons: 9,
@@ -6280,6 +8352,7 @@ const MOCK_STATS = {
 function UserStats() {
   const { user } = useAuth();
   const supabase2 = useMemo(() => createClientBrowser(), []);
+  const { t } = useTranslation();
   const [stats, setStats] = useState({
     totalXP: 0,
     completedLessons: 0,
@@ -6296,7 +8369,7 @@ function UserStats() {
       if (isMounted) setLoading(true);
       try {
         const { data: progressRows, error: progressError } = await supabase2.from("user_progress").select("lesson_id, status").eq("user_id", user.id).in("status", ["in_progress", "completed"]);
-        if (progressError) throw new Error(progressError.message || "Failed to load user progress");
+        if (progressError) throw new Error(progressError.message || t("dashboard.userStats.errors.loadProgress"));
         const rows = progressRows || [];
         const completedLessons = rows.filter((r) => r.status === "completed").length;
         const lessonIds = Array.from(new Set(rows.map((r) => r.lesson_id).filter(Boolean)));
@@ -6306,7 +8379,7 @@ function UserStats() {
           for (let i = 0; i < lessonIds.length; i += chunkSize) {
             const chunk = lessonIds.slice(i, i + chunkSize);
             const { data: ldata, error: lerr } = await supabase2.from("lessons").select("id, xp_value, modules(courses(path_id))").in("id", chunk);
-            if (lerr) throw new Error(lerr.message || "Failed to load lessons");
+            if (lerr) throw new Error(lerr.message || t("dashboard.userStats.errors.loadLessons"));
             lessons2 = lessons2.concat(ldata || []);
           }
         }
@@ -6352,44 +8425,43 @@ function UserStats() {
   const display = useMock || loading ? MOCK_STATS : stats;
   const statCards = [
     {
-      title: "Total XP",
+      label: t("dashboard.userStats.totalXp"),
       value: display.totalXP,
       icon: Trophy,
-      color: "text-yellow-600",
-      bgColor: "bg-gradient-to-br from-yellow-50 to-yellow-100"
+      colorScheme: "yellow"
     },
     {
-      title: "Completed Lessons",
+      label: t("dashboard.userStats.completedLessons"),
       value: display.completedLessons,
       icon: BookOpen,
-      color: "text-green-600",
-      bgColor: "bg-gradient-to-br from-green-50 to-green-100"
+      colorScheme: "green"
     },
     {
-      title: "Active Paths",
+      label: t("dashboard.userStats.activePaths"),
       value: display.inProgressPaths,
       icon: Target,
-      color: "text-blue-600",
-      bgColor: "bg-gradient-to-br from-blue-50 to-blue-100"
+      colorScheme: "blue"
     },
     {
-      title: "Study Time",
-      value: `${display.totalTimeSpent} min`,
+      label: t("dashboard.userStats.studyTime"),
+      value: t("dashboard.userStats.studyTimeValue", { minutes: display.totalTimeSpent }),
       icon: Clock,
-      color: "text-purple-600",
-      bgColor: "bg-gradient-to-br from-purple-50 to-purple-100"
+      colorScheme: "purple"
     }
   ];
-  return /* @__PURE__ */ jsx("div", { className: "grid gap-4 md:grid-cols-4", children: statCards.map((stat, index) => {
-    const Icon = stat.icon;
-    return /* @__PURE__ */ jsx(Card, { children: /* @__PURE__ */ jsx(CardContent, { className: "p-6", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center", children: [
-      /* @__PURE__ */ jsx("div", { className: `${stat.bgColor} p-2 rounded-md shadow-inner`, children: /* @__PURE__ */ jsx(Icon, { className: `h-6 w-6 ${stat.color}` }) }),
-      /* @__PURE__ */ jsxs("div", { className: "ml-4", children: [
-        /* @__PURE__ */ jsx("p", { className: "text-sm font-medium text-gray-600", children: stat.title }),
-        /* @__PURE__ */ jsx("p", { className: "text-2xl font-bold tracking-tight", children: stat.value })
-      ] })
-    ] }) }) }, index);
-  }) });
+  return /* @__PURE__ */ jsx("div", { className: "grid gap-card-gap md:grid-cols-4", children: statCards.map((stat, index) => /* @__PURE__ */ jsx(
+    StatCard,
+    {
+      label: stat.label,
+      value: stat.value,
+      icon: stat.icon,
+      colorScheme: stat.colorScheme,
+      variant: "gradient",
+      isLoading: loading,
+      "aria-label": `${stat.label}: ${stat.value}`
+    },
+    index
+  )) });
 }
 const Progress = React.forwardRef(({ className, value, ...props }, ref) => /* @__PURE__ */ jsx(
   ProgressPrimitive.Root,
@@ -6414,6 +8486,7 @@ const WEEKLY_GOAL = 5;
 function LearningHabits({ className }) {
   const { user } = useAuth();
   const supabase2 = useMemo(() => createClientBrowser(), []);
+  const { t } = useTranslation();
   const { data: completions = [], isLoading } = useQuery({
     queryKey: ["learningHabits", user == null ? void 0 : user.id],
     enabled: !!(user == null ? void 0 : user.id),
@@ -6423,7 +8496,7 @@ function LearningHabits({ className }) {
     keepPreviousData: true,
     queryFn: async () => {
       const { data, error } = await supabase2.from("user_progress").select("completed_at").eq("user_id", user.id).eq("status", "completed").not("completed_at", "is", null).order("completed_at", { ascending: false }).limit(200);
-      if (error) throw new Error(error.message || "Failed to load learning habits");
+      if (error) throw new Error(error.message || t("dashboard.learningHabits.loadError"));
       return data;
     }
   });
@@ -6466,29 +8539,22 @@ function LearningHabits({ className }) {
       weekSeries: last7
     };
   }, [completions]);
+  const streakText = isLoading ? "-" : t("dashboard.learningHabits.dayCount", { count: streakDays });
+  const weeklyProgressText = isLoading ? "-" : t("dashboard.learningHabits.weekProgress", { completed: weekCount, goal: WEEKLY_GOAL });
   return /* @__PURE__ */ jsxs(Card, { className: `h-full min-h-[220px] flex flex-col ${className || ""}`, children: [
-    /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsx(CardTitle, { className: "text-lg", children: "Study habits" }) }),
+    /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsx(CardTitle, { className: "text-lg", children: t("dashboard.learningHabits.title") }) }),
     /* @__PURE__ */ jsxs(CardContent, { className: "space-y-4", children: [
       /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between", children: [
         /* @__PURE__ */ jsxs("div", { children: [
-          /* @__PURE__ */ jsx("div", { className: "text-sm text-gray-600", children: "Current streak" }),
-          /* @__PURE__ */ jsxs("div", { className: "text-2xl font-semibold", children: [
-            isLoading ? "-" : streakDays,
-            " day",
-            !isLoading && streakDays !== 1 ? "s" : ""
-          ] })
+          /* @__PURE__ */ jsx("div", { className: "text-sm text-gray-600", children: t("dashboard.learningHabits.currentStreak") }),
+          /* @__PURE__ */ jsx("div", { className: "text-2xl font-semibold", children: streakText })
         ] }),
-        /* @__PURE__ */ jsx("div", { className: "text-xs text-gray-500", children: "Keep it going daily" })
+        /* @__PURE__ */ jsx("div", { className: "text-xs text-gray-500", children: t("dashboard.learningHabits.keepGoing") })
       ] }),
       /* @__PURE__ */ jsxs("div", { children: [
         /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between mb-1", children: [
-          /* @__PURE__ */ jsx("div", { className: "text-sm text-gray-600", children: "Weekly goal" }),
-          /* @__PURE__ */ jsxs("div", { className: "text-sm font-medium", children: [
-            isLoading ? "-" : weekCount,
-            "/",
-            WEEKLY_GOAL,
-            " lessons"
-          ] })
+          /* @__PURE__ */ jsx("div", { className: "text-sm text-gray-600", children: t("dashboard.learningHabits.weeklyGoal") }),
+          /* @__PURE__ */ jsx("div", { className: "text-sm font-medium", children: weeklyProgressText })
         ] }),
         /* @__PURE__ */ jsx(Progress, { value: Math.min(100, weekCount / WEEKLY_GOAL * 100) })
       ] }),
@@ -6497,7 +8563,7 @@ function LearningHabits({ className }) {
         {
           className: "w-6 rounded bg-forge-orange/20",
           style: { height: Math.max(6, Math.min(28, v * 8)) },
-          title: `${v} completions`
+          title: t("dashboard.learningHabits.completions", { count: v })
         }
       ) }, idx)) })
     ] })
@@ -6505,6 +8571,7 @@ function LearningHabits({ className }) {
 }
 function DashboardHome() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const getUserDisplayName = () => {
     var _a, _b;
     console.log("User data:", user);
@@ -6518,13 +8585,13 @@ function DashboardHome() {
     if (user == null ? void 0 : user.email) {
       return user.email.split("@")[0];
     }
-    return "User";
+    return t("common.labels.user");
   };
   return /* @__PURE__ */ jsxs("div", { className: "space-y-8", children: [
     /* @__PURE__ */ jsx("div", { className: "space-y-2", children: /* @__PURE__ */ jsxs("div", { className: "text-gray-500", children: [
-      /* @__PURE__ */ jsx("span", { className: "inline-flex items-center gap-2 text-sm rounded-full bg-forge-cream text-forge-dark px-2 py-0.5 mr-2", children: DASHBOARD_STRINGS.dashboardHome.badge }),
+      /* @__PURE__ */ jsx("span", { className: "inline-flex items-center gap-2 text-sm rounded-full bg-forge-cream text-forge-dark px-2 py-0.5 mr-2", children: t("dashboard.home.badge") }),
       /* @__PURE__ */ jsx("span", { className: "font-medium text-forge-dark", children: getUserDisplayName() }),
-      DASHBOARD_STRINGS.dashboardHome.headlineSuffix
+      t("dashboard.home.headlineSuffix")
     ] }) }),
     /* @__PURE__ */ jsx("div", { className: "grid grid-cols-12 gap-6", children: /* @__PURE__ */ jsxs("div", { className: "col-span-12 space-y-6", children: [
       /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-12 gap-6", children: [
@@ -6533,70 +8600,348 @@ function DashboardHome() {
       ] }),
       /* @__PURE__ */ jsx(UserStats, {})
     ] }) }),
-    /* @__PURE__ */ jsxs("div", { className: "space-y-3", children: [
-      /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between", children: [
-        /* @__PURE__ */ jsx("h2", { className: "text-xl font-semibold tracking-tight", children: ROUTE_LABELS[DASHBOARD_EXPLORE] }),
-        /* @__PURE__ */ jsx(Link, { to: DASHBOARD_EXPLORE, className: "text-forge-orange hover:underline", children: DASHBOARD_STRINGS.dashboardHome.exploreCta })
+    /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
+      /* @__PURE__ */ jsxs("div", { className: "space-y-3", children: [
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between", children: [
+          /* @__PURE__ */ jsx("h2", { className: "text-xl font-semibold tracking-tight", children: "Learning Formations" }),
+          /* @__PURE__ */ jsx(Link, { to: DASHBOARD_FORMATIONS, className: "text-forge-orange hover:underline", children: "View all formations" })
+        ] }),
+        /* @__PURE__ */ jsx(FormationsList, { limit: 3, className: "mt-2" })
       ] }),
-      /* @__PURE__ */ jsx(AvailablePaths, { className: "mt-2" })
+      /* @__PURE__ */ jsxs("div", { className: "space-y-3", children: [
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between", children: [
+          /* @__PURE__ */ jsx("h2", { className: "text-xl font-semibold tracking-tight", children: t(ROUTE_LABELS[DASHBOARD_EXPLORE]) }),
+          /* @__PURE__ */ jsx(Link, { to: DASHBOARD_EXPLORE, className: "text-forge-orange hover:underline", children: t("dashboard.home.exploreCta") })
+        ] }),
+        /* @__PURE__ */ jsx(AvailablePaths, { limit: 6, className: "mt-2" })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "space-y-3", children: [
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between", children: [
+          /* @__PURE__ */ jsx("h2", { className: "text-xl font-semibold tracking-tight", children: "Coming Soon" }),
+          /* @__PURE__ */ jsx(Link, { to: DASHBOARD_COMING_SOON, className: "text-forge-orange hover:underline", children: "View all upcoming paths" })
+        ] }),
+        /* @__PURE__ */ jsx(ComingSoonPaths, { limit: 3, className: "mt-2" })
+      ] })
     ] })
   ] });
 }
-const STORAGE_KEY = "forge-college-student-profile";
-async function getProfile() {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored) {
-    return JSON.parse(stored);
+const isPostgrestError = (value) => typeof value === "object" && value !== null && "code" in value && "message" in value;
+function FormationDetailPage() {
+  const { formationId } = useParams();
+  const supabase2 = useMemo(() => createClientBrowser(), []);
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const {
+    data: formation,
+    isLoading,
+    isError,
+    error
+  } = useQuery({
+    queryKey: ["formation-detail", formationId, user == null ? void 0 : user.id],
+    enabled: Boolean(formationId),
+    queryFn: async () => {
+      if (!formationId) throw new Error("Formation not found");
+      const { data, error: formationError } = await supabase2.from("formations").select(`
+          id, title, description, thumbnail_url, created_at, published_at, status,
+          formation_paths(
+            order,
+            learning_paths(id, title, status)
+          )
+        `).eq("id", formationId).single();
+      if (formationError || !data) throw formationError ?? new Error("Formation not found");
+      const formationRow = data;
+      const paths = (formationRow.formation_paths ?? []).map((fp) => {
+        if (!fp.learning_paths) return null;
+        return {
+          id: fp.learning_paths.id,
+          title: fp.learning_paths.title,
+          order: fp.order ?? 0,
+          status: fp.learning_paths.status
+        };
+      }).filter((path) => Boolean(path)).sort((a, b) => a.order - b.order);
+      const { data: waitingListCount, error: waitingListError } = await supabase2.rpc(
+        "get_formation_waiting_list_count",
+        { p_formation_id: formationId }
+      );
+      if (waitingListError) throw waitingListError;
+      let isUserOnWaitlist = false;
+      if (user == null ? void 0 : user.id) {
+        const { data: existing, error: existingError } = await supabase2.from("waiting_list").select("id").eq("formation_id", formationId).eq("user_id", user.id).maybeSingle();
+        if (existingError) throw existingError;
+        isUserOnWaitlist = Boolean(existing);
+      }
+      return {
+        id: formationRow.id,
+        title: formationRow.title,
+        description: formationRow.description,
+        thumbnail_url: formationRow.thumbnail_url,
+        created_at: formationRow.created_at,
+        published_at: formationRow.published_at,
+        status: formationRow.status,
+        paths,
+        waitingListCount: waitingListCount ?? 0,
+        isUserOnWaitlist
+      };
+    }
+  });
+  const joinWaitingListMutation = useMutation({
+    mutationFn: async () => {
+      if (!formationId) throw new Error("Formation not found");
+      if (!user) {
+        throw new Error("You need to be logged in to join the waiting list");
+      }
+      const { error: insertError } = await supabase2.from("waiting_list").insert({
+        formation_id: formationId,
+        user_id: user.id,
+        email: user.email ?? ""
+      });
+      if (insertError) throw insertError;
+    },
+    onSuccess: () => {
+      toast$1.success("You have been added to the waiting list for this formation");
+      queryClient.invalidateQueries({ queryKey: ["formation-detail", formationId, user == null ? void 0 : user.id] });
+    },
+    onError: (mutationError) => {
+      if (isPostgrestError(mutationError) && mutationError.code === "23505") {
+        toast$1.info("You are already on the waiting list for this formation");
+        queryClient.invalidateQueries({ queryKey: ["formation-detail", formationId, user == null ? void 0 : user.id] });
+        return;
+      }
+      const message = isPostgrestError(mutationError) ? mutationError.message : mutationError instanceof Error ? mutationError.message : "Failed to join waiting list";
+      toast$1.error(message);
+    }
+  });
+  if (isLoading) {
+    return /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
+      /* @__PURE__ */ jsxs("div", { className: "animate-pulse space-y-4", children: [
+        /* @__PURE__ */ jsx("div", { className: "h-8 w-40 rounded bg-gray-200" }),
+        /* @__PURE__ */ jsx("div", { className: "h-10 w-2/3 rounded bg-gray-200" }),
+        /* @__PURE__ */ jsx("div", { className: "h-4 w-1/2 rounded bg-gray-200" })
+      ] }),
+      /* @__PURE__ */ jsx("div", { className: "grid gap-4 md:grid-cols-2", children: [...Array(2)].map((_, index) => /* @__PURE__ */ jsxs(Card, { className: "animate-pulse", children: [
+        /* @__PURE__ */ jsxs(CardHeader, { children: [
+          /* @__PURE__ */ jsx("div", { className: "h-5 w-1/2 rounded bg-gray-200" }),
+          /* @__PURE__ */ jsx("div", { className: "h-4 w-2/3 rounded bg-gray-100" })
+        ] }),
+        /* @__PURE__ */ jsx(CardContent, { children: /* @__PURE__ */ jsx("div", { className: "h-10 w-full rounded bg-gray-100" }) })
+      ] }, index)) })
+    ] });
   }
-  return {
-    fullName: "",
-    email: "",
-    country: "",
-    city: "",
-    languages: [],
-    yearsExperience: 0,
-    stacks: [],
-    skillsToDevelop: [],
-    positionCompany: "",
-    linkedinUrl: "",
-    githubUrl: ""
-  };
+  if (isError || !formation) {
+    return /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
+      /* @__PURE__ */ jsxs(Link, { to: DASHBOARD_FORMATIONS, className: "inline-flex items-center gap-2 text-sm text-forge-orange hover:underline", children: [
+        /* @__PURE__ */ jsx(ArrowLeft, { className: "h-4 w-4" }),
+        " Back to formations"
+      ] }),
+      /* @__PURE__ */ jsx(Card, { className: "border-dashed border-forge-cream/70 bg-white/80", children: /* @__PURE__ */ jsx(CardContent, { className: "p-8 text-center text-forge-gray", children: error instanceof Error ? error.message : "We could not load this formation." }) })
+    ] });
+  }
+  const createdAtDistance = formation.created_at ? formatDistanceToNow(new Date(formation.created_at), { addSuffix: true }) : null;
+  const publishedAtDistance = formation.published_at ? formatDistanceToNow(new Date(formation.published_at), { addSuffix: true }) : null;
+  const isComingSoon = formation.status === "coming_soon";
+  const joinDisabled = joinWaitingListMutation.isPending || formation.isUserOnWaitlist;
+  const firstPublishedPath = formation.paths.find((path) => path.status === "published");
+  return /* @__PURE__ */ jsxs("div", { className: "space-y-8", children: [
+    /* @__PURE__ */ jsxs("div", { className: "space-y-4", children: [
+      /* @__PURE__ */ jsxs(Link, { to: DASHBOARD_FORMATIONS, className: "inline-flex items-center gap-2 text-sm text-forge-orange hover:underline", children: [
+        /* @__PURE__ */ jsx(ArrowLeft, { className: "h-4 w-4" }),
+        " Back to formations"
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "flex flex-col gap-4 md:flex-row md:justify-between md:items-start", children: [
+        /* @__PURE__ */ jsxs("div", { className: "space-y-2", children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex flex-wrap items-center gap-3", children: [
+            /* @__PURE__ */ jsx("h1", { className: "text-3xl font-bold text-forge-dark", children: formation.title }),
+            /* @__PURE__ */ jsx(Badge, { variant: isComingSoon ? "secondary" : formation.status === "published" ? "default" : "outline", children: isComingSoon ? "Coming soon" : formation.status === "published" ? "Published" : "Draft" })
+          ] }),
+          /* @__PURE__ */ jsx("p", { className: "text-forge-gray max-w-2xl", children: formation.description || "Explore the curated learning paths included in this formation." }),
+          /* @__PURE__ */ jsxs("div", { className: "flex flex-wrap items-center gap-3 text-sm text-forge-gray", children: [
+            /* @__PURE__ */ jsxs("span", { className: "inline-flex items-center gap-1", children: [
+              /* @__PURE__ */ jsx(BookOpen, { className: "h-4 w-4" }),
+              formation.paths.length,
+              " learning paths"
+            ] }),
+            isComingSoon && /* @__PURE__ */ jsxs("span", { className: "inline-flex items-center gap-1", children: [
+              /* @__PURE__ */ jsx(Users, { className: "h-4 w-4" }),
+              formation.waitingListCount,
+              " on waiting list"
+            ] }),
+            createdAtDistance && /* @__PURE__ */ jsxs("span", { className: "inline-flex items-center gap-1", children: [
+              /* @__PURE__ */ jsx(Clock, { className: "h-4 w-4" }),
+              "Created ",
+              createdAtDistance
+            ] }),
+            publishedAtDistance && /* @__PURE__ */ jsxs("span", { className: "inline-flex items-center gap-1 text-forge-orange", children: [
+              /* @__PURE__ */ jsx(Clock, { className: "h-4 w-4" }),
+              "Published ",
+              publishedAtDistance
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsx("div", { className: "flex flex-col gap-2", children: isComingSoon ? /* @__PURE__ */ jsxs(Fragment, { children: [
+          /* @__PURE__ */ jsx(
+            EnhancedButton,
+            {
+              onClick: () => joinWaitingListMutation.mutate(),
+              disabled: joinDisabled || !user,
+              className: "min-w-[220px]",
+              variant: formation.isUserOnWaitlist ? "outline" : "primary",
+              children: formation.isUserOnWaitlist ? "You are on the waiting list" : joinWaitingListMutation.isPending ? "Joining..." : user ? "Join the waiting list" : "Sign in to join"
+            }
+          ),
+          !user && /* @__PURE__ */ jsx("p", { className: "text-xs text-muted-foreground text-right", children: "You must be signed in to join the waiting list." }),
+          /* @__PURE__ */ jsx("p", { className: "text-xs text-muted-foreground max-w-xs", children: "We will notify you as soon as this formation opens for enrollment." })
+        ] }) : firstPublishedPath ? /* @__PURE__ */ jsx(Link, { to: DASHBOARD_LEARN_PATH(firstPublishedPath.id), children: /* @__PURE__ */ jsx(EnhancedButton, { className: "min-w-[220px]", withGradient: true, children: "Start learning" }) }) : /* @__PURE__ */ jsx(EnhancedButton, { className: "min-w-[220px]", variant: "outline", disabled: true, children: "Paths coming soon" }) })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxs("section", { className: "space-y-4", children: [
+      /* @__PURE__ */ jsx("h2", { className: "text-xl font-semibold text-forge-dark", children: "Included learning paths" }),
+      formation.paths.length === 0 ? /* @__PURE__ */ jsx(Card, { className: "border-dashed border-forge-cream/70 bg-white/70", children: /* @__PURE__ */ jsx(CardContent, { className: "p-8 text-center text-forge-gray", children: "Learning paths will be added to this formation soon." }) }) : /* @__PURE__ */ jsx("div", { className: "grid gap-4 md:grid-cols-2", children: formation.paths.map((path, index) => /* @__PURE__ */ jsxs(Card, { className: "flex flex-col border border-forge-cream/70 bg-white/80", children: [
+        /* @__PURE__ */ jsxs(CardHeader, { className: "space-y-2", children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between gap-2", children: [
+            /* @__PURE__ */ jsx("span", { className: "text-sm font-medium text-forge-orange", children: index + 1 }),
+            /* @__PURE__ */ jsx(Badge, { variant: path.status === "published" ? "default" : path.status === "coming_soon" ? "secondary" : "outline", children: path.status === "published" ? "Published" : path.status === "coming_soon" ? "Coming soon" : "Draft" })
+          ] }),
+          /* @__PURE__ */ jsx(CardTitle, { className: "text-lg leading-tight text-forge-dark", children: path.title })
+        ] }),
+        /* @__PURE__ */ jsx(CardContent, { className: "mt-auto", children: path.status === "published" ? /* @__PURE__ */ jsx(Link, { to: DASHBOARD_LEARN_PATH(path.id), children: /* @__PURE__ */ jsx(EnhancedButton, { variant: "outline", className: "w-full", children: "View path" }) }) : /* @__PURE__ */ jsx(EnhancedButton, { variant: "ghost", className: "w-full", disabled: true, children: path.status === "coming_soon" ? "Coming soon" : "Not yet published" }) })
+      ] }, path.id)) })
+    ] })
+  ] });
+}
+const DEFAULT_LANGUAGE = "pt-BR";
+const mapRowToProfile = (row, email) => ({
+  fullName: row.full_name,
+  email,
+  country: row.country,
+  city: row.city,
+  languages: row.languages,
+  communicationLanguage: row.communication_language ?? DEFAULT_LANGUAGE,
+  yearsExperience: row.years_experience,
+  stacks: row.stacks,
+  skillsToDevelop: row.skills_to_develop,
+  positionCompany: row.position_company,
+  linkedinUrl: row.linkedin_url ?? void 0,
+  githubUrl: row.github_url ?? void 0,
+  walletAddress: row.wallet_address ?? void 0
+});
+const mapProfileToPayload = (profile2, userId) => ({
+  user_id: userId,
+  wallet_address: profile2.walletAddress ?? null,
+  full_name: profile2.fullName,
+  country: profile2.country,
+  city: profile2.city,
+  languages: profile2.languages,
+  years_experience: profile2.yearsExperience,
+  stacks: profile2.stacks,
+  skills_to_develop: profile2.skillsToDevelop,
+  position_company: profile2.positionCompany,
+  linkedin_url: profile2.linkedinUrl ?? null,
+  github_url: profile2.githubUrl ?? null,
+  communication_language: profile2.communicationLanguage
+});
+const buildEmptyProfile = (email, language) => ({
+  fullName: "",
+  email,
+  country: "",
+  city: "",
+  languages: [],
+  communicationLanguage: language,
+  yearsExperience: 0,
+  stacks: [],
+  skillsToDevelop: [],
+  positionCompany: "",
+  linkedinUrl: void 0,
+  githubUrl: void 0,
+  walletAddress: void 0
+});
+async function getProfile() {
+  var _a;
+  const supabase2 = createClientBrowser();
+  const {
+    data: { user },
+    error: userError
+  } = await supabase2.auth.getUser();
+  if (userError) {
+    throw userError;
+  }
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+  const preferredLanguage = ((_a = user.user_metadata) == null ? void 0 : _a.communication_language) ?? DEFAULT_LANGUAGE;
+  const { data, error } = await supabase2.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
+  if (error) {
+    throw error;
+  }
+  if (!data) {
+    const emptyProfile = buildEmptyProfile(user.email ?? "", preferredLanguage);
+    const insertPayload = mapProfileToPayload(emptyProfile, user.id);
+    const { error: insertError } = await supabase2.from("profiles").insert(insertPayload);
+    if (insertError) {
+      throw insertError;
+    }
+    return emptyProfile;
+  }
+  return mapRowToProfile(data, user.email ?? "");
 }
 async function updateProfile(data) {
-  await new Promise((resolve) => setTimeout(resolve, 800));
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  if (Math.random() < 0.01) {
-    throw new Error("Failed to update profile. Please try again.");
+  var _a;
+  const supabase2 = createClientBrowser();
+  const {
+    data: { user },
+    error: userError
+  } = await supabase2.auth.getUser();
+  if (userError) {
+    throw userError;
+  }
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+  const payload = mapProfileToPayload(data, user.id);
+  const { error } = await supabase2.from("profiles").upsert(payload, { onConflict: "user_id" });
+  if (error) {
+    throw error;
+  }
+  const existingLanguage = (_a = user.user_metadata) == null ? void 0 : _a.communication_language;
+  if (existingLanguage !== data.communicationLanguage) {
+    const { error: metadataError } = await supabase2.auth.updateUser({
+      data: { communication_language: data.communicationLanguage }
+    });
+    if (metadataError) {
+      console.warn("Failed to sync communication language with auth metadata", metadataError);
+    }
   }
 }
-const tabs = [
-  {
-    id: "personal",
-    label: "Personal Information",
-    icon: User,
-    description: "Basic personal details and contact information"
-  },
-  {
-    id: "professional",
-    label: "Professional Profile",
-    icon: Briefcase,
-    description: "Work experience, skills, and career information"
-  },
-  {
-    id: "learning",
-    label: "Learning Progress",
-    icon: BookOpen,
-    description: "Track your learning journey and achievements"
-  },
-  {
-    id: "career",
-    label: "Career Preferences",
-    icon: Target,
-    description: "Job preferences and career goals"
-  }
-];
 function ProfileSidebar({ activeTab, onTabChange }) {
+  const { t } = useTranslation();
+  const tabs = useMemo(
+    () => [
+      {
+        id: "personal",
+        label: t("profile.sections.personal"),
+        icon: User,
+        description: t("profile.sections.personalDesc")
+      },
+      {
+        id: "professional",
+        label: t("profile.sections.professional"),
+        icon: Briefcase,
+        description: t("profile.sections.professionalDesc")
+      },
+      {
+        id: "learning",
+        label: t("profile.sections.learning"),
+        icon: BookOpen,
+        description: t("profile.sections.learningDesc")
+      },
+      {
+        id: "career",
+        label: t("profile.sections.career"),
+        icon: Target,
+        description: t("profile.sections.careerDesc")
+      }
+    ],
+    [t]
+  );
   return /* @__PURE__ */ jsx("div", { className: "space-y-2", children: tabs.map((tab) => {
     const Icon = tab.icon;
     const isActive = activeTab === tab.id;
@@ -6802,45 +9147,45 @@ const SelectSeparator = React.forwardRef(({ className, ...props }, ref) => /* @_
   }
 ));
 SelectSeparator.displayName = SelectPrimitive.Separator.displayName;
-const countries = [
-  "Brazil",
-  "United States",
-  "Canada",
-  "United Kingdom",
-  "Germany",
-  "France",
-  "Spain",
-  "Italy",
-  "Netherlands",
-  "Sweden",
-  "Norway",
-  "Denmark",
-  "Finland",
-  "Switzerland",
-  "Austria",
-  "Belgium",
-  "Portugal",
-  "Ireland",
-  "Australia",
-  "New Zealand",
-  "Japan",
-  "South Korea",
-  "Singapore",
-  "India",
-  "China",
-  "Mexico",
-  "Argentina",
-  "Chile",
-  "Colombia",
-  "Peru",
-  "Uruguay",
-  "Paraguay",
-  "Venezuela",
-  "Ecuador",
-  "Bolivia",
-  "Guyana",
-  "Suriname",
-  "French Guiana"
+const COUNTRY_LIST = [
+  { value: "Brazil", key: "brazil" },
+  { value: "United States", key: "unitedStates" },
+  { value: "Canada", key: "canada" },
+  { value: "United Kingdom", key: "unitedKingdom" },
+  { value: "Germany", key: "germany" },
+  { value: "France", key: "france" },
+  { value: "Spain", key: "spain" },
+  { value: "Italy", key: "italy" },
+  { value: "Netherlands", key: "netherlands" },
+  { value: "Sweden", key: "sweden" },
+  { value: "Norway", key: "norway" },
+  { value: "Denmark", key: "denmark" },
+  { value: "Finland", key: "finland" },
+  { value: "Switzerland", key: "switzerland" },
+  { value: "Austria", key: "austria" },
+  { value: "Belgium", key: "belgium" },
+  { value: "Portugal", key: "portugal" },
+  { value: "Ireland", key: "ireland" },
+  { value: "Australia", key: "australia" },
+  { value: "New Zealand", key: "newZealand" },
+  { value: "Japan", key: "japan" },
+  { value: "South Korea", key: "southKorea" },
+  { value: "Singapore", key: "singapore" },
+  { value: "India", key: "india" },
+  { value: "China", key: "china" },
+  { value: "Mexico", key: "mexico" },
+  { value: "Argentina", key: "argentina" },
+  { value: "Chile", key: "chile" },
+  { value: "Colombia", key: "colombia" },
+  { value: "Peru", key: "peru" },
+  { value: "Uruguay", key: "uruguay" },
+  { value: "Paraguay", key: "paraguay" },
+  { value: "Venezuela", key: "venezuela" },
+  { value: "Ecuador", key: "ecuador" },
+  { value: "Bolivia", key: "bolivia" },
+  { value: "Guyana", key: "guyana" },
+  { value: "Suriname", key: "suriname" },
+  { value: "French Guiana", key: "frenchGuiana" }
 ];
 function Profile() {
   const { t, i18n: i18n2 } = useTranslation();
@@ -6852,14 +9197,23 @@ function Profile() {
   const [saving, setSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [errors, setErrors] = useState({});
+  const countryOptions = useMemo(
+    () => COUNTRY_LIST.map(({ value, key }) => ({
+      value,
+      label: t(`common.countries.${key}`)
+    })),
+    [t]
+  );
+  const languageOptions = useMemo(
+    () => [
+      { value: "en-US", label: t("profile.languageOptions.enUS") },
+      { value: "pt-BR", label: t("profile.languageOptions.ptBR") }
+    ],
+    [t]
+  );
   useEffect(() => {
     loadProfile();
   }, []);
-  useEffect(() => {
-    if (profile2) {
-      setHasChanges(true);
-    }
-  }, [profile2]);
   const loadProfile = async () => {
     try {
       setLoading(true);
@@ -6867,7 +9221,11 @@ function Profile() {
       if (user == null ? void 0 : user.email) {
         data.email = user.email;
       }
+      if (data.communicationLanguage && data.communicationLanguage !== i18n2.language) {
+        i18n2.changeLanguage(data.communicationLanguage);
+      }
       setProfile(data);
+      setHasChanges(false);
     } catch (error) {
       toast2({
         title: t("common.errors.unexpectedError"),
@@ -6920,10 +9278,8 @@ function Profile() {
   };
   const updateField = (field, value) => {
     if (!profile2) return;
-    setProfile({
-      ...profile2,
-      [field]: value
-    });
+    setProfile((prev) => prev ? { ...prev, [field]: value } : prev);
+    setHasChanges(true);
     if (errors[field]) {
       setErrors({
         ...errors,
@@ -6999,7 +9355,7 @@ function Profile() {
                 /* @__PURE__ */ jsx(Globe, { className: "absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" }),
                 /* @__PURE__ */ jsxs(Select, { value: profile2.country, onValueChange: (value) => updateField("country", value), children: [
                   /* @__PURE__ */ jsx(SelectTrigger, { className: "pl-10", children: /* @__PURE__ */ jsx(SelectValue, { placeholder: t("common.placeholders.selectCountry") }) }),
-                  /* @__PURE__ */ jsx(SelectContent, { children: countries.map((country) => /* @__PURE__ */ jsx(SelectItem, { value: country, children: country }, country)) })
+                  /* @__PURE__ */ jsx(SelectContent, { children: countryOptions.map(({ value, label }) => /* @__PURE__ */ jsx(SelectItem, { value, children: label }, value)) })
                 ] })
               ] }) }),
               /* @__PURE__ */ jsx(FormField$1, { label: t("common.labels.city"), children: /* @__PURE__ */ jsxs("div", { className: "relative", children: [
@@ -7027,20 +9383,14 @@ function Profile() {
                 /* @__PURE__ */ jsxs(
                   Select,
                   {
-                    value: i18n2.language,
+                    value: profile2.communicationLanguage,
                     onValueChange: (value) => {
+                      updateField("communicationLanguage", value);
                       i18n2.changeLanguage(value);
-                      toast2({
-                        title: t("common.buttons.save"),
-                        description: t("profile.messages.updateSuccess")
-                      });
                     },
                     children: [
-                      /* @__PURE__ */ jsx(SelectTrigger, { className: "pl-10", children: /* @__PURE__ */ jsx(SelectValue, {}) }),
-                      /* @__PURE__ */ jsxs(SelectContent, { children: [
-                        /* @__PURE__ */ jsx(SelectItem, { value: "en-US", children: "English (US)" }),
-                        /* @__PURE__ */ jsx(SelectItem, { value: "pt-BR", children: "Português (BR)" })
-                      ] })
+                      /* @__PURE__ */ jsx(SelectTrigger, { className: "pl-10", children: /* @__PURE__ */ jsx(SelectValue, { placeholder: t("profile.fields.selectLanguage") }) }),
+                      /* @__PURE__ */ jsx(SelectContent, { children: languageOptions.map(({ value, label }) => /* @__PURE__ */ jsx(SelectItem, { value, children: label }, value)) })
                     ]
                   }
                 )
@@ -7063,7 +9413,7 @@ function Profile() {
                     min: "0",
                     value: profile2.yearsExperience,
                     onChange: (e) => updateField("yearsExperience", parseInt(e.target.value) || 0),
-                    placeholder: "0",
+                    placeholder: t("profile.fields.yearsExperiencePlaceholder"),
                     className: "pl-10"
                   }
                 )
@@ -7176,6 +9526,145 @@ function RequireAuth({ children }) {
     return /* @__PURE__ */ jsx(Navigate, { to: LOGIN, replace: true, state: { from: location } });
   }
   return /* @__PURE__ */ jsx(Fragment, { children });
+}
+const stripHtml$1 = (value) => {
+  if (!value) return "";
+  return value.replace(/<[^>]+>/g, "").trim();
+};
+function CommunityProjects() {
+  const supabase2 = useMemo(() => createClientBrowser(), []);
+  const { t } = useTranslation();
+  const { data: projects2 = [], isLoading } = useQuery({
+    queryKey: ["community-projects"],
+    queryFn: async () => {
+      const { data, error } = await supabase2.from("module_projects").select(
+        `id, title, description, xp_value, is_active, created_at,
+           module:modules(id, title, order, course:courses(id, title)),
+           submissions:module_project_submissions(repository_url, submitted_at, user_id)`
+      );
+      if (error) throw error;
+      return data ?? [];
+    },
+    onError: (error) => {
+      console.error("Error loading community projects", error);
+      toast$1.error(t("projects.community.loadError"));
+    }
+  });
+  const grouped = useMemo(() => {
+    const map = /* @__PURE__ */ new Map();
+    projects2.forEach((project) => {
+      if (!project.module) return;
+      const key = project.module.id;
+      if (!map.has(key)) {
+        map.set(key, { module: project.module, projects: [] });
+      }
+      map.get(key).projects.push(project);
+    });
+    return Array.from(map.values()).sort((a, b) => {
+      var _a, _b;
+      const courseOrder = (((_a = a.module.course) == null ? void 0 : _a.title) ?? "").localeCompare(((_b = b.module.course) == null ? void 0 : _b.title) ?? "");
+      if (courseOrder !== 0) return courseOrder;
+      const orderA = a.module.order ?? Number.MAX_SAFE_INTEGER;
+      const orderB = b.module.order ?? Number.MAX_SAFE_INTEGER;
+      if (orderA !== orderB) return orderA - orderB;
+      return a.module.title.localeCompare(b.module.title);
+    });
+  }, [projects2]);
+  if (isLoading) {
+    return /* @__PURE__ */ jsx(Card, { className: "border border-dashed border-forge-cream/70 bg-white/90", children: /* @__PURE__ */ jsxs(CardContent, { className: "flex items-center gap-3 p-8 text-forge-gray", children: [
+      /* @__PURE__ */ jsx(FolderGit2, { className: "h-5 w-5 animate-pulse text-forge-orange" }),
+      t("projects.community.loading")
+    ] }) });
+  }
+  if (grouped.length === 0) {
+    return /* @__PURE__ */ jsx(Card, { className: "border border-dashed border-forge-cream/70 bg-white/90", children: /* @__PURE__ */ jsxs(CardContent, { className: "space-y-2 p-8 text-center text-forge-gray", children: [
+      /* @__PURE__ */ jsx("h2", { className: "text-xl font-semibold text-forge-dark", children: t("projects.community.title") }),
+      /* @__PURE__ */ jsx("p", { className: "text-sm", children: t("projects.community.empty") })
+    ] }) });
+  }
+  return /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
+    /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
+      /* @__PURE__ */ jsx("h1", { className: "text-3xl font-bold text-forge-dark", children: t("projects.community.title") }),
+      /* @__PURE__ */ jsx("p", { className: "text-sm text-forge-gray", children: t("projects.community.subtitle") })
+    ] }),
+    /* @__PURE__ */ jsx("div", { className: "grid gap-5", children: grouped.map(({ module, projects: projects22 }) => {
+      var _a;
+      return /* @__PURE__ */ jsxs(Card, { className: "border border-forge-cream/70 bg-white/90", children: [
+        /* @__PURE__ */ jsxs(CardHeader, { className: "flex flex-col gap-1", children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
+            /* @__PURE__ */ jsx(CardTitle, { className: "text-xl text-forge-dark", children: module.title }),
+            /* @__PURE__ */ jsx(Badge, { variant: "secondary", className: "bg-forge-cream text-forge-dark", children: t("projects.community.courseLabel", { course: ((_a = module.course) == null ? void 0 : _a.title) ?? t("projects.community.unknownCourse") }) })
+          ] }),
+          /* @__PURE__ */ jsx("p", { className: "text-xs text-forge-gray/80", children: t("projects.community.projectCount", { count: projects22.length }) })
+        ] }),
+        /* @__PURE__ */ jsx(CardContent, { className: "space-y-4", children: projects22.slice().filter((project) => project.is_active ?? true).sort((a, b) => {
+          const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+          const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+          if (dateA !== dateB) return dateA - dateB;
+          return a.title.localeCompare(b.title);
+        }).map((project, index) => {
+          const submissions = project.submissions ?? [];
+          const order = index + 1;
+          return /* @__PURE__ */ jsx(
+            "div",
+            {
+              className: "rounded-lg border border-forge-cream/60 bg-white/80 p-4 shadow-sm",
+              children: /* @__PURE__ */ jsxs("div", { className: "flex flex-col gap-3", children: [
+                /* @__PURE__ */ jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
+                  /* @__PURE__ */ jsx(Badge, { variant: "outline", className: "border-forge-orange text-forge-orange", children: t("projects.community.projectOrder", { order }) }),
+                  /* @__PURE__ */ jsx("h3", { className: "text-lg font-semibold text-forge-dark", children: project.title }),
+                  typeof project.xp_value === "number" && /* @__PURE__ */ jsx(Badge, { variant: "secondary", className: "bg-forge-cream text-forge-dark", children: t("projects.community.xpValue", { xp: project.xp_value }) })
+                ] }),
+                project.description && /* @__PURE__ */ jsx("p", { className: "text-sm text-forge-gray/90", children: stripHtml$1(project.description) }),
+                submissions.length === 0 ? /* @__PURE__ */ jsx("div", { className: "rounded-lg border border-dashed border-forge-cream/70 bg-forge-cream/30 p-4 text-sm text-forge-gray", children: t("projects.community.noSubmissions") }) : /* @__PURE__ */ jsxs("div", { className: "space-y-3", children: [
+                  /* @__PURE__ */ jsx("p", { className: "text-sm font-medium text-forge-dark", children: t("projects.community.submissions", { count: submissions.length }) }),
+                  /* @__PURE__ */ jsx("ul", { className: "space-y-2", children: submissions.map((submission, index2) => /* @__PURE__ */ jsxs(
+                    "li",
+                    {
+                      className: "flex flex-col gap-1 rounded-md border border-forge-cream/60 bg-white/70 p-3 text-sm text-forge-gray",
+                      children: [
+                        /* @__PURE__ */ jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2", children: [
+                          /* @__PURE__ */ jsx(
+                            "a",
+                            {
+                              href: submission.repository_url,
+                              target: "_blank",
+                              rel: "noopener noreferrer",
+                              className: "font-medium text-forge-orange hover:underline",
+                              children: submission.repository_url
+                            }
+                          ),
+                          /* @__PURE__ */ jsx(Button, { variant: "ghost", size: "sm", asChild: true, children: /* @__PURE__ */ jsxs(
+                            "a",
+                            {
+                              href: submission.repository_url,
+                              target: "_blank",
+                              rel: "noopener noreferrer",
+                              className: "flex items-center gap-1 text-xs",
+                              children: [
+                                t("projects.community.visitRepository"),
+                                /* @__PURE__ */ jsx(ExternalLink, { className: "h-3 w-3" })
+                              ]
+                            }
+                          ) })
+                        ] }),
+                        /* @__PURE__ */ jsx("div", { className: "text-xs text-forge-gray/70", children: t("projects.community.submittedBy", {
+                          user: submission.user_id ? `${submission.user_id.slice(0, 6)}…${submission.user_id.slice(-4)}` : t("projects.community.anonymous"),
+                          date: submission.submitted_at ? new Date(submission.submitted_at).toLocaleString() : t("projects.community.dateUnknown")
+                        }) })
+                      ]
+                    },
+                    `${project.id}-${index2}-${submission.repository_url}`
+                  )) })
+                ] })
+              ] })
+            },
+            project.id
+          );
+        }) })
+      ] }, module.id);
+    }) })
+  ] });
 }
 function RequireAdmin({ children }) {
   var _a;
@@ -7351,93 +9840,122 @@ function AuthCallback() {
 }
 const TestPage = () => {
   const serverTimestamp = (/* @__PURE__ */ new Date()).toISOString();
-  return /* @__PURE__ */ jsxs("div", { style: {
-    padding: "2rem",
-    textAlign: "center",
-    fontFamily: "system-ui, sans-serif",
-    maxWidth: "800px",
-    margin: "0 auto"
-  }, children: [
-    /* @__PURE__ */ jsx("h1", { children: "🧪 Página de Teste - Forge College" }),
-    /* @__PURE__ */ jsx("p", { children: "Esta é uma página de teste estática sem dependências externas." }),
-    /* @__PURE__ */ jsxs("div", { style: {
-      backgroundColor: "#f0f8ff",
-      padding: "1rem",
-      borderRadius: "8px",
-      margin: "1rem 0"
-    }, children: [
-      /* @__PURE__ */ jsx("h2", { children: "Status do Sistema" }),
-      /* @__PURE__ */ jsx("p", { children: "✅ React funcionando" }),
-      /* @__PURE__ */ jsx("p", { children: "✅ TypeScript funcionando" }),
-      /* @__PURE__ */ jsx("p", { children: "✅ Build funcionando" }),
-      /* @__PURE__ */ jsx("p", { children: "✅ Deploy funcionando" }),
-      /* @__PURE__ */ jsxs("p", { children: [
-        "✅ SSR funcionando (timestamp: ",
-        serverTimestamp,
-        ")"
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxs("div", { style: {
-      backgroundColor: "#f0fff0",
-      padding: "1rem",
-      borderRadius: "8px",
-      margin: "1rem 0"
-    }, children: [
-      /* @__PURE__ */ jsx("h3", { children: "Informações do Ambiente (SSR)" }),
-      /* @__PURE__ */ jsxs("p", { children: [
-        /* @__PURE__ */ jsx("strong", { children: "Timestamp do Servidor:" }),
-        " ",
-        serverTimestamp
-      ] }),
-      /* @__PURE__ */ jsx("p", { children: /* @__PURE__ */ jsx("strong", { children: "Se você vê este texto sem JS, o SSR está OK" }) })
-    ] }),
-    /* @__PURE__ */ jsxs("div", { style: {
-      backgroundColor: "#fff8f0",
-      padding: "1rem",
-      borderRadius: "8px",
-      margin: "1rem 0"
-    }, children: [
-      /* @__PURE__ */ jsx("h3", { children: "Teste de JavaScript (Client-side)" }),
-      /* @__PURE__ */ jsx("p", { children: "Se o JavaScript estiver funcionando, você verá informações adicionais abaixo:" }),
-      /* @__PURE__ */ jsx("div", { id: "js-test", style: {
-        backgroundColor: "#e8f5e8",
-        padding: "0.5rem",
-        borderRadius: "4px",
-        margin: "0.5rem 0"
-      }, children: /* @__PURE__ */ jsx("p", { children: "Carregando informações do cliente..." }) }),
-      /* @__PURE__ */ jsx(
-        "button",
-        {
-          onClick: () => alert("JavaScript está funcionando!"),
-          style: {
-            padding: "0.5rem 1rem",
-            backgroundColor: "#28a745",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer"
-          },
-          children: "Testar JavaScript"
+  const { t } = useTranslation();
+  const clientScript = useMemo(() => {
+    return `
+      document.addEventListener('DOMContentLoaded', function() {
+        const jsTest = document.getElementById('js-test');
+        if (jsTest) {
+          jsTest.innerHTML = \`
+            <p><strong>${t("diagnostics.testPage.js.clientReady")}</strong></p>
+            <p><strong>${t("diagnostics.testPage.js.userAgent")}</strong> \${navigator.userAgent}</p>
+            <p><strong>${t("diagnostics.testPage.js.url")}</strong> \${window.location.href}</p>
+            <p><strong>${t("diagnostics.testPage.js.clientTimestamp")}</strong> \${new Date().toISOString()}</p>
+          \`;
         }
-      )
-    ] }),
-    /* @__PURE__ */ jsx("p", { style: { marginTop: "2rem", color: "#666" }, children: "Se você está vendo esta página, o problema não é de infraestrutura básica." }),
-    /* @__PURE__ */ jsx("script", { dangerouslySetInnerHTML: {
-      __html: `
-          document.addEventListener('DOMContentLoaded', function() {
-            const jsTest = document.getElementById('js-test');
-            if (jsTest) {
-              jsTest.innerHTML = \`
-                <p><strong>✅ JavaScript funcionando!</strong></p>
-                <p><strong>User Agent:</strong> \${navigator.userAgent}</p>
-                <p><strong>URL:</strong> \${window.location.href}</p>
-                <p><strong>Timestamp do Cliente:</strong> \${new Date().toISOString()}</p>
-              \`;
-            }
-          });
-        `
-    } })
-  ] });
+      });
+    `;
+  }, [t]);
+  return /* @__PURE__ */ jsxs(
+    "div",
+    {
+      style: {
+        padding: "2rem",
+        textAlign: "center",
+        fontFamily: "system-ui, sans-serif",
+        maxWidth: "800px",
+        margin: "0 auto"
+      },
+      children: [
+        /* @__PURE__ */ jsx("h1", { children: t("diagnostics.testPage.title") }),
+        /* @__PURE__ */ jsx("p", { children: t("diagnostics.testPage.description") }),
+        /* @__PURE__ */ jsxs(
+          "div",
+          {
+            style: {
+              backgroundColor: "#f0f8ff",
+              padding: "1rem",
+              borderRadius: "8px",
+              margin: "1rem 0"
+            },
+            children: [
+              /* @__PURE__ */ jsx("h2", { children: t("diagnostics.testPage.systemStatus.title") }),
+              /* @__PURE__ */ jsx("p", { children: t("diagnostics.testPage.systemStatus.react") }),
+              /* @__PURE__ */ jsx("p", { children: t("diagnostics.testPage.systemStatus.typescript") }),
+              /* @__PURE__ */ jsx("p", { children: t("diagnostics.testPage.systemStatus.build") }),
+              /* @__PURE__ */ jsx("p", { children: t("diagnostics.testPage.systemStatus.deploy") }),
+              /* @__PURE__ */ jsx("p", { children: t("diagnostics.testPage.systemStatus.ssr", { timestamp: serverTimestamp }) })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxs(
+          "div",
+          {
+            style: {
+              backgroundColor: "#f0fff0",
+              padding: "1rem",
+              borderRadius: "8px",
+              margin: "1rem 0"
+            },
+            children: [
+              /* @__PURE__ */ jsx("h3", { children: t("diagnostics.testPage.environment.title") }),
+              /* @__PURE__ */ jsxs("p", { children: [
+                /* @__PURE__ */ jsx("strong", { children: t("diagnostics.testPage.environment.serverTimestamp") }),
+                " ",
+                serverTimestamp
+              ] }),
+              /* @__PURE__ */ jsx("p", { children: t("diagnostics.testPage.environment.noJsMessage") })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxs(
+          "div",
+          {
+            style: {
+              backgroundColor: "#fff8f0",
+              padding: "1rem",
+              borderRadius: "8px",
+              margin: "1rem 0"
+            },
+            children: [
+              /* @__PURE__ */ jsx("h3", { children: t("diagnostics.testPage.clientTest.title") }),
+              /* @__PURE__ */ jsx("p", { children: t("diagnostics.testPage.clientTest.instructions") }),
+              /* @__PURE__ */ jsx(
+                "div",
+                {
+                  id: "js-test",
+                  style: {
+                    backgroundColor: "#e8f5e8",
+                    padding: "0.5rem",
+                    borderRadius: "4px",
+                    margin: "0.5rem 0"
+                  },
+                  children: /* @__PURE__ */ jsx("p", { children: t("diagnostics.testPage.clientTest.loading") })
+                }
+              ),
+              /* @__PURE__ */ jsx(
+                "button",
+                {
+                  onClick: () => alert(t("diagnostics.testPage.alerts.jsWorking")),
+                  style: {
+                    padding: "0.5rem 1rem",
+                    backgroundColor: "#28a745",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer"
+                  },
+                  children: t("diagnostics.testPage.clientTest.button")
+                }
+              )
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsx("p", { style: { marginTop: "2rem", color: "#666" }, children: t("diagnostics.testPage.footer") }),
+        /* @__PURE__ */ jsx("script", { dangerouslySetInnerHTML: { __html: clientScript } })
+      ]
+    }
+  );
 };
 const SSRTest = () => {
   return /* @__PURE__ */ jsxs("div", { children: [
@@ -7474,47 +9992,37 @@ const BarePage = () => {
 };
 const StaticBare = () => {
   const timestamp = (/* @__PURE__ */ new Date()).toISOString();
-  return /* @__PURE__ */ jsxs("html", { lang: "en", children: [
+  const { t, i18n: i18n2 } = useTranslation();
+  return /* @__PURE__ */ jsxs("html", { lang: i18n2.language, children: [
     /* @__PURE__ */ jsxs("head", { children: [
-      /* @__PURE__ */ jsx("title", { children: "Static Bare SSR Test" }),
+      /* @__PURE__ */ jsx("title", { children: t("diagnostics.staticBare.title") }),
       /* @__PURE__ */ jsx("meta", { charSet: "UTF-8" }),
       /* @__PURE__ */ jsx("meta", { name: "viewport", content: "width=device-width, initial-scale=1.0" })
     ] }),
     /* @__PURE__ */ jsxs("body", { children: [
-      /* @__PURE__ */ jsxs("pre", { children: [
-        "STATIC BARE SSR OK: ",
-        timestamp
-      ] }),
-      /* @__PURE__ */ jsx("p", { children: "Se você vê este texto, o SSR está funcionando." }),
-      /* @__PURE__ */ jsxs("p", { children: [
-        "Timestamp: ",
-        (/* @__PURE__ */ new Date()).toLocaleString()
-      ] }),
-      /* @__PURE__ */ jsx("p", { children: "Esta página renderiza HTML estático no servidor." })
+      /* @__PURE__ */ jsx("pre", { children: t("diagnostics.staticBare.status", { timestamp }) }),
+      /* @__PURE__ */ jsx("p", { children: t("diagnostics.staticBare.instructions") }),
+      /* @__PURE__ */ jsx("p", { children: t("diagnostics.staticBare.timestamp", { timestamp: (/* @__PURE__ */ new Date()).toLocaleString() }) }),
+      /* @__PURE__ */ jsx("p", { children: t("diagnostics.staticBare.renderMode") })
     ] })
   ] });
 };
 const SSRCanary = () => {
   const timestamp = (/* @__PURE__ */ new Date()).toISOString();
-  return /* @__PURE__ */ jsxs("html", { lang: "en", children: [
+  const { t, i18n: i18n2 } = useTranslation();
+  return /* @__PURE__ */ jsxs("html", { lang: i18n2.language, children: [
     /* @__PURE__ */ jsxs("head", { children: [
-      /* @__PURE__ */ jsx("title", { children: "SSR Canary Test" }),
+      /* @__PURE__ */ jsx("title", { children: t("diagnostics.ssrCanary.title") }),
       /* @__PURE__ */ jsx("meta", { charSet: "UTF-8" }),
       /* @__PURE__ */ jsx("meta", { name: "viewport", content: "width=device-width, initial-scale=1.0" })
     ] }),
     /* @__PURE__ */ jsxs("body", { children: [
-      /* @__PURE__ */ jsxs("pre", { children: [
-        "SSR CANARY OK: ",
-        timestamp
-      ] }),
-      /* @__PURE__ */ jsx("p", { children: "Se você vê este texto, o SSR está funcionando." }),
-      /* @__PURE__ */ jsxs("p", { children: [
-        "Timestamp: ",
-        (/* @__PURE__ */ new Date()).toLocaleString()
-      ] }),
-      /* @__PURE__ */ jsx("p", { children: "Esta página renderiza HTML estático no servidor." }),
-      /* @__PURE__ */ jsx("p", { children: "Runtime: Node.js" }),
-      /* @__PURE__ */ jsx("p", { children: "Dynamic: force-dynamic" })
+      /* @__PURE__ */ jsx("pre", { children: t("diagnostics.ssrCanary.status", { timestamp }) }),
+      /* @__PURE__ */ jsx("p", { children: t("diagnostics.ssrCanary.instructions") }),
+      /* @__PURE__ */ jsx("p", { children: t("diagnostics.ssrCanary.timestamp", { timestamp: (/* @__PURE__ */ new Date()).toLocaleString() }) }),
+      /* @__PURE__ */ jsx("p", { children: t("diagnostics.ssrCanary.renderMode") }),
+      /* @__PURE__ */ jsx("p", { children: t("diagnostics.ssrCanary.runtime") }),
+      /* @__PURE__ */ jsx("p", { children: t("diagnostics.ssrCanary.dynamicMode") })
     ] })
   ] });
 };
@@ -7589,23 +10097,29 @@ class AuthErrorBoundary extends Component {
     return this.props.children;
   }
 }
-const adminNav = [
-  { to: "/dashboard/admin", label: "Overview", icon: Settings, end: true },
-  { to: "/dashboard/admin/paths", label: "Learning Paths", icon: Layers3 },
-  { to: "/dashboard/admin/courses", label: "Courses", icon: BookOpen },
-  { to: "/dashboard/admin/modules", label: "Modules", icon: ListChecks },
-  { to: "/dashboard/admin/lessons", label: "Lessons", icon: FileText }
-];
 function AdminLayout() {
   const location = useLocation();
+  const { t } = useTranslation();
+  const navItems = useMemo(
+    () => [
+      { to: "/dashboard/admin", label: t("admin.layout.nav.overview"), icon: Settings, end: true },
+      { to: "/dashboard/admin/formations", label: "Formations", icon: GraduationCap },
+      { to: "/dashboard/admin/paths", label: t("admin.layout.nav.paths"), icon: Layers3 },
+      { to: "/dashboard/admin/courses", label: t("admin.layout.nav.courses"), icon: BookOpen },
+      { to: "/dashboard/admin/modules", label: t("admin.layout.nav.modules"), icon: ListChecks },
+      { to: "/dashboard/admin/lessons", label: t("admin.layout.nav.lessons"), icon: FileText },
+      { to: "/dashboard/admin/projects", label: t("admin.layout.nav.projects"), icon: FolderGit2 }
+    ],
+    [t]
+  );
   return /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
     /* @__PURE__ */ jsxs("header", { className: "space-y-2", children: [
-      /* @__PURE__ */ jsx("p", { className: "text-xs font-semibold uppercase tracking-wide text-forge-orange", children: "Admin" }),
+      /* @__PURE__ */ jsx("p", { className: "text-xs font-semibold uppercase tracking-wide text-forge-orange", children: t("admin.layout.kicker") }),
       /* @__PURE__ */ jsx("div", { className: "flex flex-wrap items-center justify-between gap-4", children: /* @__PURE__ */ jsxs("div", { children: [
-        /* @__PURE__ */ jsx("h1", { className: "text-3xl font-bold text-forge-dark", children: "Content Management" }),
-        /* @__PURE__ */ jsx("p", { className: "text-sm text-forge-gray", children: "Create, organize, and publish learning experiences for the community." })
+        /* @__PURE__ */ jsx("h1", { className: "text-3xl font-bold text-forge-dark", children: t("admin.layout.title") }),
+        /* @__PURE__ */ jsx("p", { className: "text-sm text-forge-gray", children: t("admin.layout.subtitle") })
       ] }) }),
-      /* @__PURE__ */ jsx("nav", { className: "flex flex-wrap gap-2 pt-2", children: adminNav.map(({ to, label, icon: Icon, end }) => {
+      /* @__PURE__ */ jsx("nav", { className: "flex flex-wrap gap-2 pt-2", children: navItems.map(({ to, label, icon: Icon, end }) => {
         const isActive = end ? location.pathname === to : location.pathname.startsWith(to);
         return /* @__PURE__ */ jsxs(
           NavLink,
@@ -7676,91 +10190,6 @@ function AdminOverview() {
     )) })
   ] }) });
 }
-const Dialog = SheetPrimitive.Root;
-const DialogPortal = SheetPrimitive.Portal;
-const DialogOverlay = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
-  SheetPrimitive.Overlay,
-  {
-    ref,
-    className: cn(
-      "fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-      className
-    ),
-    ...props
-  }
-));
-DialogOverlay.displayName = SheetPrimitive.Overlay.displayName;
-const DialogContent = React.forwardRef(({ className, children, ...props }, ref) => /* @__PURE__ */ jsxs(DialogPortal, { children: [
-  /* @__PURE__ */ jsx(DialogOverlay, {}),
-  /* @__PURE__ */ jsxs(
-    SheetPrimitive.Content,
-    {
-      ref,
-      className: cn(
-        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
-        className
-      ),
-      ...props,
-      children: [
-        children,
-        /* @__PURE__ */ jsxs(SheetPrimitive.Close, { className: "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground", children: [
-          /* @__PURE__ */ jsx(X, { className: "h-4 w-4" }),
-          /* @__PURE__ */ jsx("span", { className: "sr-only", children: "Close" })
-        ] })
-      ]
-    }
-  )
-] }));
-DialogContent.displayName = SheetPrimitive.Content.displayName;
-const DialogHeader = ({
-  className,
-  ...props
-}) => /* @__PURE__ */ jsx(
-  "div",
-  {
-    className: cn(
-      "flex flex-col space-y-1.5 text-center sm:text-left",
-      className
-    ),
-    ...props
-  }
-);
-DialogHeader.displayName = "DialogHeader";
-const DialogFooter = ({
-  className,
-  ...props
-}) => /* @__PURE__ */ jsx(
-  "div",
-  {
-    className: cn(
-      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
-      className
-    ),
-    ...props
-  }
-);
-DialogFooter.displayName = "DialogFooter";
-const DialogTitle = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
-  SheetPrimitive.Title,
-  {
-    ref,
-    className: cn(
-      "text-lg font-semibold leading-none tracking-tight",
-      className
-    ),
-    ...props
-  }
-));
-DialogTitle.displayName = SheetPrimitive.Title.displayName;
-const DialogDescription = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
-  SheetPrimitive.Description,
-  {
-    ref,
-    className: cn("text-sm text-muted-foreground", className),
-    ...props
-  }
-));
-DialogDescription.displayName = SheetPrimitive.Description.displayName;
 const Form = FormProvider;
 const FormFieldContext = React.createContext(
   {}
@@ -7890,25 +10319,6 @@ const Switch = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ *
   }
 ));
 Switch.displayName = SwitchPrimitives.Root.displayName;
-const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-  {
-    variants: {
-      variant: {
-        default: "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
-        secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        destructive: "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
-        outline: "text-foreground"
-      }
-    },
-    defaultVariants: {
-      variant: "default"
-    }
-  }
-);
-function Badge({ className, variant, ...props }) {
-  return /* @__PURE__ */ jsx("div", { className: cn(badgeVariants({ variant }), className), ...props });
-}
 const AlertDialog = AlertDialogPrimitive.Root;
 const AlertDialogPortal = AlertDialogPrimitive.Portal;
 const AlertDialogOverlay = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
@@ -8006,12 +10416,688 @@ const AlertDialogCancel = React.forwardRef(({ className, ...props }, ref) => /* 
   }
 ));
 AlertDialogCancel.displayName = AlertDialogPrimitive.Cancel.displayName;
-const slugify$3 = (value) => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
-const pathFormSchema = z.object({
-  title: z.string().min(3, "Title must have at least 3 characters"),
-  slug: z.string().min(3, "Slug must have at least 3 characters").regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers, and hyphens only"),
-  description: z.string().optional().or(z.literal("")),
-  is_published: z.boolean().default(false)
+const ScrollArea = React.forwardRef(({ className, children, ...props }, ref) => {
+  return /* @__PURE__ */ jsx(
+    "div",
+    {
+      ref,
+      className: cn("overflow-y-auto", className),
+      ...props,
+      children
+    }
+  );
+});
+ScrollArea.displayName = "ScrollArea";
+function LearningPathSelector({ formationId, selectedPaths, onPathsChange }) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const queryClient = useQueryClient();
+  const supabase2 = createClientBrowser();
+  const { data: availablePaths, isLoading } = useQuery({
+    queryKey: ["available-learning-paths", formationId],
+    queryFn: async () => {
+      const { data: allPaths, error: allPathsError } = await supabase2.from("learning_paths").select("id, title, slug, status").eq("status", "published").order("title");
+      if (allPathsError) throw allPathsError;
+      const { data: existingPaths, error: existingError } = await supabase2.from("formation_paths").select("learning_path_id").eq("formation_id", formationId);
+      if (existingError) throw existingError;
+      const selectedIds = new Set((existingPaths == null ? void 0 : existingPaths.map((p) => p.learning_path_id)) || []);
+      return (allPaths == null ? void 0 : allPaths.filter((path) => !selectedIds.has(path.id))) || [];
+    }
+  });
+  const addPathMutation = useMutation({
+    mutationFn: async ({ path, order }) => {
+      const { error } = await supabase2.from("formation_paths").insert({
+        formation_id: formationId,
+        learning_path_id: path.id,
+        order
+      });
+      if (error) throw error;
+      return path;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["available-learning-paths", formationId] });
+      queryClient.invalidateQueries({ queryKey: ["admin-formations"] });
+      toast$1.success("Path added to formation");
+    },
+    onError: (error) => {
+      toast$1.error("Failed to add path: " + error.message);
+    }
+  });
+  const removePathMutation = useMutation({
+    mutationFn: async (pathId) => {
+      const { error } = await supabase2.from("formation_paths").delete().eq("formation_id", formationId).eq("learning_path_id", pathId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["available-learning-paths", formationId] });
+      queryClient.invalidateQueries({ queryKey: ["admin-formations"] });
+      toast$1.success("Path removed from formation");
+    },
+    onError: (error) => {
+      toast$1.error("Failed to remove path: " + error.message);
+    }
+  });
+  const reorderPathMutation = useMutation({
+    mutationFn: async ({ pathId, newOrder }) => {
+      const { error } = await supabase2.from("formation_paths").update({ order: newOrder }).eq("formation_id", formationId).eq("learning_path_id", pathId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-formations"] });
+      toast$1.success("Path order updated");
+    },
+    onError: (error) => {
+      toast$1.error("Failed to reorder path: " + error.message);
+    }
+  });
+  const handleAddPath = async (path) => {
+    const nextOrder = selectedPaths.length + 1;
+    try {
+      await addPathMutation.mutateAsync({ path, order: nextOrder });
+      onPathsChange((current) => [
+        ...current,
+        { id: path.id, title: path.title, order: nextOrder }
+      ]);
+    } catch {
+    }
+  };
+  const handleRemovePath = async (pathId) => {
+    try {
+      await removePathMutation.mutateAsync(pathId);
+      onPathsChange((current) => {
+        const remaining = current.filter((path) => path.id !== pathId);
+        return remaining.map((path, index) => ({
+          ...path,
+          order: index + 1
+        }));
+      });
+    } catch {
+    }
+  };
+  const handleMovePath = (pathId, direction) => {
+    const currentIndex = selectedPaths.findIndex((p) => p.id === pathId);
+    if (currentIndex === -1) return;
+    const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    if (newIndex < 0 || newIndex >= selectedPaths.length) return;
+    const reorderedPaths = [...selectedPaths];
+    const [movedPath] = reorderedPaths.splice(currentIndex, 1);
+    reorderedPaths.splice(newIndex, 0, movedPath);
+    const updatedPaths = reorderedPaths.map((path, index) => ({
+      ...path,
+      order: index + 1
+    }));
+    onPathsChange(updatedPaths);
+    reorderPathMutation.mutate({ pathId, newOrder: newIndex + 1 });
+  };
+  const filteredPaths = (availablePaths == null ? void 0 : availablePaths.filter(
+    (path) => {
+      var _a;
+      return path.title.toLowerCase().includes(searchTerm.toLowerCase()) || ((_a = path.slug) == null ? void 0 : _a.toLowerCase().includes(searchTerm.toLowerCase()));
+    }
+  )) || [];
+  const sortedSelectedPaths = useMemo(
+    () => [...selectedPaths].sort((a, b) => a.order - b.order),
+    [selectedPaths]
+  );
+  return /* @__PURE__ */ jsxs("div", { className: "space-y-4", children: [
+    /* @__PURE__ */ jsxs("div", { children: [
+      /* @__PURE__ */ jsx(Label, { htmlFor: "search-paths", children: "Add Learning Paths" }),
+      /* @__PURE__ */ jsx(
+        Input,
+        {
+          id: "search-paths",
+          placeholder: "Search paths...",
+          value: searchTerm,
+          onChange: (e) => setSearchTerm(e.target.value),
+          className: "mt-1"
+        }
+      )
+    ] }),
+    isLoading ? /* @__PURE__ */ jsx("div", { className: "flex items-center justify-center py-4", children: /* @__PURE__ */ jsx(Loader2, { className: "h-6 w-6 animate-spin" }) }) : /* @__PURE__ */ jsx(ScrollArea, { className: "h-48 border rounded-md p-2", children: /* @__PURE__ */ jsx("div", { className: "space-y-2", children: filteredPaths.length === 0 ? /* @__PURE__ */ jsx("p", { className: "text-sm text-muted-foreground text-center py-4", children: searchTerm ? "No paths found" : "All available paths are already added" }) : filteredPaths.map((path) => /* @__PURE__ */ jsxs(
+      "div",
+      {
+        className: "flex items-center justify-between p-2 hover:bg-accent rounded",
+        children: [
+          /* @__PURE__ */ jsxs("div", { children: [
+            /* @__PURE__ */ jsx("div", { className: "font-medium", children: path.title }),
+            /* @__PURE__ */ jsx("div", { className: "text-sm text-muted-foreground", children: path.slug })
+          ] }),
+          /* @__PURE__ */ jsx(
+            Button,
+            {
+              size: "sm",
+              variant: "outline",
+              onClick: () => handleAddPath(path),
+              disabled: addPathMutation.isPending,
+              children: /* @__PURE__ */ jsx(Plus, { className: "h-4 w-4" })
+            }
+          )
+        ]
+      },
+      path.id
+    )) }) }),
+    selectedPaths.length > 0 && /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx(Separator, {}),
+      /* @__PURE__ */ jsxs("div", { children: [
+        /* @__PURE__ */ jsxs(Label, { children: [
+          "Selected Paths (",
+          selectedPaths.length,
+          ")"
+        ] }),
+        /* @__PURE__ */ jsx("div", { className: "mt-2 space-y-2", children: sortedSelectedPaths.map((path, index) => /* @__PURE__ */ jsxs(
+          "div",
+          {
+            className: "flex items-center justify-between p-2 border rounded",
+            children: [
+              /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
+                /* @__PURE__ */ jsxs("div", { className: "flex flex-col gap-1", children: [
+                  /* @__PURE__ */ jsx(
+                    Button,
+                    {
+                      size: "sm",
+                      variant: "ghost",
+                      onClick: () => handleMovePath(path.id, "up"),
+                      disabled: index === 0 || reorderPathMutation.isPending,
+                      children: /* @__PURE__ */ jsx(ArrowUp, { className: "h-3 w-3" })
+                    }
+                  ),
+                  /* @__PURE__ */ jsx(
+                    Button,
+                    {
+                      size: "sm",
+                      variant: "ghost",
+                      onClick: () => handleMovePath(path.id, "down"),
+                      disabled: index === selectedPaths.length - 1 || reorderPathMutation.isPending,
+                      children: /* @__PURE__ */ jsx(ArrowDown, { className: "h-3 w-3" })
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxs("div", { children: [
+                  /* @__PURE__ */ jsx("div", { className: "font-medium", children: path.title }),
+                  /* @__PURE__ */ jsxs(Badge, { variant: "secondary", className: "text-xs", children: [
+                    "Order: ",
+                    path.order
+                  ] })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsx(
+                Button,
+                {
+                  size: "sm",
+                  variant: "outline",
+                  onClick: () => handleRemovePath(path.id),
+                  disabled: removePathMutation.isPending,
+                  children: /* @__PURE__ */ jsx(X, { className: "h-4 w-4" })
+                }
+              )
+            ]
+          },
+          path.id
+        )) })
+      ] })
+    ] })
+  ] });
+}
+const slugify$4 = (value) => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+const formationSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  slug: z.string().min(1, "Slug is required"),
+  thumbnail_url: z.string().url().optional().or(z.literal("")),
+  is_published: z.boolean(),
+  status: z.enum(["draft", "published", "coming_soon"])
+});
+function AdminFormations() {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [editingFormation, setEditingFormation] = useState(null);
+  const [deletingFormation, setDeletingFormation] = useState(null);
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const [selectedPathsState, setSelectedPathsState] = useState([]);
+  const queryClient = useQueryClient();
+  const supabase2 = createClientBrowser();
+  const { user } = useAuth();
+  const form = useForm({
+    resolver: zodResolver(formationSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      slug: "",
+      thumbnail_url: "",
+      is_published: false,
+      status: "draft"
+    }
+  });
+  const buildFormationPayload = (values) => {
+    var _a, _b;
+    const baseStatus = values.status;
+    const statusFromSelection = baseStatus === "published" || baseStatus === "coming_soon";
+    const effectiveStatus = statusFromSelection ? baseStatus : values.is_published ? "published" : "draft";
+    const isPublishedFlag = effectiveStatus !== "draft";
+    return {
+      title: values.title.trim(),
+      description: ((_a = values.description) == null ? void 0 : _a.trim()) ? values.description.trim() : null,
+      slug: values.slug.trim(),
+      thumbnail_url: ((_b = values.thumbnail_url) == null ? void 0 : _b.trim()) ? values.thumbnail_url.trim() : null,
+      status: effectiveStatus,
+      is_published: isPublishedFlag
+    };
+  };
+  const resetFormForCreate = useCallback(() => {
+    form.reset({
+      title: "",
+      description: "",
+      slug: "",
+      thumbnail_url: "",
+      is_published: false,
+      status: "draft"
+    });
+    setSlugManuallyEdited(false);
+    setSelectedPathsState([]);
+  }, [form]);
+  useEffect(() => {
+    var _a;
+    if (dialogOpen && editingFormation) {
+      form.reset({
+        title: editingFormation.title,
+        description: editingFormation.description || "",
+        slug: editingFormation.slug || "",
+        thumbnail_url: editingFormation.thumbnail_url || "",
+        is_published: editingFormation.is_published,
+        status: editingFormation.status ?? "draft"
+      });
+      const orderedPaths = ((_a = editingFormation.paths) == null ? void 0 : _a.slice().sort((a, b) => a.order - b.order)) ?? [];
+      setSelectedPathsState(orderedPaths);
+    } else if (dialogOpen) {
+      resetFormForCreate();
+    }
+  }, [dialogOpen, editingFormation, form, resetFormForCreate]);
+  useEffect(() => {
+    if (!dialogOpen) {
+      resetFormForCreate();
+      setEditingFormation(null);
+      setDeletingFormation(null);
+    }
+  }, [dialogOpen, resetFormForCreate]);
+  const createMutation = useMutation({
+    mutationFn: async (payload) => {
+      const insertPayload = {
+        ...payload,
+        created_by: (user == null ? void 0 : user.id) ?? void 0,
+        updated_by: (user == null ? void 0 : user.id) ?? void 0,
+        published_at: payload.is_published ? (/* @__PURE__ */ new Date()).toISOString() : null
+      };
+      const { error } = await supabase2.from("formations").insert(insertPayload);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-formations"] });
+      setDialogOpen(false);
+      resetFormForCreate();
+      toast$1.success("Formation created successfully");
+    },
+    onError: (error) => {
+      toast$1.error("Failed to create formation: " + error.message);
+    }
+  });
+  const updateMutation = useMutation({
+    mutationFn: async ({
+      id,
+      payload,
+      previous
+    }) => {
+      const updatePayload = {
+        ...payload,
+        updated_by: (user == null ? void 0 : user.id) ?? void 0,
+        published_at: payload.is_published ? previous.published_at ?? (/* @__PURE__ */ new Date()).toISOString() : null
+      };
+      const { error } = await supabase2.from("formations").update(updatePayload).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-formations"] });
+      setDialogOpen(false);
+      setEditingFormation(null);
+      resetFormForCreate();
+      toast$1.success("Formation updated successfully");
+    },
+    onError: (error) => {
+      toast$1.error("Failed to update formation: " + error.message);
+    }
+  });
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
+      const { error } = await supabase2.from("formations").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-formations"] });
+      setDeleteDialogOpen(false);
+      setDeletingFormation(null);
+      toast$1.success("Formation deleted successfully");
+    },
+    onError: (error) => {
+      toast$1.error("Failed to delete formation: " + error.message);
+    }
+  });
+  const watchedTitle = form.watch("title");
+  const watchedSlug = form.watch("slug");
+  useEffect(() => {
+    if (!slugManuallyEdited && !editingFormation) {
+      const generated = slugify$4(watchedTitle ?? "");
+      if (generated && generated !== watchedSlug) {
+        form.setValue("slug", generated, { shouldValidate: false });
+      }
+    }
+  }, [watchedTitle, slugManuallyEdited, editingFormation, watchedSlug, form]);
+  const { data: formations, isLoading } = useQuery({
+    queryKey: ["admin-formations"],
+    queryFn: async () => {
+      const { data, error } = await supabase2.from("formations").select(`
+          id, title, slug, description, is_published, status, published_at, created_at, updated_at,
+          formation_paths(
+            order,
+            learning_paths(id, title)
+          )
+        `).order("created_at", { ascending: false });
+      if (error) throw error;
+      const rows = data ?? [];
+      return rows.map((formation) => {
+        const { formation_paths: rawPaths = [], ...rest } = formation;
+        const paths = rawPaths.map((fp) => {
+          if (!fp.learning_paths) return null;
+          return {
+            id: fp.learning_paths.id,
+            title: fp.learning_paths.title,
+            order: fp.order ?? 0
+          };
+        }).filter((path) => Boolean(path)).sort((a, b) => a.order - b.order);
+        return {
+          ...rest,
+          paths_count: paths.length,
+          paths
+        };
+      });
+    }
+  });
+  const handleSubmit = (data) => {
+    const payload = buildFormationPayload(data);
+    if (editingFormation) {
+      updateMutation.mutate({
+        id: editingFormation.id,
+        payload,
+        previous: editingFormation
+      });
+    } else {
+      createMutation.mutate(payload);
+    }
+  };
+  const handleEdit = (formation) => {
+    setEditingFormation(formation);
+    setDialogOpen(true);
+  };
+  const handleDelete = (formation) => {
+    setDeletingFormation(formation);
+    setDeleteDialogOpen(true);
+  };
+  const confirmDelete = () => {
+    if (deletingFormation) {
+      deleteMutation.mutate(deletingFormation.id);
+    }
+  };
+  const handleAddNew = () => {
+    setEditingFormation(null);
+    resetFormForCreate();
+    setDialogOpen(true);
+  };
+  if (isLoading) {
+    return /* @__PURE__ */ jsx("div", { className: "flex items-center justify-center h-64", children: /* @__PURE__ */ jsx(Loader2, { className: "h-8 w-8 animate-spin" }) });
+  }
+  return /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
+    /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between", children: [
+      /* @__PURE__ */ jsxs("div", { children: [
+        /* @__PURE__ */ jsx("h1", { className: "text-3xl font-bold", children: "Formations" }),
+        /* @__PURE__ */ jsx("p", { className: "text-muted-foreground", children: "Manage learning formations and their paths" })
+      ] }),
+      /* @__PURE__ */ jsxs(Button, { onClick: handleAddNew, children: [
+        /* @__PURE__ */ jsx(Plus, { className: "h-4 w-4 mr-2" }),
+        "Add Formation"
+      ] })
+    ] }),
+    /* @__PURE__ */ jsx("div", { className: "grid gap-4", children: formations == null ? void 0 : formations.map((formation) => /* @__PURE__ */ jsxs(Card, { children: [
+      /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsxs("div", { className: "flex items-start justify-between", children: [
+        /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
+          /* @__PURE__ */ jsxs(CardTitle, { className: "flex items-center gap-2", children: [
+            formation.title,
+            formation.status === "published" ? /* @__PURE__ */ jsx(Badge, { variant: "default", children: "Published" }) : formation.status === "coming_soon" ? /* @__PURE__ */ jsx(Badge, { variant: "secondary", children: "Coming Soon" }) : /* @__PURE__ */ jsx(Badge, { variant: "outline", children: "Draft" })
+          ] }),
+          /* @__PURE__ */ jsx(CardDescription, { children: formation.description || "No description provided" })
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ jsx(
+            Button,
+            {
+              variant: "outline",
+              size: "sm",
+              onClick: () => handleEdit(formation),
+              children: /* @__PURE__ */ jsx(Pencil, { className: "h-4 w-4" })
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            Button,
+            {
+              variant: "outline",
+              size: "sm",
+              onClick: () => handleDelete(formation),
+              children: /* @__PURE__ */ jsx(Trash2, { className: "h-4 w-4" })
+            }
+          )
+        ] })
+      ] }) }),
+      /* @__PURE__ */ jsxs(CardContent, { children: [
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-4 text-sm text-muted-foreground", children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1", children: [
+            /* @__PURE__ */ jsx(BookOpen, { className: "h-4 w-4" }),
+            formation.paths_count,
+            " paths"
+          ] }),
+          /* @__PURE__ */ jsxs("div", { children: [
+            "Created ",
+            formatDistanceToNow(new Date(formation.created_at)),
+            " ago"
+          ] }),
+          formation.published_at && /* @__PURE__ */ jsxs("div", { children: [
+            "Published ",
+            formatDistanceToNow(new Date(formation.published_at)),
+            " ago"
+          ] })
+        ] }),
+        formation.paths && formation.paths.length > 0 && /* @__PURE__ */ jsxs("div", { className: "mt-4", children: [
+          /* @__PURE__ */ jsx("h4", { className: "font-medium mb-2", children: "Learning Paths:" }),
+          /* @__PURE__ */ jsx("div", { className: "flex flex-wrap gap-2", children: formation.paths.map((path) => /* @__PURE__ */ jsx(Badge, { variant: "outline", children: path.title }, path.id)) })
+        ] })
+      ] })
+    ] }, formation.id)) }),
+    /* @__PURE__ */ jsx(Dialog, { open: dialogOpen, onOpenChange: setDialogOpen, children: /* @__PURE__ */ jsxs(DialogContent, { className: "sm:max-w-[640px]", children: [
+      /* @__PURE__ */ jsxs(DialogHeader, { children: [
+        /* @__PURE__ */ jsx(DialogTitle, { children: editingFormation ? "Edit Formation" : "Create Formation" }),
+        /* @__PURE__ */ jsx(DialogDescription, { children: editingFormation ? "Update the formation details below." : "Fill in the details to create a new formation." })
+      ] }),
+      /* @__PURE__ */ jsx(Form, { ...form, children: /* @__PURE__ */ jsxs("form", { onSubmit: form.handleSubmit(handleSubmit), className: "space-y-4", children: [
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "title",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: "Title" }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Input, { placeholder: "Formation title", ...field }) }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "slug",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: "Slug" }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(
+                Input,
+                {
+                  placeholder: "formation-slug",
+                  ...field,
+                  onChange: (e) => {
+                    field.onChange(e);
+                    setSlugManuallyEdited(true);
+                  }
+                }
+              ) }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "description",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: "Description" }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(
+                Textarea,
+                {
+                  placeholder: "Formation description",
+                  className: "resize-none",
+                  ...field
+                }
+              ) }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "thumbnail_url",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: "Thumbnail URL" }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Input, { placeholder: "https://example.com/image.jpg", ...field }) }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "status",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: "Status" }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsxs(
+                "select",
+                {
+                  className: "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                  value: field.value,
+                  onChange: (event) => {
+                    const value = event.target.value;
+                    field.onChange(value);
+                    form.setValue("is_published", value !== "draft", {
+                      shouldDirty: true
+                    });
+                  },
+                  children: [
+                    /* @__PURE__ */ jsx("option", { value: "draft", children: "Draft" }),
+                    /* @__PURE__ */ jsx("option", { value: "published", children: "Published" }),
+                    /* @__PURE__ */ jsx("option", { value: "coming_soon", children: "Coming Soon" })
+                  ]
+                }
+              ) }),
+              /* @__PURE__ */ jsx(FormDescription, { children: "Draft formations stay private. Coming soon keeps it visible but routes users to the waiting list." }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "is_published",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { className: "flex flex-row items-center justify-between rounded-lg border p-4", children: [
+              /* @__PURE__ */ jsxs("div", { className: "space-y-0.5", children: [
+                /* @__PURE__ */ jsx(FormLabel, { className: "text-base", children: "Published" }),
+                /* @__PURE__ */ jsx(FormDescription, { children: "Make this formation visible to users" })
+              ] }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(
+                Switch,
+                {
+                  checked: field.value,
+                  onCheckedChange: (checked) => {
+                    field.onChange(checked);
+                    const currentStatus = form.getValues("status");
+                    if (checked && currentStatus === "draft") {
+                      form.setValue("status", "published", { shouldDirty: true });
+                    }
+                    if (!checked && currentStatus !== "draft") {
+                      form.setValue("status", "draft", { shouldDirty: true });
+                    }
+                  }
+                }
+              ) })
+            ] })
+          }
+        ),
+        editingFormation ? /* @__PURE__ */ jsxs("div", { className: "space-y-3", children: [
+          /* @__PURE__ */ jsx(Separator, {}),
+          /* @__PURE__ */ jsxs("div", { className: "space-y-2", children: [
+            /* @__PURE__ */ jsx("h3", { className: "text-sm font-semibold text-forge-dark", children: "Learning paths" }),
+            /* @__PURE__ */ jsx("p", { className: "text-sm text-muted-foreground", children: "Add or reorder learning paths for this formation. Changes are saved immediately." }),
+            /* @__PURE__ */ jsx(
+              LearningPathSelector,
+              {
+                formationId: editingFormation.id,
+                selectedPaths: selectedPathsState,
+                onPathsChange: setSelectedPathsState
+              }
+            )
+          ] })
+        ] }) : /* @__PURE__ */ jsxs("div", { className: "space-y-2", children: [
+          /* @__PURE__ */ jsx(Separator, {}),
+          /* @__PURE__ */ jsx("p", { className: "text-sm text-muted-foreground", children: "Save the formation first to associate learning paths." })
+        ] }),
+        /* @__PURE__ */ jsx(DialogFooter, { children: /* @__PURE__ */ jsxs(Button, { type: "submit", disabled: createMutation.isPending || updateMutation.isPending, children: [
+          (createMutation.isPending || updateMutation.isPending) && /* @__PURE__ */ jsx(Loader2, { className: "mr-2 h-4 w-4 animate-spin" }),
+          editingFormation ? "Update" : "Create"
+        ] }) })
+      ] }) })
+    ] }) }),
+    /* @__PURE__ */ jsx(AlertDialog, { open: deleteDialogOpen, onOpenChange: setDeleteDialogOpen, children: /* @__PURE__ */ jsxs(AlertDialogContent, { children: [
+      /* @__PURE__ */ jsxs(AlertDialogHeader, { children: [
+        /* @__PURE__ */ jsx(AlertDialogTitle, { children: "Are you sure?" }),
+        /* @__PURE__ */ jsxs(AlertDialogDescription, { children: [
+          'This action cannot be undone. This will permanently delete the formation "',
+          deletingFormation == null ? void 0 : deletingFormation.title,
+          '" and remove all associated path assignments.'
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxs(AlertDialogFooter, { children: [
+        /* @__PURE__ */ jsx(AlertDialogCancel, { children: "Cancel" }),
+        /* @__PURE__ */ jsxs(AlertDialogAction, { onClick: confirmDelete, disabled: deleteMutation.isPending, children: [
+          deleteMutation.isPending && /* @__PURE__ */ jsx(Loader2, { className: "mr-2 h-4 w-4 animate-spin" }),
+          "Delete"
+        ] })
+      ] })
+    ] }) })
+  ] });
+}
+const slugify$3 = (value) => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+const pathSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  slug: z.string().min(1, "Slug is required"),
+  is_published: z.boolean(),
+  status: z.enum(["draft", "published", "coming_soon"])
 });
 function AdminPaths() {
   const supabase2 = useMemo(() => createClientBrowser(), []);
@@ -8021,12 +11107,13 @@ function AdminPaths() {
   const [editingPath, setEditingPath] = useState(null);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
   const form = useForm({
-    resolver: zodResolver(pathFormSchema),
+    resolver: zodResolver(pathSchema),
     defaultValues: {
       title: "",
       slug: "",
       description: "",
-      is_published: false
+      is_published: false,
+      status: "draft"
     }
   });
   useEffect(() => {
@@ -8049,23 +11136,31 @@ function AdminPaths() {
   const { data: paths, isLoading } = useQuery({
     queryKey: ["admin-paths"],
     queryFn: async () => {
-      const { data, error } = await supabase2.from("learning_paths").select("id, title, slug, description, is_published, published_at, created_at, updated_at, courses:courses(id)").order("created_at", { ascending: false });
+      const { data, error } = await supabase2.from("learning_paths").select("id, title, slug, description, is_published, published_at, created_at, updated_at, status, courses:courses(id)").order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []).map((item) => ({
         ...item,
-        courseCount: Array.isArray(item.courses) ? item.courses.length : 0
+        courses_count: Array.isArray(item.courses) ? item.courses.length : 0
       }));
     }
   });
   const upsertMutation = useMutation({
     mutationFn: async (values) => {
       var _a;
+      const trimmedTitle = values.title.trim();
+      const trimmedSlug = values.slug.trim();
+      const trimmedDescription = ((_a = values.description) == null ? void 0 : _a.trim()) ? values.description.trim() : null;
+      const baseStatus = values.status;
+      const statusFromSelection = baseStatus === "published" || baseStatus === "coming_soon";
+      const effectiveStatus = statusFromSelection ? baseStatus : values.is_published ? "published" : "draft";
+      const shouldPublish = effectiveStatus !== "draft";
       const payload = {
-        title: values.title.trim(),
-        slug: values.slug.trim(),
-        description: ((_a = values.description) == null ? void 0 : _a.trim()) ? values.description.trim() : null,
-        is_published: values.is_published,
-        published_at: values.is_published ? (editingPath == null ? void 0 : editingPath.published_at) ?? (/* @__PURE__ */ new Date()).toISOString() : null
+        title: trimmedTitle,
+        slug: trimmedSlug,
+        description: trimmedDescription,
+        is_published: shouldPublish,
+        status: effectiveStatus,
+        published_at: shouldPublish ? (editingPath == null ? void 0 : editingPath.published_at) ?? (/* @__PURE__ */ new Date()).toISOString() : null
       };
       if (editingPath) {
         const { error } = await supabase2.from("learning_paths").update(payload).eq("id", editingPath.id);
@@ -8073,7 +11168,7 @@ function AdminPaths() {
       } else {
         const { error } = await supabase2.from("learning_paths").insert({
           ...payload,
-          published_at: values.is_published ? (/* @__PURE__ */ new Date()).toISOString() : null
+          published_at: shouldPublish ? (/* @__PURE__ */ new Date()).toISOString() : null
         });
         if (error) throw error;
       }
@@ -8089,10 +11184,18 @@ function AdminPaths() {
     }
   });
   const publishMutation = useMutation({
-    mutationFn: async ({ id, publish }) => {
+    mutationFn: async ({
+      id,
+      publish,
+      previousStatus,
+      previousPublishedAt
+    }) => {
+      const nextStatus = publish ? previousStatus === "coming_soon" ? "coming_soon" : "published" : "draft";
+      const nextIsPublished = nextStatus !== "draft";
       const { error } = await supabase2.from("learning_paths").update({
-        is_published: publish,
-        published_at: publish ? (/* @__PURE__ */ new Date()).toISOString() : null
+        is_published: nextIsPublished,
+        status: nextStatus,
+        published_at: nextIsPublished ? previousPublishedAt ?? (/* @__PURE__ */ new Date()).toISOString() : null
       }).eq("id", id);
       if (error) throw error;
     },
@@ -8123,7 +11226,7 @@ function AdminPaths() {
   const openForCreate = () => {
     setEditingPath(null);
     setSlugManuallyEdited(false);
-    form.reset({ title: "", slug: "", description: "", is_published: false });
+    form.reset({ title: "", slug: "", description: "", is_published: false, status: "draft" });
     setDialogOpen(true);
   };
   const openForEdit = (path) => {
@@ -8133,7 +11236,8 @@ function AdminPaths() {
       title: path.title ?? "",
       slug: path.slug ?? "",
       description: path.description ?? "",
-      is_published: path.is_published
+      is_published: path.is_published,
+      status: path.status ?? "draft"
     });
     setDialogOpen(true);
   };
@@ -8159,7 +11263,10 @@ function AdminPaths() {
         /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
           /* @__PURE__ */ jsxs(CardTitle, { className: "flex items-center gap-2 text-forge-dark", children: [
             path.title,
-            /* @__PURE__ */ jsx(Badge, { variant: path.is_published ? "default" : "outline", className: path.is_published ? "bg-forge-orange text-white hover:bg-forge-orange/90" : "", children: path.is_published ? "Published" : "Draft" })
+            path.status === "published" ? /* @__PURE__ */ jsx(Badge, { variant: "default", className: "bg-forge-orange text-white hover:bg-forge-orange/90", children: "Published" }) : path.status === "coming_soon" ? /* @__PURE__ */ jsxs(Badge, { variant: "secondary", className: "bg-blue-100 text-blue-800 hover:bg-blue-200", children: [
+              /* @__PURE__ */ jsx(Clock, { className: "h-3 w-3 mr-1" }),
+              "Coming Soon"
+            ] }) : /* @__PURE__ */ jsx(Badge, { variant: "outline", children: "Draft" })
           ] }),
           /* @__PURE__ */ jsx(CardDescription, { className: "text-sm text-forge-gray", children: path.description || "No description" })
         ] }),
@@ -8188,7 +11295,7 @@ function AdminPaths() {
           /* @__PURE__ */ jsxs("div", { children: [
             /* @__PURE__ */ jsx("span", { className: "font-semibold text-forge-dark", children: "Courses:" }),
             " ",
-            path.courseCount
+            path.courses_count
           ] })
         ] }),
         /* @__PURE__ */ jsxs("div", { className: "text-xs text-forge-gray/80", children: [
@@ -8202,7 +11309,12 @@ function AdminPaths() {
           {
             id: `publish-${path.id}`,
             checked: path.is_published,
-            onCheckedChange: (checked) => publishMutation.mutate({ id: path.id, publish: checked }),
+            onCheckedChange: (checked) => publishMutation.mutate({
+              id: path.id,
+              publish: checked,
+              previousStatus: path.status,
+              previousPublishedAt: path.published_at ?? null
+            }),
             disabled: publishMutation.isPending
           }
         ),
@@ -8272,6 +11384,36 @@ function AdminPaths() {
           FormField,
           {
             control: form.control,
+            name: "status",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: "Status" }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsxs(
+                "select",
+                {
+                  className: "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                  value: field.value,
+                  onChange: (event) => {
+                    const value = event.target.value;
+                    field.onChange(value);
+                    form.setValue("is_published", value !== "draft", {
+                      shouldDirty: true
+                    });
+                  },
+                  children: [
+                    /* @__PURE__ */ jsx("option", { value: "draft", children: "Draft" }),
+                    /* @__PURE__ */ jsx("option", { value: "published", children: "Published" }),
+                    /* @__PURE__ */ jsx("option", { value: "coming_soon", children: "Coming Soon" })
+                  ]
+                }
+              ) }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
             name: "is_published",
             render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { className: "flex flex-row items-center justify-between rounded-lg border border-forge-cream/80 bg-forge-cream/30 p-3", children: [
               /* @__PURE__ */ jsxs("div", { className: "space-y-0.5", children: [
@@ -8282,7 +11424,16 @@ function AdminPaths() {
                 Switch,
                 {
                   checked: field.value,
-                  onCheckedChange: field.onChange,
+                  onCheckedChange: (checked) => {
+                    field.onChange(checked);
+                    const currentStatus = form.getValues("status");
+                    if (checked && currentStatus === "draft") {
+                      form.setValue("status", "published", { shouldDirty: true });
+                    }
+                    if (!checked && currentStatus !== "draft") {
+                      form.setValue("status", "draft", { shouldDirty: true });
+                    }
+                  },
                   disabled: form.formState.isSubmitting
                 }
               ) })
@@ -8335,7 +11486,8 @@ const courseFormSchema = z.object({
   order: z.coerce.number().int("Order must be an integer").min(1, "Order must be at least 1"),
   duration_minutes: z.union([z.coerce.number().int().min(0), z.literal("")]).optional().transform((value) => value === "" || value === void 0 ? null : Number(value)),
   thumbnail_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  is_published: z.boolean().default(false)
+  is_published: z.boolean().default(false),
+  status: z.enum(["draft", "published", "coming_soon"])
 });
 function AdminCourses() {
   const supabase2 = useMemo(() => createClientBrowser(), []);
@@ -8356,7 +11508,8 @@ function AdminCourses() {
       order: 1,
       duration_minutes: null,
       thumbnail_url: "",
-      is_published: false
+      is_published: false,
+      status: "draft"
     }
   });
   useEffect(() => {
@@ -8394,7 +11547,7 @@ function AdminCourses() {
     queryKey: ["admin-courses"],
     queryFn: async () => {
       const { data, error } = await supabase2.from("courses").select(
-        "id, title, slug, summary, description, path_id, order, duration_minutes, is_published, published_at, thumbnail_url, updated_at, modules:modules(id)"
+        "id, title, slug, summary, description, path_id, order, duration_minutes, status, is_published, published_at, thumbnail_url, updated_at, modules:modules(id)"
       ).order("order", { ascending: true });
       if (error) throw error;
       return (data ?? []).map((item) => ({
@@ -8411,6 +11564,10 @@ function AdminCourses() {
   const upsertMutation = useMutation({
     mutationFn: async (values) => {
       var _a, _b, _c;
+      const baseStatus = values.status;
+      const statusFromSelection = baseStatus === "published" || baseStatus === "coming_soon";
+      const effectiveStatus = statusFromSelection ? baseStatus : values.is_published ? "published" : "draft";
+      const isPublishedFlag = effectiveStatus !== "draft";
       const payload = {
         path_id: values.path_id,
         title: values.title.trim(),
@@ -8420,8 +11577,9 @@ function AdminCourses() {
         order: values.order,
         duration_minutes: values.duration_minutes ?? null,
         thumbnail_url: ((_c = values.thumbnail_url) == null ? void 0 : _c.trim()) ? values.thumbnail_url.trim() : null,
-        is_published: values.is_published,
-        published_at: values.is_published ? (editingCourse == null ? void 0 : editingCourse.published_at) ?? (/* @__PURE__ */ new Date()).toISOString() : null
+        status: effectiveStatus,
+        is_published: isPublishedFlag,
+        published_at: isPublishedFlag ? (editingCourse == null ? void 0 : editingCourse.published_at) ?? (/* @__PURE__ */ new Date()).toISOString() : null
       };
       if (editingCourse) {
         const { error } = await supabase2.from("courses").update(payload).eq("id", editingCourse.id);
@@ -8429,7 +11587,7 @@ function AdminCourses() {
       } else {
         const { error } = await supabase2.from("courses").insert({
           ...payload,
-          published_at: values.is_published ? (/* @__PURE__ */ new Date()).toISOString() : null
+          published_at: isPublishedFlag ? (/* @__PURE__ */ new Date()).toISOString() : null
         });
         if (error) throw error;
       }
@@ -8445,8 +11603,19 @@ function AdminCourses() {
     }
   });
   const publishMutation = useMutation({
-    mutationFn: async ({ id, publish }) => {
-      const { error } = await supabase2.from("courses").update({ is_published: publish, published_at: publish ? (/* @__PURE__ */ new Date()).toISOString() : null }).eq("id", id);
+    mutationFn: async ({
+      id,
+      publish,
+      previousStatus,
+      previousPublishedAt
+    }) => {
+      const nextStatus = publish ? previousStatus === "coming_soon" ? "coming_soon" : "published" : "draft";
+      const nextIsPublished = nextStatus !== "draft";
+      const { error } = await supabase2.from("courses").update({
+        status: nextStatus,
+        is_published: nextIsPublished,
+        published_at: nextIsPublished ? previousPublishedAt ?? (/* @__PURE__ */ new Date()).toISOString() : null
+      }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -8485,7 +11654,8 @@ function AdminCourses() {
       order: 1,
       duration_minutes: null,
       thumbnail_url: "",
-      is_published: false
+      is_published: false,
+      status: "draft"
     });
     setDialogOpen(true);
   };
@@ -8501,7 +11671,8 @@ function AdminCourses() {
       order: course.order ?? 1,
       duration_minutes: course.duration_minutes ?? null,
       thumbnail_url: course.thumbnail_url ?? "",
-      is_published: course.is_published
+      is_published: course.is_published,
+      status: course.status ?? "draft"
     });
     setDialogOpen(true);
   };
@@ -8551,9 +11722,9 @@ function AdminCourses() {
               /* @__PURE__ */ jsx(
                 Badge,
                 {
-                  variant: course.is_published ? "default" : "outline",
-                  className: course.is_published ? "bg-forge-orange text-white hover:bg-forge-orange/90" : "",
-                  children: course.is_published ? "Published" : "Draft"
+                  variant: course.status === "published" ? "default" : course.status === "coming_soon" ? "secondary" : "outline",
+                  className: course.status === "published" ? "bg-forge-orange text-white hover:bg-forge-orange/90" : "",
+                  children: course.status === "published" ? "Published" : course.status === "coming_soon" ? "Coming Soon" : "Draft"
                 }
               )
             ] }),
@@ -8624,7 +11795,12 @@ function AdminCourses() {
             {
               id: `course-publish-${course.id}`,
               checked: course.is_published,
-              onCheckedChange: (checked) => publishMutation.mutate({ id: course.id, publish: checked }),
+              onCheckedChange: (checked) => publishMutation.mutate({
+                id: course.id,
+                publish: checked,
+                previousStatus: course.status ?? "draft",
+                previousPublishedAt: course.published_at ?? null
+              }),
               disabled: publishMutation.isPending
             }
           ),
@@ -8756,6 +11932,37 @@ function AdminCourses() {
           FormField,
           {
             control: form.control,
+            name: "status",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: "Status" }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsxs(
+                "select",
+                {
+                  className: "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                  value: field.value,
+                  onChange: (event) => {
+                    const value = event.target.value;
+                    field.onChange(value);
+                    form.setValue("is_published", value !== "draft", {
+                      shouldDirty: true
+                    });
+                  },
+                  children: [
+                    /* @__PURE__ */ jsx("option", { value: "draft", children: "Draft" }),
+                    /* @__PURE__ */ jsx("option", { value: "published", children: "Published" }),
+                    /* @__PURE__ */ jsx("option", { value: "coming_soon", children: "Coming Soon" })
+                  ]
+                }
+              ) }),
+              /* @__PURE__ */ jsx(FormDescription, { children: "Coming soon keeps the course visible while you collect early interest." }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
             name: "is_published",
             render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { className: "flex flex-row items-center justify-between rounded-lg border border-forge-cream/80 bg-forge-cream/30 p-3", children: [
               /* @__PURE__ */ jsxs("div", { className: "space-y-0.5", children: [
@@ -8766,7 +11973,16 @@ function AdminCourses() {
                 Switch,
                 {
                   checked: field.value,
-                  onCheckedChange: field.onChange,
+                  onCheckedChange: (checked) => {
+                    field.onChange(checked);
+                    const currentStatus = form.getValues("status");
+                    if (checked && currentStatus === "draft") {
+                      form.setValue("status", "published", { shouldDirty: true });
+                    }
+                    if (!checked && currentStatus !== "draft") {
+                      form.setValue("status", "draft", { shouldDirty: true });
+                    }
+                  },
                   disabled: form.formState.isSubmitting
                 }
               ) })
@@ -9267,6 +12483,75 @@ function AdminModules() {
       ] })
     ] }) })
   ] });
+}
+const Tabs = TabsPrimitive.Root;
+const TabsList = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  TabsPrimitive.List,
+  {
+    ref,
+    className: cn(
+      "inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
+      className
+    ),
+    ...props
+  }
+));
+TabsList.displayName = TabsPrimitive.List.displayName;
+const TabsTrigger = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  TabsPrimitive.Trigger,
+  {
+    ref,
+    className: cn(
+      "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
+      className
+    ),
+    ...props
+  }
+));
+TabsTrigger.displayName = TabsPrimitive.Trigger.displayName;
+const TabsContent = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  TabsPrimitive.Content,
+  {
+    ref,
+    className: cn(
+      "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+      className
+    ),
+    ...props
+  }
+));
+TabsContent.displayName = TabsPrimitive.Content.displayName;
+function MarkdownEditor({
+  value,
+  onChange,
+  disabled = false,
+  placeholder,
+  className,
+  onBlur
+}) {
+  const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+  if (!isMounted) {
+    return /* @__PURE__ */ jsx("div", { className: cn("rounded-md border p-4 text-sm text-muted-foreground", className), children: t("admin.projects.markdown.loading") });
+  }
+  return /* @__PURE__ */ jsx("div", { className: cn("w-full rounded-md border bg-white", className), "data-color-mode": "light", children: /* @__PURE__ */ jsx(
+    MDEditor,
+    {
+      value,
+      preview: "edit",
+      height: 300,
+      onChange: (val) => onChange(val ?? ""),
+      textareaProps: {
+        placeholder,
+        disabled,
+        onBlur
+      },
+      "aria-label": t("admin.projects.markdown.ariaLabel")
+    }
+  ) });
 }
 const slugify = (value) => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
 const lessonFormSchema = z.object({
@@ -9874,7 +13159,31 @@ function AdminLessons() {
             name: "text_content",
             render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
               /* @__PURE__ */ jsx(FormLabel, { children: "Markdown content" }),
-              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Textarea, { rows: 8, placeholder: "Write lesson content in Markdown", ...field }) }),
+              /* @__PURE__ */ jsxs(Tabs, { defaultValue: "edit", className: "w-full", children: [
+                /* @__PURE__ */ jsxs(TabsList, { children: [
+                  /* @__PURE__ */ jsx(TabsTrigger, { value: "edit", children: "Edit" }),
+                  /* @__PURE__ */ jsx(TabsTrigger, { value: "preview", children: "Preview" })
+                ] }),
+                /* @__PURE__ */ jsx(TabsContent, { value: "edit", children: /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(
+                  MarkdownEditor,
+                  {
+                    value: field.value ?? "",
+                    onChange: field.onChange,
+                    onBlur: field.onBlur,
+                    placeholder: "Write lesson content in Markdown"
+                  }
+                ) }) }),
+                /* @__PURE__ */ jsx(TabsContent, { value: "preview", children: /* @__PURE__ */ jsx("div", { className: "rounded-md border p-4 bg-white", children: /* @__PURE__ */ jsx("div", { className: "prose prose-slate max-w-none", children: /* @__PURE__ */ jsx(
+                  ReactMarkdown,
+                  {
+                    components: {
+                      a: ({ node, ...props }) => /* @__PURE__ */ jsx("a", { ...props, target: "_blank", rel: "noopener noreferrer" })
+                    },
+                    children: field.value || "Nothing to preview yet."
+                  }
+                ) }) }) })
+              ] }),
+              /* @__PURE__ */ jsx(FormDescription, { children: "Supports Markdown syntax (headings, lists, code blocks, links, images)." }),
               /* @__PURE__ */ jsx(FormMessage, {})
             ] })
           }
@@ -9994,43 +13303,379 @@ function AdminLessons() {
     ] }) })
   ] });
 }
-const Tabs = TabsPrimitive.Root;
-const TabsList = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
-  TabsPrimitive.List,
-  {
-    ref,
-    className: cn(
-      "inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
-      className
-    ),
-    ...props
-  }
-));
-TabsList.displayName = TabsPrimitive.List.displayName;
-const TabsTrigger = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
-  TabsPrimitive.Trigger,
-  {
-    ref,
-    className: cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-      className
-    ),
-    ...props
-  }
-));
-TabsTrigger.displayName = TabsPrimitive.Trigger.displayName;
-const TabsContent = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
-  TabsPrimitive.Content,
-  {
-    ref,
-    className: cn(
-      "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-      className
-    ),
-    ...props
-  }
-));
-TabsContent.displayName = TabsPrimitive.Content.displayName;
+const stripHtml = (value) => {
+  if (!value) return "";
+  return value.replace(/<[^>]+>/g, "").trim();
+};
+function AdminProjects() {
+  const { t } = useTranslation();
+  const supabase2 = useMemo(() => createClientBrowser(), []);
+  const queryClient = useQueryClient();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [selectedModuleFilter, setSelectedModuleFilter] = useState("all");
+  const formSchema = useMemo(
+    () => z.object({
+      module_id: z.string().uuid(t("admin.projects.validation.moduleRequired")),
+      title: z.string().min(3, t("admin.projects.validation.titleMin")),
+      description: z.string().optional().or(z.literal("")),
+      xp_value: z.union([z.literal(""), z.coerce.number().int().min(0, t("admin.projects.validation.xpMin"))]).transform((value) => value === "" ? null : value),
+      is_active: z.boolean()
+    }),
+    [t]
+  );
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      module_id: "",
+      title: "",
+      description: "",
+      xp_value: null,
+      is_active: true
+    }
+  });
+  useEffect(() => {
+    if (!dialogOpen) {
+      setEditingProject(null);
+      form.reset({
+        module_id: "",
+        title: "",
+        description: "",
+        xp_value: null,
+        is_active: true
+      });
+    }
+  }, [dialogOpen, form]);
+  const { data: modules = [], isLoading: loadingModules } = useQuery({
+    queryKey: ["admin-module-projects-modules"],
+    queryFn: async () => {
+      const { data, error } = await supabase2.from("modules").select("id, title, order, course:courses(id, title)").order("order", { ascending: true });
+      if (error) throw error;
+      return (data ?? []).map((item) => ({
+        ...item,
+        course: item.course ?? null
+      }));
+    }
+  });
+  const { data: projects2 = [], isLoading } = useQuery({
+    queryKey: ["admin-module-projects"],
+    queryFn: async () => {
+      const { data, error } = await supabase2.from("module_projects").select(
+        "id, module_id, title, description, xp_value, is_active, module:modules(id, title, order, course:courses(id, title))"
+      ).order("module_id", { ascending: true }).order("created_at", { ascending: true }).order("title", { ascending: true });
+      if (error) throw error;
+      return (data ?? []).map((item) => ({
+        ...item,
+        module: item.module ?? null
+      }));
+    },
+    onError: (error) => {
+      console.error("Error loading projects", error);
+      toast$1.error(t("admin.projects.notifications.loadError"));
+    }
+  });
+  const filteredProjects = useMemo(() => {
+    if (selectedModuleFilter === "all") return projects2;
+    return projects2.filter((project) => project.module_id === selectedModuleFilter);
+  }, [projects2, selectedModuleFilter]);
+  const grouped = useMemo(() => {
+    const map = /* @__PURE__ */ new Map();
+    filteredProjects.forEach((project) => {
+      const key = project.module_id || "unassigned";
+      if (!map.has(key)) {
+        map.set(key, { module: project.module ?? null, items: [] });
+      }
+      map.get(key).items.push(project);
+    });
+    return Array.from(map.entries()).sort((a, b) => {
+      var _a, _b, _c, _d;
+      const moduleAOrder = ((_a = a[1].module) == null ? void 0 : _a.order) ?? Number.MAX_SAFE_INTEGER;
+      const moduleBOrder = ((_b = b[1].module) == null ? void 0 : _b.order) ?? Number.MAX_SAFE_INTEGER;
+      if (moduleAOrder !== moduleBOrder) return moduleAOrder - moduleBOrder;
+      const titleA = ((_c = a[1].module) == null ? void 0 : _c.title) ?? "";
+      const titleB = ((_d = b[1].module) == null ? void 0 : _d.title) ?? "";
+      return titleA.localeCompare(titleB);
+    }).map(([key, value]) => ({ key, ...value }));
+  }, [filteredProjects]);
+  const upsertMutation = useMutation({
+    mutationFn: async (values) => {
+      var _a;
+      const payload = {
+        module_id: values.module_id,
+        title: values.title.trim(),
+        description: ((_a = values.description) == null ? void 0 : _a.trim()) ? values.description.trim() : null,
+        xp_value: values.xp_value,
+        is_active: values.is_active
+      };
+      if (editingProject) {
+        const { error } = await supabase2.from("module_projects").update(payload).eq("id", editingProject.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase2.from("module_projects").insert(payload);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-module-projects"] });
+      toast$1.success(
+        editingProject ? t("admin.projects.notifications.updated") : t("admin.projects.notifications.created")
+      );
+      setDialogOpen(false);
+    },
+    onError: (error) => {
+      console.error("Error saving project", error);
+      toast$1.error(t("admin.projects.notifications.saveError"));
+    }
+  });
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
+      const { error } = await supabase2.from("module_projects").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-module-projects"] });
+      toast$1.success(t("admin.projects.notifications.deleted"));
+      setDeleteDialogOpen(false);
+      setDeleteTarget(null);
+    },
+    onError: (error) => {
+      console.error("Error deleting project", error);
+      toast$1.error(t("admin.projects.notifications.deleteError"));
+    }
+  });
+  const openForCreate = useCallback(() => {
+    setEditingProject(null);
+    form.reset({
+      module_id: "",
+      title: "",
+      description: "",
+      xp_value: null,
+      is_active: true
+    });
+    setDialogOpen(true);
+  }, [form, setDialogOpen]);
+  const openForEdit = useCallback(
+    (project) => {
+      setEditingProject(project);
+      form.reset({
+        module_id: project.module_id,
+        title: project.title,
+        description: project.description ?? "",
+        xp_value: project.xp_value ?? null,
+        is_active: project.is_active ?? true
+      });
+      setDialogOpen(true);
+    },
+    [form, setDialogOpen]
+  );
+  const handleDeleteClick = useCallback(
+    (project) => {
+      setDeleteTarget(project);
+      setDeleteDialogOpen(true);
+    },
+    []
+  );
+  const onSubmit = (values) => {
+    upsertMutation.mutate(values);
+  };
+  const moduleOptions = useMemo(() => {
+    return modules.slice().sort((a, b) => {
+      if (a.order !== b.order) return a.order - b.order;
+      return a.title.localeCompare(b.title);
+    });
+  }, [modules]);
+  const renderedGroups = useMemo(
+    () => grouped.map(({ key, module, items }) => /* @__PURE__ */ jsxs(Card, { className: "border border-forge-cream/70 bg-white/80", children: [
+      /* @__PURE__ */ jsx(CardHeader, { className: "flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between", children: /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
+        /* @__PURE__ */ jsx(CardTitle, { className: "text-forge-dark", children: module ? `${module.title}` : t("admin.projects.unassignedModule") }),
+        (module == null ? void 0 : module.course) && /* @__PURE__ */ jsx(CardDescription, { className: "text-sm text-forge-gray", children: t("admin.projects.labels.course", { course: module.course.title }) })
+      ] }) }),
+      /* @__PURE__ */ jsx(CardContent, { className: "space-y-4", children: items.map((project, index) => {
+        const sequence = index + 1;
+        return /* @__PURE__ */ jsx(
+          "div",
+          {
+            className: "rounded-lg border border-forge-cream/60 bg-white/90 p-4 shadow-sm transition-shadow hover:shadow-md",
+            children: /* @__PURE__ */ jsxs("div", { className: "flex flex-col gap-3 md:flex-row md:items-start md:justify-between", children: [
+              /* @__PURE__ */ jsxs("div", { className: "space-y-2", children: [
+                /* @__PURE__ */ jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
+                  /* @__PURE__ */ jsx("span", { className: "rounded-full bg-forge-orange/10 px-2 py-0.5 text-xs font-medium text-forge-orange", children: t("admin.projects.labels.projectNumber", { number: sequence }) }),
+                  /* @__PURE__ */ jsx("h3", { className: "text-lg font-semibold text-forge-dark", children: project.title }),
+                  !project.is_active && /* @__PURE__ */ jsx(Badge, { variant: "outline", className: "border-red-200 text-red-600", children: t("admin.projects.labels.inactive") }),
+                  typeof project.xp_value === "number" && /* @__PURE__ */ jsx(Badge, { variant: "secondary", className: "bg-forge-cream text-forge-dark", children: t("admin.projects.labels.xpValue", { xp: project.xp_value }) })
+                ] }),
+                project.description && /* @__PURE__ */ jsx("p", { className: "text-sm text-forge-gray/90 line-clamp-2", children: stripHtml(project.description) })
+              ] }),
+              /* @__PURE__ */ jsxs("div", { className: "flex gap-2", children: [
+                /* @__PURE__ */ jsx(Button, { variant: "outline", size: "icon", onClick: () => openForEdit(project), children: /* @__PURE__ */ jsx(Pencil, { className: "h-4 w-4" }) }),
+                /* @__PURE__ */ jsx(
+                  Button,
+                  {
+                    variant: "outline",
+                    size: "icon",
+                    className: "text-red-500 hover:text-red-600",
+                    onClick: () => handleDeleteClick(project),
+                    children: /* @__PURE__ */ jsx(Trash2, { className: "h-4 w-4" })
+                  }
+                )
+              ] })
+            ] })
+          },
+          project.id
+        );
+      }) })
+    ] }, key)),
+    [grouped, handleDeleteClick, openForEdit, t]
+  );
+  return /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
+    /* @__PURE__ */ jsxs("div", { className: "flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between", children: [
+      /* @__PURE__ */ jsxs("div", { children: [
+        /* @__PURE__ */ jsx("h2", { className: "text-2xl font-semibold text-forge-dark", children: t("admin.projects.title") }),
+        /* @__PURE__ */ jsx("p", { className: "text-sm text-forge-gray", children: t("admin.projects.subtitle") })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "flex flex-col gap-3 md:flex-row md:items-center", children: [
+        /* @__PURE__ */ jsxs(
+          Select,
+          {
+            value: selectedModuleFilter,
+            onValueChange: (value) => setSelectedModuleFilter(value),
+            disabled: loadingModules,
+            children: [
+              /* @__PURE__ */ jsx(SelectTrigger, { className: "w-[240px]", children: /* @__PURE__ */ jsx(SelectValue, { placeholder: t("admin.projects.filters.modulePlaceholder") }) }),
+              /* @__PURE__ */ jsxs(SelectContent, { children: [
+                /* @__PURE__ */ jsx(SelectItem, { value: "all", children: t("admin.projects.filters.allModules") }),
+                moduleOptions.map((module) => /* @__PURE__ */ jsx(SelectItem, { value: module.id, children: module.course ? `${module.course.title} · ${module.title}` : module.title }, module.id))
+              ] })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxs(Button, { onClick: openForCreate, disabled: loadingModules || moduleOptions.length === 0, className: "md:w-auto", children: [
+          /* @__PURE__ */ jsx(Plus, { className: "mr-2 h-4 w-4" }),
+          t("admin.projects.actions.newProject")
+        ] })
+      ] })
+    ] }),
+    isLoading ? /* @__PURE__ */ jsx(Card, { className: "border-dashed border-forge-cream/70 bg-white/80", children: /* @__PURE__ */ jsxs(CardContent, { className: "flex items-center gap-3 p-8 text-forge-gray", children: [
+      /* @__PURE__ */ jsx(Loader2, { className: "h-4 w-4 animate-spin" }),
+      t("admin.projects.loading")
+    ] }) }) : grouped.length === 0 ? /* @__PURE__ */ jsx(Card, { className: "border border-dashed border-forge-cream/70 bg-white/80", children: /* @__PURE__ */ jsx(CardContent, { className: "p-8 text-center text-sm text-forge-gray", children: t("admin.projects.emptyState") }) }) : /* @__PURE__ */ jsx("div", { className: "grid gap-4", children: renderedGroups }),
+    /* @__PURE__ */ jsx(Dialog, { open: dialogOpen, onOpenChange: setDialogOpen, children: /* @__PURE__ */ jsxs(DialogContent, { children: [
+      /* @__PURE__ */ jsxs(DialogHeader, { children: [
+        /* @__PURE__ */ jsx(DialogTitle, { children: editingProject ? t("admin.projects.dialog.editTitle") : t("admin.projects.dialog.createTitle") }),
+        /* @__PURE__ */ jsx(DialogDescription, { children: t("admin.projects.dialog.description") })
+      ] }),
+      /* @__PURE__ */ jsx(Form, { ...form, children: /* @__PURE__ */ jsxs("form", { className: "space-y-4", onSubmit: form.handleSubmit(onSubmit), children: [
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "module_id",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: t("admin.projects.form.module") }),
+              /* @__PURE__ */ jsxs(Select, { onValueChange: field.onChange, value: field.value, children: [
+                /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(SelectTrigger, { children: /* @__PURE__ */ jsx(SelectValue, { placeholder: t("admin.projects.form.modulePlaceholder") }) }) }),
+                /* @__PURE__ */ jsx(SelectContent, { children: moduleOptions.map((module) => /* @__PURE__ */ jsx(SelectItem, { value: module.id, children: module.course ? `${module.course.title} · ${module.title}` : module.title }, module.id)) })
+              ] }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "title",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: t("admin.projects.form.title") }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Input, { ...field, placeholder: t("admin.projects.form.titlePlaceholder") }) }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "description",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: t("admin.projects.form.description") }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Textarea, { rows: 6, ...field, placeholder: t("admin.projects.form.descriptionPlaceholder") }) }),
+              /* @__PURE__ */ jsx(FormDescription, { children: t("admin.projects.form.descriptionHelp") }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "xp_value",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { children: [
+              /* @__PURE__ */ jsx(FormLabel, { children: t("admin.projects.form.xpValue") }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(
+                Input,
+                {
+                  type: "number",
+                  min: 0,
+                  value: field.value ?? "",
+                  onChange: (event) => {
+                    const value = event.target.value;
+                    field.onChange(value === "" ? null : Number(value));
+                  },
+                  placeholder: t("admin.projects.form.xpValuePlaceholder")
+                }
+              ) }),
+              /* @__PURE__ */ jsx(FormDescription, { children: t("admin.projects.form.xpValueHelp") }),
+              /* @__PURE__ */ jsx(FormMessage, {})
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          FormField,
+          {
+            control: form.control,
+            name: "is_active",
+            render: ({ field }) => /* @__PURE__ */ jsxs(FormItem, { className: "flex flex-row items-center justify-between rounded-lg border border-forge-cream/70 bg-forge-cream/10 p-3", children: [
+              /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
+                /* @__PURE__ */ jsx(FormLabel, { className: "text-base", children: t("admin.projects.form.activeLabel") }),
+                /* @__PURE__ */ jsx(FormDescription, { children: t("admin.projects.form.activeDescription") })
+              ] }),
+              /* @__PURE__ */ jsx(FormControl, { children: /* @__PURE__ */ jsx(Switch, { checked: field.value, onCheckedChange: field.onChange }) })
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsxs(DialogFooter, { children: [
+          /* @__PURE__ */ jsx(Button, { type: "button", variant: "outline", onClick: () => setDialogOpen(false), children: t("common.buttons.cancel") }),
+          /* @__PURE__ */ jsx(Button, { type: "submit", disabled: upsertMutation.isPending, children: upsertMutation.isPending ? t("common.buttons.saving") : editingProject ? t("common.buttons.update") : t("common.buttons.create") })
+        ] })
+      ] }) })
+    ] }) }),
+    /* @__PURE__ */ jsx(AlertDialog, { open: deleteDialogOpen, onOpenChange: setDeleteDialogOpen, children: /* @__PURE__ */ jsxs(AlertDialogContent, { children: [
+      /* @__PURE__ */ jsxs(AlertDialogHeader, { children: [
+        /* @__PURE__ */ jsx(AlertDialogTitle, { children: t("admin.projects.delete.title") }),
+        /* @__PURE__ */ jsx(AlertDialogDescription, { children: t("admin.projects.delete.description", { title: (deleteTarget == null ? void 0 : deleteTarget.title) ?? "" }) })
+      ] }),
+      /* @__PURE__ */ jsxs(AlertDialogFooter, { children: [
+        /* @__PURE__ */ jsx(AlertDialogCancel, { onClick: () => setDeleteTarget(null), children: t("common.buttons.cancel") }),
+        /* @__PURE__ */ jsx(
+          AlertDialogAction,
+          {
+            className: "bg-red-500 hover:bg-red-600",
+            disabled: deleteMutation.isPending,
+            onClick: () => {
+              if (deleteTarget) {
+                deleteMutation.mutate(deleteTarget.id);
+              }
+            },
+            children: deleteMutation.isPending ? t("common.buttons.loading") : t("admin.projects.delete.confirm")
+          }
+        )
+      ] })
+    ] }) })
+  ] });
+}
 const MOCK_GLOBAL_SCOREBOARD = [
   {
     id: "1",
@@ -11121,7 +14766,11 @@ const App = () => {
             children: [
               /* @__PURE__ */ jsx(Route, { index: true, element: /* @__PURE__ */ jsx(DashboardHome, {}) }),
               /* @__PURE__ */ jsx(Route, { path: "explore", element: /* @__PURE__ */ jsx(AvailablePaths, {}) }),
+              /* @__PURE__ */ jsx(Route, { path: "formations", element: /* @__PURE__ */ jsx(FormationsPage, {}) }),
+              /* @__PURE__ */ jsx(Route, { path: "formations/:formationId", element: /* @__PURE__ */ jsx(FormationDetailPage, {}) }),
+              /* @__PURE__ */ jsx(Route, { path: "coming-soon", element: /* @__PURE__ */ jsx(ComingSoonPage, {}) }),
               /* @__PURE__ */ jsx(Route, { path: "profile", element: /* @__PURE__ */ jsx(Profile, {}) }),
+              /* @__PURE__ */ jsx(Route, { path: "community-projects", element: /* @__PURE__ */ jsx(CommunityProjects, {}) }),
               /* @__PURE__ */ jsx(Route, { path: "scoreboard", element: /* @__PURE__ */ jsx(Scoreboard, {}) }),
               /* @__PURE__ */ jsx(Route, { path: "achievements", element: /* @__PURE__ */ jsx(AchievementsPage, {}) }),
               /* @__PURE__ */ jsx(Route, { path: "learn/course/:courseId", element: /* @__PURE__ */ jsx(CourseView, {}) }),
@@ -11133,10 +14782,12 @@ const App = () => {
                   element: /* @__PURE__ */ jsx(RequireAdmin, { children: /* @__PURE__ */ jsx(AdminLayout, {}) }),
                   children: [
                     /* @__PURE__ */ jsx(Route, { index: true, element: /* @__PURE__ */ jsx(AdminOverview, {}) }),
+                    /* @__PURE__ */ jsx(Route, { path: "formations", element: /* @__PURE__ */ jsx(AdminFormations, {}) }),
                     /* @__PURE__ */ jsx(Route, { path: "paths", element: /* @__PURE__ */ jsx(AdminPaths, {}) }),
                     /* @__PURE__ */ jsx(Route, { path: "courses", element: /* @__PURE__ */ jsx(AdminCourses, {}) }),
                     /* @__PURE__ */ jsx(Route, { path: "modules", element: /* @__PURE__ */ jsx(AdminModules, {}) }),
-                    /* @__PURE__ */ jsx(Route, { path: "lessons", element: /* @__PURE__ */ jsx(AdminLessons, {}) })
+                    /* @__PURE__ */ jsx(Route, { path: "lessons", element: /* @__PURE__ */ jsx(AdminLessons, {}) }),
+                    /* @__PURE__ */ jsx(Route, { path: "projects", element: /* @__PURE__ */ jsx(AdminProjects, {}) })
                   ]
                 }
               )

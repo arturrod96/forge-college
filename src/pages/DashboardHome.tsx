@@ -1,6 +1,8 @@
 import { ContinueLearningCard } from '@/components/dashboard/ContinueLearningCard';
 import { UserStats } from '@/components/dashboard/UserStats';
 import { AvailablePaths } from '@/components/dashboard/AvailablePaths';
+import { ComingSoonPaths } from '@/components/dashboard/ComingSoonPaths';
+import { FormationsList } from '@/components/dashboard/FormationsList';
 import { LearningHabits } from '@/components/dashboard/LearningHabits';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useOAuth';
@@ -59,14 +61,39 @@ export default function DashboardHome() {
       </div>
 
       {/* Paths section below */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold tracking-tight">{t(R.ROUTE_LABELS[R.DASHBOARD_EXPLORE])}</h2>
-          <Link to={R.DASHBOARD_EXPLORE} className="text-forge-orange hover:underline">
-            {t('dashboard.home.exploreCta')}
-          </Link>
+      <div className="space-y-6">
+        {/* Formations Section */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold tracking-tight">Learning Formations</h2>
+            <Link to={R.DASHBOARD_FORMATIONS} className="text-forge-orange hover:underline">
+              View all formations
+            </Link>
+          </div>
+          <FormationsList limit={3} className="mt-2" />
         </div>
-        <AvailablePaths className="mt-2" />
+
+        {/* Available Paths Section */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold tracking-tight">{t(R.ROUTE_LABELS[R.DASHBOARD_EXPLORE])}</h2>
+            <Link to={R.DASHBOARD_EXPLORE} className="text-forge-orange hover:underline">
+              {t('dashboard.home.exploreCta')}
+            </Link>
+          </div>
+          <AvailablePaths limit={6} className="mt-2" />
+        </div>
+
+        {/* Coming Soon Section */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold tracking-tight">Coming Soon</h2>
+            <Link to={R.DASHBOARD_COMING_SOON} className="text-forge-orange hover:underline">
+              View all upcoming paths
+            </Link>
+          </div>
+          <ComingSoonPaths limit={3} className="mt-2" />
+        </div>
       </div>
     </div>
   );

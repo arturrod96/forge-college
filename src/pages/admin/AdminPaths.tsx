@@ -41,6 +41,7 @@ import { Separator } from '@/components/ui/separator'
 import { Loader2, Plus, Pencil, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { formatDistanceToNow } from 'date-fns'
+import { Clock } from 'lucide-react'
 
 const slugify = (value: string) =>
   value
@@ -48,26 +49,24 @@ const slugify = (value: string) =>
     .trim()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
-    .slice(0, 80)
 
-const pathFormSchema = z.object({
-  title: z.string().min(3, 'Title must have at least 3 characters'),
-  slug: z
-    .string()
-    .min(3, 'Slug must have at least 3 characters')
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Use lowercase letters, numbers, and hyphens only'),
-  description: z.string().optional().or(z.literal('')),
-  is_published: z.boolean().default(false),
+type LearningPathRow = Tables<'learning_paths'>['Row']
+type LearningPathInsert = Tables<'learning_paths'>['Insert']
+
+interface LearningPathWithMeta extends LearningPathRow {
+  courses_count?: number
+  courses?: { id: string }[]
+}
+
+const pathSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  slug: z.string().min(1, 'Slug is required'),
+  is_published: z.boolean(),
+  status: z.enum(['draft', 'published', 'coming_soon']),
 })
 
-type PathFormValues = z.infer<typeof pathFormSchema>
-
-type LearningPathRow = Tables<'learning_paths'>
-
-type LearningPathWithMeta = LearningPathRow & {
-  courses?: { id: string }[]
-  courseCount: number
-}
+type PathFormData = z.infer<typeof pathSchema>
 
 export default function AdminPaths() {
   const supabase = useMemo(() => createClientBrowser(), [])
@@ -78,13 +77,14 @@ export default function AdminPaths() {
   const [editingPath, setEditingPath] = useState<LearningPathWithMeta | null>(null)
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false)
 
-  const form = useForm<PathFormValues>({
-    resolver: zodResolver(pathFormSchema),
+  const form = useForm<PathFormData>({
+    resolver: zodResolver(pathSchema),
     defaultValues: {
       title: '',
       slug: '',
       description: '',
       is_published: false,
+      status: 'draft',
     },
   })
 
@@ -113,7 +113,7 @@ export default function AdminPaths() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('learning_paths')
-        .select('id, title, slug, description, is_published, published_at, created_at, updated_at, courses:courses(id)')
+        .select('id, title, slug, description, is_published, published_at, created_at, updated_at, status, courses:courses(id)')
         .order('created_at', { ascending: false })
 
       if (error) throw error
@@ -122,19 +122,36 @@ export default function AdminPaths() {
 
       return ((data ?? []) as QueryRow[]).map((item) => ({
         ...item,
-        courseCount: Array.isArray(item.courses) ? item.courses.length : 0,
+        courses_count: Array.isArray(item.courses) ? item.courses.length : 0,
       }))
     },
   })
 
   const upsertMutation = useMutation({
-    mutationFn: async (values: PathFormValues) => {
-      const payload = {
-        title: values.title.trim(),
-        slug: values.slug.trim(),
-        description: values.description?.trim() ? values.description.trim() : null,
-        is_published: values.is_published,
-        published_at: values.is_published
+    mutationFn: async (values: PathFormData) => {
+      const trimmedTitle = values.title.trim()
+      const trimmedSlug = values.slug.trim()
+      const trimmedDescription = values.description?.trim()
+        ? values.description.trim()
+        : null
+
+      const baseStatus = values.status
+      const statusFromSelection = baseStatus === 'published' || baseStatus === 'coming_soon'
+      const effectiveStatus = statusFromSelection
+        ? baseStatus
+        : values.is_published
+          ? 'published'
+          : 'draft'
+
+      const shouldPublish = effectiveStatus !== 'draft'
+
+      const payload: LearningPathInsert = {
+        title: trimmedTitle,
+        slug: trimmedSlug,
+        description: trimmedDescription,
+        is_published: shouldPublish,
+        status: effectiveStatus,
+        published_at: shouldPublish
           ? editingPath?.published_at ?? new Date().toISOString()
           : null,
       }
@@ -148,7 +165,7 @@ export default function AdminPaths() {
       } else {
         const { error } = await supabase.from('learning_paths').insert({
           ...payload,
-          published_at: values.is_published ? new Date().toISOString() : null,
+          published_at: shouldPublish ? new Date().toISOString() : null,
         })
         if (error) throw error
       }
@@ -165,12 +182,33 @@ export default function AdminPaths() {
   })
 
   const publishMutation = useMutation({
-    mutationFn: async ({ id, publish }: { id: string; publish: boolean }) => {
+    mutationFn: async ({
+      id,
+      publish,
+      previousStatus,
+      previousPublishedAt,
+    }: {
+      id: string
+      publish: boolean
+      previousStatus: PathFormData['status']
+      previousPublishedAt: string | null
+    }) => {
+      const nextStatus = publish
+        ? previousStatus === 'coming_soon'
+          ? 'coming_soon'
+          : 'published'
+        : 'draft'
+
+      const nextIsPublished = nextStatus !== 'draft'
+
       const { error } = await supabase
         .from('learning_paths')
         .update({
-          is_published: publish,
-          published_at: publish ? new Date().toISOString() : null,
+          is_published: nextIsPublished,
+          status: nextStatus,
+          published_at: nextIsPublished
+            ? previousPublishedAt ?? new Date().toISOString()
+            : null,
         })
         .eq('id', id)
 
@@ -205,7 +243,7 @@ export default function AdminPaths() {
   const openForCreate = () => {
     setEditingPath(null)
     setSlugManuallyEdited(false)
-    form.reset({ title: '', slug: '', description: '', is_published: false })
+    form.reset({ title: '', slug: '', description: '', is_published: false, status: 'draft' })
     setDialogOpen(true)
   }
 
@@ -217,11 +255,12 @@ export default function AdminPaths() {
       slug: path.slug ?? '',
       description: path.description ?? '',
       is_published: path.is_published,
+      status: path.status ?? 'draft',
     })
     setDialogOpen(true)
   }
 
-  const onSubmit = (values: PathFormValues) => {
+  const onSubmit = (values: PathFormData) => {
     upsertMutation.mutate(values)
   }
 
@@ -254,9 +293,18 @@ export default function AdminPaths() {
                 <div className="space-y-1">
                   <CardTitle className="flex items-center gap-2 text-forge-dark">
                     {path.title}
-                    <Badge variant={path.is_published ? 'default' : 'outline'} className={path.is_published ? 'bg-forge-orange text-white hover:bg-forge-orange/90' : ''}>
-                      {path.is_published ? 'Published' : 'Draft'}
-                    </Badge>
+                    {path.status === 'published' ? (
+                      <Badge variant="default" className="bg-forge-orange text-white hover:bg-forge-orange/90">
+                        Published
+                      </Badge>
+                    ) : path.status === 'coming_soon' ? (
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-800 hover:bg-blue-200">
+                        <Clock className="h-3 w-3 mr-1" />
+                        Coming Soon
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline">Draft</Badge>
+                    )}
                   </CardTitle>
                   <CardDescription className="text-sm text-forge-gray">
                     {path.description || 'No description'}
@@ -283,7 +331,7 @@ export default function AdminPaths() {
                   </div>
                   <Separator orientation="vertical" className="hidden h-4 sm:block" />
                   <div>
-                    <span className="font-semibold text-forge-dark">Courses:</span> {path.courseCount}
+                    <span className="font-semibold text-forge-dark">Courses:</span> {path.courses_count}
                   </div>
                 </div>
                 <div className="text-xs text-forge-gray/80">
@@ -296,7 +344,12 @@ export default function AdminPaths() {
                     id={`publish-${path.id}`}
                     checked={path.is_published}
                     onCheckedChange={(checked) =>
-                      publishMutation.mutate({ id: path.id, publish: checked })
+                      publishMutation.mutate({
+                        id: path.id,
+                        publish: checked,
+                        previousStatus: path.status,
+                        previousPublishedAt: path.published_at ?? null,
+                      })
                     }
                     disabled={publishMutation.isPending}
                   />
@@ -384,6 +437,34 @@ export default function AdminPaths() {
 
               <FormField
                 control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <FormControl>
+                      <select
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        value={field.value}
+                        onChange={(event) => {
+                          const value = event.target.value as PathFormData['status']
+                          field.onChange(value)
+                          form.setValue('is_published', value !== 'draft', {
+                            shouldDirty: true,
+                          })
+                        }}
+                      >
+                        <option value="draft">Draft</option>
+                        <option value="published">Published</option>
+                        <option value="coming_soon">Coming Soon</option>
+                      </select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="is_published"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border border-forge-cream/80 bg-forge-cream/30 p-3">
@@ -398,7 +479,16 @@ export default function AdminPaths() {
                     <FormControl>
                       <Switch
                         checked={field.value}
-                        onCheckedChange={field.onChange}
+                        onCheckedChange={(checked) => {
+                          field.onChange(checked)
+                          const currentStatus = form.getValues('status')
+                          if (checked && currentStatus === 'draft') {
+                            form.setValue('status', 'published', { shouldDirty: true })
+                          }
+                          if (!checked && currentStatus !== 'draft') {
+                            form.setValue('status', 'draft', { shouldDirty: true })
+                          }
+                        }}
                         disabled={form.formState.isSubmitting}
                       />
                     </FormControl>

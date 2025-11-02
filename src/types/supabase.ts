@@ -20,6 +20,7 @@ export type Database = {
           duration_minutes: number | null
           id: string
           is_published: boolean
+          status: Database["public"]["Enums"]["learning_path_status"]
           order: number
           path_id: string | null
           published_at: string | null
@@ -37,6 +38,7 @@ export type Database = {
           duration_minutes?: number | null
           id?: string
           is_published?: boolean
+          status?: Database["public"]["Enums"]["learning_path_status"]
           order: number
           path_id?: string | null
           published_at?: string | null
@@ -54,6 +56,7 @@ export type Database = {
           duration_minutes?: number | null
           id?: string
           is_published?: boolean
+          status?: Database["public"]["Enums"]["learning_path_status"]
           order?: number
           path_id?: string | null
           published_at?: string | null
@@ -83,6 +86,7 @@ export type Database = {
           is_published: boolean
           published_at: string | null
           slug: string | null
+          status: Database["public"]["Enums"]["learning_path_status"]
           title: string
           updated_at: string
           updated_by: string | null
@@ -95,6 +99,7 @@ export type Database = {
           is_published?: boolean
           published_at?: string | null
           slug?: string | null
+          status?: Database["public"]["Enums"]["learning_path_status"]
           title: string
           updated_at?: string
           updated_by?: string | null
@@ -107,11 +112,145 @@ export type Database = {
           is_published?: boolean
           published_at?: string | null
           slug?: string | null
+          status?: Database["public"]["Enums"]["learning_path_status"]
           title?: string
           updated_at?: string
           updated_by?: string | null
         }
         Relationships: []
+      }
+      formations: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          is_published: boolean
+          published_at: string | null
+          slug: string | null
+          status: Database["public"]["Enums"]["learning_path_status"]
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          published_at?: string | null
+          slug?: string | null
+          status?: Database["public"]["Enums"]["learning_path_status"]
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          published_at?: string | null
+          slug?: string | null
+          status?: Database["public"]["Enums"]["learning_path_status"]
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      formation_paths: {
+        Row: {
+          created_at: string | null
+          formation_id: string
+          id: string
+          learning_path_id: string
+          order: number
+        }
+        Insert: {
+          created_at?: string | null
+          formation_id: string
+          id?: string
+          learning_path_id: string
+          order: number
+        }
+        Update: {
+          created_at?: string | null
+          formation_id?: string
+          id?: string
+          learning_path_id?: string
+          order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "formation_paths_formation_id_fkey"
+            columns: ["formation_id"]
+            isOneToOne: false
+            referencedRelation: "formations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "formation_paths_learning_path_id_fkey"
+            columns: ["learning_path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      waiting_list: {
+        Row: {
+          created_at: string | null
+          email: string
+          formation_id: string | null
+          id: string
+          learning_path_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          formation_id?: string | null
+          id?: string
+          learning_path_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          formation_id?: string | null
+          id?: string
+          learning_path_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waiting_list_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waiting_list_learning_path_id_fkey"
+            columns: ["learning_path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waiting_list_formation_id_fkey"
+            columns: ["formation_id"]
+            isOneToOne: false
+            referencedRelation: "formations"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       lessons: {
         Row: {
@@ -533,6 +672,7 @@ export type Database = {
     }
     Enums: {
       lesson_type: "text" | "video" | "quiz"
+      learning_path_status: "draft" | "published" | "coming_soon"
       notification_status: "pending" | "processing" | "sent" | "failed"
       progress_status: "not_started" | "in_progress" | "completed"
     }
@@ -663,6 +803,7 @@ export const Constants = {
   public: {
     Enums: {
       lesson_type: ["text", "video", "quiz"],
+      learning_path_status: ["draft", "published", "coming_soon"],
       progress_status: ["not_started", "in_progress", "completed"],
     },
   },

@@ -320,7 +320,7 @@ export default function CourseView() {
           />
         )}
       </div>
-      <div className="hidden w-full xl:w-96 xl:shrink-0 xl:sticky xl:top-6 xl:self-start xl:h-[calc(100vh-7rem)] xl:max-h-[calc(100vh-7rem)]">
+      <div className="hidden w-full xl:flex xl:flex-col xl:w-96 xl:shrink-0 xl:sticky xl:top-6 xl:self-start xl:h-[calc(100vh-7rem)] xl:max-h-[calc(100vh-7rem)]">
         <LessonAIChat
           courseTitle={course?.title}
           lessonTitle={currentLesson?.title}
