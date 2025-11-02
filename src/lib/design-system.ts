@@ -145,7 +145,7 @@ export const designTokens = {
 };
 
 // Section utility function
-export const getSectionClasses = (
+const getSectionClasses = (
   variant: "hero" | "content" | "alternate" | "dark",
 ) => {
   const baseClasses = "py-20 lg:py-32";

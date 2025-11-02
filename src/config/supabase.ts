@@ -13,7 +13,7 @@ const FALLBACK_CONFIG: SupabaseConfig = {
 };
 
 // Get configuration for current environment
-export const getSupabaseConfig = (): SupabaseConfig => {
+const getSupabaseConfig = (): SupabaseConfig => {
   // Prefer environment variables
   const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
   const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
@@ -31,7 +31,7 @@ export const getSupabaseConfig = (): SupabaseConfig => {
   throw new Error('Missing Supabase configuration. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
 };
 
-// Export the configuration with error handling
+// Export configuration with error handling
 let supabaseConfig: SupabaseConfig;
 try {
   supabaseConfig = getSupabaseConfig();
