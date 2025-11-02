@@ -337,23 +337,114 @@ export type Database = {
           }
         ]
       }
-      profiles: {
+      notification_queue: {
         Row: {
+          attempts: number
           created_at: string
           id: string
-          wallet_address: string | null
+          last_error: string | null
+          payload: Json
+          scheduled_for: string
+          status: Database["public"]["Enums"]["notification_status"]
+          template: string
+          updated_at: string
+          user_id: string
         }
         Insert: {
+          attempts?: number
           created_at?: string
           id?: string
-          wallet_address?: string | null
+          last_error?: string | null
+          payload?: Json
+          scheduled_for?: string
+          status?: Database["public"]["Enums"]["notification_status"]
+          template: string
+          updated_at?: string
+          user_id: string
         }
         Update: {
+          attempts?: number
           created_at?: string
           id?: string
-          wallet_address?: string | null
+          last_error?: string | null
+          payload?: Json
+          scheduled_for?: string
+          status?: Database["public"]["Enums"]["notification_status"]
+          template?: string
+          updated_at?: string
+          user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notification_queue_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      profiles: {
+        Row: {
+          city: string
+          communication_language: string
+          country: string
+          created_at: string
+          full_name: string
+          github_url: string | null
+          languages: string[]
+          linkedin_url: string | null
+          position_company: string
+          skills_to_develop: string[]
+          stacks: string[]
+          updated_at: string
+          user_id: string
+          wallet_address: string | null
+          years_experience: number
+        }
+        Insert: {
+          city?: string
+          communication_language?: string
+          country?: string
+          created_at?: string
+          full_name?: string
+          github_url?: string | null
+          languages?: string[]
+          linkedin_url?: string | null
+          position_company?: string
+          skills_to_develop?: string[]
+          stacks?: string[]
+          updated_at?: string
+          user_id: string
+          wallet_address?: string | null
+          years_experience?: number
+        }
+        Update: {
+          city?: string
+          communication_language?: string
+          country?: string
+          created_at?: string
+          full_name?: string
+          github_url?: string | null
+          languages?: string[]
+          linkedin_url?: string | null
+          position_company?: string
+          skills_to_develop?: string[]
+          stacks?: string[]
+          updated_at?: string
+          user_id?: string
+          wallet_address?: string | null
+          years_experience?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       user_enrollments: {
         Row: {
@@ -442,6 +533,7 @@ export type Database = {
     }
     Enums: {
       lesson_type: "text" | "video" | "quiz"
+      notification_status: "pending" | "processing" | "sent" | "failed"
       progress_status: "not_started" | "in_progress" | "completed"
     }
     CompositeTypes: {
