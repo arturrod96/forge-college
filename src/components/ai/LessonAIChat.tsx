@@ -222,7 +222,7 @@ export default function LessonAIChat(props: Props) {
                 (m.role === 'user' ? 'bg-forge-orange text-white max-w-[70%]' : 'bg-forge-cream text-forge-dark')
               }>
                 {m.role === 'assistant' ? (
-                  <ReactMarkdown className="prose prose-xs max-w-none">
+                  <ReactMarkdown className="prose prose-xs max-w-none [&_p]:mb-3 [&_p:last-child]:mb-0">
                     {m.content}
                   </ReactMarkdown>
                 ) : (
