@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useOAuth';
 import { toast } from 'sonner';
-import { BookOpen, Users, Flame } from 'lucide-react';
+import { BookOpen, Users, Flame, Clock } from 'lucide-react';
 import EnhancedButton from '@/components/ui/enhanced-button';
 import { DASHBOARD_LEARN_PATH } from '@/routes/paths';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -44,9 +44,9 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
         .from('learning_paths')
         .select(`
           id, title, description, status,
-          courses!inner(id)
+          courses(id)
         `)
-        .eq('status', 'published');
+        .in('status', ['published', 'coming_soon']);
       if (pathsError) throw pathsError;
 
       let enrolledPaths: string[] = [];
@@ -122,7 +122,9 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
   return (
     <div className={className}>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 items-stretch">
-        {visiblePaths.map((path) => (
+        {visiblePaths.map((path) => {
+          const isComingSoon = path.status === 'coming_soon';
+          return (
           <Card
             key={path.id}
             className={`relative overflow-hidden border-forge-cream/80 hover:shadow-md transition-shadow h-full min-h-[300px] flex flex-col ${path.isEnrolled ? 'ring-1 ring-forge-orange/20' : ''}`}
@@ -136,6 +138,18 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
                   iconPosition="left"
                 >
                   {t('dashboard.availablePaths.enrolledBadge')}
+                </Badge>
+              </div>
+            )}
+            {isComingSoon && (
+              <div className="absolute top-2 right-2">
+                <Badge
+                  variant="coming-soon"
+                  size="sm"
+                  icon={Clock}
+                  iconPosition="left"
+                >
+                  Coming Soon
                 </Badge>
               </div>
             )}
@@ -159,9 +173,18 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
                     {t('common.buttons.continueLearning')}
                   </Link>
                 </EnhancedButton>
+              ) : isComingSoon ? (
+                <EnhancedButton
+                  className="w-full text-sm py-2"
+                  variant="outline"
+                  size="sm"
+                  disabled
+                >
+                  Coming Soon
+                </EnhancedButton>
               ) : (
                 <>
-                  <EnhancedButton 
+                  <EnhancedButton
                     onClick={() => handleEnroll(path.id)}
                     disabled={enrollingId === path.id || !user}
                     className="w-full text-sm py-2"
@@ -181,7 +204,8 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
               )}
             </CardContent>
           </Card>
-        ))}
+        );
+        })}
       </div>
     </div>
   );

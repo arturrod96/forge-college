@@ -26,6 +26,7 @@ export const DASHBOARD_ADMIN_LESSONS = "/dashboard/admin/lessons";
 export const DASHBOARD_ADMIN_PROJECTS = "/dashboard/admin/projects";
 export const DASHBOARD_SCOREBOARD = "/dashboard/scoreboard";
 export const DASHBOARD_ACHIEVEMENTS = "/dashboard/achievements";
+export const DASHBOARD_AMBASSADORS = "/dashboard/ambassadors";
 export const DASHBOARD_COMMUNITY_PROJECTS = "/dashboard/community-projects";
 
 // Dashboard learning routes (builders)
@@ -39,6 +40,7 @@ export const ROUTE_LABELS = {
   [DASHBOARD_ADMIN]: "nav.admin",
   [DASHBOARD_SCOREBOARD]: "nav.scoreboard",
   [DASHBOARD_ACHIEVEMENTS]: "nav.achievements",
+  [DASHBOARD_AMBASSADORS]: "nav.ambassadors",
   [DASHBOARD_COMMUNITY_PROJECTS]: "nav.communityProjects",
   LEARN: "nav.learn",
   COURSE: "nav.course",

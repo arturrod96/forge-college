@@ -19,7 +19,7 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
-import { LayoutDashboard, BookOpen, Shield, Trophy, Award, FolderGit2, Menu, ChevronDown, GraduationCap, Layers3, BookMarked, ListChecks, FileText } from 'lucide-react'
+import { LayoutDashboard, BookOpen, Shield, Trophy, Award, FolderGit2, Menu, ChevronDown, GraduationCap, Layers3, BookMarked, ListChecks, FileText, Users } from 'lucide-react'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { ProfileDropdown } from '@/components/ProfileDropdown'
 import { useSidebar } from '@/components/ui/sidebar'
@@ -33,6 +33,7 @@ import {
   DASHBOARD_ADMIN,
   DASHBOARD_SCOREBOARD,
   DASHBOARD_ACHIEVEMENTS,
+  DASHBOARD_AMBASSADORS,
   DASHBOARD_COMMUNITY_PROJECTS,
   ROUTE_LABELS,
 } from '@/routes/paths'
@@ -149,6 +150,7 @@ export function DashboardLayout() {
   const isAdminRoute = location.pathname.startsWith(DASHBOARD_ADMIN)
   const isScoreboard = location.pathname.startsWith(DASHBOARD_SCOREBOARD)
   const isAchievements = location.pathname.startsWith(DASHBOARD_ACHIEVEMENTS)
+  const isAmbassadors = location.pathname.startsWith(DASHBOARD_AMBASSADORS)
   const isCommunityProjects = location.pathname.startsWith(DASHBOARD_COMMUNITY_PROJECTS)
   const isEducationRoute = location.pathname.startsWith(DASHBOARD_FORMATIONS) ||
                            location.pathname.startsWith(DASHBOARD_EXPLORE) ||
@@ -190,6 +192,8 @@ export function DashboardLayout() {
       items.push({ label: t(ROUTE_LABELS[DASHBOARD_SCOREBOARD]) })
     } else if (second === 'achievements') {
       items.push({ label: t(ROUTE_LABELS[DASHBOARD_ACHIEVEMENTS]) })
+    } else if (second === 'ambassadors') {
+      items.push({ label: t(ROUTE_LABELS[DASHBOARD_AMBASSADORS]) })
     } else if (second === 'community-projects') {
       items.push({ label: t(ROUTE_LABELS[DASHBOARD_COMMUNITY_PROJECTS]) })
     } else if (second === 'admin') {
@@ -292,6 +296,14 @@ export function DashboardLayout() {
                     <Link to={DASHBOARD_ACHIEVEMENTS}>
                       <Award />
                       <span className="group-data-[collapsible=icon]:hidden">{t('nav.achievements')}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={isAmbassadors} tooltip={t('nav.ambassadors')}>
+                    <Link to={DASHBOARD_AMBASSADORS}>
+                      <Users />
+                      <span className="group-data-[collapsible=icon]:hidden">{t('nav.ambassadors')}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

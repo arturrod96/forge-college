@@ -100,7 +100,7 @@ export default function AdminCourses() {
       summary: '',
       description: '',
       order: 1,
-      duration_minutes: null,
+      duration_minutes: '',
       thumbnail_url: '',
       is_published: false,
       status: 'draft',
@@ -293,7 +293,7 @@ export default function AdminCourses() {
       summary: '',
       description: '',
       order: 1,
-      duration_minutes: null,
+      duration_minutes: '',
       thumbnail_url: '',
       is_published: false,
       status: 'draft',
@@ -311,7 +311,7 @@ export default function AdminCourses() {
       summary: course.summary ?? '',
       description: course.description ?? '',
       order: course.order ?? 1,
-      duration_minutes: course.duration_minutes ?? null,
+      duration_minutes: course.duration_minutes?.toString() ?? '',
       thumbnail_url: course.thumbnail_url ?? '',
       is_published: course.is_published,
       status: course.status ?? 'draft',
@@ -468,7 +468,7 @@ export default function AdminCourses() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingCourse ? 'Edit course' : 'New course'}</DialogTitle>
             <DialogDescription>

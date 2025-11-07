@@ -11,6 +11,7 @@ import type { Tables } from '@/types/supabase';
 import { LoadingGrid } from '@/components/ui/loading-states';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/hooks/useOAuth';
 
 type FormationRow = Tables<'formations'>['Row'];
 type FormationPathRow = Tables<'formation_paths'>['Row'];
@@ -44,8 +45,53 @@ type FormationsListProps = {
   className?: string;
 };
 
+// TODO: Uncomment to re-enable waitlist functionality
+// const waitlistFormSchema = z.object({
+//   full_name: z.string().min(2, 'Name must be at least 2 characters'),
+//   email: z.string().email('Invalid email address'),
+//   interest: z.string().min(10, 'Interest must be at least 10 characters'),
+// });
+
+// type WaitlistFormValues = z.infer<typeof waitlistFormSchema>;
+
+// async function sendWaitlistEmail(data: {
+//   full_name: string;
+//   email: string;
+//   interest: string;
+//   formation_title: string;
+// }) {
+//   const response = await fetch('/api/send-waitlist-email', {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     body: JSON.stringify(data),
+//   });
+
+//   const result = await response.json();
+
+//   if (!response.ok) {
+//     throw new Error(result.message || 'Failed to send email');
+//   }
+
+//   return result;
+// }
+
 export function FormationsList({ limit, className }: FormationsListProps) {
+  const { user } = useAuth();
   const supabase = createClientBrowser();
+  // const queryClient = useQueryClient();
+  // const [selectedFormation, setSelectedFormation] = useState<FormationCardModel | null>(null);
+  // const [waitlistDialogOpen, setWaitlistDialogOpen] = useState(false);
+
+  // const form = useForm<WaitlistFormValues>({
+  //   resolver: zodResolver(waitlistFormSchema),
+  //   defaultValues: {
+  //     full_name: user?.user_metadata?.full_name || '',
+  //     email: user?.email || '',
+  //     interest: '',
+  //   },
+  // });
 
   const { data: formations = [], isLoading } = useQuery<FormationCardModel[]>({
     queryKey: ['formations'],
@@ -97,6 +143,49 @@ export function FormationsList({ limit, className }: FormationsListProps) {
     },
   });
 
+  // const waitlistMutation = useMutation({
+  //   mutationFn: async (values: WaitlistFormValues) => {
+  //     if (!selectedFormation) throw new Error('No formation selected');
+
+  //     await sendWaitlistEmail({
+  //       ...values,
+  //       formation_title: selectedFormation.title,
+  //     });
+
+  //     return values;
+  //   },
+  //   onSuccess: () => {
+  //     toast.success('Thank you! We have received your interest and sent a confirmation email.');
+  //     setWaitlistDialogOpen(false);
+  //     form.reset();
+  //     setSelectedFormation(null);
+  //     queryClient.invalidateQueries({ queryKey: ['formations'] });
+  //   },
+  //   onError: (error) => {
+  //     console.error('Error joining waitlist:', error);
+  //     const message = error instanceof Error ? error.message : 'Failed to join waitlist';
+  //     toast.error(message);
+  //   },
+  // });
+
+  // const handleJoinWaitlist = (formation: FormationCardModel) => {
+  //   if (!user) {
+  //     toast.error('You must be logged in to join the waitlist');
+  //     return;
+  //   }
+  //   setSelectedFormation(formation);
+  //   form.reset({
+  //     full_name: user?.user_metadata?.full_name || '',
+  //     email: user?.email || '',
+  //     interest: '',
+  //   });
+  //   setWaitlistDialogOpen(true);
+  // };
+
+  // const onWaitlistSubmit = (values: WaitlistFormValues) => {
+  //   waitlistMutation.mutate(values);
+  // };
+
   const displayFormations = limit ? formations.slice(0, limit) : formations;
 
   if (isLoading) {
@@ -123,89 +212,175 @@ export function FormationsList({ limit, className }: FormationsListProps) {
   }
 
   return (
-    <div className={cn('grid gap-6 md:grid-cols-2 lg:grid-cols-3', className)}>
-      {displayFormations.map((formation) => {
-        const createdAtDistance = formation.created_at
-          ? formatDistanceToNow(new Date(formation.created_at))
-          : null;
+    <>
+      <div className={cn('grid gap-6 md:grid-cols-2 lg:grid-cols-3', className)}>
+        {displayFormations.map((formation) => {
+          const createdAtDistance = formation.created_at
+            ? formatDistanceToNow(new Date(formation.created_at))
+            : null;
 
-        return (
-        <Card key={formation.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-          {/* Thumbnail or placeholder */}
-          <div className="h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-            {formation.thumbnail_url ? (
-              <img 
-                src={formation.thumbnail_url} 
-                alt={formation.title}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <GraduationCap className="h-16 w-16 text-blue-400" />
-            )}
-          </div>
-
-          <CardHeader>
-            <div className="space-y-2">
-              <CardTitle className="flex items-center gap-2 text-xl">
-                {formation.title}
-                <Badge variant={formation.status === 'published' ? 'default' : formation.status === 'coming_soon' ? 'secondary' : 'outline'}>
-                  {formation.status === 'published' ? 'Published' : formation.status === 'coming_soon' ? 'Coming Soon' : 'Draft'}
-                </Badge>
-              </CardTitle>
-              <CardDescription className="text-sm line-clamp-3">
-                {formation.description || 'A comprehensive learning program to advance your skills.'}
-              </CardDescription>
-            </div>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            {/* Stats */}
-            <div className="flex items-center gap-4 text-sm text-gray-600">
-              <div className="flex items-center gap-1">
-                <BookOpen className="h-4 w-4" />
-                {formation.paths_count} paths
-              </div>
-              <div className="flex items-center gap-1">
-                <Star className="h-4 w-4" />
-                Program
-              </div>
+          return (
+          <Card key={formation.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+            {/* Thumbnail or placeholder */}
+            <div className="h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+              {formation.thumbnail_url ? (
+                <img 
+                  src={formation.thumbnail_url} 
+                  alt={formation.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <GraduationCap className="h-16 w-16 text-blue-400" />
+              )}
             </div>
 
-            {/* Learning paths preview */}
-            {formation.paths && formation.paths.length > 0 && (
+            <CardHeader>
               <div className="space-y-2">
-                <h4 className="font-medium text-sm text-gray-900">Learning Paths:</h4>
-                <div className="space-y-1">
-                  {formation.paths.slice(0, 3).map((path, index) => (
-                    <div key={path.id} className="flex items-center gap-2 text-xs text-gray-600">
-                      <span className="text-blue-500 font-medium">{index + 1}.</span>
-                      <span className="truncate">{path.title}</span>
-                    </div>
-                  ))}
-                  {formation.paths.length > 3 && (
-                    <div className="text-xs text-gray-500">
-                      +{formation.paths.length - 3} more paths
-                    </div>
-                  )}
+                <CardTitle className="flex items-center gap-2 text-xl">
+                  {formation.title}
+                  <Badge variant={formation.status === 'published' ? 'default' : formation.status === 'coming_soon' ? 'secondary' : 'outline'}>
+                    {formation.status === 'published' ? 'Published' : formation.status === 'coming_soon' ? 'Coming Soon' : 'Draft'}
+                  </Badge>
+                </CardTitle>
+                <CardDescription className="text-sm line-clamp-3">
+                  {formation.description || 'A comprehensive learning program to advance your skills.'}
+                </CardDescription>
+              </div>
+            </CardHeader>
+
+            <CardContent className="space-y-4">
+              {/* Stats */}
+              <div className="flex items-center gap-4 text-sm text-gray-600">
+                <div className="flex items-center gap-1">
+                  <BookOpen className="h-4 w-4" />
+                  {formation.paths_count} paths
+                </div>
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4" />
+                  Program
                 </div>
               </div>
-            )}
 
-            {/* Action button */}
-            <Link to={R.DASHBOARD_FORMATION_DETAIL(formation.id)}>
-              <EnhancedButton className="w-full">
-                {formation.status === 'coming_soon' ? 'Join Waitlist' : 'View Formation'}
-              </EnhancedButton>
-            </Link>
+              {/* Learning paths preview */}
+              {formation.paths && formation.paths.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm text-gray-900">Learning Paths:</h4>
+                  <div className="space-y-1">
+                    {formation.paths.slice(0, 3).map((path, index) => (
+                      <div key={path.id} className="flex items-center gap-2 text-xs text-gray-600">
+                        <span className="text-blue-500 font-medium">{index + 1}.</span>
+                        <span className="truncate">{path.title}</span>
+                      </div>
+                    ))}
+                    {formation.paths.length > 3 && (
+                      <div className="text-xs text-gray-500">
+                        +{formation.paths.length - 3} more paths
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
-            {/* Creation date */}
-            <div className="text-xs text-gray-500 text-center">
-              {createdAtDistance ? `Created ${createdAtDistance} ago` : 'Recently added'}
-            </div>
-          </CardContent>
-        </Card>
-        );
-      })}
-    </div>
+              {/* Action button */}
+              {formation.status === 'published' && (
+                <Link to={R.DASHBOARD_FORMATION_DETAIL(formation.id)}>
+                  <EnhancedButton className="w-full">
+                    View Formation
+                  </EnhancedButton>
+                </Link>
+              )}
+
+              {/* Creation date */}
+              <div className="text-xs text-gray-500 text-center">
+                {createdAtDistance ? `Created ${createdAtDistance} ago` : 'Recently added'}
+              </div>
+            </CardContent>
+          </Card>
+          );
+        })}
+      </div>
+
+      {/* Waitlist Dialog - Commented out */}
+      {/* <Dialog open={waitlistDialogOpen} onOpenChange={setWaitlistDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Join Waitlist - {selectedFormation?.title}</DialogTitle>
+            <DialogDescription>
+              Tell us about your interest in this formation. We'll notify you when it launches!
+            </DialogDescription>
+          </DialogHeader>
+
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onWaitlistSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="full_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Your full name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="your.email@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="interest"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Why are you interested?</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Tell us why you're interested in this formation..."
+                        rows={3}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      This helps us understand your goals and tailor the program.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter>
+                <EnhancedButton
+                  type="button"
+                  variant="outline"
+                  onClick={() => setWaitlistDialogOpen(false)}
+                  disabled={waitlistMutation.isPending}
+                >
+                  Cancel
+                </EnhancedButton>
+                <EnhancedButton
+                  type="submit"
+                  disabled={waitlistMutation.isPending}
+                >
+                  {waitlistMutation.isPending ? 'Joining...' : 'Join Waitlist'}
+                </EnhancedButton>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog> */}
+    </>
   );
 }

@@ -485,7 +485,7 @@ export default function AdminPaths() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingPath ? 'Edit learning path' : 'New learning path'}</DialogTitle>
             <DialogDescription>

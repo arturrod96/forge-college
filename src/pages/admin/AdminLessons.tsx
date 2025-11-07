@@ -142,7 +142,7 @@ export default function AdminLessons() {
       quiz_json: '',
       xp_value: 10,
       order: 1,
-      duration_minutes: null,
+      duration_minutes: '',
       thumbnail_url: '',
       is_published: false,
     },
@@ -374,7 +374,7 @@ export default function AdminLessons() {
       quiz_json: '',
       xp_value: 10,
       order: 1,
-      duration_minutes: null,
+      duration_minutes: '',
       thumbnail_url: '',
       is_published: false,
     })
@@ -414,7 +414,7 @@ export default function AdminLessons() {
       quiz_json: quizJson,
       xp_value: lesson.xp_value ?? 0,
       order: lesson.order ?? 1,
-      duration_minutes: lesson.duration_minutes ?? null,
+      duration_minutes: lesson.duration_minutes?.toString() ?? '',
       thumbnail_url: lesson.thumbnail_url ?? '',
       is_published: lesson.is_published,
     })
@@ -631,7 +631,7 @@ export default function AdminLessons() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingLesson ? 'Edit lesson' : 'New lesson'}</DialogTitle>
             <DialogDescription>
