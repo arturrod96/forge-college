@@ -3,7 +3,7 @@ import { OAuthProvider } from './hooks/useOAuth';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Professionals from "./pages/Professionals";
 import Companies from "./pages/Companies";
 import Investors from "./pages/Investors";
