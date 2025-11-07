@@ -433,152 +433,154 @@ export function AdminFormations() {
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Formation title" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="slug"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Slug</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="formation-slug"
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(e)
-                          setSlugManuallyEdited(true)
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Formation description"
-                        className="resize-none"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="thumbnail_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Thumbnail URL</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://example.com/image.jpg" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <FormControl>
-                      <select
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        value={field.value}
-                        onChange={(event) => {
-                          const value = event.target.value as FormationFormData['status']
-                          field.onChange(value)
-                          form.setValue('is_published', value !== 'draft', {
-                            shouldDirty: true,
-                          })
-                        }}
-                      >
-                        <option value="draft">Draft</option>
-                        <option value="published">Published</option>
-                        <option value="coming_soon">Coming Soon</option>
-                      </select>
-                    </FormControl>
-                    <FormDescription>
-                      Draft formations stay private. Coming soon keeps it visible but routes users to the waiting list.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="is_published"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Published</FormLabel>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col">
+              <div className="space-y-4 overflow-y-auto pr-4" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Formation title" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="slug"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Slug</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="formation-slug"
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e)
+                            setSlugManuallyEdited(true)
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Formation description"
+                          className="resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="thumbnail_url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Thumbnail URL</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://example.com/image.jpg" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <FormControl>
+                        <select
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          value={field.value}
+                          onChange={(event) => {
+                            const value = event.target.value as FormationFormData['status']
+                            field.onChange(value)
+                            form.setValue('is_published', value !== 'draft', {
+                              shouldDirty: true,
+                            })
+                          }}
+                        >
+                          <option value="draft">Draft</option>
+                          <option value="published">Published</option>
+                          <option value="coming_soon">Coming Soon</option>
+                        </select>
+                      </FormControl>
                       <FormDescription>
-                        Make this formation visible to users
+                        Draft formations stay private. Coming soon keeps it visible but routes users to the waiting list.
                       </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={(checked) => {
-                          field.onChange(checked)
-                          const currentStatus = form.getValues('status')
-                          if (checked && currentStatus === 'draft') {
-                            form.setValue('status', 'published', { shouldDirty: true })
-                          }
-                          if (!checked && currentStatus !== 'draft') {
-                            form.setValue('status', 'draft', { shouldDirty: true })
-                          }
-                        }}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="is_published"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Published</FormLabel>
+                        <FormDescription>
+                          Make this formation visible to users
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={(checked) => {
+                            field.onChange(checked)
+                            const currentStatus = form.getValues('status')
+                            if (checked && currentStatus === 'draft') {
+                              form.setValue('status', 'published', { shouldDirty: true })
+                            }
+                            if (!checked && currentStatus !== 'draft') {
+                              form.setValue('status', 'draft', { shouldDirty: true })
+                            }
+                          }}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                {editingFormation ? (
+                  <div className="space-y-3">
+                    <Separator />
+                    <div className="space-y-2">
+                      <h3 className="text-sm font-semibold text-forge-dark">Learning paths</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Add or reorder learning paths for this formation. Changes are saved immediately.
+                      </p>
+                      <LearningPathSelector
+                        formationId={editingFormation.id}
+                        selectedPaths={selectedPathsState}
+                        onPathsChange={setSelectedPathsState}
                       />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              {editingFormation ? (
-                <div className="space-y-3">
-                  <Separator />
-                  <div className="space-y-2">
-                    <h3 className="text-sm font-semibold text-forge-dark">Learning paths</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Add or reorder learning paths for this formation. Changes are saved immediately.
-                    </p>
-                    <LearningPathSelector
-                      formationId={editingFormation.id}
-                      selectedPaths={selectedPathsState}
-                      onPathsChange={setSelectedPathsState}
-                    />
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <Separator />
-                  <p className="text-sm text-muted-foreground">
-                    Save the formation first to associate learning paths.
-                  </p>
-                </div>
-              )}
+                ) : (
+                  <div className="space-y-2">
+                    <Separator />
+                    <p className="text-sm text-muted-foreground">
+                      Save the formation first to associate learning paths.
+                    </p>
+                  </div>
+                )}
+              </div>
               <DialogFooter>
                 <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
                   {(createMutation.isPending || updateMutation.isPending) && (

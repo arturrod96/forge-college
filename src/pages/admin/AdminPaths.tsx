@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { createClientBrowser } from '@/lib/supabase'
 import type { Tables } from '@/types/supabase'
 import {
@@ -52,10 +53,14 @@ const slugify = (value: string) =>
 
 type LearningPathRow = Tables<'learning_paths'>['Row']
 type LearningPathInsert = Tables<'learning_paths'>['Insert']
+type FormationRow = Tables<'formations'>['Row']
+type FormationPathRow = Tables<'formation_paths'>['Row']
 
 interface LearningPathWithMeta extends LearningPathRow {
   courses_count?: number
   courses?: { id: string }[]
+  formation_id?: string | null
+  order?: number | null
 }
 
 const pathSchema = z.object({
@@ -64,11 +69,14 @@ const pathSchema = z.object({
   slug: z.string().min(1, 'Slug is required'),
   is_published: z.boolean(),
   status: z.enum(['draft', 'published', 'coming_soon']),
+  formation_id: z.string().optional().or(z.literal('')),
+  order: z.number().int().min(1).optional(),
 })
 
 type PathFormData = z.infer<typeof pathSchema>
 
 export default function AdminPaths() {
+  const { t } = useTranslation()
   const supabase = useMemo(() => createClientBrowser(), [])
   const queryClient = useQueryClient()
 
@@ -85,6 +93,8 @@ export default function AdminPaths() {
       description: '',
       is_published: false,
       status: 'draft',
+      formation_id: '',
+      order: 1,
     },
   })
 
@@ -108,6 +118,19 @@ export default function AdminPaths() {
     }
   }, [watchedTitle, slugManuallyEdited, editingPath, watchedSlug, form])
 
+  const { data: formations } = useQuery<FormationRow[]>({
+    queryKey: ['admin-formations'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('formations')
+        .select('id, title, slug')
+        .order('title')
+
+      if (error) throw error
+      return data ?? []
+    },
+  })
+
   const { data: paths, isLoading } = useQuery<LearningPathWithMeta[]>({
     queryKey: ['admin-paths'],
     queryFn: async () => {
@@ -120,10 +143,35 @@ export default function AdminPaths() {
 
       type QueryRow = LearningPathRow & { courses?: { id: string }[] }
 
-      return ((data ?? []) as QueryRow[]).map((item) => ({
+      const pathsData = ((data ?? []) as QueryRow[]).map((item) => ({
         ...item,
         courses_count: Array.isArray(item.courses) ? item.courses.length : 0,
       }))
+
+      // Fetch formation relationships for each path
+      const { data: formationPaths, error: formationError } = await supabase
+        .from('formation_paths')
+        .select('learning_path_id, formation_id, order')
+
+      if (formationError) throw formationError
+
+      // Map formation data to paths
+      const formationMap = new Map<string, { formation_id: string; order: number }>()
+      formationPaths?.forEach((fp) => {
+        formationMap.set(fp.learning_path_id, {
+          formation_id: fp.formation_id,
+          order: fp.order,
+        })
+      })
+
+      return pathsData.map((path) => {
+        const formation = formationMap.get(path.id)
+        return {
+          ...path,
+          formation_id: formation?.formation_id ?? undefined,
+          order: formation?.order ?? undefined,
+        }
+      })
     },
   })
 
@@ -156,28 +204,85 @@ export default function AdminPaths() {
           : null,
       }
 
+      let pathId: string
+
       if (editingPath) {
         const { error } = await supabase
           .from('learning_paths')
           .update(payload)
           .eq('id', editingPath.id)
         if (error) throw error
+        pathId = editingPath.id
       } else {
-        const { error } = await supabase.from('learning_paths').insert({
+        const { data, error } = await supabase.from('learning_paths').insert({
           ...payload,
           published_at: shouldPublish ? new Date().toISOString() : null,
+        }).select('id')
+        if (error) throw error
+        pathId = data?.[0]?.id ?? ''
+      }
+
+      // Handle formation_paths relationship
+      const formationId = values.formation_id && values.formation_id.trim() ? values.formation_id.trim() : null
+      const order = values.order ?? 1
+
+      if (editingPath?.formation_id || formationId) {
+        // Delete existing formation_path if any
+        if (editingPath?.formation_id) {
+          const { error } = await supabase
+            .from('formation_paths')
+            .delete()
+            .eq('learning_path_id', pathId)
+          if (error) throw error
+        }
+
+        // Insert new formation_path if a formation is selected
+        if (formationId) {
+          const { error } = await supabase.from('formation_paths').insert({
+            learning_path_id: pathId,
+            formation_id: formationId,
+            order,
+          })
+          if (error) throw error
+        }
+      } else if (formationId) {
+        // Insert new formation_path if none existed before
+        const { error } = await supabase.from('formation_paths').insert({
+          learning_path_id: pathId,
+          formation_id: formationId,
+          order,
         })
         if (error) throw error
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-paths'] })
-      toast.success(editingPath ? 'Learning path updated' : 'Learning path created')
+      toast.success(editingPath ? t('admin.paths.updated') : t('admin.paths.created'))
       setDialogOpen(false)
     },
     onError: (error) => {
-      console.error('Error saving learning path', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to save learning path')
+      console.error('Error saving learning path:', error)
+      let errorMessage = t('common.errors.unexpectedError')
+
+      if (error instanceof Error) {
+        errorMessage = error.message
+      } else if (typeof error === 'object' && error !== null) {
+        const err = error as any
+        if (err.message) {
+          errorMessage = String(err.message)
+        } else if (err.error) {
+          errorMessage = String(err.error)
+        } else if (err.details) {
+          errorMessage = String(err.details)
+        } else {
+          errorMessage = JSON.stringify(err)
+        }
+      } else if (typeof error === 'string') {
+        errorMessage = error
+      }
+
+      console.error('Formatted error message:', errorMessage)
+      toast.error(errorMessage)
     },
   })
 
@@ -243,7 +348,15 @@ export default function AdminPaths() {
   const openForCreate = () => {
     setEditingPath(null)
     setSlugManuallyEdited(false)
-    form.reset({ title: '', slug: '', description: '', is_published: false, status: 'draft' })
+    form.reset({
+      title: '',
+      slug: '',
+      description: '',
+      is_published: false,
+      status: 'draft',
+      formation_id: '',
+      order: 1,
+    })
     setDialogOpen(true)
   }
 
@@ -256,6 +369,8 @@ export default function AdminPaths() {
       description: path.description ?? '',
       is_published: path.is_published,
       status: path.status ?? 'draft',
+      formation_id: path.formation_id ?? '',
+      order: path.order ?? 1,
     })
     setDialogOpen(true)
   }
@@ -381,120 +496,167 @@ export default function AdminPaths() {
           </DialogHeader>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g. Web Development Accelerator" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
+              <div className="space-y-6 overflow-y-auto pr-4" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. Web Development Accelerator" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="slug"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Slug</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="web-development-accelerator"
-                        {...field}
-                        onChange={(event) => {
-                          setSlugManuallyEdited(true)
-                          field.onChange(event)
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="slug"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Slug</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="web-development-accelerator"
+                          {...field}
+                          onChange={(event) => {
+                            setSlugManuallyEdited(true)
+                            field.onChange(event)
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        rows={4}
-                        placeholder="Summarize the journey learners will experience."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          rows={4}
+                          placeholder="Summarize the journey learners will experience."
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <FormControl>
-                      <select
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        value={field.value}
-                        onChange={(event) => {
-                          const value = event.target.value as PathFormData['status']
-                          field.onChange(value)
-                          form.setValue('is_published', value !== 'draft', {
-                            shouldDirty: true,
-                          })
-                        }}
-                      >
-                        <option value="draft">Draft</option>
-                        <option value="published">Published</option>
-                        <option value="coming_soon">Coming Soon</option>
-                      </select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <FormControl>
+                        <select
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          value={field.value}
+                          onChange={(event) => {
+                            const value = event.target.value as PathFormData['status']
+                            field.onChange(value)
+                            form.setValue('is_published', value !== 'draft', {
+                              shouldDirty: true,
+                            })
+                          }}
+                        >
+                          <option value="draft">Draft</option>
+                          <option value="published">Published</option>
+                          <option value="coming_soon">Coming Soon</option>
+                        </select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="is_published"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border border-forge-cream/80 bg-forge-cream/30 p-3">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Publish immediately</FormLabel>
-                      <DialogDescription>
-                        {field.value
-                          ? 'The path is visible to all enrolled learners.'
-                          : 'Keep as draft until you are ready to publish.'}
-                      </DialogDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={(checked) => {
-                          field.onChange(checked)
-                          const currentStatus = form.getValues('status')
-                          if (checked && currentStatus === 'draft') {
-                            form.setValue('status', 'published', { shouldDirty: true })
-                          }
-                          if (!checked && currentStatus !== 'draft') {
-                            form.setValue('status', 'draft', { shouldDirty: true })
-                          }
-                        }}
-                        disabled={form.formState.isSubmitting}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="formation_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Formation</FormLabel>
+                      <FormControl>
+                        <select
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          value={field.value ?? ''}
+                          onChange={field.onChange}
+                        >
+                          <option value="">Select a formation (optional)</option>
+                          {formations?.map((formation) => (
+                            <option key={formation.id} value={formation.id}>
+                              {formation.title}
+                            </option>
+                          ))}
+                        </select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="order"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Order within Formation</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min="1"
+                          placeholder="1"
+                          {...field}
+                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value, 10) : undefined)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="is_published"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-forge-cream/80 bg-forge-cream/30 p-3">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Publish immediately</FormLabel>
+                        <DialogDescription>
+                          {field.value
+                            ? 'The path is visible to all enrolled learners.'
+                            : 'Keep as draft until you are ready to publish.'}
+                        </DialogDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={(checked) => {
+                            field.onChange(checked)
+                            const currentStatus = form.getValues('status')
+                            if (checked && currentStatus === 'draft') {
+                              form.setValue('status', 'published', { shouldDirty: true })
+                            }
+                            if (!checked && currentStatus !== 'draft') {
+                              form.setValue('status', 'draft', { shouldDirty: true })
+                            }
+                          }}
+                          disabled={form.formState.isSubmitting}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} disabled={form.formState.isSubmitting}>
