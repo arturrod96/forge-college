@@ -48,6 +48,9 @@ import { AchievementsPage } from './features/achievements';
 import { BetaPromoBar } from './components/BetaPromoBar';
 
 const App = () => {
+  const location = useLocation();
+  const isDashboardRoute = location.pathname.startsWith('/dashboard');
+
   try {
     return (
       <>
