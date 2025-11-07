@@ -54,9 +54,9 @@ const App = () => {
   try {
     return (
       <>
-        <BetaPromoBar />
+        {!isDashboardRoute && <BetaPromoBar />}
         <TooltipProvider>
-          <div className="pt-[30px]">
+          <div className={isDashboardRoute ? undefined : "pt-[30px]"}>
             <Toaster />
             <Sonner />
             <AuthErrorBoundary>
