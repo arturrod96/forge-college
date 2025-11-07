@@ -38,6 +38,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { useTranslation } from 'react-i18next'
+import { BetaPromoBar } from '@/components/BetaPromoBar'
 
 function MobileMenuButton() {
   const { toggleSidebar } = useSidebar()
