@@ -280,6 +280,26 @@
       "created": "Trilha de aprendizado criada",
       "updated": "Trilha de aprendizado atualizada",
       "deleted": "Trilha de aprendizado excluída",
+      "labels": {
+        "title": "Título",
+        "slug": "Slug",
+        "description": "Descrição",
+        "status": "Status",
+        "formation": "Formação",
+        "order": "Ordem dentro da Formação",
+        "publishImmediately": "Publicar imediatamente"
+      },
+      "placeholders": {
+        "title": "ex: Fundamentos de Blockchain",
+        "slug": "blockchain-fundamentals",
+        "description": "Resuma a jornada que os alunos vivenciarão.",
+        "formation": "Selecione uma formação (opcional)",
+        "order": "1"
+      },
+      "descriptions": {
+        "publishImmediately": "A trilha fica visível para todos os alunos inscritos.",
+        "formation": "Escolha a formação à qual esta trilha pertence"
+      },
       "validation": {
         "titleMin": "O título deve ter pelo menos 3 caracteres",
         "slugMin": "O slug deve ter pelo menos 3 caracteres",

@@ -13,15 +13,23 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
   SidebarRail,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
-import { LayoutDashboard, BookOpen, Shield, Trophy, Award, FolderGit2, Menu } from 'lucide-react'
+import { LayoutDashboard, BookOpen, Shield, Trophy, Award, FolderGit2, Menu, ChevronDown, GraduationCap, Layers3, BookMarked, ListChecks, FileText } from 'lucide-react'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { ProfileDropdown } from '@/components/ProfileDropdown'
 import { useSidebar } from '@/components/ui/sidebar'
 import {
   DASHBOARD as DASHBOARD_PATH,
   DASHBOARD_EXPLORE,
+  DASHBOARD_FORMATIONS,
+  DASHBOARD_COURSES,
+  DASHBOARD_MODULES,
+  DASHBOARD_LESSONS,
   DASHBOARD_ADMIN,
   DASHBOARD_SCOREBOARD,
   DASHBOARD_ACHIEVEMENTS,
@@ -54,6 +62,83 @@ function MobileMenuButton() {
   )
 }
 
+function EducationMenuItem({ location, educationOpen, setEducationOpen }: {
+  location: any;
+  educationOpen: boolean;
+  setEducationOpen: (open: boolean) => void;
+}) {
+  const { state: sidebarState, toggleSidebar } = useSidebar()
+
+  const handleEducationClick = (e: React.MouseEvent) => {
+    if (sidebarState === 'collapsed') {
+      e.preventDefault()
+      e.stopPropagation()
+      toggleSidebar()
+    }
+  }
+
+  return (
+    <SidebarMenuItem>
+      <Collapsible open={educationOpen} onOpenChange={setEducationOpen} className="group/collapsible">
+        <CollapsibleTrigger asChild>
+          <SidebarMenuButton
+            tooltip="Education"
+            onClick={handleEducationClick}
+          >
+            <BookOpen />
+            <span className="group-data-[collapsible=icon]:hidden">Education</span>
+            <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+          </SidebarMenuButton>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <SidebarMenuSub>
+            <SidebarMenuSubItem>
+              <SidebarMenuSubButton asChild isActive={location.pathname.startsWith(DASHBOARD_FORMATIONS)}>
+                <Link to={DASHBOARD_FORMATIONS}>
+                  <GraduationCap className="h-4 w-4" />
+                  <span>Formations</span>
+                </Link>
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+            <SidebarMenuSubItem>
+              <SidebarMenuSubButton asChild isActive={location.pathname.startsWith(DASHBOARD_EXPLORE)}>
+                <Link to={DASHBOARD_EXPLORE}>
+                  <Layers3 className="h-4 w-4" />
+                  <span>Learning Paths</span>
+                </Link>
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+            <SidebarMenuSubItem>
+              <SidebarMenuSubButton asChild isActive={location.pathname.startsWith(DASHBOARD_COURSES)}>
+                <Link to={DASHBOARD_COURSES}>
+                  <BookMarked className="h-4 w-4" />
+                  <span>Courses</span>
+                </Link>
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+            <SidebarMenuSubItem>
+              <SidebarMenuSubButton asChild isActive={location.pathname.startsWith(DASHBOARD_MODULES)}>
+                <Link to={DASHBOARD_MODULES}>
+                  <ListChecks className="h-4 w-4" />
+                  <span>Modules</span>
+                </Link>
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+            <SidebarMenuSubItem>
+              <SidebarMenuSubButton asChild isActive={location.pathname.startsWith(DASHBOARD_LESSONS)}>
+                <Link to={DASHBOARD_LESSONS}>
+                  <FileText className="h-4 w-4" />
+                  <span>Lessons</span>
+                </Link>
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+          </SidebarMenuSub>
+        </CollapsibleContent>
+      </Collapsible>
+    </SidebarMenuItem>
+  )
+}
+
 export function DashboardLayout() {
   const { user, loading } = useAuth()
   const location = useLocation()
@@ -65,8 +150,14 @@ export function DashboardLayout() {
   const isScoreboard = location.pathname.startsWith(DASHBOARD_SCOREBOARD)
   const isAchievements = location.pathname.startsWith(DASHBOARD_ACHIEVEMENTS)
   const isCommunityProjects = location.pathname.startsWith(DASHBOARD_COMMUNITY_PROJECTS)
+  const isEducationRoute = location.pathname.startsWith(DASHBOARD_FORMATIONS) ||
+                           location.pathname.startsWith(DASHBOARD_EXPLORE) ||
+                           location.pathname.startsWith(DASHBOARD_COURSES) ||
+                           location.pathname.startsWith(DASHBOARD_MODULES) ||
+                           location.pathname.startsWith(DASHBOARD_LESSONS)
 
   const [headerBreadcrumb, setHeaderBreadcrumb] = useState<ReactNode | null>(null)
+  const [educationOpen, setEducationOpen] = useState(isEducationRoute)
 
   const isMock = shouldUseMockAuth()
   const mockUserRaw = isMock ? localStorage.getItem('mock-auth-user') : null
@@ -171,14 +262,11 @@ export function DashboardLayout() {
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={isExplore} tooltip={t('nav.paths')}>
-                    <Link to={DASHBOARD_EXPLORE}>
-                      <BookOpen />
-                      <span className="group-data-[collapsible=icon]:hidden">{t('nav.paths')}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <EducationMenuItem
+                  location={location}
+                  educationOpen={educationOpen}
+                  setEducationOpen={setEducationOpen}
+                />
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild

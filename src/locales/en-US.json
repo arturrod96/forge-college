@@ -325,6 +325,26 @@
       "created": "Learning path created",
       "updated": "Learning path updated",
       "deleted": "Learning path deleted",
+      "labels": {
+        "title": "Title",
+        "slug": "Slug",
+        "description": "Description",
+        "status": "Status",
+        "formation": "Formation",
+        "order": "Order within Formation",
+        "publishImmediately": "Publish immediately"
+      },
+      "placeholders": {
+        "title": "e.g. Blockchain Fundamentals",
+        "slug": "blockchain-fundamentals",
+        "description": "Summarize the journey learners will experience.",
+        "formation": "Select a formation (optional)",
+        "order": "1"
+      },
+      "descriptions": {
+        "publishImmediately": "The path is visible to all enrolled learners.",
+        "formation": "Choose which formation this path belongs to"
+      },
       "validation": {
         "titleMin": "Title must have at least 3 characters",
         "slugMin": "Slug must have at least 3 characters",

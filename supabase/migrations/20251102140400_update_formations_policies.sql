@@ -14,51 +14,31 @@ CREATE POLICY "Formations are viewable by everyone" ON public.formations
   USING (
     is_published = true
     OR auth.uid() = created_by
-    OR EXISTS (
-      SELECT 1 FROM auth.users
-      WHERE auth.users.id = auth.uid()
-        AND coalesce(raw_user_meta_data->>'role', '') = 'admin'
-    )
+    OR is_admin()
   );
 
 CREATE POLICY "Admins can insert formations" ON public.formations
   FOR INSERT
   WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM auth.users
-      WHERE auth.users.id = auth.uid()
-        AND coalesce(raw_user_meta_data->>'role', '') = 'admin'
-    )
+    is_admin()
   );
 
 CREATE POLICY "Admins can update formations" ON public.formations
   FOR UPDATE
   USING (
     auth.uid() = created_by
-    OR EXISTS (
-      SELECT 1 FROM auth.users
-      WHERE auth.users.id = auth.uid()
-        AND coalesce(raw_user_meta_data->>'role', '') = 'admin'
-    )
+    OR is_admin()
   )
   WITH CHECK (
     auth.uid() = created_by
-    OR EXISTS (
-      SELECT 1 FROM auth.users
-      WHERE auth.users.id = auth.uid()
-        AND coalesce(raw_user_meta_data->>'role', '') = 'admin'
-    )
+    OR is_admin()
   );
 
 CREATE POLICY "Admins can delete formations" ON public.formations
   FOR DELETE
   USING (
     auth.uid() = created_by
-    OR EXISTS (
-      SELECT 1 FROM auth.users
-      WHERE auth.users.id = auth.uid()
-        AND coalesce(raw_user_meta_data->>'role', '') = 'admin'
-    )
+    OR is_admin()
   );
 
 -- formation_paths table policies
@@ -76,11 +56,7 @@ CREATE POLICY "Formation paths are viewable by everyone" ON public.formation_pat
         AND (
           f.is_published = true
           OR f.created_by = auth.uid()
-          OR EXISTS (
-            SELECT 1 FROM auth.users
-            WHERE auth.users.id = auth.uid()
-              AND coalesce(raw_user_meta_data->>'role', '') = 'admin'
-          )
+          OR is_admin()
         )
     )
   );
@@ -93,11 +69,7 @@ CREATE POLICY "Admins can insert formation paths" ON public.formation_paths
       WHERE f.id = formation_paths.formation_id
         AND (
           f.created_by = auth.uid()
-          OR EXISTS (
-            SELECT 1 FROM auth.users
-            WHERE auth.users.id = auth.uid()
-              AND coalesce(raw_user_meta_data->>'role', '') = 'admin'
-          )
+          OR is_admin()
         )
     )
   );
@@ -110,11 +82,7 @@ CREATE POLICY "Admins can update formation paths" ON public.formation_paths
       WHERE f.id = formation_paths.formation_id
         AND (
           f.created_by = auth.uid()
-          OR EXISTS (
-            SELECT 1 FROM auth.users
-            WHERE auth.users.id = auth.uid()
-              AND coalesce(raw_user_meta_data->>'role', '') = 'admin'
-          )
+          OR is_admin()
         )
     )
   )
@@ -124,11 +92,7 @@ CREATE POLICY "Admins can update formation paths" ON public.formation_paths
       WHERE f.id = formation_paths.formation_id
         AND (
           f.created_by = auth.uid()
-          OR EXISTS (
-            SELECT 1 FROM auth.users
-            WHERE auth.users.id = auth.uid()
-              AND coalesce(raw_user_meta_data->>'role', '') = 'admin'
-          )
+          OR is_admin()
         )
     )
   );
@@ -141,11 +105,7 @@ CREATE POLICY "Admins can delete formation paths" ON public.formation_paths
       WHERE f.id = formation_paths.formation_id
         AND (
           f.created_by = auth.uid()
-          OR EXISTS (
-            SELECT 1 FROM auth.users
-            WHERE auth.users.id = auth.uid()
-              AND coalesce(raw_user_meta_data->>'role', '') = 'admin'
-          )
+          OR is_admin()
         )
     )
   );
