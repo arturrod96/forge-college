@@ -131,9 +131,9 @@ const App = () => {
     console.error('App SSR error:', error);
     return (
       <>
-        <BetaPromoBar />
+        {!isDashboardRoute && <BetaPromoBar />}
         <div style={{
-          marginTop: '1.875rem',
+          marginTop: isDashboardRoute ? '2rem' : '1.875rem',
           padding: '2rem',
           textAlign: 'center',
           fontFamily: 'system-ui, sans-serif'
