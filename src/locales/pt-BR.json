@@ -67,7 +67,7 @@
   },
   "layout": {
     "betaPromo": {
-      "message": "Forge College está em beta. Espere atualizações rápidas."
+      "message": "⚡️ ForgeCollege está em beta. Espere atualizações rápidas. ⚡️"
     }
   },
   "auth": {
@@ -351,7 +351,7 @@
         "titlePlaceholder": "Título do projeto",
         "description": "Descrição do projeto",
         "descriptionPlaceholder": "Descreva objetivos, entregáveis e recursos que os estudantes devem consultar. Suporta conteúdo HTML.",
-        "descriptionHelp": "Você pode usar HTML para formatar o conteúdo (títulos, listas, links, etc.).",
+        "descriptionHelp": "Você pode usar HTML para formatar o conte��do (títulos, listas, links, etc.).",
         "xpValue": "Recompensa de XP",
         "xpValuePlaceholder": "XP opcional",
         "xpValueHelp": "Deixe em branco se este projeto não conceder XP.",
