@@ -48,6 +48,7 @@ import AdminLessons from './pages/admin/AdminLessons';
 import AdminProjects from './pages/admin/AdminProjects';
 import Scoreboard from './pages/dashboard/Scoreboard';
 import { AchievementsPage } from './features/achievements';
+import AmbassadorsPage from './pages/dashboard/AmbassadorsPage';
 import { BetaPromoBar } from './components/BetaPromoBar';
 
 const App = () => {
@@ -105,6 +106,7 @@ const App = () => {
                     <Route path="community-projects" element={<CommunityProjects />} />
                     <Route path="scoreboard" element={<Scoreboard />} />
                     <Route path="achievements" element={<AchievementsPage />} />
+                    <Route path="ambassadors" element={<AmbassadorsPage />} />
                     <Route path="learn/course/:courseId" element={<CourseView />} />
                     <Route path="learn/path/:pathId" element={<PathOverview />} />
                     <Route

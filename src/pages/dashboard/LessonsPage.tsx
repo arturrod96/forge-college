@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { PublishedLessons } from '@/components/dashboard/PublishedLessons';
 
 export default function LessonsPage() {
   const { t } = useTranslation();
@@ -10,9 +11,7 @@ export default function LessonsPage() {
         <p className="text-muted-foreground">Access all available lessons and learning materials</p>
       </div>
 
-      <div className="rounded-lg border border-forge-cream/80 bg-forge-cream/30 p-8 text-center">
-        <p className="text-muted-foreground">Lessons content coming soon</p>
-      </div>
+      <PublishedLessons />
     </div>
   );
 }

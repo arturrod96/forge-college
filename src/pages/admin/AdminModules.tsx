@@ -447,7 +447,7 @@ export default function AdminModules() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-xl">
+        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingModule ? 'Edit module' : 'New module'}</DialogTitle>
             <DialogDescription>

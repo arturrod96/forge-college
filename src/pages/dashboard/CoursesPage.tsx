@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { PublishedCourses } from '@/components/dashboard/PublishedCourses';
 
 export default function CoursesPage() {
   const { t } = useTranslation();
@@ -10,9 +11,7 @@ export default function CoursesPage() {
         <p className="text-muted-foreground">Browse and explore all available courses</p>
       </div>
 
-      <div className="rounded-lg border border-forge-cream/80 bg-forge-cream/30 p-8 text-center">
-        <p className="text-muted-foreground">Courses content coming soon</p>
-      </div>
+      <PublishedCourses />
     </div>
   );
 }

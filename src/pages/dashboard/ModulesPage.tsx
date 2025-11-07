@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { PublishedModules } from '@/components/dashboard/PublishedModules';
 
 export default function ModulesPage() {
   const { t } = useTranslation();
@@ -10,9 +11,7 @@ export default function ModulesPage() {
         <p className="text-muted-foreground">View and manage all course modules</p>
       </div>
 
-      <div className="rounded-lg border border-forge-cream/80 bg-forge-cream/30 p-8 text-center">
-        <p className="text-muted-foreground">Modules content coming soon</p>
-      </div>
+      <PublishedModules />
     </div>
   );
 }
