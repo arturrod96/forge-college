@@ -228,46 +228,51 @@ export function DashboardLayout() {
       </Sidebar>
 
       <SidebarInset>
-        <div className="flex h-16 items-center justify-between px-4 sm:px-6 border-b bg-white border-forge-cream">
-          <div className="flex items-center gap-3">
-            <MobileMenuButton />
-            {headerBreadcrumb ? (
-              <div className="hidden md:block">{headerBreadcrumb}</div>
-            ) : (
-              <div className="hidden md:block">
-                <Breadcrumb>
-                  <BreadcrumbList>
-                    {defaultBreadcrumbItems.map((item, index) => {
-                      const isLast = index === defaultBreadcrumbItems.length - 1
-                      return (
-                        <Fragment key={`${item.label}-${index}`}>
-                          <BreadcrumbItem>
-                            {isLast || !item.to ? (
-                              <BreadcrumbPage>{item.label}</BreadcrumbPage>
-                            ) : (
-                              <BreadcrumbLink asChild>
-                                <Link to={item.to}>{item.label}</Link>
-                              </BreadcrumbLink>
-                            )}
-                          </BreadcrumbItem>
-                          {!isLast && <BreadcrumbSeparator />}
-                        </Fragment>
-                      )
-                    })}
-                  </BreadcrumbList>
-                </Breadcrumb>
+        <div className="relative">
+          <BetaPromoBar />
+          <div className="pt-[30px]">
+            <div className="flex h-16 items-center justify-between px-4 sm:px-6 border-b bg-white border-forge-cream">
+              <div className="flex items-center gap-3">
+                <MobileMenuButton />
+                {headerBreadcrumb ? (
+                  <div className="hidden md:block">{headerBreadcrumb}</div>
+                ) : (
+                  <div className="hidden md:block">
+                    <Breadcrumb>
+                      <BreadcrumbList>
+                        {defaultBreadcrumbItems.map((item, index) => {
+                          const isLast = index === defaultBreadcrumbItems.length - 1
+                          return (
+                            <Fragment key={`${item.label}-${index}`}>
+                              <BreadcrumbItem>
+                                {isLast || !item.to ? (
+                                  <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                                ) : (
+                                  <BreadcrumbLink asChild>
+                                    <Link to={item.to}>{item.label}</Link>
+                                  </BreadcrumbLink>
+                                )}
+                              </BreadcrumbItem>
+                              {!isLast && <BreadcrumbSeparator />}
+                            </Fragment>
+                          )
+                        })}
+                      </BreadcrumbList>
+                    </Breadcrumb>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-          <div className="flex items-center space-x-4" />
-        </div>
+              <div className="flex items-center space-x-4" />
+            </div>
 
-        <div className="px-6 py-8 relative">
-          <div className="absolute inset-0 -z-10 pointer-events-none">
-            <div className="absolute -top-6 right-6 w-32 h-32 bg-forge-cream rounded-full blur-2xl"></div>
-            <div className="absolute bottom-0 left-10 w-24 h-24 bg-forge-orange/10 rounded-full blur-2xl"></div>
+            <div className="px-6 py-8 relative">
+              <div className="absolute inset-0 -z-10 pointer-events-none">
+                <div className="absolute -top-6 right-6 w-32 h-32 bg-forge-cream rounded-full blur-2xl"></div>
+                <div className="absolute bottom-0 left-10 w-24 h-24 bg-forge-orange/10 rounded-full blur-2xl"></div>
+              </div>
+              <Outlet context={{ setHeaderBreadcrumb }} />
+            </div>
           </div>
-          <Outlet context={{ setHeaderBreadcrumb }} />
         </div>
       </SidebarInset>
     </SidebarProvider>
