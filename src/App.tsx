@@ -53,7 +53,7 @@ const App = () => {
       <>
         <BetaPromoBar />
         <TooltipProvider>
-          <div className="pt-11">
+          <div className="pt-[30px]">
             <Toaster />
             <Sonner />
             <AuthErrorBoundary>
@@ -130,7 +130,7 @@ const App = () => {
       <>
         <BetaPromoBar />
         <div style={{
-          marginTop: '2.75rem',
+          marginTop: '1.875rem',
           padding: '2rem',
           textAlign: 'center',
           fontFamily: 'system-ui, sans-serif'
