@@ -65,6 +65,11 @@
     "myProfile": "Meu Perfil",
     "page": "Página"
   },
+  "layout": {
+    "betaPromo": {
+      "message": "Forge College está em beta. Espere atualizações rápidas."
+    }
+  },
   "auth": {
     "login": {
       "title": "Entrar",
