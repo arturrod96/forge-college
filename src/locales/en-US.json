@@ -91,7 +91,7 @@
   },
   "nav": {
     "forProfessionals": "For Professionals",
-    "forCompanies": "For Companies", 
+    "forCompanies": "For Companies",
     "forInvestors": "For Investors",
     "dashboard": "Dashboard",
     "paths": "Paths",
@@ -104,6 +104,11 @@
     "path": "Path",
     "myProfile": "My Profile",
     "page": "Page"
+  },
+  "layout": {
+    "betaPromo": {
+      "message": "⚡️ ForgeCollege is currently in beta. Expect rapid updates. ⚡️"
+    }
   },
   "auth": {
     "login": {
