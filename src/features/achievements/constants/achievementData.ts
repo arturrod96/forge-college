@@ -119,7 +119,7 @@ export const getAchievementsData = (t: TFunction): Achievement[] => [
     icon: Twitter,
     action: {
       label: t('achievements.tasks.twitterFollow.action'),
-      url: 'https://twitter.com/forgecollege',
+      url: 'https://x.com/Forge_College',
       type: 'external' as const
     }
   },
