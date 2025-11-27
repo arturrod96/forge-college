@@ -7,6 +7,9 @@ const LANGUAGE_COOKIE = 'app_language';
 
 // Get language from cookie
 const getLanguageFromCookie = (): string => {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return 'en-US';
+  }
   const cookies = document.cookie.split(';');
   const langCookie = cookies.find(cookie => cookie.trim().startsWith(`${LANGUAGE_COOKIE}=`));
   return langCookie ? langCookie.split('=')[1] : 'en-US';
@@ -14,6 +17,9 @@ const getLanguageFromCookie = (): string => {
 
 // Save language to cookie
 export const saveLanguageToCookie = (language: string): void => {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return;
+  }
   // Set cookie for 1 year
   const expires = new Date();
   expires.setFullYear(expires.getFullYear() + 1);
