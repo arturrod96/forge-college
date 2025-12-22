@@ -201,6 +201,7 @@
     "continueLearning": {
       "title": "Retome de onde parou",
       "subtitle": "Você estava estudando:",
+      "ariaLabel": "Continuar aprendendo {{course}}",
       "empty": {
         "title": "Nenhuma atividade recente",
         "description": "Inscreva-se em uma trilha ou inicie um curso para ver seu progresso aqui."

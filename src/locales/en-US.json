@@ -246,6 +246,7 @@
     "continueLearning": {
       "title": "Pick up where you left off",
       "subtitle": "You were studying:",
+      "ariaLabel": "Continue learning {{course}}",
       "empty": {
         "title": "No recent learning activity",
         "description": "Enroll in a path or start a course to see your progress here."
