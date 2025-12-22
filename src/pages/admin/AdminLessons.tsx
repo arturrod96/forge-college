@@ -116,7 +116,11 @@ type CourseRow = Tables<'courses'>
 
 type LearningPathRow = Tables<'learning_paths'>
 
+import { useNavigate } from 'react-router-dom'
+import { DASHBOARD_ADMIN_LESSON_EDITOR } from '@/routes/paths'
+
 export default function AdminLessons() {
+  const navigate = useNavigate()
   const supabase = useMemo(() => createClientBrowser(), [])
   const queryClient = useQueryClient()
 
@@ -767,6 +771,13 @@ export default function AdminLessons() {
                           value={field.value ?? ''}
                           onChange={field.onChange}
                           placeholder="Write lesson content..."
+                          onExpand={() => {
+                            if (!editingLesson) {
+                              toast.error('Please save the lesson first before opening full screen editor')
+                              return
+                            }
+                            navigate(DASHBOARD_ADMIN_LESSON_EDITOR(editingLesson.id))
+                          }}
                         />
                       </FormControl>
                       <FormDescription>
