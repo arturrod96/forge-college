@@ -45,9 +45,10 @@ interface RichTextEditorProps {
   onChange: (value: string) => void
   placeholder?: string
   hideFullScreen?: boolean
+  onExpand?: () => void
 }
 
-export function RichTextEditor({ value, onChange, placeholder, hideFullScreen }: RichTextEditorProps) {
+export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, onExpand }: RichTextEditorProps) {
   const [isFullScreen, setIsFullScreen] = useState(false)
   const [isSourceView, setIsSourceView] = useState(false)
   const [youtubeDialogOpen, setYoutubeDialogOpen] = useState(false)
@@ -356,8 +357,8 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen }:
             <Button
               variant="ghost"
               size="icon"
-              onClick={toggleFullScreen}
-              title={isFullScreen ? "Exit Full Screen" : "Full Screen"}
+              onClick={onExpand || toggleFullScreen}
+              title={isFullScreen ? "Exit Full Screen" : "Full Screen (New Page)"}
               type="button"
               className={isFullScreen ? "bg-forge-orange/10 text-forge-orange" : ""}
             >
