@@ -45,6 +45,7 @@ import AdminPaths from './pages/admin/AdminPaths';
 import AdminCourses from './pages/admin/AdminCourses';
 import AdminModules from './pages/admin/AdminModules';
 import AdminLessons from './pages/admin/AdminLessons';
+import AdminLessonEditorPage from './pages/admin/AdminLessonEditorPage';
 import AdminProjects from './pages/admin/AdminProjects';
 import Scoreboard from './pages/dashboard/Scoreboard';
 import { AchievementsPage } from './features/achievements';
@@ -123,6 +124,7 @@ const App = () => {
                       <Route path="courses" element={<AdminCourses />} />
                       <Route path="modules" element={<AdminModules />} />
                       <Route path="lessons" element={<AdminLessons />} />
+                      <Route path="lessons/:lessonId/edit" element={<AdminLessonEditorPage />} />
                       <Route path="projects" element={<AdminProjects />} />
                     </Route>
                   </Route>
