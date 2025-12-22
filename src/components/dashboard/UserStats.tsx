@@ -12,13 +12,6 @@ interface UserStats {
   totalTimeSpent: number;
 }
 
-const MOCK_STATS: UserStats = {
-  totalXP: 1320,
-  completedLessons: 9,
-  inProgressPaths: 2,
-  totalTimeSpent: 210,
-};
-
 export function UserStats() {
   const { user } = useAuth();
   const supabase = useMemo(() => createClientBrowser(), []);
@@ -30,7 +23,6 @@ export function UserStats() {
     totalTimeSpent: 0
   });
   const [loading, setLoading] = useState(true);
-  const [useMock, setUseMock] = useState(true);
 
   useEffect(() => {
     if (!user) return;
@@ -50,7 +42,10 @@ export function UserStats() {
         if (progressError) throw new Error(progressError.message || t('dashboard.userStats.errors.loadProgress'));
 
         const rows = (progressRows || []) as any[];
-        const completedLessons = rows.filter((r: any) => r.status === 'completed').length;
+        const completedLessonsIds = new Set(
+          rows.filter((r: any) => r.status === 'completed').map((r: any) => r.lesson_id)
+        );
+        const completedLessons = completedLessonsIds.size;
         const lessonIds: string[] = Array.from(new Set(rows.map((r: any) => r.lesson_id).filter(Boolean)));
 
         // 2) fetch lessons in chunks to avoid long URLs
@@ -61,7 +56,7 @@ export function UserStats() {
             const chunk = lessonIds.slice(i, i + chunkSize);
             const { data: ldata, error: lerr } = await supabase
               .from('lessons')
-              .select('id, xp_value, modules(courses(path_id))')
+              .select('id, xp_value, duration_minutes, modules(courses(path_id))')
               .in('id', chunk);
             if (lerr) throw new Error(lerr.message || t('dashboard.userStats.errors.loadLessons'));
             lessons = lessons.concat(ldata || []);
@@ -69,9 +64,21 @@ export function UserStats() {
         }
 
         let totalXP = 0;
+        let totalTimeSpent = 0;
         const pathIds = new Set<string>();
+
         lessons.forEach((l: any) => {
-          totalXP += l?.xp_value || 0;
+          // Add XP for all interacted lessons or only completed? Usually XP is for completed lessons.
+          // The previous code was summing XP for ALL lessons in the list (which includes in_progress).
+          // But usually you get XP only when completed.
+          // Let's check logic: "lessons" contains all lessons user has interaction with (in_progress or completed).
+          // Assuming we want XP for completed ones.
+          
+          if (completedLessonsIds.has(l.id)) {
+            totalXP += l?.xp_value || 0;
+            totalTimeSpent += l?.duration_minutes || 0;
+          }
+          
           const pid = l?.modules?.courses?.path_id || l?.modules?.path_id;
           if (pid) pathIds.add(pid);
         });
@@ -83,16 +90,14 @@ export function UserStats() {
             totalXP,
             completedLessons,
             inProgressPaths,
-            totalTimeSpent: Math.max(0, Math.floor(completedLessons * 15))
+            totalTimeSpent,
           };
           setStats(computed);
-          setUseMock(!(computed.totalXP || computed.completedLessons || computed.inProgressPaths));
         }
       } catch (error: any) {
         if (!isMounted) return;
         console.error('Error fetching user statistics:', error?.message || error);
         setStats({ totalXP: 0, completedLessons: 0, inProgressPaths: 0, totalTimeSpent: 0 });
-        setUseMock(true);
       } finally {
         if (!isMounted) return;
         const elapsed = Date.now() - start;
@@ -106,30 +111,28 @@ export function UserStats() {
     return () => { isMounted = false; };
   }, [user, supabase]);
 
-  const display = useMock || loading ? MOCK_STATS : stats;
-
   const statCards = [
     {
       label: t('dashboard.userStats.totalXp'),
-      value: display.totalXP,
+      value: stats.totalXP,
       icon: Trophy,
       colorScheme: 'yellow' as const,
     },
     {
       label: t('dashboard.userStats.completedLessons'),
-      value: display.completedLessons,
+      value: stats.completedLessons,
       icon: BookOpen,
       colorScheme: 'green' as const,
     },
     {
       label: t('dashboard.userStats.activePaths'),
-      value: display.inProgressPaths,
+      value: stats.inProgressPaths,
       icon: Target,
       colorScheme: 'blue' as const,
     },
     {
       label: t('dashboard.userStats.studyTime'),
-      value: t('dashboard.userStats.studyTimeValue', { minutes: display.totalTimeSpent }),
+      value: t('dashboard.userStats.studyTimeValue', { minutes: stats.totalTimeSpent }),
       icon: Clock,
       colorScheme: 'purple' as const,
     }

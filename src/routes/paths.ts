@@ -23,6 +23,7 @@ export const DASHBOARD_ADMIN_PATHS = "/dashboard/admin/paths";
 export const DASHBOARD_ADMIN_COURSES = "/dashboard/admin/courses";
 export const DASHBOARD_ADMIN_MODULES = "/dashboard/admin/modules";
 export const DASHBOARD_ADMIN_LESSONS = "/dashboard/admin/lessons";
+export const DASHBOARD_ADMIN_LESSON_EDITOR = (lessonId: string) => `/dashboard/admin/lessons/${lessonId}/edit`;
 export const DASHBOARD_ADMIN_PROJECTS = "/dashboard/admin/projects";
 export const DASHBOARD_SCOREBOARD = "/dashboard/scoreboard";
 export const DASHBOARD_ACHIEVEMENTS = "/dashboard/achievements";
