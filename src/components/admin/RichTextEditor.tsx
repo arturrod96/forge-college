@@ -27,6 +27,7 @@ import {
   Heading1,
   Heading2,
   Heading3,
+  FileCode,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import {
@@ -47,8 +48,10 @@ interface RichTextEditorProps {
 
 export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
   const [isFullScreen, setIsFullScreen] = useState(false)
+  const [isSourceView, setIsSourceView] = useState(false)
   const [youtubeDialogOpen, setYoutubeDialogOpen] = useState(false)
   const [youtubeUrl, setYoutubeUrl] = useState('')
+  const [sourceCode, setSourceCode] = useState('')
 
   const editor = useEditor({
     extensions: [
@@ -82,21 +85,38 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     },
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML())
+      if (isSourceView) {
+        setSourceCode(editor.getHTML())
+      }
     },
   })
 
   // Update editor content if external value changes significantly
-  // (Handling this carefully to avoid cursor jumping or loops is common, 
-  // but for simple cases checking content match is enough)
   useEffect(() => {
     if (editor && value !== editor.getHTML()) {
-      // Only set if completely different to avoid typing loops, 
-      // though typically react-hook-form handles uncontrolled inputs better.
-      // For this implementation, we assume `value` is the source of truth initially.
-      if (editor.getText() === '' && value === '') return
-      // editor.commands.setContent(value)
+      // Avoid circular updates when typing in source mode
+      if (!isSourceView) {
+        if (editor.getText() === '' && value === '') return
+        // Ideally we would update content here if we trust 'value' more than editor state
+      }
     }
-  }, [value, editor])
+  }, [value, editor, isSourceView])
+
+  // Sync source code state when toggling view
+  useEffect(() => {
+    if (isSourceView && editor) {
+      setSourceCode(editor.getHTML())
+    }
+  }, [isSourceView, editor])
+
+  const handleSourceCodeChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newContent = e.target.value
+    setSourceCode(newContent)
+    onChange(newContent)
+    if (editor) {
+      editor.commands.setContent(newContent, false)
+    }
+  }
 
   if (!editor) {
     return null
@@ -340,11 +360,33 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
         >
           {isFullScreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
         </Button>
+
+        <div className="w-px h-6 bg-gray-300 mx-1" />
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsSourceView(!isSourceView)}
+          title="View HTML Source"
+          type="button"
+          className={isSourceView ? "bg-forge-orange/10 text-forge-orange" : ""}
+        >
+          <FileCode className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* Editor Content */}
       <div className={`flex-1 overflow-auto bg-white ${isFullScreen ? 'p-8 max-w-5xl mx-auto w-full shadow-lg my-4 rounded' : ''}`}>
-        <EditorContent editor={editor} className="min-h-full" />
+        {isSourceView ? (
+          <textarea
+            value={sourceCode}
+            onChange={handleSourceCodeChange}
+            className="w-full h-full min-h-[300px] p-4 font-mono text-sm bg-gray-50 text-gray-800 resize-none focus:outline-none"
+            spellCheck={false}
+          />
+        ) : (
+          <EditorContent editor={editor} className="min-h-full" />
+        )}
       </div>
 
       {isFullScreen && (
