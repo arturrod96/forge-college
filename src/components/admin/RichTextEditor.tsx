@@ -44,9 +44,10 @@ interface RichTextEditorProps {
   value: string
   onChange: (value: string) => void
   placeholder?: string
+  hideFullScreen?: boolean
 }
 
-export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
+export function RichTextEditor({ value, onChange, placeholder, hideFullScreen }: RichTextEditorProps) {
   const [isFullScreen, setIsFullScreen] = useState(false)
   const [isSourceView, setIsSourceView] = useState(false)
   const [youtubeDialogOpen, setYoutubeDialogOpen] = useState(false)
@@ -348,18 +349,22 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
           <Redo className="h-4 w-4" />
         </Button>
 
-        <div className="w-px h-6 bg-gray-300 mx-1" />
+        {!hideFullScreen && (
+          <>
+            <div className="w-px h-6 bg-gray-300 mx-1" />
 
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleFullScreen}
-          title={isFullScreen ? "Exit Full Screen" : "Full Screen"}
-          type="button"
-          className={isFullScreen ? "bg-forge-orange/10 text-forge-orange" : ""}
-        >
-          {isFullScreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-        </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleFullScreen}
+              title={isFullScreen ? "Exit Full Screen" : "Full Screen"}
+              type="button"
+              className={isFullScreen ? "bg-forge-orange/10 text-forge-orange" : ""}
+            >
+              {isFullScreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            </Button>
+          </>
+        )}
 
         <div className="w-px h-6 bg-gray-300 mx-1" />
 
