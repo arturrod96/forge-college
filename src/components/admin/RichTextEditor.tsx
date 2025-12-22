@@ -356,7 +356,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
       )}
 
       <Dialog open={youtubeDialogOpen} onOpenChange={setYoutubeDialogOpen}>
-        <DialogContent>
+        <DialogContent className="z-[110]">
           <DialogHeader>
             <DialogTitle>Add YouTube Video</DialogTitle>
           </DialogHeader>
