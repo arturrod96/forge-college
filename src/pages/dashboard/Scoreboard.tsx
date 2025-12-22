@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Trophy, Medal, Award } from 'lucide-react';
+import { createClientBrowser } from '@/lib/supabase';
 
 interface ScoreboardEntry {
   id: string;
@@ -15,228 +16,6 @@ interface ScoreboardEntry {
   avatar?: string;
   pathName?: string;
 }
-
-// Mock data para scoreboard global
-const MOCK_GLOBAL_SCOREBOARD: ScoreboardEntry[] = [
-  {
-    id: '1',
-    name: 'Ana Silva',
-    email: 'ana.silva@email.com',
-    xp: 3420,
-    completedLessons: 28,
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    id: '2',
-    name: 'Carlos Santos',
-    email: 'carlos.santos@email.com',
-    xp: 3180,
-    completedLessons: 26,
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    id: '3',
-    name: 'Maria Oliveira',
-    email: 'maria.oliveira@email.com',
-    xp: 2950,
-    completedLessons: 24,
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    id: '4',
-    name: 'João Pedro',
-    email: 'joao.pedro@email.com',
-    xp: 2820,
-    completedLessons: 23,
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    id: '5',
-    name: 'Lucia Costa',
-    email: 'lucia.costa@email.com',
-    xp: 2650,
-    completedLessons: 22,
-    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    id: '6',
-    name: 'Rafael Mendes',
-    email: 'rafael.mendes@email.com',
-    xp: 2480,
-    completedLessons: 20,
-    avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    id: '7',
-    name: 'Fernanda Lima',
-    email: 'fernanda.lima@email.com',
-    xp: 2320,
-    completedLessons: 19,
-    avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=400&fit=crop&crop=face',
-  },
-  {
-    id: '8',
-    name: 'Thiago Rocha',
-    email: 'thiago.rocha@email.com',
-    xp: 2180,
-    completedLessons: 18,
-    avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?w=400&h=400&fit=crop&crop=face',
-  },
-];
-
-// Mock data para scoreboard por paths
-const MOCK_PATH_SCOREBOARDS = {
-  'blockchain-web3': {
-    name: 'Blockchain e Web3',
-    entries: [
-      {
-        id: '1',
-        name: 'Ana Silva',
-        email: 'ana.silva@email.com',
-        xp: 1850,
-        completedLessons: 15,
-        pathName: 'Blockchain e Web3',
-        avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face',
-      },
-      {
-        id: '2',
-        name: 'Carlos Santos',
-        email: 'carlos.santos@email.com',
-        xp: 1720,
-        completedLessons: 14,
-        pathName: 'Blockchain e Web3',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
-      },
-      {
-        id: '4',
-        name: 'João Pedro',
-        email: 'joao.pedro@email.com',
-        xp: 1650,
-        completedLessons: 13,
-        pathName: 'Blockchain e Web3',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
-      },
-      {
-        id: '6',
-        name: 'Rafael Mendes',
-        email: 'rafael.mendes@email.com',
-        xp: 1480,
-        completedLessons: 12,
-        pathName: 'Blockchain e Web3',
-        avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop&crop=face',
-      },
-      {
-        id: '8',
-        name: 'Thiago Rocha',
-        email: 'thiago.rocha@email.com',
-        xp: 1320,
-        completedLessons: 11,
-        pathName: 'Blockchain e Web3',
-        avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?w=400&h=400&fit=crop&crop=face',
-      },
-    ]
-  },
-  'defi-protocols': {
-    name: 'Protocolos DeFi',
-    entries: [
-      {
-        id: '3',
-        name: 'Maria Oliveira',
-        email: 'maria.oliveira@email.com',
-        xp: 1680,
-        completedLessons: 14,
-        pathName: 'Protocolos DeFi',
-        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face',
-      },
-      {
-        id: '5',
-        name: 'Lucia Costa',
-        email: 'lucia.costa@email.com',
-        xp: 1520,
-        completedLessons: 13,
-        pathName: 'Protocolos DeFi',
-        avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face',
-      },
-      {
-        id: '7',
-        name: 'Fernanda Lima',
-        email: 'fernanda.lima@email.com',
-        xp: 1420,
-        completedLessons: 12,
-        pathName: 'Protocolos DeFi',
-        avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=400&fit=crop&crop=face',
-      },
-      {
-        id: '2',
-        name: 'Carlos Santos',
-        email: 'carlos.santos@email.com',
-        xp: 1380,
-        completedLessons: 11,
-        pathName: 'Protocolos DeFi',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
-      },
-      {
-        id: '1',
-        name: 'Ana Silva',
-        email: 'ana.silva@email.com',
-        xp: 1280,
-        completedLessons: 10,
-        pathName: 'Protocolos DeFi',
-        avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face',
-      },
-    ]
-  },
-  'smart-contracts': {
-    name: 'Smart Contracts Avançados',
-    entries: [
-      {
-        id: '6',
-        name: 'Rafael Mendes',
-        email: 'rafael.mendes@email.com',
-        xp: 980,
-        completedLessons: 8,
-        pathName: 'Smart Contracts Avançados',
-        avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop&crop=face',
-      },
-      {
-        id: '4',
-        name: 'João Pedro',
-        email: 'joao.pedro@email.com',
-        xp: 920,
-        completedLessons: 7,
-        pathName: 'Smart Contracts Avançados',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
-      },
-      {
-        id: '8',
-        name: 'Thiago Rocha',
-        email: 'thiago.rocha@email.com',
-        xp: 860,
-        completedLessons: 7,
-        pathName: 'Smart Contracts Avançados',
-        avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?w=400&h=400&fit=crop&crop=face',
-      },
-      {
-        id: '3',
-        name: 'Maria Oliveira',
-        email: 'maria.oliveira@email.com',
-        xp: 820,
-        completedLessons: 6,
-        pathName: 'Smart Contracts Avançados',
-        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face',
-      },
-      {
-        id: '7',
-        name: 'Fernanda Lima',
-        email: 'fernanda.lima@email.com',
-        xp: 780,
-        completedLessons: 6,
-        pathName: 'Smart Contracts Avançados',
-        avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=400&fit=crop&crop=face',
-      },
-    ]
-  }
-};
 
 function getRankIcon(position: number) {
   switch (position) {
@@ -264,8 +43,47 @@ function getRankBadgeColor(position: number) {
   }
 }
 
-function ScoreboardList({ entries, title }: { entries: ScoreboardEntry[]; title: string }) {
+function ScoreboardList({ entries, title, isLoading }: { entries: ScoreboardEntry[]; title: string; isLoading: boolean }) {
   const { t } = useTranslation();
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-forge-orange" />
+            {title}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-16 bg-gray-100 animate-pulse rounded-lg" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (entries.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-forge-orange" />
+            {title}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+           <div className="text-center py-8 text-gray-500">
+             No rankings available yet.
+           </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -292,20 +110,20 @@ function ScoreboardList({ entries, title }: { entries: ScoreboardEntry[]; title:
                     </Badge>
                     {getRankIcon(position)}
                   </div>
-                  
+
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={entry.avatar} alt={entry.name} />
                     <AvatarFallback className="bg-forge-orange text-white">
-                      {entry.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                      {entry.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>
-                  
+
                   <div className="flex-1">
                     <h4 className="font-semibold text-gray-900">{entry.name}</h4>
-                    <p className="text-sm text-gray-500">{entry.email}</p>
+                    {entry.email && <p className="text-sm text-gray-500">{entry.email}</p>}
                   </div>
                 </div>
-                
+
                 <div className="text-right">
                   <div className="font-bold text-lg text-forge-orange">{entry.xp.toLocaleString()} {t('scoreboard.xp')}</div>
                   <div className="text-sm text-gray-500">{entry.completedLessons} {t('scoreboard.lessons')}</div>
@@ -321,7 +139,146 @@ function ScoreboardList({ entries, title }: { entries: ScoreboardEntry[]; title:
 
 export default function Scoreboard() {
   const { t } = useTranslation();
-  const [selectedPath, setSelectedPath] = useState<string>('blockchain-web3');
+  const supabase = useMemo(() => createClientBrowser(), []);
+
+  const [selectedPath, setSelectedPath] = useState<string>('');
+  const [globalScores, setGlobalScores] = useState<ScoreboardEntry[]>([]);
+  const [pathScores, setPathScores] = useState<Record<string, ScoreboardEntry[]>>({});
+  const [paths, setPaths] = useState<{id: string, title: string}[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+
+        // 1. Fetch Learning Paths
+        const { data: pathsData } = await supabase
+          .from('learning_paths')
+          .select('id, title')
+          .eq('status', 'published'); // Only published paths
+
+        const validPaths = pathsData || [];
+        setPaths(validPaths);
+        if (validPaths.length > 0 && !selectedPath) {
+            setSelectedPath(validPaths[0].id);
+        }
+
+        // 2. Fetch Profiles (Mapping User ID -> Name)
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('user_id, full_name');
+
+        const profileMap = new Map<string, string>();
+        profilesData?.forEach(p => {
+          if (p.user_id && p.full_name) {
+            profileMap.set(p.user_id, p.full_name);
+          }
+        });
+
+        // 3. Fetch User Progress (Completed Lessons with XP and Path info)
+        // We need to join: user_progress -> lessons -> modules -> courses -> learning_paths
+        // Note: This might be heavy if there are many users/lessons.
+        // For production, this should be a Database View or RPC.
+        const { data: progressData, error } = await supabase
+          .from('user_progress')
+          .select(`
+            user_id,
+            status,
+            lessons (
+              id,
+              xp_value,
+              modules (
+                courses (
+                  path_id
+                )
+              )
+            )
+          `)
+          .eq('status', 'completed');
+
+        if (error) {
+          console.error("Error fetching progress:", error);
+          throw error;
+        }
+
+        // 4. Aggregate Scores
+        const globalAgg: Record<string, { xp: number; completed: number }> = {};
+        const pathAgg: Record<string, Record<string, { xp: number; completed: number }>> = {};
+
+        // Initialize path aggregators
+        validPaths.forEach(path => {
+          pathAgg[path.id] = {};
+        });
+
+        progressData?.forEach((row: any) => {
+          const userId = row.user_id;
+          if (!userId) return;
+
+          const lesson = row.lessons;
+          if (!lesson) return;
+
+          const xp = lesson.xp_value || 0;
+
+          // Global Aggregation
+          if (!globalAgg[userId]) {
+            globalAgg[userId] = { xp: 0, completed: 0 };
+          }
+          globalAgg[userId].xp += xp;
+          globalAgg[userId].completed += 1;
+
+          // By Path Aggregation
+          // Navigate deep structure: lesson -> modules -> courses -> path_id
+          const course = lesson.modules?.courses;
+          const pathId = course?.path_id;
+
+          if (pathId && pathAgg[pathId]) {
+             if (!pathAgg[pathId][userId]) {
+               pathAgg[pathId][userId] = { xp: 0, completed: 0 };
+             }
+             pathAgg[pathId][userId].xp += xp;
+             pathAgg[pathId][userId].completed += 1;
+          }
+        });
+
+        // 5. Convert to Sorted Lists
+        const buildRanking = (agg: Record<string, { xp: number; completed: number }>) => {
+           return Object.entries(agg)
+             .map(([uid, stats]) => ({
+               id: uid,
+               name: profileMap.get(uid) || 'Unknown User',
+               email: '', // Email is not public in profiles usually
+               xp: stats.xp,
+               completedLessons: stats.completed,
+               avatar: undefined, // Add logic if avatar URL available
+             }))
+             .sort((a, b) => b.xp - a.xp)
+             .slice(0, 50); // Top 50
+        };
+
+        setGlobalScores(buildRanking(globalAgg));
+
+        const newPathScores: Record<string, ScoreboardEntry[]> = {};
+        Object.keys(pathAgg).forEach(pid => {
+           newPathScores[pid] = buildRanking(pathAgg[pid]);
+        });
+        setPathScores(newPathScores);
+
+      } catch (err) {
+        console.error("Failed to load scoreboard data", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [supabase, selectedPath]); // selectedPath in dependency? No, we fetch all at once or maybe fetch on select?
+  // Better to fetch all paths data once or optimize.
+  // The current logic fetches ALL progress.
+  // If selectedPath changes, we don't need to refetch everything, just render.
+  // So remove selectedPath from dependency array.
+
+  const currentPathTitle = paths.find(p => p.id === selectedPath)?.title || 'Path';
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -338,31 +295,34 @@ export default function Scoreboard() {
 
         <TabsContent value="global" className="space-y-6">
           <ScoreboardList
-            entries={MOCK_GLOBAL_SCOREBOARD}
+            isLoading={loading}
+            entries={globalScores}
             title={t('scoreboard.rankingGlobal')}
           />
         </TabsContent>
 
         <TabsContent value="by-path" className="space-y-6">
           <div className="flex gap-2 flex-wrap">
-            {Object.entries(MOCK_PATH_SCOREBOARDS).map(([key, path]) => (
+            {paths.map((path) => (
               <button
-                key={key}
-                onClick={() => setSelectedPath(key)}
+                key={path.id}
+                onClick={() => setSelectedPath(path.id)}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  selectedPath === key
+                  selectedPath === path.id
                     ? 'bg-forge-orange text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                {path.name}
+                {path.title}
               </button>
             ))}
+            {paths.length === 0 && !loading && <div className="text-gray-500">No paths available.</div>}
           </div>
 
           <ScoreboardList
-            entries={MOCK_PATH_SCOREBOARDS[selectedPath as keyof typeof MOCK_PATH_SCOREBOARDS].entries}
-            title={t('scoreboard.ranking', { pathName: MOCK_PATH_SCOREBOARDS[selectedPath as keyof typeof MOCK_PATH_SCOREBOARDS].name })}
+            isLoading={loading}
+            entries={pathScores[selectedPath] || []}
+            title={t('scoreboard.ranking', { pathName: currentPathTitle })}
           />
         </TabsContent>
       </Tabs>
