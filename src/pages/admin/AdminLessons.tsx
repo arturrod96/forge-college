@@ -27,7 +27,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import ReactMarkdown from 'react-markdown'
-import { MarkdownEditor } from '@/components/admin/MarkdownEditor'
+import { RichTextEditor } from '@/components/admin/RichTextEditor'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
@@ -434,7 +434,9 @@ export default function AdminLessons() {
   const getLessonPreview = (lesson: LessonWithMeta) => {
     if (lesson.lesson_type === 'text') {
       const content = typeof lesson.content === 'string' ? lesson.content : ''
-      return content.slice(0, 160)
+      // Strip HTML tags for preview
+      const plainText = content.replace(/<[^>]*>?/gm, '')
+      return plainText.slice(0, 160)
     }
     if (lesson.lesson_type === 'video') {
       return typeof lesson.content === 'string' ? lesson.content : ''
@@ -761,39 +763,17 @@ export default function AdminLessons() {
                   name="text_content"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Markdown content</FormLabel>
-                      <Tabs defaultValue="edit" className="w-full">
-                        <TabsList>
-                          <TabsTrigger value="edit">Edit</TabsTrigger>
-                          <TabsTrigger value="preview">Preview</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="edit">
-                          <FormControl>
-                            <MarkdownEditor
-                              value={field.value ?? ''}
-                              onChange={field.onChange}
-                              onBlur={field.onBlur}
-                              placeholder="Write lesson content in Markdown"
-                            />
-                          </FormControl>
-                        </TabsContent>
-                        <TabsContent value="preview">
-                          <div className="rounded-md border p-4 bg-white">
-                            <div className="prose prose-slate max-w-none">
-                              <ReactMarkdown
-                                components={{
-                                  a: ({ node, ...props }) => (
-                                    <a {...props} target="_blank" rel="noopener noreferrer" />
-                                  ),
-                                }}
-                              >
-                                {field.value || 'Nothing to preview yet.'}
-                              </ReactMarkdown>
-                            </div>
-                          </div>
-                        </TabsContent>
-                      </Tabs>
-                      <FormDescription>Supports Markdown syntax (headings, lists, code blocks, links, images).</FormDescription>
+                      <FormLabel>Lesson Content (HTML)</FormLabel>
+                      <FormControl>
+                        <RichTextEditor
+                          value={field.value ?? ''}
+                          onChange={field.onChange}
+                          placeholder="Write lesson content..."
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Rich text editor with support for formatting, links, images, and embedded videos.
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
