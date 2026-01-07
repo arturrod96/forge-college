@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { LoadingGrid } from '@/components/ui/loading-states';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Layers, BookOpen } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { DASHBOARD_LEARN_COURSE } from '@/routes/paths';
 
 interface Module {
   id: string;
@@ -79,32 +81,36 @@ export function PublishedModules({ limit, className }: PublishedModulesProps) {
             ? module.courses[0]
             : module.courses;
           const courseTitle = course?.title || 'Unknown Course';
+          const query = new URLSearchParams({ moduleId: module.id }).toString();
 
           return (
-            <Card
+            <Link
               key={module.id}
-              className="relative overflow-hidden border-forge-cream/80 hover:shadow-md transition-shadow h-full min-h-[250px] flex flex-col"
+              to={`${DASHBOARD_LEARN_COURSE(module.course_id)}?${query}`}
+              className="block rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-forge-orange/60"
             >
-              <CardHeader className="space-y-2">
-                <CardTitle className="flex items-start gap-2 text-forge-dark tracking-normal text-lg md:text-xl leading-tight line-clamp-2 break-words">
-                  <Layers className="h-4 w-4 mt-0.5 text-forge-orange shrink-0" />
-                  <span>#{module.order} · {module.title}</span>
-                </CardTitle>
-                <CardDescription className="text-[13px] text-forge-gray">
-                  {courseTitle}
-                </CardDescription>
-                {module.summary && (
-                  <p className="text-xs text-forge-gray line-clamp-2">
-                    {module.summary}
-                  </p>
-                )}
-              </CardHeader>
-              <CardContent className="space-y-2 mt-auto">
-                <Badge variant="outline" size="sm">
-                  Module
-                </Badge>
-              </CardContent>
-            </Card>
+              <Card className="relative overflow-hidden border-forge-cream/80 hover:shadow-md transition-shadow h-full min-h-[250px] flex flex-col cursor-pointer">
+                <CardHeader className="space-y-2">
+                  <CardTitle className="flex items-start gap-2 text-forge-dark tracking-normal text-lg md:text-xl leading-tight line-clamp-2 break-words">
+                    <Layers className="h-4 w-4 mt-0.5 text-forge-orange shrink-0" />
+                    <span>#{module.order} · {module.title}</span>
+                  </CardTitle>
+                  <CardDescription className="text-[13px] text-forge-gray">
+                    {courseTitle}
+                  </CardDescription>
+                  {module.summary && (
+                    <p className="text-xs text-forge-gray line-clamp-2">
+                      {module.summary}
+                    </p>
+                  )}
+                </CardHeader>
+                <CardContent className="space-y-2 mt-auto">
+                  <Badge variant="outline" size="sm">
+                    Module
+                  </Badge>
+                </CardContent>
+              </Card>
+            </Link>
           );
         })}
       </div>

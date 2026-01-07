@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { useParams, useOutletContext, Link } from 'react-router-dom';
+import { useParams, useOutletContext, Link, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { createClientBrowser } from '@/lib/supabase';
@@ -54,11 +54,15 @@ type ProjectSubmissionPayload = {
 export default function CourseView() {
   const { courseId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
+  const [searchParams] = useSearchParams();
   const supabase = createClientBrowser();
   const queryClient = useQueryClient();
   const { setHeaderBreadcrumb } = useOutletContext<DashboardOutletContext>();
   const { user } = useAuth();
   const { t } = useTranslation();
+
+  const lessonIdParam = searchParams.get('lessonId');
+  const moduleIdParam = searchParams.get('moduleId');
 
   const { data: course, isLoading } = useQuery<Course | null>({
     queryKey: ['courseView', courseId],
@@ -151,13 +155,51 @@ export default function CourseView() {
           })),
       };
 
-      if (normalized.modules.length && normalized.modules[0].lessons.length) {
-        setCurrentLesson(normalized.modules[0].lessons[0]);
-      }
-
       return normalized;
     },
   });
+
+  const resolvedOpenModuleId = useMemo(() => {
+    if (!course) return undefined;
+    if (moduleIdParam) return moduleIdParam;
+    if (lessonIdParam) {
+      for (const m of course.modules) {
+        if (m.lessons.some((l) => l.id === lessonIdParam)) return m.id;
+      }
+    }
+    return undefined;
+  }, [course, lessonIdParam, moduleIdParam]);
+
+  useEffect(() => {
+    if (!course) return;
+
+    // If a specific lesson is requested, prioritize it.
+    if (lessonIdParam) {
+      for (const m of course.modules) {
+        const found = m.lessons.find((l) => l.id === lessonIdParam) ?? null;
+        if (found) {
+          if (currentLesson?.id !== found.id) setCurrentLesson(found);
+          return;
+        }
+      }
+    }
+
+    // If a module is requested, pick its first lesson (only if we don't have a lesson yet).
+    if (moduleIdParam && !currentLesson) {
+      const mod = course.modules.find((m) => m.id === moduleIdParam) ?? null;
+      const first = mod?.lessons?.[0] ?? null;
+      if (first) {
+        setCurrentLesson(first);
+        return;
+      }
+    }
+
+    // Default to the first lesson in the course.
+    if (!currentLesson) {
+      const first = course.modules[0]?.lessons?.[0] ?? null;
+      if (first) setCurrentLesson(first);
+    }
+  }, [course, currentLesson, lessonIdParam, moduleIdParam]);
 
   const projectIds = useMemo(() => {
     if (!course) return [] as string[];
@@ -300,6 +342,7 @@ export default function CourseView() {
           <CourseTableOfContents
             course={course}
             currentLessonId={currentLesson?.id}
+            defaultOpenModuleId={resolvedOpenModuleId}
             onLessonClick={setCurrentLesson}
           />
         )}
@@ -320,7 +363,7 @@ export default function CourseView() {
           />
         )}
       </div>
-      <div className="hidden w-full xl:flex xl:flex-col xl:w-96 xl:shrink-0 xl:sticky xl:top-6 xl:self-start xl:h-[calc(100vh-7rem)] xl:max-h-[calc(100vh-7rem)]">
+      <div className="hidden w-full xl:flex xl:flex-col xl:w-[23rem] xl:shrink-0 xl:sticky xl:top-6 xl:self-start xl:h-[calc(100vh-7rem)] xl:max-h-[calc(100vh-7rem)]">
         <LessonAIChat
           courseTitle={course?.title}
           lessonTitle={currentLesson?.title}

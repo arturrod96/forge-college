@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { LoadingGrid } from '@/components/ui/loading-states';
 import { EmptyState } from '@/components/ui/empty-state';
 import { BookOpenText, Clock, Play, HelpCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { DASHBOARD_LEARN_COURSE } from '@/routes/paths';
 
 interface Lesson {
   id: string;
@@ -64,7 +66,7 @@ export function PublishedLessons({ limit, className }: PublishedLessonsProps) {
     queryFn: async (): Promise<Lesson[]> => {
       const { data, error } = await supabase
         .from('lessons')
-        .select('id, title, slug, order, lesson_type, duration_minutes, xp_value, is_published, module_id, modules(title)')
+        .select('id, title, slug, order, lesson_type, duration_minutes, xp_value, is_published, module_id, modules(title, course_id)')
         .eq('is_published', true)
         .order('module_id', { ascending: true })
         .order('order', { ascending: true });
@@ -105,11 +107,15 @@ export function PublishedLessons({ limit, className }: PublishedLessonsProps) {
           const Icon = getLessonIcon(lesson.lesson_type);
           const module = Array.isArray(lesson.modules) ? lesson.modules[0] : lesson.modules;
           const moduleTitle = module?.title || 'Unknown Module';
+          const courseId = module?.course_id;
+          const query = new URLSearchParams({ lessonId: lesson.id, moduleId: lesson.module_id }).toString();
 
-          return (
+          const card = (
             <Card
-              key={lesson.id}
-              className="relative overflow-hidden border-forge-cream/80 hover:shadow-md transition-shadow h-full min-h-[250px] flex flex-col"
+              className={[
+                'relative overflow-hidden border-forge-cream/80 transition-shadow h-full min-h-[250px] flex flex-col',
+                courseId ? 'hover:shadow-md cursor-pointer' : 'opacity-70 cursor-not-allowed',
+              ].join(' ')}
             >
               <CardHeader className="space-y-2">
                 <CardTitle className="flex items-start gap-2 text-forge-dark tracking-normal text-lg md:text-xl leading-tight line-clamp-2 break-words">
@@ -136,6 +142,18 @@ export function PublishedLessons({ limit, className }: PublishedLessonsProps) {
                 </div>
               </CardContent>
             </Card>
+          );
+
+          if (!courseId) return <div key={lesson.id}>{card}</div>;
+
+          return (
+            <Link
+              key={lesson.id}
+              to={`${DASHBOARD_LEARN_COURSE(courseId)}?${query}`}
+              className="block rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-forge-orange/60"
+            >
+              {card}
+            </Link>
           );
         })}
       </div>

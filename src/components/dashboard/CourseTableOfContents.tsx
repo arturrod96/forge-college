@@ -13,6 +13,7 @@ import { createClientBrowser } from '@/lib/supabase';
 interface Props {
   course: Course;
   currentLessonId?: string;
+  defaultOpenModuleId?: string;
   onLessonClick: (lesson: Lesson) => void;
 }
 
@@ -20,9 +21,10 @@ interface LessonProgress {
   [lessonId: string]: 'completed' | 'in_progress' | 'not_started';
 }
 
-export function CourseTableOfContents({ course, currentLessonId, onLessonClick }: Props) {
+export function CourseTableOfContents({ course, currentLessonId, defaultOpenModuleId, onLessonClick }: Props) {
   const { user } = useAuth();
   const [progress, setProgress] = useState<LessonProgress>({});
+  const supabase = createClientBrowser();
 
   useEffect(() => {
     if (!user) return;
@@ -84,7 +86,11 @@ export function CourseTableOfContents({ course, currentLessonId, onLessonClick }
     <div className="p-4">
       <h2 className="text-xl font-bold mb-2">{course.title}</h2>
       <p className="text-sm text-gray-600 mb-4">{course.description}</p>
-      <Accordion type="multiple" defaultValue={course.modules.map(m => m.id)} className="w-full">
+      <Accordion
+        type="multiple"
+        defaultValue={defaultOpenModuleId ? [defaultOpenModuleId] : course.modules.map((m) => m.id)}
+        className="w-full"
+      >
         {course.modules.map((module) => {
           const moduleProgress = getModuleProgress(module);
           return (

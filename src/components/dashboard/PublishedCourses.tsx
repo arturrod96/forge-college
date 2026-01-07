@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { LoadingGrid } from '@/components/ui/loading-states';
 import { EmptyState } from '@/components/ui/empty-state';
 import { BookOpen, Clock } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { DASHBOARD_LEARN_COURSE } from '@/routes/paths';
 
 interface Course {
   id: string;
@@ -72,46 +74,66 @@ export function PublishedCourses({ limit, className }: PublishedCoursesProps) {
   return (
     <div className={className}>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 items-stretch">
-        {visibleCourses.map((course) => (
-          <Card
-            key={course.id}
-            className="relative overflow-hidden border-forge-cream/80 hover:shadow-md transition-shadow h-full min-h-[300px] flex flex-col"
-          >
-            {course.thumbnail_url && (
-              <div className="h-40 bg-gradient-to-b from-forge-orange/10 to-forge-cream/30 overflow-hidden">
-                <img
-                  src={course.thumbnail_url}
-                  alt={course.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            )}
-            <CardHeader className="space-y-2">
-              <CardTitle className="flex items-start gap-2 text-forge-dark tracking-normal text-lg md:text-xl leading-tight line-clamp-2 break-words">
-                <BookOpen className="h-4 w-4 mt-0.5 text-forge-orange shrink-0" />
-                <span>{course.title}</span>
-              </CardTitle>
-              <CardDescription className="text-[13px] text-forge-gray line-clamp-3 min-h-[3.75rem]">
-                {course.description || 'Explore this course to enhance your skills'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2 mt-auto">
-              <div className="flex items-center gap-2 text-xs text-forge-gray">
-                {course.duration_minutes && (
-                  <>
-                    <Clock className="h-3.5 w-3.5 text-forge-orange" />
-                    {course.duration_minutes} minutes
-                  </>
-                )}
-              </div>
-              {course.status === 'coming_soon' && (
-                <Badge variant="coming-soon" size="sm" icon={Clock} iconPosition="left">
-                  Coming Soon
-                </Badge>
+        {visibleCourses.map((course) => {
+          const isAvailable = course.status !== 'coming_soon';
+
+          const card = (
+            <Card
+              className={[
+                'relative overflow-hidden border-forge-cream/80 transition-shadow h-full min-h-[300px] flex flex-col',
+                isAvailable ? 'hover:shadow-md cursor-pointer' : 'opacity-70 cursor-not-allowed',
+              ].join(' ')}
+            >
+              {course.thumbnail_url && (
+                <div className="h-40 bg-gradient-to-b from-forge-orange/10 to-forge-cream/30 overflow-hidden">
+                  <img
+                    src={course.thumbnail_url}
+                    alt={course.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               )}
-            </CardContent>
-          </Card>
-        ))}
+              <CardHeader className="space-y-2">
+                <CardTitle className="flex items-start gap-2 text-forge-dark tracking-normal text-lg md:text-xl leading-tight line-clamp-2 break-words">
+                  <BookOpen className="h-4 w-4 mt-0.5 text-forge-orange shrink-0" />
+                  <span>{course.title}</span>
+                </CardTitle>
+                <CardDescription className="text-[13px] text-forge-gray line-clamp-3 min-h-[3.75rem]">
+                  {course.description || 'Explore this course to enhance your skills'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2 mt-auto">
+                <div className="flex items-center gap-2 text-xs text-forge-gray">
+                  {course.duration_minutes && (
+                    <>
+                      <Clock className="h-3.5 w-3.5 text-forge-orange" />
+                      {course.duration_minutes} minutes
+                    </>
+                  )}
+                </div>
+                {course.status === 'coming_soon' && (
+                  <Badge variant="coming-soon" size="sm" icon={Clock} iconPosition="left">
+                    Coming Soon
+                  </Badge>
+                )}
+              </CardContent>
+            </Card>
+          );
+
+          if (!isAvailable) {
+            return <div key={course.id}>{card}</div>;
+          }
+
+          return (
+            <Link
+              key={course.id}
+              to={DASHBOARD_LEARN_COURSE(course.id)}
+              className="block rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-forge-orange/60"
+            >
+              {card}
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

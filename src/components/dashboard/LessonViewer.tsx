@@ -77,9 +77,9 @@ export function LessonViewer({ lesson, course, onLessonChange }: Props) {
   const renderLessonContent = () => {
     switch (lesson.lesson_type) {
       case 'text':
-        return <TextLesson content={lesson.content} />;
+        return <TextLesson content={typeof lesson.content === 'string' ? lesson.content : ''} />;
       case 'video':
-        return <VideoLesson videoUrl={lesson.content} />;
+        return <VideoLesson videoUrl={typeof lesson.content === 'string' ? lesson.content : ''} />;
       case 'quiz':
         return <QuizLesson quizData={typeof lesson.content === 'string' ? JSON.parse(lesson.content) : lesson.content} />;
       default:
