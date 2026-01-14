@@ -7,18 +7,24 @@ interface Props {
 
 export function TextLesson({ content }: Props) {
   const isHtml = looksLikeHtml(content);
+  const contentClasses =
+    "prose prose-slate max-w-none break-words overflow-x-hidden [overflow-wrap:anywhere] " +
+    "prose-img:max-w-full prose-img:h-auto prose-pre:overflow-x-auto " +
+    "prose-pre:max-w-full prose-pre:whitespace-pre-wrap sm:prose-pre:whitespace-pre " +
+    "prose-pre:break-words prose-code:break-words prose-table:block prose-table:max-w-full " +
+    "prose-table:overflow-x-auto";
 
   if (isHtml) {
     return (
       <div
-        className="prose prose-slate max-w-none overflow-x-auto"
+        className={contentClasses}
         dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
       />
     );
   }
 
   return (
-    <div className="prose prose-slate max-w-none">
+    <div className={contentClasses}>
       <ReactMarkdown
         components={{
           a: ({ node, ...props }) => (

@@ -13,6 +13,7 @@ interface AchievementsSidebarProps {
   selectedAchievement: Achievement | null;
   suggestedAchievement: Achievement | null;
   onActionClick: (achievement: Achievement) => void;
+  variant?: 'desktop' | 'mobile';
 }
 
 export function AchievementsSidebar({
@@ -20,8 +21,15 @@ export function AchievementsSidebar({
   selectedAchievement,
   suggestedAchievement,
   onActionClick,
+  variant = 'desktop',
 }: AchievementsSidebarProps) {
   const { t } = useTranslation();
+  const containerClass = cn(
+    'space-y-4',
+    variant === 'desktop'
+      ? 'w-96 shrink-0 hidden lg:block sticky top-6 self-start'
+      : 'w-full lg:hidden'
+  );
 
   // If an achievement is selected, show its details
   if (selectedAchievement) {
@@ -32,7 +40,7 @@ export function AchievementsSidebar({
     const isLocked = selectedAchievement.status === 'locked';
 
     return (
-      <div className="w-96 shrink-0 hidden lg:block sticky top-6 self-start space-y-4">
+      <div className={containerClass}>
         <Card className={cn(
           'border-2',
           isCompleted && 'border-green-300 bg-green-50/20',
@@ -140,7 +148,7 @@ export function AchievementsSidebar({
 
   // Default state: Show summary stats and suggested achievement
   return (
-    <div className="w-96 shrink-0 hidden lg:block sticky top-6 self-start space-y-4">
+    <div className={containerClass}>
       {/* Compact Stats with Progress */}
       <Card>
         <CardHeader>

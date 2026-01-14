@@ -7,17 +7,11 @@ import { useAuth } from '@/hooks/useOAuth';
 import { CourseTableOfContents } from '@/components/dashboard/CourseTableOfContents';
 import { LessonViewer } from '@/components/dashboard/LessonViewer';
 import LessonAIChat from '@/components/ai/LessonAIChat';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
-import { DASHBOARD, DASHBOARD_EXPLORE, DASHBOARD_COMMUNITY_PROJECTS } from '@/routes/paths';
+import { LearningModeIntro } from '@/components/course/LearningModeIntro';
+import { DASHBOARD_EXPLORE, DASHBOARD_COMMUNITY_PROJECTS } from '@/routes/paths';
 import { ModuleProjectsPanel, type ModuleProject, type ProjectSubmissionSummary } from '@/components/dashboard/ModuleProjectsPanel';
 import { toast } from 'sonner';
+import { Check } from 'lucide-react';
 
 type LessonType = 'text' | 'video' | 'quiz';
 
@@ -55,6 +49,9 @@ export default function CourseView() {
   const { courseId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
   const [searchParams] = useSearchParams();
+  const [tocVisible, setTocVisible] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
+  const [isCompleting, setIsCompleting] = useState(false);
   const supabase = createClientBrowser();
   const queryClient = useQueryClient();
   const { setHeaderBreadcrumb } = useOutletContext<DashboardOutletContext>();
@@ -235,10 +232,6 @@ export default function CourseView() {
       }
       return map;
     },
-    onError: (error) => {
-      console.error('Failed to load project submissions', error);
-      toast.error(t('projects.notifications.fetchError'));
-    },
   });
 
   const submitMutation = useMutation<void, Error, ProjectSubmissionPayload>({
@@ -283,40 +276,11 @@ export default function CourseView() {
 
   const submittingProjectId = submitMutation.variables?.projectId ?? null;
 
+  // Clear breadcrumb since we have our own header
   useEffect(() => {
-    if (!course) return;
-    const crumb = (
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to={DASHBOARD}>{t('nav.dashboard')}</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to={DASHBOARD_EXPLORE}>{t('nav.paths')}</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{course.title}</BreadcrumbPage>
-          </BreadcrumbItem>
-          {currentLesson && (
-            <>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{currentLesson.title}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </>
-          )}
-        </BreadcrumbList>
-      </Breadcrumb>
-    );
-    setHeaderBreadcrumb(crumb);
+    setHeaderBreadcrumb(null);
     return () => setHeaderBreadcrumb(null);
-  }, [course?.title, currentLesson?.title, setHeaderBreadcrumb, t]);
+  }, [setHeaderBreadcrumb]);
 
   const currentModule = useMemo(() => {
     if (!course || !currentLesson) return null;
@@ -333,44 +297,245 @@ export default function CourseView() {
     return lastLesson.id === currentLesson.id;
   }, [currentLesson, currentModule]);
 
-  return (
-    <div className="flex flex-col gap-6 xl:flex-row">
-      <div className="w-full xl:w-80 xl:shrink-0 xl:border xl:rounded-md xl:bg-white">
-        {isLoading || !course ? (
-          <div className="p-4 text-gray-500">{t('common.buttons.loading')}</div>
-        ) : (
-          <CourseTableOfContents
-            course={course}
-            currentLessonId={currentLesson?.id}
-            defaultOpenModuleId={resolvedOpenModuleId}
-            onLessonClick={setCurrentLesson}
-          />
-        )}
-      </div>
-      <div className="flex-1 space-y-6">
-        <div className="border rounded-md bg-white min-h-[60vh]">
-          <LessonViewer lesson={currentLesson} course={course ?? null} onLessonChange={setCurrentLesson} />
-        </div>
+  const allLessons = useMemo(() => {
+    if (!course) return [];
+    return course.modules.flatMap(module => module.lessons);
+  }, [course]);
 
-        {currentModule && isLastLessonInModule && (
-          <ModuleProjectsPanel
-            moduleTitle={currentModule.title}
-            projects={currentModule.projects}
-            submissions={submissionsMap}
-            submittingProjectId={submittingProjectId}
-            onSubmit={handleProjectSubmit}
-            communityLink={DASHBOARD_COMMUNITY_PROJECTS}
-          />
-        )}
+  const currentIndex = useMemo(() => {
+    if (!currentLesson) return -1;
+    return allLessons.findIndex(l => l.id === currentLesson.id);
+  }, [allLessons, currentLesson]);
+
+  const previousLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null;
+  const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
+
+  const markAsComplete = async () => {
+    if (!user || !currentLesson) {
+      toast.error('You need to be logged in to track progress');
+      return;
+    }
+
+    setIsCompleting(true);
+    try {
+      const { error } = await supabase
+        .from('user_progress')
+        .upsert(
+          {
+            user_id: user.id,
+            lesson_id: currentLesson.id,
+            status: 'completed',
+            completed_at: new Date().toISOString()
+          },
+          { onConflict: 'user_id,lesson_id' }
+        );
+
+      if (error) throw new Error(error.message || 'Failed to save progress');
+
+      toast.success('Lesson completed! 🎉');
+
+      // Auto navigate to next lesson if available
+      if (nextLesson) {
+        setCurrentLesson(nextLesson);
+      }
+    } catch (error) {
+      console.error('Error marking lesson as complete:', error);
+      toast.error('Error saving progress');
+    } finally {
+      setIsCompleting(false);
+    }
+  };
+
+  if (isLoading || !course) {
+    return (
+      <div className="min-h-[100svh] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-forge-orange mx-auto mb-4"></div>
+          <p className="text-forge-gray">{t('common.buttons.loading')}</p>
+        </div>
       </div>
-      <div className="hidden w-full xl:flex xl:flex-col xl:w-[23rem] xl:shrink-0 xl:sticky xl:top-6 xl:self-start xl:h-[calc(100vh-7rem)] xl:max-h-[calc(100vh-7rem)]">
-        <LessonAIChat
-          courseTitle={course?.title}
-          lessonTitle={currentLesson?.title}
-          lessonType={currentLesson?.lesson_type}
-          lessonContent={currentLesson?.content}
-        />
+    );
+  }
+
+  return (
+    <>
+      {/* Learning Mode Intro Animation */}
+      {showIntro && <LearningModeIntro onComplete={() => setShowIntro(false)} />}
+
+      <div className="min-h-[100svh] flex flex-col bg-gradient-to-br from-slate-50 to-white">
+        {/* Custom Header for Course View - DataCamp Style */}
+        <header className="h-14 border-b bg-white/95 backdrop-blur-sm flex items-center px-4 sticky top-0 z-30 shadow-sm">
+          <div className="flex items-center gap-3 flex-1">
+            {/* Menu Toggle Button */}
+            <button
+              onClick={() => setTocVisible(!tocVisible)}
+              className={`p-2 rounded-lg transition-all duration-200 ${tocVisible
+                ? 'bg-forge-orange/10 text-forge-orange'
+                : 'hover:bg-gray-100 text-gray-600'
+                }`}
+              aria-label="Toggle course outline"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+
+            <div className="h-5 w-px bg-gray-200 hidden xs:block" />
+
+            {/* Back Link */}
+            <Link
+              to={DASHBOARD_EXPLORE}
+              className="text-gray-500 hover:text-forge-dark transition-colors flex items-center gap-1.5 text-sm"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span className="hidden sm:inline">Exit</span>
+            </Link>
+
+            <div className="h-5 w-px bg-gray-200 hidden sm:block" />
+
+            {/* Course Title */}
+            <h1 className="text-sm font-medium text-forge-dark truncate max-w-[200px] sm:max-w-none">
+              {course.title}
+            </h1>
+          </div>
+
+          {/* Navigation Controls */}
+          {currentLesson && (
+            <div className="flex items-center gap-2">
+              {/* Progress Indicator */}
+              <div className="hidden md:flex items-center gap-2 mr-2">
+                <div className="h-1.5 w-24 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-forge-orange to-orange-400 rounded-full transition-all duration-300"
+                    style={{ width: `${((currentIndex + 1) / allLessons.length) * 100}%` }}
+                  />
+                </div>
+                <span className="text-xs text-gray-500 font-medium">
+                  {currentIndex + 1}/{allLessons.length}
+                </span>
+              </div>
+
+              {/* Prev/Next Buttons */}
+              <div className="flex items-center border rounded-lg overflow-hidden">
+                <button
+                  onClick={() => previousLesson && setCurrentLesson(previousLesson)}
+                  disabled={!previousLesson}
+                  className="p-2 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors border-r"
+                  aria-label="Previous lesson"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => nextLesson && setCurrentLesson(nextLesson)}
+                  disabled={!nextLesson}
+                  className="p-2 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  aria-label="Next lesson"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Complete Button */}
+              <button
+                onClick={markAsComplete}
+                disabled={isCompleting}
+                className="ml-2 px-4 py-2 rounded-lg bg-gradient-to-r from-forge-orange to-orange-500 text-white text-sm font-medium flex items-center gap-2 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+              >
+                <Check className="w-4 h-4" />
+                <span className="hidden sm:inline">
+                  {isCompleting ? 'Saving...' : 'Complete'}
+                </span>
+              </button>
+            </div>
+          )}
+        </header>
+
+        {/* Main Content Area - 3 Column Layout */}
+        <div className="flex-1 flex h-[calc(100svh-56px)]">
+          {/* Overlay for mobile */}
+          {tocVisible && (
+            <div
+              className="fixed inset-0 bg-black/30 z-20 lg:hidden backdrop-blur-sm"
+              onClick={() => setTocVisible(false)}
+            />
+          )}
+
+          {/* TOC Sidebar - Fixed */}
+          <aside
+            className={`
+            fixed lg:sticky lg:top-14 inset-y-0 left-0 z-20 lg:z-10
+            w-[min(18rem,85vw)] lg:w-72 bg-white border-r shadow-xl lg:shadow-none
+            transform transition-all duration-300 ease-out
+            h-[calc(100svh-56px)] flex-shrink-0
+            ${tocVisible ? 'translate-x-0 lg:w-72' : '-translate-x-full lg:translate-x-0 lg:w-0 lg:border-r-0'}
+          `}
+            style={{ top: '56px' }}
+          >
+            <div className={`w-[min(18rem,85vw)] lg:w-72 h-full flex flex-col ${!tocVisible && 'lg:hidden'}`}>
+              <div className="p-4 border-b bg-gray-50/50 flex items-center justify-between">
+                <h2 className="font-semibold text-forge-dark text-sm">Course Outline</h2>
+                <button
+                  onClick={() => setTocVisible(false)}
+                  className="p-1 rounded hover:bg-gray-200 transition-colors"
+                  aria-label="Close"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <CourseTableOfContents
+                  course={course}
+                  currentLessonId={currentLesson?.id}
+                  defaultOpenModuleId={resolvedOpenModuleId}
+                  onLessonClick={(lesson) => {
+                    setCurrentLesson(lesson);
+                    // SSR-safe check for mobile viewport
+                    if (typeof window !== 'undefined' && window.innerWidth < 1024) setTocVisible(false);
+                  }}
+                />
+              </div>
+            </div>
+          </aside>
+
+          {/* Center Content - Scrollable */}
+          <main className="flex-1 overflow-y-auto bg-gradient-to-br from-slate-50 to-white">
+            <div className="max-w-4xl mx-auto py-4 px-3 sm:py-6 sm:px-4 lg:px-8">
+              <LessonViewer lesson={currentLesson} course={course} />
+
+              {currentModule && isLastLessonInModule && (
+                <div className="mt-8 border rounded-xl bg-white shadow-sm">
+                  <ModuleProjectsPanel
+                    moduleTitle={currentModule.title}
+                    projects={currentModule.projects}
+                    submissions={submissionsMap}
+                    submittingProjectId={submittingProjectId}
+                    onSubmit={handleProjectSubmit}
+                    communityLink={DASHBOARD_COMMUNITY_PROJECTS}
+                  />
+                </div>
+              )}
+            </div>
+          </main>
+
+          {/* AI Chat Sidebar - Fixed */}
+          <aside className="hidden xl:flex xl:flex-col w-80 flex-shrink-0 border-l bg-white sticky top-14 h-[calc(100svh-56px)]">
+            <LessonAIChat
+              courseTitle={course?.title}
+              lessonTitle={currentLesson?.title}
+              lessonType={currentLesson?.lesson_type}
+              lessonContent={currentLesson?.content}
+            />
+          </aside>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
