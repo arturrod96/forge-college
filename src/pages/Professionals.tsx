@@ -95,9 +95,9 @@ contract ForgeCollege {
   ];
 
   return (
-    <div className="min-h-screen bg-forge-cream overflow-x-hidden">
+    <div className="min-h-[100svh] bg-forge-cream overflow-x-hidden">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center pt-28 pb-10 px-6">
+      <section className="relative min-h-[100svh] flex items-center justify-center pt-28 sm:pt-32 pb-12 sm:pb-16 px-4 sm:px-6">
         <AnimatedBackground variant="hero" />
         
         <div className="max-w-6xl mx-auto text-center relative z-10">
@@ -106,7 +106,7 @@ contract ForgeCollege {
             initial={{ opacity: 0, y: 30, filter: "blur(8px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-forge-dark mb-8 leading-[0.9] tracking-tight"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-forge-dark mb-8 leading-[0.9] tracking-tight"
           >
             Get Paid
             <br />
@@ -116,7 +116,7 @@ contract ForgeCollege {
                 animate={{ rotate: [0, 10, -10, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               >
-                <Flame className="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28 text-forge-orange mx-4" />
+                <Flame className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 text-forge-orange mx-4" />
               </motion.div>
             </span>
           </motion.h1>
@@ -125,7 +125,7 @@ contract ForgeCollege {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="text-xl lg:text-2xl text-forge-gray max-w-4xl mx-auto mb-12 leading-relaxed"
+            className="text-lg sm:text-xl lg:text-2xl text-forge-gray max-w-4xl mx-auto mb-12 leading-relaxed"
           >
             Master Web3 development, earn $6,000 USDC monthly for 6 months, 
             <br className="hidden md:block" />
@@ -139,7 +139,7 @@ contract ForgeCollege {
           >
             <MagneticButton
               onClick={() => setShowForm(true)}
-              className="inline-flex items-center gap-3 bg-forge-orange text-white px-8 py-4 rounded-full text-lg font-semibold shadow-xl border-2 border-forge-orange hover:border-forge-orange-light transition-all duration-200"
+              className="inline-flex w-full sm:w-auto items-center gap-3 bg-forge-orange text-white px-6 py-3 sm:px-8 sm:py-4 rounded-full text-base sm:text-lg font-semibold shadow-xl border-2 border-forge-orange hover:border-forge-orange-light transition-all duration-200"
             >
               Apply to Next Cohort
               <ArrowRight className="w-5 h-5" />
@@ -149,16 +149,16 @@ contract ForgeCollege {
       </section>
 
       {/* Company Marquee */}
-      <section className="py-12 bg-white/50 backdrop-blur-sm border-y border-forge-orange/10">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className="py-10 sm:py-12 bg-white/50 backdrop-blur-sm border-y border-forge-orange/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <Reveal>
             <p className="text-center text-forge-gray font-medium mb-8">
               Learn the skills to work at companies like:
             </p>
           </Reveal>
-          <Marquee className="text-2xl font-bold text-forge-dark/60">
+          <Marquee className="text-xl sm:text-2xl font-bold text-forge-dark/60">
             {companies.map((company, i) => (
-              <span key={i} className="mx-8 hover:text-forge-orange transition-colors">
+              <span key={i} className="mx-6 sm:mx-8 hover:text-forge-orange transition-colors">
                 {company}
               </span>
             ))}
@@ -167,13 +167,13 @@ contract ForgeCollege {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 px-6 bg-white">
+      <section className="py-16 sm:py-20 px-4 sm:px-6 bg-white">
         <div className="max-w-6xl mx-auto">
           <Reveal className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-forge-dark mb-6">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-forge-dark mb-6">
               Program by the Numbers
             </h2>
-            <p className="text-xl text-forge-gray">
+            <p className="text-lg sm:text-xl text-forge-gray">
               Real outcomes, real careers, real impact
             </p>
           </Reveal>
@@ -182,19 +182,19 @@ contract ForgeCollege {
             {stats.map((stat, index) => (
               <Reveal key={index} delay={index * 0.1}>
                 <motion.div 
-                  className="text-center bg-forge-cream p-8 rounded-3xl border border-forge-orange/20 group hover:border-forge-orange/40 transition-all duration-300"
+                  className="text-center bg-forge-cream p-6 sm:p-8 rounded-3xl border border-forge-orange/20 group hover:border-forge-orange/40 transition-all duration-300"
                   whileHover={{ y: -5 }}
                 >
                   <div className="text-forge-orange mb-4 flex justify-center group-hover:scale-110 transition-transform">
                     {stat.icon}
                   </div>
-                  <div className="text-5xl lg:text-6xl font-bold text-forge-dark mb-2">
+                  <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-forge-dark mb-2">
                     {stat.value}
-                    <span className="text-forge-orange text-2xl lg:text-3xl">
+                    <span className="text-forge-orange text-xl sm:text-2xl lg:text-3xl">
                       {stat.suffix}
                     </span>
                   </div>
-                  <div className="text-lg text-forge-gray font-medium">
+                  <div className="text-base sm:text-lg text-forge-gray font-medium">
                     {stat.label}
                   </div>
                 </motion.div>
@@ -212,13 +212,13 @@ contract ForgeCollege {
       />
 
       {/* Features Grid */}
-      <section className="py-20 px-6 bg-forge-cream">
+      <section className="py-16 sm:py-20 px-4 sm:px-6 bg-forge-cream">
         <div className="max-w-6xl mx-auto">
           <Reveal className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-forge-dark mb-6">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-forge-dark mb-6">
               Why Forge College?
             </h2>
-            <p className="text-xl text-forge-gray">
+            <p className="text-lg sm:text-xl text-forge-gray">
               The only Web3 education program where you earn while you learn
             </p>
           </Reveal>
@@ -227,11 +227,11 @@ contract ForgeCollege {
             {features.map((feature, index) => (
               <Reveal key={index} delay={index * 0.1}>
                 <motion.div 
-                  className="bg-white p-8 rounded-3xl border border-forge-orange/20 hover:border-forge-orange/40 transition-all duration-300 group"
+                  className="bg-white p-6 sm:p-8 rounded-3xl border border-forge-orange/20 hover:border-forge-orange/40 transition-all duration-300 group"
                   whileHover={{ y: -8 }}
                 >
                   <div className="flex items-center justify-between mb-6">
-                    <div className="w-16 h-16 bg-forge-orange rounded-2xl flex items-center justify-center text-white group-hover:scale-110 group-hover:bg-forge-orange-light transition-all duration-200 shadow-lg">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-forge-orange rounded-2xl flex items-center justify-center text-white group-hover:scale-110 group-hover:bg-forge-orange-light transition-all duration-200 shadow-lg">
                       {feature.icon}
                     </div>
                     <span className="text-sm font-bold text-forge-orange bg-forge-orange/10 px-3 py-1 rounded-full">
@@ -239,10 +239,10 @@ contract ForgeCollege {
                     </span>
                   </div>
                   
-                  <h3 className="text-2xl font-bold text-forge-dark mb-4">
+                  <h3 className="text-xl sm:text-2xl font-bold text-forge-dark mb-4">
                     {feature.title}
                   </h3>
-                  <p className="text-lg text-forge-gray leading-relaxed">
+                  <p className="text-base sm:text-lg text-forge-gray leading-relaxed">
                     {feature.description}
                   </p>
                 </motion.div>
@@ -253,16 +253,16 @@ contract ForgeCollege {
       </section>
 
       {/* Testimonials Marquee */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className="py-12 sm:py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <Reveal className="text-center mb-12">
             <h3 className="text-2xl font-bold text-forge-dark">
               What Our Students Say
             </h3>
           </Reveal>
-          <Marquee speed={30} className="text-lg">
+          <Marquee speed={30} className="text-base sm:text-lg">
             {testimonials.map((testimonial, i) => (
-              <div key={i} className="mx-8 max-w-md">
+              <div key={i} className="mx-6 sm:mx-8 max-w-md">
                 <p className="text-forge-gray italic mb-2">{testimonial.quote}</p>
                 <p className="text-forge-dark font-semibold">— {testimonial.author}</p>
               </div>
@@ -272,12 +272,12 @@ contract ForgeCollege {
       </section>
 
       {/* Next Cohort CTA */}
-      <section className="py-32 px-6 bg-forge-cream relative overflow-hidden">
+      <section className="py-20 sm:py-28 lg:py-32 px-4 sm:px-6 bg-forge-cream relative overflow-hidden">
         <AnimatedBackground variant="subtle" />
         
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <Reveal>
-            <h2 className="text-5xl lg:text-6xl font-bold text-forge-dark mb-6 leading-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-forge-dark mb-6 leading-tight">
               No upfront cost.
               <br />
               Pay only when you land a job.
@@ -285,7 +285,7 @@ contract ForgeCollege {
           </Reveal>
           
           <Reveal delay={0.2}>
-            <p className="text-xl text-forge-gray max-w-3xl mx-auto mb-16 leading-relaxed">
+            <p className="text-lg sm:text-xl text-forge-gray max-w-3xl mx-auto mb-12 sm:mb-16 leading-relaxed">
               Our Income Share Agreement means you focus on learning, not debt. 
               We only succeed when you do.
             </p>
@@ -293,7 +293,7 @@ contract ForgeCollege {
           
           <Reveal delay={0.4}>
             <motion.div 
-              className="bg-forge-dark rounded-3xl p-12 text-white relative overflow-hidden border-4 border-forge-orange"
+              className="bg-forge-dark rounded-3xl p-6 sm:p-10 lg:p-12 text-white relative overflow-hidden border-4 border-forge-orange"
               whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
@@ -309,14 +309,14 @@ contract ForgeCollege {
                   <span className="font-medium">Next Cohort Starting Soon</span>
                 </motion.div>
                 
-                <h3 className="text-4xl font-bold mb-6 text-forge-cream">April 2026</h3>
-                <p className="text-xl text-forge-cream/80 mb-8">
+                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 text-forge-cream">April 2026</h3>
+                <p className="text-base sm:text-lg text-forge-cream/80 mb-8">
                   Limited to 10 students
                 </p>
                 
                 <MagneticButton
                   onClick={() => setShowForm(true)}
-                  className="bg-forge-orange text-white px-12 py-4 rounded-full font-semibold shadow-xl border-2 border-forge-orange hover:border-forge-orange-light transition-all duration-200"
+                  className="bg-forge-orange text-white px-6 py-3 sm:px-10 sm:py-4 rounded-full font-semibold shadow-xl border-2 border-forge-orange hover:border-forge-orange-light transition-all duration-200"
                 >
                   Secure Your Spot
                 </MagneticButton>
@@ -327,12 +327,12 @@ contract ForgeCollege {
       </section>
 
       {/* Final CTA */}
-      <section className="py-32 px-6 bg-forge-dark text-white relative overflow-hidden">
+      <section className="py-20 sm:py-28 lg:py-32 px-4 sm:px-6 bg-forge-dark text-white relative overflow-hidden">
         <AnimatedBackground variant="dark" />
         
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <Reveal>
-            <h2 className="text-5xl lg:text-6xl font-bold mb-8 leading-tight text-forge-cream">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-8 leading-tight text-forge-cream">
               Ready to forge
               <br />
               your future?
@@ -340,7 +340,7 @@ contract ForgeCollege {
           </Reveal>
           
           <Reveal delay={0.2}>
-            <p className="text-xl text-forge-cream/80 mb-12 leading-relaxed">
+            <p className="text-lg sm:text-xl text-forge-cream/80 mb-10 sm:mb-12 leading-relaxed">
               Join the next generation of Web3 developers. 
               <br />
               Apply now for the April 2026 cohort.
@@ -350,7 +350,7 @@ contract ForgeCollege {
           <Reveal delay={0.4}>
             <MagneticButton
               onClick={() => setShowForm(true)}
-              className="inline-flex items-center gap-3 bg-forge-orange text-white px-12 py-6 rounded-full text-xl font-bold shadow-xl border-2 border-forge-orange hover:border-forge-orange-light transition-all duration-200"
+              className="inline-flex w-full sm:w-auto items-center gap-3 bg-forge-orange text-white px-6 py-4 sm:px-10 sm:py-5 rounded-full text-base sm:text-lg font-bold shadow-xl border-2 border-forge-orange hover:border-forge-orange-light transition-all duration-200"
             >
               Apply Now
               <ArrowRight className="w-6 h-6" />

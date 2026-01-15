@@ -1,13 +1,17 @@
+import { useMemo, useState } from 'react';
 import { createClientBrowser } from '@/lib/supabase';
+import { useAuth } from '@/hooks/useOAuth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { LoadingGrid } from '@/components/ui/loading-states';
 import { EmptyState } from '@/components/ui/empty-state';
-import { BookOpenText, Clock, Play, HelpCircle } from 'lucide-react';
+import { BookOpenText, Clock, Play, HelpCircle, ChevronDown, ChevronRight, PlayCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { DASHBOARD_LEARN_COURSE } from '@/routes/paths';
+import { ContentSearch, LessonTypeFilter, type LessonType } from '@/components/filters';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface Lesson {
   id: string;
@@ -20,14 +24,22 @@ interface Lesson {
   is_published: boolean;
   module_id: string;
   modules?: {
+    id: string;
     title: string;
+    order: number;
     course_id?: string;
   };
 }
 
+type LessonWithProgress = Lesson & {
+  progressStatus: 'not_started' | 'in_progress' | 'completed';
+};
+
 type PublishedLessonsProps = {
   limit?: number;
   className?: string;
+  showSearch?: boolean;
+  showFilters?: boolean;
 };
 
 const getLessonIcon = (type: string) => {
@@ -54,19 +66,23 @@ const getLessonTypeLabel = (type: string) => {
   }
 };
 
-export function PublishedLessons({ limit, className }: PublishedLessonsProps) {
+export function PublishedLessons({ limit, className, showSearch = true, showFilters = true }: PublishedLessonsProps) {
   const { t } = useTranslation();
-  const supabase = createClientBrowser();
+  const { user } = useAuth();
+  const supabase = useMemo(() => createClientBrowser(), []);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [typeFilter, setTypeFilter] = useState<LessonType[]>([]);
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
 
-  const { data: lessons = [], isLoading } = useQuery<Lesson[]>({
+  // Fetch lessons
+  const { data: lessons = [], isLoading: isLoadingLessons } = useQuery<Lesson[]>({
     queryKey: ['publishedLessons'],
     staleTime: 60_000,
     refetchOnWindowFocus: false,
-    keepPreviousData: true,
     queryFn: async (): Promise<Lesson[]> => {
       const { data, error } = await supabase
         .from('lessons')
-        .select('id, title, slug, order, lesson_type, duration_minutes, xp_value, is_published, module_id, modules(title, course_id)')
+        .select('id, title, slug, order, lesson_type, duration_minutes, xp_value, is_published, module_id, modules(id, title, order, course_id)')
         .eq('is_published', true)
         .order('module_id', { ascending: true })
         .order('order', { ascending: true });
@@ -74,6 +90,109 @@ export function PublishedLessons({ limit, className }: PublishedLessonsProps) {
       return data || [];
     },
   });
+
+  // Fetch user progress
+  const { data: lessonProgress = {} } = useQuery<Record<string, 'not_started' | 'in_progress' | 'completed'>>({
+    queryKey: ['lessonProgress', user?.id],
+    enabled: !!user?.id && lessons.length > 0,
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+    queryFn: async () => {
+      const lessonIds = lessons.map((l) => l.id);
+      const { data: progressData } = await supabase
+        .from('user_progress')
+        .select('lesson_id, status')
+        .eq('user_id', user!.id)
+        .in('lesson_id', lessonIds);
+
+      const result: Record<string, 'not_started' | 'in_progress' | 'completed'> = {};
+      progressData?.forEach((p) => {
+        result[p.lesson_id] = p.status;
+      });
+      return result;
+    },
+  });
+
+  const isLoading = isLoadingLessons;
+
+  // Process lessons: add progress, filter, sort
+  const processedLessons = useMemo(() => {
+    let result: LessonWithProgress[] = lessons.map((lesson) => ({
+      ...lesson,
+      progressStatus: lessonProgress[lesson.id] || 'not_started',
+    }));
+
+    // Filter by search term
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter((lesson) => lesson.title.toLowerCase().includes(term));
+    }
+
+    // Filter by lesson type
+    if (typeFilter.length > 0) {
+      result = result.filter((lesson) => typeFilter.includes(lesson.lesson_type));
+    }
+
+    // Sort by progress status first
+    const statusOrder = { in_progress: 0, not_started: 1, completed: 2 };
+    result.sort((a, b) => {
+      const orderDiff = statusOrder[a.progressStatus] - statusOrder[b.progressStatus];
+      if (orderDiff !== 0) return orderDiff;
+      return a.order - b.order;
+    });
+
+    return result;
+  }, [lessons, lessonProgress, searchTerm, typeFilter]);
+
+  // Group lessons by module
+  const groupedLessons = useMemo(() => {
+    const groups: Map<string, { moduleTitle: string; moduleOrder: number; courseId?: string; lessons: LessonWithProgress[] }> = new Map();
+
+    processedLessons.forEach((lesson) => {
+      const module = Array.isArray(lesson.modules) ? lesson.modules[0] : lesson.modules;
+      const moduleId = module?.id || lesson.module_id;
+      const moduleTitle = module?.title || 'Unknown Module';
+      const moduleOrder = module?.order || 0;
+      const courseId = module?.course_id;
+
+      if (!groups.has(moduleId)) {
+        groups.set(moduleId, { moduleTitle, moduleOrder, courseId, lessons: [] });
+      }
+      groups.get(moduleId)!.lessons.push(lesson);
+    });
+
+    // Sort groups by module order
+    return Array.from(groups.entries()).sort((a, b) => a[1].moduleOrder - b[1].moduleOrder);
+  }, [processedLessons]);
+
+  // Initialize expanded modules on first load
+  useMemo(() => {
+    if (groupedLessons.length > 0 && expandedModules.size === 0) {
+      // Expand modules that have in_progress lessons
+      const modulesWithProgress = groupedLessons
+        .filter(([, group]) => group.lessons.some((l) => l.progressStatus === 'in_progress'))
+        .map(([id]) => id);
+
+      if (modulesWithProgress.length > 0) {
+        setExpandedModules(new Set(modulesWithProgress));
+      } else {
+        // Expand first module if none have progress
+        setExpandedModules(new Set([groupedLessons[0][0]]));
+      }
+    }
+  }, [groupedLessons, expandedModules.size]);
+
+  const toggleModule = (moduleId: string) => {
+    setExpandedModules((prev) => {
+      const next = new Set(prev);
+      if (next.has(moduleId)) {
+        next.delete(moduleId);
+      } else {
+        next.add(moduleId);
+      }
+      return next;
+    });
+  };
 
   if (isLoading) {
     return (
@@ -86,9 +205,7 @@ export function PublishedLessons({ limit, className }: PublishedLessonsProps) {
     );
   }
 
-  const visibleLessons = limit ? lessons.slice(0, limit) : lessons;
-
-  if (visibleLessons.length === 0) {
+  if (lessons.length === 0) {
     return (
       <EmptyState
         variant="no-data"
@@ -100,63 +217,126 @@ export function PublishedLessons({ limit, className }: PublishedLessonsProps) {
     );
   }
 
+  const visibleGroups = limit ? groupedLessons.slice(0, limit) : groupedLessons;
+
   return (
     <div className={className}>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 items-stretch">
-        {visibleLessons.map((lesson) => {
-          const Icon = getLessonIcon(lesson.lesson_type);
-          const module = Array.isArray(lesson.modules) ? lesson.modules[0] : lesson.modules;
-          const moduleTitle = module?.title || 'Unknown Module';
-          const courseId = module?.course_id;
-          const query = new URLSearchParams({ lessonId: lesson.id, moduleId: lesson.module_id }).toString();
+      {(showSearch || showFilters) && (
+        <div className="mb-6 space-y-4">
+          {showSearch && (
+            <ContentSearch
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="Search lessons..."
+              className="max-w-md"
+            />
+          )}
+          {showFilters && (
+            <LessonTypeFilter selected={typeFilter} onChange={setTypeFilter} />
+          )}
+        </div>
+      )}
 
-          const card = (
-            <Card
-              className={[
-                'relative overflow-hidden border-forge-cream/80 transition-shadow h-full min-h-[250px] flex flex-col',
-                courseId ? 'hover:shadow-md cursor-pointer' : 'opacity-70 cursor-not-allowed',
-              ].join(' ')}
+      {processedLessons.length === 0 && (searchTerm || typeFilter.length > 0) && (
+        <EmptyState
+          variant="no-results"
+          icon={BookOpenText}
+          title="No lessons found"
+          description="Try adjusting your filters"
+          size="md"
+        />
+      )}
+
+      {visibleGroups.length > 0 && (
+        <div className="space-y-4">
+          {visibleGroups.map(([moduleId, group]) => (
+            <Collapsible
+              key={moduleId}
+              open={expandedModules.has(moduleId)}
+              onOpenChange={() => toggleModule(moduleId)}
             >
-              <CardHeader className="space-y-2">
-                <CardTitle className="flex items-start gap-2 text-forge-dark tracking-normal text-lg md:text-xl leading-tight line-clamp-2 break-words">
-                  <Icon className="h-4 w-4 mt-0.5 text-forge-orange shrink-0" />
-                  <span>#{lesson.order} · {lesson.title}</span>
-                </CardTitle>
-                <CardDescription className="text-[13px] text-forge-gray">
-                  {moduleTitle}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3 mt-auto">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Badge variant="outline" size="sm">
-                    {getLessonTypeLabel(lesson.lesson_type)}
-                  </Badge>
-                  {lesson.duration_minutes && (
-                    <Badge variant="outline" size="sm" icon={Clock} iconPosition="left">
-                      {lesson.duration_minutes} min
-                    </Badge>
-                  )}
-                </div>
-                <div className="text-xs text-forge-gray font-medium">
-                  {lesson.xp_value} XP
-                </div>
-              </CardContent>
-            </Card>
-          );
+              <CollapsibleTrigger className="flex items-center gap-2 w-full p-3 bg-forge-cream/30 rounded-lg hover:bg-forge-cream/50 transition-colors text-left">
+                {expandedModules.has(moduleId) ? (
+                  <ChevronDown className="h-4 w-4 text-forge-orange shrink-0" />
+                ) : (
+                  <ChevronRight className="h-4 w-4 text-forge-orange shrink-0" />
+                )}
+                <span className="font-semibold text-forge-dark">{group.moduleTitle}</span>
+                <Badge variant="outline" size="sm" className="ml-auto">
+                  {group.lessons.length} lessons
+                </Badge>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 items-stretch mt-4 pl-6">
+                  {group.lessons.map((lesson) => {
+                    const Icon = getLessonIcon(lesson.lesson_type);
+                    const courseId = group.courseId;
+                    const query = new URLSearchParams({ lessonId: lesson.id, moduleId: lesson.module_id }).toString();
+                    const isInProgress = lesson.progressStatus === 'in_progress';
+                    const isCompleted = lesson.progressStatus === 'completed';
 
-          if (!courseId) return <div key={lesson.id}>{card}</div>;
+                    const card = (
+                      <Card
+                        className={[
+                          'relative overflow-hidden border-forge-cream/80 transition-shadow h-full min-h-[200px] flex flex-col',
+                          courseId ? 'hover:shadow-md cursor-pointer' : 'opacity-70 cursor-not-allowed',
+                          isInProgress ? 'ring-2 ring-forge-orange/30' : '',
+                        ].join(' ')}
+                      >
+                        <CardHeader className="space-y-2">
+                          <div className="flex items-center justify-between gap-2">
+                            <CardTitle className="flex items-start gap-2 text-forge-dark tracking-normal text-base leading-tight line-clamp-2 break-words flex-1">
+                              <Icon className="h-4 w-4 mt-0.5 text-forge-orange shrink-0" />
+                              <span>#{lesson.order} · {lesson.title}</span>
+                            </CardTitle>
+                            {isInProgress && (
+                              <Badge variant="brand" size="sm" icon={PlayCircle} iconPosition="left">
+                                Continue
+                              </Badge>
+                            )}
+                            {isCompleted && (
+                              <Badge variant="success" size="sm">
+                                Done
+                              </Badge>
+                            )}
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-3 mt-auto">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Badge variant="outline" size="sm">
+                              {getLessonTypeLabel(lesson.lesson_type)}
+                            </Badge>
+                            {lesson.duration_minutes && (
+                              <Badge variant="outline" size="sm" icon={Clock} iconPosition="left">
+                                {lesson.duration_minutes} min
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-xs text-forge-gray font-medium">
+                            {lesson.xp_value} XP
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
 
-          return (
-            <Link
-              key={lesson.id}
-              to={`${DASHBOARD_LEARN_COURSE(courseId)}?${query}`}
-              className="block rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-forge-orange/60"
-            >
-              {card}
-            </Link>
-          );
-        })}
-      </div>
+                    if (!courseId) return <div key={lesson.id}>{card}</div>;
+
+                    return (
+                      <Link
+                        key={lesson.id}
+                        to={`${DASHBOARD_LEARN_COURSE(courseId)}?${query}`}
+                        className="block rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-forge-orange/60"
+                      >
+                        {card}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -30,12 +30,12 @@ export function AchievementTabs({
       onValueChange={(v) => onCategoryChange(v as 'all' | AchievementCategory)}
       className="space-y-6"
     >
-      <TabsList className="grid w-full grid-cols-5">
-        <TabsTrigger value="all">{t('achievements.all')}</TabsTrigger>
-        <TabsTrigger value="community">{t('achievements.categories.community')}</TabsTrigger>
-        <TabsTrigger value="profile">{t('achievements.categories.profile')}</TabsTrigger>
-        <TabsTrigger value="learning">{t('achievements.categories.learning')}</TabsTrigger>
-        <TabsTrigger value="social">{t('achievements.categories.social')}</TabsTrigger>
+      <TabsList className="flex w-full gap-2 overflow-x-auto sm:grid sm:grid-cols-5 sm:gap-0 sm:overflow-visible">
+        <TabsTrigger className="flex-1 min-w-[140px] sm:min-w-0" value="all">{t('achievements.all')}</TabsTrigger>
+        <TabsTrigger className="flex-1 min-w-[140px] sm:min-w-0" value="community">{t('achievements.categories.community')}</TabsTrigger>
+        <TabsTrigger className="flex-1 min-w-[140px] sm:min-w-0" value="profile">{t('achievements.categories.profile')}</TabsTrigger>
+        <TabsTrigger className="flex-1 min-w-[140px] sm:min-w-0" value="learning">{t('achievements.categories.learning')}</TabsTrigger>
+        <TabsTrigger className="flex-1 min-w-[140px] sm:min-w-0" value="social">{t('achievements.categories.social')}</TabsTrigger>
       </TabsList>
 
       <TabsContent value={selectedCategory} className="space-y-4">

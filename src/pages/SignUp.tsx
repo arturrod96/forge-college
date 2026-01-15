@@ -81,7 +81,7 @@ export function SignUp() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-forge-cream relative overflow-hidden">
+    <div className="flex items-center justify-center min-h-[100svh] bg-forge-cream relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-20 left-10 w-32 h-32 bg-forge-orange/5 rounded-full blur-3xl"></div>

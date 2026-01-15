@@ -18,12 +18,12 @@ export const designTokens = {
   typography: {
     // Font sizes
     sizes: {
-      hero: "text-5xl lg:text-7xl",
-      h1: "text-4xl lg:text-5xl",
-      h2: "text-3xl lg:text-4xl",
-      h3: "text-2xl lg:text-3xl",
-      h4: "text-xl lg:text-2xl",
-      h5: "text-lg lg:text-xl",
+      hero: "text-4xl sm:text-5xl lg:text-7xl",
+      h1: "text-3xl sm:text-4xl lg:text-5xl",
+      h2: "text-2xl sm:text-3xl lg:text-4xl",
+      h3: "text-xl sm:text-2xl lg:text-3xl",
+      h4: "text-lg sm:text-xl lg:text-2xl",
+      h5: "text-base sm:text-lg lg:text-xl",
       body: "text-base",
       bodyLarge: "text-lg",
       bodySmall: "text-sm",
@@ -62,15 +62,15 @@ export const designTokens = {
     // Complete text styles (combinations)
     styles: {
       // Headings
-      displayLarge: "text-5xl lg:text-7xl font-bold leading-tight tracking-tight",
-      displayMedium: "text-4xl lg:text-6xl font-bold leading-tight tracking-tight",
-      displaySmall: "text-3xl lg:text-5xl font-bold leading-tight tracking-tight",
-      h1: "text-4xl lg:text-5xl font-bold leading-tight tracking-tight",
-      h2: "text-3xl lg:text-4xl font-semibold leading-tight tracking-tight",
-      h3: "text-2xl lg:text-3xl font-semibold leading-snug tracking-tight",
-      h4: "text-xl lg:text-2xl font-semibold leading-snug",
-      h5: "text-lg lg:text-xl font-semibold leading-snug",
-      h6: "text-base lg:text-lg font-semibold leading-snug",
+      displayLarge: "text-4xl sm:text-5xl lg:text-7xl font-bold leading-tight tracking-tight",
+      displayMedium: "text-3xl sm:text-4xl lg:text-6xl font-bold leading-tight tracking-tight",
+      displaySmall: "text-2xl sm:text-3xl lg:text-5xl font-bold leading-tight tracking-tight",
+      h1: "text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight",
+      h2: "text-2xl sm:text-3xl lg:text-4xl font-semibold leading-tight tracking-tight",
+      h3: "text-xl sm:text-2xl lg:text-3xl font-semibold leading-snug tracking-tight",
+      h4: "text-lg sm:text-xl lg:text-2xl font-semibold leading-snug",
+      h5: "text-base sm:text-lg lg:text-xl font-semibold leading-snug",
+      h6: "text-sm sm:text-base lg:text-lg font-semibold leading-snug",
 
       // Body text
       bodyLarge: "text-lg font-normal leading-relaxed",
@@ -94,9 +94,9 @@ export const designTokens = {
   },
   spacing: {
     // Container spacing
-    container: "max-w-7xl mx-auto px-6 lg:px-8",
-    containerNarrow: "max-w-5xl mx-auto px-6 lg:px-8",
-    containerWide: "max-w-screen-2xl mx-auto px-6 lg:px-8",
+    container: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    containerNarrow: "max-w-5xl mx-auto px-4 sm:px-6 lg:px-8",
+    containerWide: "max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8",
 
     // Section spacing (vertical)
     section: {
@@ -148,7 +148,7 @@ export const designTokens = {
 const getSectionClasses = (
   variant: "hero" | "content" | "alternate" | "dark",
 ) => {
-  const baseClasses = "py-20 lg:py-32";
+  const baseClasses = "py-16 sm:py-20 lg:py-32";
 
   switch (variant) {
     case "hero":

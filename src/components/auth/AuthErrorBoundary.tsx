@@ -58,7 +58,7 @@ class AuthErrorBoundary extends Component<Props, State> {
                          this.state.error?.message?.includes('fetch');
 
       return (
-        <div className="flex items-center justify-center min-h-screen bg-forge-cream p-4">
+        <div className="flex items-center justify-center min-h-[100svh] bg-forge-cream p-4">
           <Card className="w-full max-w-md bg-white/95 backdrop-blur-sm border border-red-200 shadow-xl">
             <CardHeader>
               <CardTitle className="text-red-600 text-xl font-bold flex items-center gap-2">

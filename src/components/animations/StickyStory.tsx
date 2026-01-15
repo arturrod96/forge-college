@@ -28,13 +28,13 @@ export const StickyStory = ({ title, codeBlock, steps }: StickyStoryProps) => {
   return (
     <section 
       ref={ref} 
-      className="relative grid lg:grid-cols-2 gap-16 min-h-[200vh] px-6 max-w-7xl mx-auto py-20"
+      className="relative grid gap-10 lg:grid-cols-2 lg:gap-16 min-h-[160vh] lg:min-h-[200vh] px-4 sm:px-6 max-w-7xl mx-auto py-16 sm:py-20"
     >
       {/* Painel fixo */}
-      <div className="sticky top-24 self-start">
+      <div className="lg:sticky lg:top-24 self-start mb-8 lg:mb-0">
         <motion.div 
           style={{ rotate, scale }}
-          className="rounded-3xl shadow-2xl p-6 bg-forge-dark text-forge-cream overflow-hidden relative border border-forge-orange/20"
+          className="rounded-3xl shadow-2xl p-5 sm:p-6 bg-forge-dark text-forge-cream overflow-hidden relative border border-forge-orange/20"
         >
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-forge-orange/5 to-transparent pointer-events-none" />
@@ -45,7 +45,7 @@ export const StickyStory = ({ title, codeBlock, steps }: StickyStoryProps) => {
               <span className="text-forge-orange font-medium text-sm">Live Code</span>
             </div>
             
-            <pre className="text-sm overflow-auto text-forge-cream/90 leading-relaxed">
+            <pre className="text-xs sm:text-sm overflow-auto text-forge-cream/90 leading-relaxed">
               <code>{codeBlock}</code>
             </pre>
           </div>
@@ -53,9 +53,9 @@ export const StickyStory = ({ title, codeBlock, steps }: StickyStoryProps) => {
       </div>
 
       {/* Blocos que entram conforme o scroll */}
-      <div className="space-y-32 py-24">
+      <div className="space-y-20 sm:space-y-28 lg:space-y-32 py-16 sm:py-24">
         <Reveal>
-          <h2 className="text-4xl lg:text-5xl font-bold text-forge-dark mb-8">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-forge-dark mb-8">
             {title}
           </h2>
         </Reveal>
@@ -63,13 +63,13 @@ export const StickyStory = ({ title, codeBlock, steps }: StickyStoryProps) => {
         {steps.map((step, i) => (
           <Reveal key={step.title} delay={i * 0.1}>
             <div className="max-w-prose">
-              <h3 className="text-2xl lg:text-3xl font-bold text-forge-dark mb-4">
+              <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-forge-dark mb-4">
                 {step.title}
                 {step.highlight && (
                   <span className="text-forge-orange ml-2">{step.highlight}</span>
                 )}
               </h3>
-              <p className="text-lg text-forge-gray leading-relaxed">
+              <p className="text-base sm:text-lg text-forge-gray leading-relaxed">
                 {step.description}
               </p>
             </div>

@@ -48,6 +48,7 @@ import {
 } from '@/components/ui/breadcrumb'
 import { useTranslation } from 'react-i18next'
 import { BetaPromoBar } from '@/components/BetaPromoBar'
+import { MobileBottomNav } from '@/components/dashboard/MobileBottomNav'
 
 function MobileMenuButton() {
   const { toggleSidebar } = useSidebar()
@@ -153,10 +154,13 @@ export function DashboardLayout() {
   const isAmbassadors = location.pathname.startsWith(DASHBOARD_AMBASSADORS)
   const isCommunityProjects = location.pathname.startsWith(DASHBOARD_COMMUNITY_PROJECTS)
   const isEducationRoute = location.pathname.startsWith(DASHBOARD_FORMATIONS) ||
-                           location.pathname.startsWith(DASHBOARD_EXPLORE) ||
-                           location.pathname.startsWith(DASHBOARD_COURSES) ||
-                           location.pathname.startsWith(DASHBOARD_MODULES) ||
-                           location.pathname.startsWith(DASHBOARD_LESSONS)
+    location.pathname.startsWith(DASHBOARD_EXPLORE) ||
+    location.pathname.startsWith(DASHBOARD_COURSES) ||
+    location.pathname.startsWith(DASHBOARD_MODULES) ||
+    location.pathname.startsWith(DASHBOARD_LESSONS)
+
+  // DataCamp-style: Hide platform sidebar when viewing a course
+  const isCourseView = /^\/dashboard\/learn\/course\/[^/]+/.test(location.pathname)
 
   const [headerBreadcrumb, setHeaderBreadcrumb] = useState<ReactNode | null>(null)
   const [educationOpen, setEducationOpen] = useState(isEducationRoute)
@@ -228,7 +232,7 @@ export function DashboardLayout() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-[100svh] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-forge-orange mx-auto mb-4"></div>
           <p className="text-forge-gray">{t('dashboard.layout.loading')}</p>
@@ -239,141 +243,147 @@ export function DashboardLayout() {
 
   return (
     <SidebarProvider defaultOpen={false}>
-      <Sidebar collapsible="icon">
-        <SidebarRail />
-        <SidebarHeader className="p-4">
-          <div className="flex items-center justify-between w-full">
-            <Link to="/dashboard" className="flex items-center gap-3">
-              <img
-                src="https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/forgecollege-2c35f0?format=webp&width=800"
-                alt="Forge College"
-                className="h-10 w-auto"
-              />
-            </Link>
-            <SidebarTrigger className="h-8 w-8 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-800" />
-          </div>
-        </SidebarHeader>
-
-        <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={isDashboard} tooltip={t('nav.dashboard')}>
-                    <Link to={DASHBOARD_PATH}>
-                      <LayoutDashboard />
-                      <span className="group-data-[collapsible=icon]:hidden">{t('nav.dashboard')}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <EducationMenuItem
-                  location={location}
-                  educationOpen={educationOpen}
-                  setEducationOpen={setEducationOpen}
+      {!isCourseView && (
+        <Sidebar collapsible="icon">
+          <SidebarRail />
+          <SidebarHeader className="p-4">
+            <div className="flex items-center justify-between w-full">
+              <Link to="/dashboard" className="flex items-center gap-3">
+                <img
+                  src="https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/forgecollege-2c35f0?format=webp&width=800"
+                  alt="Forge College"
+                  className="h-10 w-auto"
                 />
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isCommunityProjects}
-                    tooltip={t('nav.communityProjects')}
-                  >
-                    <Link to={DASHBOARD_COMMUNITY_PROJECTS}>
-                      <FolderGit2 />
-                      <span className="group-data-[collapsible=icon]:hidden">{t('nav.communityProjects')}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={isScoreboard} tooltip={t('nav.scoreboard')}>
-                    <Link to={DASHBOARD_SCOREBOARD}>
-                      <Trophy />
-                      <span className="group-data-[collapsible=icon]:hidden">{t('nav.scoreboard')}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={isAchievements} tooltip={t('nav.achievements')}>
-                    <Link to={DASHBOARD_ACHIEVEMENTS}>
-                      <Award />
-                      <span className="group-data-[collapsible=icon]:hidden">{t('nav.achievements')}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={isAmbassadors} tooltip={t('nav.ambassadors')}>
-                    <Link to={DASHBOARD_AMBASSADORS}>
-                      <Users />
-                      <span className="group-data-[collapsible=icon]:hidden">{t('nav.ambassadors')}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                {isAdmin && (
+              </Link>
+              <SidebarTrigger className="h-8 w-8 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-800" />
+            </div>
+          </SidebarHeader>
+
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupContent>
+                <SidebarMenu>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={isAdminRoute} tooltip={t('nav.admin')}>
-                      <Link to={DASHBOARD_ADMIN}>
-                        <Shield />
-                        <span className="group-data-[collapsible=icon]:hidden">{t('nav.admin')}</span>
+                    <SidebarMenuButton asChild isActive={isDashboard} tooltip={t('nav.dashboard')}>
+                      <Link to={DASHBOARD_PATH}>
+                        <LayoutDashboard />
+                        <span className="group-data-[collapsible=icon]:hidden">{t('nav.dashboard')}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                )}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
+                  <EducationMenuItem
+                    location={location}
+                    educationOpen={educationOpen}
+                    setEducationOpen={setEducationOpen}
+                  />
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isCommunityProjects}
+                      tooltip={t('nav.communityProjects')}
+                    >
+                      <Link to={DASHBOARD_COMMUNITY_PROJECTS}>
+                        <FolderGit2 />
+                        <span className="group-data-[collapsible=icon]:hidden">{t('nav.communityProjects')}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={isScoreboard} tooltip={t('nav.scoreboard')}>
+                      <Link to={DASHBOARD_SCOREBOARD}>
+                        <Trophy />
+                        <span className="group-data-[collapsible=icon]:hidden">{t('nav.scoreboard')}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={isAchievements} tooltip={t('nav.achievements')}>
+                      <Link to={DASHBOARD_ACHIEVEMENTS}>
+                        <Award />
+                        <span className="group-data-[collapsible=icon]:hidden">{t('nav.achievements')}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={isAmbassadors} tooltip={t('nav.ambassadors')}>
+                      <Link to={DASHBOARD_AMBASSADORS}>
+                        <Users />
+                        <span className="group-data-[collapsible=icon]:hidden">{t('nav.ambassadors')}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  {isAdmin && (
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild isActive={isAdminRoute} tooltip={t('nav.admin')}>
+                        <Link to={DASHBOARD_ADMIN}>
+                          <Shield />
+                          <span className="group-data-[collapsible=icon]:hidden">{t('nav.admin')}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
 
-        <SidebarFooter className="p-2">
-          <ProfileDropdown />
-        </SidebarFooter>
-      </Sidebar>
+          <SidebarFooter className="p-2">
+            <ProfileDropdown />
+          </SidebarFooter>
+        </Sidebar>
+      )}
 
       <SidebarInset>
         <div className="relative">
-          <BetaPromoBar />
-          <div className="pt-[30px]">
-            <div className="flex h-16 items-center justify-between px-4 sm:px-6 border-b bg-white border-forge-cream">
-              <div className="flex items-center gap-3">
-                <MobileMenuButton />
-                {headerBreadcrumb ? (
-                  <div className="hidden md:block">{headerBreadcrumb}</div>
-                ) : (
-                  <div className="hidden md:block">
-                    <Breadcrumb>
-                      <BreadcrumbList>
-                        {defaultBreadcrumbItems.map((item, index) => {
-                          const isLast = index === defaultBreadcrumbItems.length - 1
-                          return (
-                            <Fragment key={`${item.label}-${index}`}>
-                              <BreadcrumbItem>
-                                {isLast || !item.to ? (
-                                  <BreadcrumbPage>{item.label}</BreadcrumbPage>
-                                ) : (
-                                  <BreadcrumbLink asChild>
-                                    <Link to={item.to}>{item.label}</Link>
-                                  </BreadcrumbLink>
-                                )}
-                              </BreadcrumbItem>
-                              {!isLast && <BreadcrumbSeparator />}
-                            </Fragment>
-                          )
-                        })}
-                      </BreadcrumbList>
-                    </Breadcrumb>
-                  </div>
-                )}
+          {!isCourseView && <BetaPromoBar />}
+          <div className={isCourseView ? '' : 'pt-[30px]'}>
+            {!isCourseView && (
+              <div className="flex h-16 items-center justify-between px-4 sm:px-6 border-b bg-white border-forge-cream">
+                <div className="flex items-center gap-3">
+                  <MobileMenuButton />
+                  {headerBreadcrumb ? (
+                    <div className="hidden md:block">{headerBreadcrumb}</div>
+                  ) : (
+                    <div className="hidden md:block">
+                      <Breadcrumb>
+                        <BreadcrumbList>
+                          {defaultBreadcrumbItems.map((item, index) => {
+                            const isLast = index === defaultBreadcrumbItems.length - 1
+                            return (
+                              <Fragment key={`${item.label}-${index}`}>
+                                <BreadcrumbItem>
+                                  {isLast || !item.to ? (
+                                    <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                                  ) : (
+                                    <BreadcrumbLink asChild>
+                                      <Link to={item.to}>{item.label}</Link>
+                                    </BreadcrumbLink>
+                                  )}
+                                </BreadcrumbItem>
+                                {!isLast && <BreadcrumbSeparator />}
+                              </Fragment>
+                            )
+                          })}
+                        </BreadcrumbList>
+                      </Breadcrumb>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="flex items-center space-x-4" />
-            </div>
+            )}
 
-            <div className="px-6 py-8 relative">
-              <div className="absolute inset-0 -z-10 pointer-events-none">
-                <div className="absolute -top-6 right-6 w-32 h-32 bg-forge-cream rounded-full blur-2xl"></div>
-                <div className="absolute bottom-0 left-10 w-24 h-24 bg-forge-orange/10 rounded-full blur-2xl"></div>
-              </div>
+            <div className={isCourseView ? '' : 'px-4 sm:px-6 py-6 sm:py-8 relative pb-24 md:pb-8'}>
+              {!isCourseView && (
+                <div className="absolute inset-0 -z-10 pointer-events-none">
+                  <div className="absolute -top-6 right-6 w-32 h-32 bg-forge-cream rounded-full blur-2xl"></div>
+                  <div className="absolute bottom-0 left-10 w-24 h-24 bg-forge-orange/10 rounded-full blur-2xl"></div>
+                </div>
+              )}
               <Outlet context={{ setHeaderBreadcrumb }} />
             </div>
           </div>
         </div>
+        {!isCourseView && <MobileBottomNav />}
       </SidebarInset>
     </SidebarProvider>
   )
