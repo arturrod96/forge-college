@@ -10,7 +10,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { BookOpen, Clock, PlayCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { DASHBOARD_LEARN_COURSE } from '@/routes/paths';
-import { ContentSearch } from '@/components/filters';
+import { ContentSearch, StatusFilter, ProgressFilter, SortSelector, type StatusFilterValue, type ProgressFilterValue, type SortOption } from '@/components/filters';
 
 interface Course {
   id: string;
@@ -39,6 +39,9 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
   const { user } = useAuth();
   const supabase = useMemo(() => createClientBrowser(), []);
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<StatusFilterValue>('all');
+  const [progressFilter, setProgressFilter] = useState<ProgressFilterValue[]>([]);
+  const [sortOption, setSortOption] = useState<SortOption>('path_order');
 
   // Fetch courses
   const { data: courses = [], isLoading: isLoadingCourses } = useQuery<Course[]>({
@@ -142,6 +145,26 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
       progressStatus: courseProgress[course.id] || 'not_started',
     }));
 
+    // Filter by status
+    if (statusFilter !== 'all') {
+      result = result.filter((course) => {
+        if (statusFilter === 'available') {
+          return course.status === 'published';
+        }
+        if (statusFilter === 'coming_soon') {
+          return course.status === 'coming_soon';
+        }
+        return true;
+      });
+    }
+
+    // Filter by progress
+    if (progressFilter.length > 0) {
+      result = result.filter((course) => {
+        return progressFilter.includes(course.progressStatus);
+      });
+    }
+
     // Filter by search term
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
@@ -152,16 +175,27 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
       );
     }
 
-    // Sort by progress status: in_progress first, then not_started, then completed
-    const statusOrder = { in_progress: 0, not_started: 1, completed: 2 };
+    // Sort
     result.sort((a, b) => {
-      const orderDiff = statusOrder[a.progressStatus] - statusOrder[b.progressStatus];
-      if (orderDiff !== 0) return orderDiff;
-      return a.order - b.order;
+      switch (sortOption) {
+        case 'recent':
+          // Courses don't have created_at in this query, so use order as fallback
+          return a.order - b.order;
+        case 'alphabetical':
+          return a.title.localeCompare(b.title);
+        case 'path_order':
+          return a.order - b.order;
+        default:
+          // Default: progress status first, then order
+          const statusOrder = { in_progress: 0, not_started: 1, completed: 2 };
+          const orderDiff = statusOrder[a.progressStatus] - statusOrder[b.progressStatus];
+          if (orderDiff !== 0) return orderDiff;
+          return a.order - b.order;
+      }
     });
 
     return result;
-  }, [courses, courseProgress, searchTerm]);
+  }, [courses, courseProgress, searchTerm, statusFilter, progressFilter, sortOption]);
 
   if (isLoading) {
     return (
@@ -190,18 +224,28 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
 
   return (
     <div className={className}>
-      {showSearch && (
+      {(showSearch || true) && (
         <div className="mb-6">
-          <ContentSearch
-            value={searchTerm}
-            onChange={setSearchTerm}
-            placeholder="Search courses..."
-            className="max-w-md"
-          />
+          <div className="flex flex-wrap items-center gap-3">
+            {showSearch && (
+              <ContentSearch
+                value={searchTerm}
+                onChange={setSearchTerm}
+                placeholder="Search courses..."
+              />
+            )}
+            <StatusFilter value={statusFilter} onChange={setStatusFilter} />
+            <ProgressFilter selected={progressFilter} onChange={setProgressFilter} />
+            <SortSelector
+              value={sortOption}
+              onChange={setSortOption}
+              options={['recent', 'alphabetical', 'path_order']}
+            />
+          </div>
         </div>
       )}
 
-      {visibleCourses.length === 0 && searchTerm && (
+      {visibleCourses.length === 0 && (searchTerm || statusFilter !== 'all' || progressFilter.length > 0) && (
         <EmptyState
           variant="no-results"
           icon={BookOpen}

@@ -16,7 +16,7 @@ const enhancedCardVariants = cva(
         elevated: "bg-card text-card-foreground shadow-md hover:shadow-lg",
         outlined: "bg-transparent border-2 hover:border-forge-orange",
         ghost: "bg-transparent hover:bg-accent/50",
-        gradient: "bg-gradient-soft-blue text-card-foreground border-0 shadow-sm",
+        gradient: "bg-gradient-soft-green-visible text-card-foreground border-0 shadow-sm",
         "gradient-brand": "bg-gradient-brand text-white border-0 shadow-md",
         "gradient-success": "bg-gradient-soft-green text-card-foreground border-0 shadow-sm",
         "gradient-warning": "bg-gradient-soft-yellow text-card-foreground border-0 shadow-sm",
@@ -124,7 +124,7 @@ const EnhancedCardTitle = React.forwardRef<HTMLHeadingElement, EnhancedCardTitle
 );
 EnhancedCardTitle.displayName = "EnhancedCardTitle";
 
-const enhancedCardDescriptionVariants = cva("text-muted-foreground", {
+const enhancedCardDescriptionVariants = cva("text-forge-dark-600", {
   variants: {
     size: {
       sm: "text-xs",

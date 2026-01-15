@@ -32,9 +32,11 @@ const badgeVariants = cva(
           "border-forge-orange/20 bg-forge-orange-50 text-forge-orange-600 hover:bg-forge-orange-100",
         // Additional variants
         "coming-soon":
-          "border-transparent bg-info-100 text-info-700 hover:bg-info-200",
+          "border-transparent bg-forge-cream-200 text-forge-dark-600 hover:bg-forge-cream-300",
         enrolled:
           "border-transparent bg-forge-orange-100 text-forge-orange-700 hover:bg-forge-orange-200 ring-1 ring-forge-orange/20",
+        available:
+          "border-transparent bg-gradient-soft-yellow text-forge-dark hover:opacity-90",
       },
       size: {
         sm: "px-2 py-0.5 text-xs",

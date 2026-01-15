@@ -209,12 +209,13 @@ export default {
 				'gradient-info': 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)',
 				'gradient-error': 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)',
 
-				// Soft gradients (for cards/backgrounds)
-				'gradient-soft-blue': 'linear-gradient(to bottom right, #eff6ff, #dbeafe)',
-				'gradient-soft-green': 'linear-gradient(to bottom right, #f0fdf4, #dcfce7)',
-				'gradient-soft-yellow': 'linear-gradient(to bottom right, #fefce8, #fef9c3)',
-				'gradient-soft-purple': 'linear-gradient(to bottom right, #faf5ff, #f3e8ff)',
+				// Soft gradients (for cards/backgrounds) - Forge palette
+				'gradient-soft-blue': 'linear-gradient(to bottom right, #aabcb6, #aabcb6)', // Same as green-visible
+				'gradient-soft-green': 'linear-gradient(to bottom right, #aabcb6, #aabcb6)', // Same as green-visible
+				'gradient-soft-yellow': 'linear-gradient(to bottom right, #aabcb6, #aabcb6)', // Same as green-visible
+				'gradient-soft-purple': 'linear-gradient(to bottom right, #aabcb6, #aabcb6)', // Same as green-visible
 				'gradient-soft-orange': 'linear-gradient(to bottom right, #fff7ed, #ffedd5)',
+				'gradient-soft-green-visible': 'linear-gradient(to bottom right, #aabcb6, #aabcb6)', // Custom green color
 
 				// Shimmer effect for loading states
 				'shimmer': 'linear-gradient(to right, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%)',

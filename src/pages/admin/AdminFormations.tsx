@@ -363,7 +363,7 @@ export function AdminFormations() {
                   <CardTitle className="flex items-center gap-2">
                     {formation.title}
                     {formation.status === 'published' ? (
-                      <Badge variant="default">Published</Badge>
+                      <Badge variant="default">Available</Badge>
                     ) : formation.status === 'coming_soon' ? (
                       <Badge variant="secondary">Coming Soon</Badge>
                     ) : (

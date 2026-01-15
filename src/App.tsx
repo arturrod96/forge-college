@@ -15,7 +15,6 @@ import DashboardLayout from './pages/dashboard/Layout';
 import { UpdatePassword } from './pages/UpdatePassword';
 import CourseView from './pages/dashboard/CourseView';
 import PathOverview from './pages/dashboard/PathOverview';
-import { AvailablePaths } from './components/dashboard/AvailablePaths';
 import { PublicLayout } from './pages/PublicLayout';
 import FormationsPage from './pages/FormationsPage';
 import ComingSoonPage from './pages/ComingSoonPage';
@@ -24,6 +23,8 @@ import FormationDetailPage from './pages/dashboard/FormationDetailPage';
 import CoursesPage from './pages/dashboard/CoursesPage';
 import ModulesPage from './pages/dashboard/ModulesPage';
 import LessonsPage from './pages/dashboard/LessonsPage';
+import LearningPathsPage from './pages/dashboard/LearningPathsPage';
+import { AvailablePaths } from './components/dashboard/AvailablePaths';
 import { MyLearningPaths } from './components/dashboard/MyLearningPaths';
 import Profile from './pages/Profile';
 import RequireAuth from '@/routes/RequireAuth';
@@ -96,7 +97,7 @@ const App = () => {
                     }
                   >
                     <Route index element={<DashboardHome />} />
-                    <Route path="explore" element={<AvailablePaths />} />
+                    <Route path="explore" element={<LearningPathsPage />} />
                     <Route path="formations" element={<FormationsPage />} />
                     <Route path="formations/:formationId" element={<FormationDetailPage />} />
                     <Route path="courses" element={<CoursesPage />} />

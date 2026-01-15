@@ -35,12 +35,10 @@ export default function DashboardHome() {
     <div className="space-y-8">
       {/* Welcome message with user name */}
       <div className="space-y-2">
-        <div className="text-gray-500">
-          <span className="inline-flex items-center gap-2 text-sm rounded-full bg-forge-cream text-forge-dark px-2 py-0.5 mr-2">
-            {t('dashboard.home.badge')}
-          </span>
-          <span className="font-medium text-forge-dark">{getUserDisplayName()}</span>
-          {t('dashboard.home.headlineSuffix')}
+        <div className="inline-flex items-center text-sm rounded-full bg-forge-cream text-forge-dark px-2 py-0.5">
+          <span>{t('dashboard.home.badge')}&nbsp;</span>
+          <span className="font-medium">{getUserDisplayName()}</span>
+          <span>{t('dashboard.home.headlineSuffix')}</span>
         </div>
       </div>
 
@@ -65,7 +63,7 @@ export default function DashboardHome() {
         {/* Formations Section */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold tracking-tight">Learning Formations</h2>
+            <h2 className="text-xl font-semibold tracking-tight">Formations</h2>
             <Link to={R.DASHBOARD_FORMATIONS} className="text-forge-orange hover:underline">
               View all formations
             </Link>

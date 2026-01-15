@@ -21,10 +21,10 @@ const statCardVariants = cva("", {
       minimal: "",
     },
     colorScheme: {
-      blue: "bg-gradient-soft-blue",
-      green: "bg-gradient-soft-green",
-      yellow: "bg-gradient-soft-yellow",
-      purple: "bg-gradient-soft-purple",
+      blue: "bg-gradient-soft-blue", // Cream tones
+      green: "bg-gradient-soft-green", // Dark green light tones
+      yellow: "bg-gradient-soft-yellow", // Orange light tones
+      purple: "bg-gradient-soft-purple", // Orange medium tones
       orange: "bg-gradient-soft-orange",
       brand: "bg-gradient-brand text-white",
     },
@@ -113,16 +113,8 @@ const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
     const getIconColor = () => {
       if (iconColor) return iconColor;
 
-      const colorMap = {
-        blue: "text-info",
-        green: "text-success",
-        yellow: "text-warning",
-        purple: "text-purple-600",
-        orange: "text-forge-orange",
-        brand: "text-white",
-      };
-
-      return colorMap[colorScheme || "blue"];
+      // All icons use the same color for consistency
+      return "text-forge-orange-600";
     };
 
     if (isLoading) {
@@ -157,7 +149,7 @@ const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
           <div className="flex items-start justify-between">
             {/* Left side: Label and Value */}
             <div className="space-y-1 flex-1">
-              <p className={cn("font-medium text-muted-foreground", labelSizes[size || "md"])}>
+              <p className={cn("font-medium text-forge-dark-700", labelSizes[size || "md"])}>
                 {label}
               </p>
               <p className={cn(valueSizes[size || "md"], "tracking-tight")}>

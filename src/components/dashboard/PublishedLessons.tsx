@@ -10,7 +10,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { BookOpenText, Clock, Play, HelpCircle, ChevronDown, ChevronRight, PlayCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { DASHBOARD_LEARN_COURSE } from '@/routes/paths';
-import { ContentSearch, LessonTypeFilter, type LessonType } from '@/components/filters';
+import { ContentSearch, StatusFilter, SortSelector, type StatusFilterValue, type SortOption } from '@/components/filters';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface Lesson {
@@ -71,7 +71,8 @@ export function PublishedLessons({ limit, className, showSearch = true, showFilt
   const { user } = useAuth();
   const supabase = useMemo(() => createClientBrowser(), []);
   const [searchTerm, setSearchTerm] = useState('');
-  const [typeFilter, setTypeFilter] = useState<LessonType[]>([]);
+  const [statusFilter, setStatusFilter] = useState<StatusFilterValue>('all');
+  const [sortOption, setSortOption] = useState<SortOption>('module_order');
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
 
   // Fetch lessons
@@ -122,27 +123,49 @@ export function PublishedLessons({ limit, className, showSearch = true, showFilt
       progressStatus: lessonProgress[lesson.id] || 'not_started',
     }));
 
+    // Filter by status (lessons don't have status, but we can filter by is_published)
+    if (statusFilter !== 'all') {
+      result = result.filter((lesson) => {
+        if (statusFilter === 'available') {
+          return lesson.is_published === true;
+        }
+        // For coming_soon, we don't have that status for lessons, so show all published
+        return lesson.is_published === true;
+      });
+    }
+
     // Filter by search term
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
       result = result.filter((lesson) => lesson.title.toLowerCase().includes(term));
     }
 
-    // Filter by lesson type
-    if (typeFilter.length > 0) {
-      result = result.filter((lesson) => typeFilter.includes(lesson.lesson_type));
-    }
-
-    // Sort by progress status first
-    const statusOrder = { in_progress: 0, not_started: 1, completed: 2 };
+    // Sort
     result.sort((a, b) => {
-      const orderDiff = statusOrder[a.progressStatus] - statusOrder[b.progressStatus];
-      if (orderDiff !== 0) return orderDiff;
-      return a.order - b.order;
+      switch (sortOption) {
+        case 'recent':
+          // Lessons don't have created_at, so use order
+          return a.order - b.order;
+        case 'alphabetical':
+          return a.title.localeCompare(b.title);
+        case 'module_order':
+          // Sort by module order first, then lesson order
+          const aModule = Array.isArray(a.modules) ? a.modules[0] : a.modules;
+          const bModule = Array.isArray(b.modules) ? b.modules[0] : b.modules;
+          const moduleOrderDiff = (aModule?.order || 0) - (bModule?.order || 0);
+          if (moduleOrderDiff !== 0) return moduleOrderDiff;
+          return a.order - b.order;
+        default:
+          // Default: progress status first, then order
+          const statusOrder = { in_progress: 0, not_started: 1, completed: 2 };
+          const orderDiff = statusOrder[a.progressStatus] - statusOrder[b.progressStatus];
+          if (orderDiff !== 0) return orderDiff;
+          return a.order - b.order;
+      }
     });
 
     return result;
-  }, [lessons, lessonProgress, searchTerm, typeFilter]);
+  }, [lessons, lessonProgress, searchTerm, statusFilter, sortOption]);
 
   // Group lessons by module
   const groupedLessons = useMemo(() => {
@@ -222,22 +245,30 @@ export function PublishedLessons({ limit, className, showSearch = true, showFilt
   return (
     <div className={className}>
       {(showSearch || showFilters) && (
-        <div className="mb-6 space-y-4">
-          {showSearch && (
-            <ContentSearch
-              value={searchTerm}
-              onChange={setSearchTerm}
-              placeholder="Search lessons..."
-              className="max-w-md"
-            />
-          )}
-          {showFilters && (
-            <LessonTypeFilter selected={typeFilter} onChange={setTypeFilter} />
-          )}
+        <div className="mb-6">
+          <div className="flex flex-wrap items-center gap-3">
+            {showSearch && (
+              <ContentSearch
+                value={searchTerm}
+                onChange={setSearchTerm}
+                placeholder="Search lessons..."
+              />
+            )}
+            {showFilters && (
+              <>
+                <StatusFilter value={statusFilter} onChange={setStatusFilter} />
+                <SortSelector
+                  value={sortOption}
+                  onChange={setSortOption}
+                  options={['recent', 'alphabetical', 'module_order']}
+                />
+              </>
+            )}
+          </div>
         </div>
       )}
 
-      {processedLessons.length === 0 && (searchTerm || typeFilter.length > 0) && (
+      {processedLessons.length === 0 && searchTerm && (
         <EmptyState
           variant="no-results"
           icon={BookOpenText}

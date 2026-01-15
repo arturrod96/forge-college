@@ -8,7 +8,7 @@ import { EnhancedButton } from '@/components/ui/enhanced-button'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { formatDistanceToNow } from 'date-fns'
-import { ArrowLeft, BookOpen, Users, Clock } from 'lucide-react'
+import { ArrowLeft, BookOpen, Users, Clock, CircleCheckBig } from 'lucide-react'
 import * as R from '@/routes/paths'
 import type { Tables } from '@/types/supabase'
 import type { PostgrestError } from '@supabase/supabase-js'
@@ -225,8 +225,12 @@ export default function FormationDetailPage() {
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-3xl font-bold text-forge-dark">{formation.title}</h1>
-              <Badge variant={isComingSoon ? 'secondary' : formation.status === 'published' ? 'default' : 'outline'}>
-                {isComingSoon ? 'Coming soon' : formation.status === 'published' ? 'Published' : 'Draft'}
+              <Badge 
+                variant={isComingSoon ? 'coming-soon' : formation.status === 'published' ? 'available' : 'outline'}
+                icon={formation.status === 'published' ? CircleCheckBig : undefined}
+                iconPosition="left"
+              >
+                {isComingSoon ? 'Coming soon' : formation.status === 'published' ? 'Available' : 'Draft'}
               </Badge>
             </div>
             <p className="text-forge-gray max-w-2xl">
@@ -303,8 +307,12 @@ export default function FormationDetailPage() {
                 <CardHeader className="space-y-2">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-sm font-medium text-forge-orange">{index + 1}</span>
-                    <Badge variant={path.status === 'published' ? 'default' : path.status === 'coming_soon' ? 'secondary' : 'outline'}>
-                      {path.status === 'published' ? 'Published' : path.status === 'coming_soon' ? 'Coming soon' : 'Draft'}
+                    <Badge 
+                      variant={path.status === 'published' ? 'available' : path.status === 'coming_soon' ? 'coming-soon' : 'outline'}
+                      icon={path.status === 'published' ? CircleCheckBig : undefined}
+                      iconPosition="left"
+                    >
+                      {path.status === 'published' ? 'Available' : path.status === 'coming_soon' ? 'Coming soon' : 'Draft'}
                     </Badge>
                   </div>
                   <CardTitle className="text-lg leading-tight text-forge-dark">
