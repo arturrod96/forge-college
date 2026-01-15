@@ -24,7 +24,7 @@ export function LearningModeIntro({ onComplete }: Props) {
         <div
             className={`
         fixed inset-0 z-50 flex flex-col items-center justify-center
-        bg-gradient-to-br from-[#0f0f1a] via-[#1a1a2e] to-[#16213e]
+        bg-gradient-to-br from-forge-cream-200 via-forge-cream-300 to-forge-cream-400
         transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
         ${stage === 'enter' ? 'opacity-0' : stage === 'exit' ? 'opacity-0 scale-105' : 'opacity-100 scale-100'}
       `}
@@ -47,9 +47,18 @@ export function LearningModeIntro({ onComplete }: Props) {
         `}
             >
                 <img
-                    src="/lovable-uploads/Forge College Logo.png"
+                    src="/lovable-uploads/Forge College Logo Transparent.png"
                     alt="Forge College"
-                    className="h-16 sm:h-20 w-auto drop-shadow-[0_0_40px_rgba(249,115,22,0.3)]"
+                    className="h-20 sm:h-24 md:h-28 w-auto max-w-[280px] object-contain drop-shadow-[0_0_40px_rgba(249,115,22,0.3)]"
+                    style={{ imageRendering: 'auto' }}
+                    loading="eager"
+                    onError={(e) => {
+                        // Fallback para a logo antiga caso a nova não carregue
+                        const target = e.target as HTMLImageElement;
+                        if (!target.src.includes('Forge College Logo.png')) {
+                            target.src = '/lovable-uploads/Forge College Logo.png';
+                        }
+                    }}
                 />
             </div>
 
@@ -61,12 +70,12 @@ export function LearningModeIntro({ onComplete }: Props) {
         `}
                 style={{ transitionDelay: stage === 'enter' ? '0ms' : '200ms' }}
             >
-                <p className="text-white/95 text-base sm:text-lg font-medium tracking-wider uppercase">
+                <p className="text-forge-dark/90 text-base sm:text-lg font-medium tracking-wider uppercase">
                     Learning Mode
                 </p>
                 <div
                     className={`
-            mt-3 flex items-center justify-center gap-2 text-white/40 text-xs sm:text-sm
+            mt-3 flex items-center justify-center gap-2 text-forge-dark/60 text-xs sm:text-sm
             transition-all duration-300
             ${stage === 'show' ? 'opacity-100' : 'opacity-0'}
           `}
@@ -84,14 +93,14 @@ export function LearningModeIntro({ onComplete }: Props) {
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div
                     className={`
-            w-32 h-32 rounded-full border border-white/5
+            w-32 h-32 rounded-full border border-forge-dark/10
             transition-all duration-1000 ease-out
             ${stage === 'enter' ? 'scale-50 opacity-0' : stage === 'show' ? 'scale-[2.5] opacity-100' : 'scale-[3] opacity-0'}
           `}
                 />
                 <div
                     className={`
-            absolute w-48 h-48 rounded-full border border-white/5
+            absolute w-48 h-48 rounded-full border border-forge-dark/10
             transition-all duration-1200 ease-out
             ${stage === 'enter' ? 'scale-50 opacity-0' : stage === 'show' ? 'scale-[2] opacity-100' : 'scale-[2.5] opacity-0'}
           `}
