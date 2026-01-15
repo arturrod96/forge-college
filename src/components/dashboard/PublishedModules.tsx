@@ -9,7 +9,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { Layers, ChevronDown, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { DASHBOARD_LEARN_COURSE } from '@/routes/paths';
-import { ContentSearch } from '@/components/filters';
+import { ContentSearch, StatusFilter, SortSelector, type StatusFilterValue, type SortOption } from '@/components/filters';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface Module {
@@ -37,6 +37,8 @@ export function PublishedModules({ limit, className, showSearch = true }: Publis
   const { t } = useTranslation();
   const supabase = useMemo(() => createClientBrowser(), []);
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<StatusFilterValue>('all');
+  const [sortOption, setSortOption] = useState<SortOption>('course_order');
   const [expandedCourses, setExpandedCourses] = useState<Set<string>>(new Set());
 
   const { data: modules = [], isLoading } = useQuery<Module[]>({
@@ -59,6 +61,17 @@ export function PublishedModules({ limit, className, showSearch = true }: Publis
   const groupedModules = useMemo(() => {
     let filtered = modules;
 
+    // Filter by status (modules don't have status, but we can filter by is_published)
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter((mod) => {
+        if (statusFilter === 'available') {
+          return mod.is_published === true;
+        }
+        // For coming_soon, we don't have that status for modules, so show all published
+        return mod.is_published === true;
+      });
+    }
+
     // Filter by search term
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
@@ -68,6 +81,28 @@ export function PublishedModules({ limit, className, showSearch = true }: Publis
           (mod.summary && mod.summary.toLowerCase().includes(term))
       );
     }
+
+    // Sort modules before grouping
+    filtered.sort((a, b) => {
+      switch (sortOption) {
+        case 'recent':
+          // Modules don't have created_at, so use order
+          return a.order - b.order;
+        case 'alphabetical':
+          return a.title.localeCompare(b.title);
+        case 'course_order':
+          // Sort by course order first, then module order
+          const aCourse = Array.isArray(a.courses) ? a.courses[0] : a.courses;
+          const bCourse = Array.isArray(b.courses) ? b.courses[0] : b.courses;
+          const courseOrderDiff = (aCourse?.order || 0) - (bCourse?.order || 0);
+          if (courseOrderDiff !== 0) return courseOrderDiff;
+          return a.order - b.order;
+        case 'module_order':
+          return a.order - b.order;
+        default:
+          return a.order - b.order;
+      }
+    });
 
     // Group by course
     const groups: Map<string, { courseTitle: string; courseOrder: number; modules: Module[] }> = new Map();
@@ -86,7 +121,7 @@ export function PublishedModules({ limit, className, showSearch = true }: Publis
 
     // Sort groups by course order
     return Array.from(groups.entries()).sort((a, b) => a[1].courseOrder - b[1].courseOrder);
-  }, [modules, searchTerm]);
+  }, [modules, searchTerm, statusFilter, sortOption]);
 
   // Initialize expanded courses on first load
   useEffect(() => {
@@ -135,14 +170,23 @@ export function PublishedModules({ limit, className, showSearch = true }: Publis
 
   return (
     <div className={className}>
-      {showSearch && (
+      {(showSearch || true) && (
         <div className="mb-6">
-          <ContentSearch
-            value={searchTerm}
-            onChange={setSearchTerm}
-            placeholder="Search modules..."
-            className="max-w-md"
-          />
+          <div className="flex flex-wrap items-center gap-3">
+            {showSearch && (
+              <ContentSearch
+                value={searchTerm}
+                onChange={setSearchTerm}
+                placeholder="Search modules..."
+              />
+            )}
+            <StatusFilter value={statusFilter} onChange={setStatusFilter} />
+            <SortSelector
+              value={sortOption}
+              onChange={setSortOption}
+              options={['recent', 'alphabetical', 'course_order', 'module_order']}
+            />
+          </div>
         </div>
       )}
 

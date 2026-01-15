@@ -2,9 +2,14 @@ import { useMemo } from 'react';
 import { useAuth } from '@/hooks/useOAuth';
 import { createClientBrowser } from '@/lib/supabase';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useTranslation } from 'react-i18next';
+import {
+  EnhancedCard,
+  EnhancedCardContent,
+  EnhancedCardHeader,
+  EnhancedCardTitle,
+} from '@/components/ui/enhanced-card';
 
 type ProgressRow = {
   completed_at: string | null;
@@ -95,11 +100,15 @@ export function LearningHabits({ className }: LearningHabitsProps) {
     : t('dashboard.learningHabits.weekProgress', { completed: weekCount, goal: WEEKLY_GOAL });
 
   return (
-    <Card className={`h-full min-h-[220px] flex flex-col ${className || ''}`}>
-      <CardHeader>
-        <CardTitle className="text-lg">{t('dashboard.learningHabits.title')}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <EnhancedCard 
+      variant="gradient" 
+      size="lg"
+      className={`h-full min-h-[220px] flex flex-col ${className || ''}`}
+    >
+      <EnhancedCardHeader>
+        <EnhancedCardTitle size="md">{t('dashboard.learningHabits.title')}</EnhancedCardTitle>
+      </EnhancedCardHeader>
+      <EnhancedCardContent className="space-y-4">
         {/* Streak */}
         <div className="flex items-center justify-between">
           <div>
@@ -123,14 +132,14 @@ export function LearningHabits({ className }: LearningHabitsProps) {
           {weekSeries.map((v, idx) => (
             <div key={idx} className="flex flex-col items-center gap-1">
               <div
-                className="w-6 rounded bg-forge-orange/20"
+                className="w-6 rounded bg-forge-orange-600 shadow-sm"
                 style={{ height: Math.max(6, Math.min(28, v * 8)) }}
                 title={t('dashboard.learningHabits.completions', { count: v })}
               />
             </div>
           ))}
         </div>
-      </CardContent>
-    </Card>
+      </EnhancedCardContent>
+    </EnhancedCard>
   );
 }

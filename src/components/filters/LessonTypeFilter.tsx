@@ -32,7 +32,7 @@ export function LessonTypeFilter({ selected, onChange, className }: LessonTypeFi
     };
 
     return (
-        <div className={cn('flex flex-wrap gap-2', className)}>
+        <div className={cn('flex items-center gap-2', className)}>
             <button
                 type="button"
                 onClick={handleSelectAll}
@@ -41,7 +41,7 @@ export function LessonTypeFilter({ selected, onChange, className }: LessonTypeFi
                 <Badge
                     variant={isAllSelected ? 'brand' : 'outline'}
                     size="md"
-                    className="cursor-pointer transition-all hover:scale-105"
+                    className="cursor-pointer transition-all hover:scale-105 h-10 px-3 flex items-center"
                 >
                     All
                 </Badge>
@@ -60,7 +60,7 @@ export function LessonTypeFilter({ selected, onChange, className }: LessonTypeFi
                             size="md"
                             icon={Icon}
                             iconPosition="left"
-                            className="cursor-pointer transition-all hover:scale-105"
+                            className="cursor-pointer transition-all hover:scale-105 h-10 px-3 flex items-center"
                         >
                             {label}
                         </Badge>

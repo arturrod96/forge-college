@@ -1,7 +1,7 @@
 import { createClientBrowser } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
-import { GraduationCap, BookOpen, Star } from 'lucide-react';
+import { GraduationCap, BookOpen, Star, CircleCheckBig } from 'lucide-react';
 import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { useQuery } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
@@ -12,6 +12,8 @@ import { LoadingGrid } from '@/components/ui/loading-states';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useOAuth';
+import { useState, useMemo } from 'react';
+import { ContentSearch, StatusFilter, SortSelector, type StatusFilterValue, type SortOption } from '@/components/filters';
 
 type FormationRow = Tables<'formations'>['Row'];
 type FormationPathRow = Tables<'formation_paths'>['Row'];
@@ -80,6 +82,9 @@ type FormationsListProps = {
 export function FormationsList({ limit, className }: FormationsListProps) {
   const { user } = useAuth();
   const supabase = createClientBrowser();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<StatusFilterValue>('all');
+  const [sortOption, setSortOption] = useState<SortOption>('recent');
   // const queryClient = useQueryClient();
   // const [selectedFormation, setSelectedFormation] = useState<FormationCardModel | null>(null);
   // const [waitlistDialogOpen, setWaitlistDialogOpen] = useState(false);
@@ -186,7 +191,51 @@ export function FormationsList({ limit, className }: FormationsListProps) {
   //   waitlistMutation.mutate(values);
   // };
 
-  const displayFormations = limit ? formations.slice(0, limit) : formations;
+  // Filter and sort formations
+  const processedFormations = useMemo(() => {
+    let result = [...formations];
+
+    // Filter by status
+    if (statusFilter !== 'all') {
+      result = result.filter((formation) => {
+        if (statusFilter === 'available') {
+          return formation.status === 'published';
+        }
+        if (statusFilter === 'coming_soon') {
+          return formation.status === 'coming_soon';
+        }
+        return true;
+      });
+    }
+
+    // Filter by search term
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(
+        (formation) =>
+          formation.title.toLowerCase().includes(term) ||
+          (formation.description && formation.description.toLowerCase().includes(term))
+      );
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      switch (sortOption) {
+        case 'recent':
+          const aDate = a.created_at ? new Date(a.created_at).getTime() : 0;
+          const bDate = b.created_at ? new Date(b.created_at).getTime() : 0;
+          return bDate - aDate;
+        case 'alphabetical':
+          return a.title.localeCompare(b.title);
+        default:
+          return 0;
+      }
+    });
+
+    return result;
+  }, [formations, statusFilter, searchTerm, sortOption]);
+
+  const displayFormations = limit ? processedFormations.slice(0, limit) : processedFormations;
 
   if (isLoading) {
     return (
@@ -199,7 +248,18 @@ export function FormationsList({ limit, className }: FormationsListProps) {
     );
   }
 
-  if (displayFormations.length === 0) {
+  if (displayFormations.length === 0 && !isLoading) {
+    if (searchTerm || statusFilter !== 'all') {
+      return (
+        <EmptyState
+          variant="no-results"
+          icon={GraduationCap}
+          title="No formations found"
+          description={searchTerm ? `No formations match "${searchTerm}"` : 'No formations match the selected filters'}
+          size="md"
+        />
+      );
+    }
     return (
       <EmptyState
         variant="no-data"
@@ -213,6 +273,22 @@ export function FormationsList({ limit, className }: FormationsListProps) {
 
   return (
     <>
+      <div className="mb-6">
+        <div className="flex flex-wrap items-center gap-3">
+          <ContentSearch
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Search formations..."
+          />
+          <StatusFilter value={statusFilter} onChange={setStatusFilter} />
+          <SortSelector
+            value={sortOption}
+            onChange={setSortOption}
+            options={['recent', 'alphabetical']}
+          />
+        </div>
+      </div>
+
       <div className={cn('grid gap-6 md:grid-cols-2 lg:grid-cols-3', className)}>
         {displayFormations.map((formation) => {
           const createdAtDistance = formation.created_at
@@ -222,7 +298,7 @@ export function FormationsList({ limit, className }: FormationsListProps) {
           return (
           <Card key={formation.id} className="overflow-hidden hover:shadow-lg transition-shadow">
             {/* Thumbnail or placeholder */}
-            <div className="h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+            <div className="h-48 flex items-center justify-center" style={{ backgroundColor: '#303b2e' }}>
               {formation.thumbnail_url ? (
                 <img 
                   src={formation.thumbnail_url} 
@@ -230,7 +306,7 @@ export function FormationsList({ limit, className }: FormationsListProps) {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <GraduationCap className="h-16 w-16 text-blue-400" />
+                <GraduationCap className="h-16 w-16 text-forge-orange" />
               )}
             </div>
 
@@ -238,8 +314,12 @@ export function FormationsList({ limit, className }: FormationsListProps) {
               <div className="space-y-2">
                 <CardTitle className="flex items-center gap-2 text-xl">
                   {formation.title}
-                  <Badge variant={formation.status === 'published' ? 'default' : formation.status === 'coming_soon' ? 'secondary' : 'outline'}>
-                    {formation.status === 'published' ? 'Published' : formation.status === 'coming_soon' ? 'Coming Soon' : 'Draft'}
+                  <Badge 
+                    variant={formation.status === 'published' ? 'available' : formation.status === 'coming_soon' ? 'coming-soon' : 'outline'}
+                    icon={formation.status === 'published' ? CircleCheckBig : undefined}
+                    iconPosition="left"
+                  >
+                    {formation.status === 'published' ? 'Available' : formation.status === 'coming_soon' ? 'Coming Soon' : 'Draft'}
                   </Badge>
                 </CardTitle>
                 <CardDescription className="text-sm line-clamp-3">

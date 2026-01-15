@@ -14,12 +14,16 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LogOut, User, Wallet, Shield } from "lucide-react";
 import { shouldUseMockAuth } from '@/lib/supabase-simple';
+import { useSidebar } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 
 
 export function ProfileDropdown() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { signOut: oAuthSignOut, loading: signOutLoading } = useOAuth();
+  const { state } = useSidebar();
+  const isCollapsed = state === 'collapsed';
   const isMock = shouldUseMockAuth();
   const mockUserRaw = isMock ? localStorage.getItem('mock-auth-user') : null;
   let mockUser: { is_admin?: boolean } | null = null;
@@ -75,17 +79,25 @@ export function ProfileDropdown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="w-full justify-start gap-2 px-2">
+        <Button 
+          variant="ghost" 
+          className={cn(
+            "w-full gap-2 px-2",
+            isCollapsed ? "justify-center" : "justify-start"
+          )}
+        >
           <Avatar className="h-8 w-8">
             <AvatarImage src={user?.user_metadata?.avatar_url} />
             <AvatarFallback>{getInitials(user?.email)}</AvatarFallback>
           </Avatar>
-          <div className="flex flex-col items-start text-left group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-medium">
-              {getUserDisplayName()}
-            </span>
-            <span className="text-xs text-muted-foreground">{user?.email}</span>
-          </div>
+          {!isCollapsed && (
+            <div className="flex flex-col items-start text-left">
+              <span className="text-sm font-medium">
+                {getUserDisplayName()}
+              </span>
+              <span className="text-xs text-muted-foreground">{user?.email}</span>
+            </div>
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">

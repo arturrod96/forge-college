@@ -8,8 +8,8 @@ import {
   EnhancedCardTitle,
   EnhancedCardDescription,
 } from '@/components/ui/enhanced-card';
-import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { useQuery } from '@tanstack/react-query';
 import { DASHBOARD_LEARN_COURSE } from '@/routes/paths';
 import { useTranslation } from 'react-i18next';
@@ -119,13 +119,14 @@ export function ContinueLearningCard({ className }: ContinueLearningCardProps) {
       </EnhancedCardHeader>
       <EnhancedCardContent>
         <Link to={DASHBOARD_LEARN_COURSE(recentCourse.id)}>
-          <Button
+          <EnhancedButton
             size="lg"
+            withGradient
             className="w-full md:w-auto"
             aria-label={t('common.buttons.continueLearning') + ' - ' + recentCourse.title}
           >
             {t('common.buttons.continueLearning')}
-          </Button>
+          </EnhancedButton>
         </Link>
       </EnhancedCardContent>
     </EnhancedCard>
