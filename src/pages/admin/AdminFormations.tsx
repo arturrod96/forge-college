@@ -206,6 +206,12 @@ export function AdminFormations() {
     }
   }, [dialogOpen, editingFormation])
 
+  useEffect(() => {
+    if (!deleteDialogOpen) {
+      setDeletingFormation(null)
+    }
+  }, [deleteDialogOpen])
+
   const defaultLocaleTitle = localizationDrafts[defaultLocaleCode]?.title ?? ''
   const watchedSlug = form.watch('slug')
 
