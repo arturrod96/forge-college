@@ -62,14 +62,11 @@ const slugify = (value: string) =>
 
 const moduleFormSchema = z.object({
   course_id: z.string().uuid('Select a course'),
-  title: z.string().min(3, 'Title must have at least 3 characters'),
   slug: z
     .string()
     .min(3, 'Slug must have at least 3 characters')
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Use lowercase letters, numbers, and hyphens only'),
-  summary: z.string().optional().or(z.literal('')),
   order: z.coerce.number().int('Order must be an integer').min(1, 'Order must be at least 1'),
-  is_published: z.boolean().default(false),
 })
 
 type ModuleFormValues = z.infer<typeof moduleFormSchema>
