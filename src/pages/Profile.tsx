@@ -220,6 +220,12 @@ export default function Profile() {
     );
   }
 
+  const sidebarDisplayName =
+    (profile.fullName && profile.fullName.trim().length > 0 ? profile.fullName : user?.user_metadata?.full_name) ??
+    t('profile.sidebar.anonymousUser');
+  const sidebarLocale = profile.communicationLanguage;
+  const sidebarAvatar = (user?.user_metadata?.avatar_url as string | undefined) ?? null;
+
   return (
     <div className="space-y-6">
       {/* Header */}
