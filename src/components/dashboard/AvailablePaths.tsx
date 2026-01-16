@@ -12,6 +12,10 @@ import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { LoadingGrid } from '@/components/ui/loading-states';
 import { ContentSearch, StatusFilter, SortSelector, type StatusFilterValue, type SortOption } from '@/components/filters';
+import { pickPublishedLocalization, DEFAULT_LOCALE } from '@/lib/localization';
+import type { Tables } from '@/types/supabase';
+
+interface LearningPathLocalization extends Tables<'learning_path_localizations'> {}
 
 interface LearningPath {
   id: string;
