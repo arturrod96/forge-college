@@ -79,7 +79,6 @@ export type Database = {
       }
       course_localizations: {
         Row: {
-          content_locale: string
           course_id: string
           created_at: string
           created_by: string | null
@@ -96,14 +95,13 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
-          content_locale?: string
           course_id: string
           created_at?: string
           created_by?: string | null
           description?: string | null
           id?: string
           is_published?: boolean
-          locale?: string
+          locale: string
           published_at?: string | null
           summary?: string | null
           tags?: string[]
@@ -113,7 +111,6 @@ export type Database = {
           updated_by?: string | null
         }
         Update: {
-          content_locale?: string
           course_id?: string
           created_at?: string
           created_by?: string | null
