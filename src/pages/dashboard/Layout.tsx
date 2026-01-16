@@ -1,6 +1,6 @@
 import { useAuth } from '@/hooks/useOAuth'
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { Fragment, useMemo, useState, type ReactNode } from 'react'
+import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react'
 import {
   SidebarProvider,
   Sidebar,
@@ -19,7 +19,7 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
-import { LayoutDashboard, BookOpen, Shield, Trophy, Award, FolderGit2, Menu, ChevronDown, GraduationCap, Layers3, BookMarked, ListChecks, FileText, Users } from 'lucide-react'
+import { LayoutDashboard, BookOpen, Shield, Trophy, Award, FolderGit2, Menu, ChevronDown, GraduationCap, Layers3, BookMarked, ListChecks, FileText, Users, Languages } from 'lucide-react'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { ProfileDropdown } from '@/components/ProfileDropdown'
 import { useSidebar } from '@/components/ui/sidebar'
@@ -49,6 +49,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import { BetaPromoBar } from '@/components/BetaPromoBar'
 import { MobileBottomNav } from '@/components/dashboard/MobileBottomNav'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 function MobileMenuButton() {
   const { toggleSidebar } = useSidebar()
