@@ -97,10 +97,18 @@ export default function Profile() {
         data.email = user.email;
       }
 
-      if (data.communicationLanguage && data.communicationLanguage !== i18n.language) {
-        i18n.changeLanguage(data.communicationLanguage);
+      const preferredLanguage = (
+        data.communicationLanguage ||
+        (i18n.language as StudentProfile['communicationLanguage']) ||
+        'pt-BR'
+      ) as StudentProfile['communicationLanguage']
+
+      data.communicationLanguage = preferredLanguage
+
+      if (preferredLanguage !== i18n.language) {
+        i18n.changeLanguage(preferredLanguage)
       }
-      
+
       setProfile(data);
       setHasChanges(false);
     } catch (error) {
