@@ -110,6 +110,15 @@ export default function AdminLessons() {
   const supabase = useMemo(() => createClientBrowser(), [])
   const queryClient = useQueryClient()
 
+  const { data: locales = [], isLoading: localesLoading } = useQuery<LocaleRow[]>({
+    queryKey: ['content-locales'],
+    queryFn: async () => fetchSupportedLocales(supabase),
+  })
+
+  const defaultLocaleCode = useMemo(() => getDefaultLocale(locales), [locales])
+  const [activeLocale, setActiveLocale] = useState(DEFAULT_LOCALE)
+  const [localizationDrafts, setLocalizationDrafts] = useState<Record<string, LessonLocalizationFormState>>({})
+
   const [selectedPathFilter, setSelectedPathFilter] = useState<'all' | string>('all')
   const [selectedCourseFilter, setSelectedCourseFilter] = useState<'all' | string>('all')
   const [selectedModuleFilter, setSelectedModuleFilter] = useState<'all' | string>('all')
