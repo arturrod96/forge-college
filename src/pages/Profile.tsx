@@ -186,6 +186,11 @@ export default function Profile() {
     }
   };
 
+  const handleCommunicationLanguageChange = (locale: StudentProfile['communicationLanguage']) => {
+    updateField('communicationLanguage', locale);
+    i18n.changeLanguage(locale);
+  };
+
   const isValidUrl = (url: string): boolean => {
     try {
       new URL(url);
