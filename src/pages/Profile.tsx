@@ -338,10 +338,9 @@ export default function Profile() {
                       <Languages className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <Select
                         value={profile.communicationLanguage}
-                        onValueChange={(value) => {
-                          updateField('communicationLanguage', value as StudentProfile['communicationLanguage']);
-                          i18n.changeLanguage(value);
-                        }}
+                        onValueChange={(value) =>
+                          handleCommunicationLanguageChange(value as StudentProfile['communicationLanguage'])
+                        }
                       >
                         <SelectTrigger className="pl-10">
                           <SelectValue placeholder={t('profile.fields.selectLanguage')} />
