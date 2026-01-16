@@ -642,62 +642,42 @@ export default function AdminLessons() {
   })
 
   const openForCreate = () => {
+    if (!locales.length) {
+      toast.error('Configure locales before creating lessons')
+      return
+    }
     setEditingLesson(null)
     setSlugManuallyEdited(false)
     form.reset({
       module_id: selectedModuleFilter !== 'all' ? selectedModuleFilter : '',
-      title: '',
       slug: '',
       lesson_type: 'text',
-      text_content: '',
-      video_url: '',
-      quiz_json: '',
       xp_value: 10,
       order: 1,
       duration_minutes: '',
-      thumbnail_url: '',
-      is_published: false,
     })
+    initializeLocalizationDrafts(undefined, 'text')
     setDialogOpen(true)
   }
 
   const openForEdit = (lesson: LessonWithMeta) => {
+    if (!locales.length) {
+      toast.error('Configure locales before editing lessons')
+      return
+    }
     setEditingLesson(lesson)
     setSlugManuallyEdited(true)
 
-    const moduleId = lesson.module_id ?? ''
-    const content = lesson.content
-
-    let textContent = ''
-    let videoUrl = ''
-    let quizJson = ''
-
-    if (lesson.lesson_type === 'text') {
-      textContent = typeof content === 'string' ? content : ''
-    } else if (lesson.lesson_type === 'video') {
-      videoUrl = typeof content === 'string' ? content : ''
-    } else if (content) {
-      try {
-        quizJson = JSON.stringify(content, null, 2)
-      } catch {
-        quizJson = ''
-      }
-    }
-
     form.reset({
-      module_id: moduleId,
-      title: lesson.title ?? '',
+      module_id: lesson.module_id ?? '',
       slug: lesson.slug ?? '',
       lesson_type: lesson.lesson_type,
-      text_content: textContent,
-      video_url: videoUrl,
-      quiz_json: quizJson,
       xp_value: lesson.xp_value ?? 0,
       order: lesson.order ?? 1,
       duration_minutes: lesson.duration_minutes?.toString() ?? '',
-      thumbnail_url: lesson.thumbnail_url ?? '',
-      is_published: lesson.is_published,
     })
+
+    initializeLocalizationDrafts(lesson)
     setDialogOpen(true)
   }
 
