@@ -525,7 +525,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
             value={searchTerm}
             onChange={setSearchTerm}
             placeholder="Search learning paths..."
-            className="flex-1"
+            className="w-full max-w-xs"
           />
           <FilterPopover
             statusValue={statusFilter}
