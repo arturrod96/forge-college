@@ -370,43 +370,110 @@ export default function AdminLessons() {
 
   const upsertMutation = useMutation({
     mutationFn: async (values: LessonFormValues) => {
-      let content: unknown = null
-      if (values.lesson_type === 'text') {
-        content = values.text_content?.trim() ?? ''
-      } else if (values.lesson_type === 'video') {
-        content = values.video_url?.trim() ?? ''
-      } else {
-        content = JSON.parse(values.quiz_json ?? '[]')
+      if (locales.length === 0) {
+        throw new Error('Configure at least one locale before saving lessons')
       }
 
-      const payload = {
+      if (Object.keys(localizationDrafts).length === 0) {
+        throw new Error('Add localized content before saving the lesson')
+      }
+
+      const localeLabels = locales.reduce<Record<string, string>>((acc, locale) => {
+        acc[locale.code] = locale.label
+        return acc
+      }, {})
+
+      const parsedContentByLocale: Record<string, unknown> = {}
+
+      for (const [locale, draft] of Object.entries(localizationDrafts)) {
+        if (!draft.title.trim()) {
+          throw new Error(`Provide a title for ${localeLabels[locale] ?? locale}`)
+        }
+
+        if (values.lesson_type === 'text') {
+          if (draft.isPublished && !draft.richText.trim()) {
+            throw new Error(`Provide content for ${localeLabels[locale] ?? locale}`)
+          }
+          parsedContentByLocale[locale] = draft.richText
+        } else if (values.lesson_type === 'video') {
+          if (draft.isPublished && !draft.videoUrl.trim()) {
+            throw new Error(`Provide a video URL for ${localeLabels[locale] ?? locale}`)
+          }
+          parsedContentByLocale[locale] = draft.videoUrl.trim()
+        } else {
+          if (draft.isPublished && !draft.quizJson.trim()) {
+            throw new Error(`Provide quiz JSON for ${localeLabels[locale] ?? locale}`)
+          }
+          try {
+            const parsed = draft.quizJson.trim() ? JSON.parse(draft.quizJson) : []
+            if (!Array.isArray(parsed)) {
+              throw new Error()
+            }
+            parsedContentByLocale[locale] = parsed
+          } catch {
+            throw new Error(`Quiz JSON is invalid for ${localeLabels[locale] ?? locale}`)
+          }
+        }
+      }
+
+      const defaultDraft = localizationDrafts[defaultLocaleCode]
+      if (!defaultDraft) {
+        throw new Error('Default locale content is missing')
+      }
+
+      const anyPublished = Object.values(localizationDrafts).some((draft) => draft.isPublished)
+
+      const basePayload = {
         module_id: values.module_id,
-        title: values.title.trim(),
         slug: values.slug.trim(),
         lesson_type: values.lesson_type,
-        content,
+        content: parsedContentByLocale[defaultLocaleCode],
+        title: defaultDraft.title.trim(),
         xp_value: values.xp_value,
         order: values.order,
         duration_minutes: values.duration_minutes ?? null,
-        thumbnail_url: values.thumbnail_url?.trim() ? values.thumbnail_url.trim() : null,
-        is_published: values.is_published,
-        published_at: values.is_published
-          ? editingLesson?.published_at ?? new Date().toISOString()
-          : null,
+        thumbnail_url: defaultDraft.thumbnailUrl.trim() ? defaultDraft.thumbnailUrl.trim() : null,
+        is_published: anyPublished,
+        published_at: anyPublished ? editingLesson?.published_at ?? new Date().toISOString() : null,
       }
 
+      let lessonId = editingLesson?.id ?? null
+
       if (editingLesson) {
-        const { error } = await supabase.from('lessons').update(payload).eq('id', editingLesson.id)
+        const { error } = await supabase.from('lessons').update(basePayload).eq('id', editingLesson.id)
         if (error) throw error
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('lessons')
-          .insert({
-            ...payload,
-            published_at: values.is_published ? new Date().toISOString() : null,
-          })
+          .insert(basePayload)
+          .select('id')
+          .single()
         if (error) throw error
+        lessonId = data?.id ?? null
       }
+
+      if (!lessonId) {
+        throw new Error('Could not determine lesson identifier after saving')
+      }
+
+      const localizationRows = Object.entries(localizationDrafts).map(([locale, draft]) => {
+        const existingPublishedAt = editingLesson?.lesson_localizations?.find((record) => record.locale === locale)?.published_at ?? null
+        return {
+          lesson_id: lessonId!,
+          locale,
+          title: draft.title.trim(),
+          tags: draft.tags,
+          thumbnail_url: draft.thumbnailUrl.trim() ? draft.thumbnailUrl.trim() : null,
+          is_published: draft.isPublished,
+          published_at: draft.isPublished ? draft.publishedAt ?? existingPublishedAt ?? new Date().toISOString() : null,
+          content: parsedContentByLocale[locale],
+        }
+      })
+
+      const { error: localizationError } = await supabase
+        .from('lesson_localizations')
+        .upsert(localizationRows, { onConflict: 'lesson_id,locale' })
+      if (localizationError) throw localizationError
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-lessons'] })
@@ -416,24 +483,6 @@ export default function AdminLessons() {
     onError: (error) => {
       console.error('Error saving lesson', error)
       toast.error(error instanceof Error ? error.message : 'Failed to save lesson')
-    },
-  })
-
-  const publishMutation = useMutation({
-    mutationFn: async ({ id, publish }: { id: string; publish: boolean }) => {
-      const { error } = await supabase
-        .from('lessons')
-        .update({ is_published: publish, published_at: publish ? new Date().toISOString() : null })
-        .eq('id', id)
-      if (error) throw error
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-lessons'] })
-      toast.success('Publish state updated')
-    },
-    onError: (error) => {
-      console.error('Error toggling publish', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to toggle publish state')
     },
   })
 
