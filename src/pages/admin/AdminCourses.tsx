@@ -564,100 +564,100 @@ export default function AdminCourses() {
         </Card>
       ) : filteredCourses && filteredCourses.length > 0 ? (
         <div className="grid gap-4">
-          {filteredCourses.map((course) => (
-            <Card key={course.id} className="border border-forge-cream/70 bg-white/80">
-              <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                <div className="space-y-1">
-                  <CardTitle className="flex flex-wrap items-center gap-2 text-forge-dark">
-                    #{course.order} · {course.title}
-                    <Badge
-                      variant={course.status === 'published' ? 'default' : course.status === 'coming_soon' ? 'secondary' : 'outline'}
-                      className={course.status === 'published' ? 'bg-forge-orange text-white hover:bg-forge-orange/90' : ''}
+          {filteredCourses.map((course) => {
+            const localizationMap = mapLocalizationsByLocale(course.course_localizations ?? [])
+            const localization =
+              localizationMap[defaultLocaleCode] ??
+              localizationMap[DEFAULT_LOCALE] ??
+              Object.values(localizationMap)[0]
+            const displayTitle = localization?.title ?? course.title
+            const displaySummary = localization?.summary ?? course.summary ?? 'No summary'
+
+            return (
+              <Card key={course.id} className="border border-forge-cream/70 bg-white/80">
+                <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="space-y-1">
+                    <CardTitle className="flex flex-wrap items-center gap-2 text-forge-dark">
+                      #{course.order} · {displayTitle}
+                      <Badge
+                        variant={course.status === 'published' ? 'default' : course.status === 'coming_soon' ? 'secondary' : 'outline'}
+                        className={course.status === 'published' ? 'bg-forge-orange text-white hover:bg-forge-orange/90' : ''}
+                      >
+                        {course.status === 'published' ? 'Published' : course.status === 'coming_soon' ? 'Coming Soon' : 'Draft'}
+                      </Badge>
+                    </CardTitle>
+                    <CardDescription className="text-sm text-forge-gray">{displaySummary}</CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="icon" onClick={() => openForEdit(course)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="text-red-500 hover:text-red-600"
+                      onClick={() => setDeleteTarget(course)}
                     >
-                      {course.status === 'published' ? 'Published' : course.status === 'coming_soon' ? 'Coming Soon' : 'Draft'}
-                    </Badge>
-                  </CardTitle>
-                  <CardDescription className="text-sm text-forge-gray">
-                    {course.summary || 'No summary'}
-                  </CardDescription>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="icon" onClick={() => openForEdit(course)}>
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="text-red-500 hover:text-red-600"
-                    onClick={() => setDeleteTarget(course)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm text-forge-gray">
-                <div className="flex flex-wrap items-center gap-4">
-                  <div>
-                    <span className="font-semibold text-forge-dark">Path:</span>{' '}
-                    {course.path_id ? pathLookup[course.path_id]?.title ?? 'Unknown path' : 'Unassigned'}
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <Separator orientation="vertical" className="hidden h-4 sm:block" />
-                  <div>
-                    <span className="font-semibold text-forge-dark">Slug:</span> {course.slug}
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm text-forge-gray">
+                  <div className="flex flex-wrap items-center gap-4">
+                    <div>
+                      <span className="font-semibold text-forge-dark">Path:</span>{' '}
+                      {course.path_id ? pathLookup[course.path_id]?.title ?? 'Unknown path' : 'Unassigned'}
+                    </div>
+                    <Separator orientation="vertical" className="hidden h-4 sm:block" />
+                    <div>
+                      <span className="font-semibold text-forge-dark">Slug:</span> {course.slug}
+                    </div>
+                    <Separator orientation="vertical" className="hidden h-4 sm:block" />
+                    <div>
+                      <span className="font-semibold text-forge-dark">Modules:</span> {course.moduleCount}
+                    </div>
+                    {course.duration_minutes != null && (
+                      <>
+                        <Separator orientation="vertical" className="hidden h-4 sm:block" />
+                        <div>
+                          <span className="font-semibold text-forge-dark">Duration:</span>{' '}
+                          {course.duration_minutes} min
+                        </div>
+                      </>
+                    )}
                   </div>
-                  <Separator orientation="vertical" className="hidden h-4 sm:block" />
-                  <div>
-                    <span className="font-semibold text-forge-dark">Modules:</span> {course.moduleCount}
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    {Object.values(localizationMap).length === 0 && <Badge variant="outline">No locales</Badge>}
+                    {Object.values(localizationMap).map((record) => (
+                      <Badge
+                        key={`${course.id}-${record.locale}`}
+                        variant={record.is_published ? 'default' : 'outline'}
+                        className={record.is_published ? 'bg-forge-orange text-white hover:bg-forge-orange/90' : ''}
+                      >
+                        {record.locale} · {record.is_published ? 'Published' : 'Draft'}
+                      </Badge>
+                    ))}
                   </div>
-                  {course.duration_minutes != null && (
-                    <>
-                      <Separator orientation="vertical" className="hidden h-4 sm:block" />
-                      <div>
-                        <span className="font-semibold text-forge-dark">Duration:</span>{' '}
-                        {course.duration_minutes} min
-                      </div>
-                    </>
+                  {localization?.description && (
+                    <p className="text-xs text-forge-gray/90">{localization.description}</p>
                   )}
-                </div>
-                {course.description && (
-                  <p className="text-xs text-forge-gray/90">{course.description}</p>
-                )}
-                {course.thumbnail_url && (
-                  <a
-                    href={course.thumbnail_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs font-medium text-forge-orange hover:underline"
-                  >
-                    View thumbnail
-                  </a>
-                )}
-                <div className="text-xs text-forge-gray/80">
-                  Updated {course.updated_at ? formatDistanceToNow(new Date(course.updated_at), { addSuffix: true }) : 'N/A'}
-                </div>
-              </CardContent>
-              <CardFooter className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm">
-                  <Switch
-                    id={`course-publish-${course.id}`}
-                    checked={course.is_published}
-                    onCheckedChange={(checked) =>
-                      publishMutation.mutate({
-                        id: course.id,
-                        publish: checked,
-                        previousStatus: course.status ?? 'draft',
-                        previousPublishedAt: course.published_at ?? null,
-                      })
-                    }
-                    disabled={publishMutation.isPending}
-                  />
-                  <label htmlFor={`course-publish-${course.id}`} className="text-forge-gray">
-                    {course.is_published ? 'Unpublish' : 'Publish'}
-                  </label>
-                </div>
-              </CardFooter>
-            </Card>
-          ))}
+                  {localization?.thumbnail_url && (
+                    <a
+                      href={localization.thumbnail_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-medium text-forge-orange hover:underline"
+                    >
+                      View thumbnail
+                    </a>
+                  )}
+                  <div className="text-xs text-forge-gray/80">
+                    Updated {course.updated_at ? formatDistanceToNow(new Date(course.updated_at), { addSuffix: true }) : 'N/A'}
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
       ) : (
         <Card className="border-dashed border-forge-cream/70 bg-white/70">
