@@ -384,38 +384,38 @@ export default function AdminCourses() {
   })
 
   const openForCreate = () => {
+    if (!locales.length) {
+      toast.error('Configure locales before creating courses')
+      return
+    }
     setEditingCourse(null)
     setSlugManuallyEdited(false)
     form.reset({
       path_id: selectedPathFilter !== 'all' ? selectedPathFilter : '',
-      title: '',
       slug: '',
-      summary: '',
-      description: '',
       order: 1,
       duration_minutes: '',
-      thumbnail_url: '',
-      is_published: false,
       status: 'draft',
     })
+    initializeLocalizationDrafts(undefined)
     setDialogOpen(true)
   }
 
   const openForEdit = (course: CourseWithMeta) => {
+    if (!locales.length) {
+      toast.error('Configure locales before editing courses')
+      return
+    }
     setEditingCourse(course)
     setSlugManuallyEdited(true)
     form.reset({
       path_id: course.path_id ?? '',
-      title: course.title ?? '',
       slug: course.slug ?? '',
-      summary: course.summary ?? '',
-      description: course.description ?? '',
       order: course.order ?? 1,
       duration_minutes: course.duration_minutes?.toString() ?? '',
-      thumbnail_url: course.thumbnail_url ?? '',
-      is_published: course.is_published,
       status: course.status ?? 'draft',
     })
+    initializeLocalizationDrafts(course)
     setDialogOpen(true)
   }
 
