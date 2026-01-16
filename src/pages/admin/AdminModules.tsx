@@ -96,6 +96,71 @@ export default function AdminModules() {
   const supabase = useMemo(() => createClientBrowser(), [])
   const queryClient = useQueryClient()
 
+  const { data: locales = [], isLoading: localesLoading } = useQuery<LocaleRow[]>({
+    queryKey: ['content-locales'],
+    queryFn: async () => fetchSupportedLocales(supabase),
+  })
+
+  const defaultLocaleCode = useMemo(() => getDefaultLocale(locales), [locales])
+  const [activeLocale, setActiveLocale] = useState(DEFAULT_LOCALE)
+  const [localizationDrafts, setLocalizationDrafts] = useState<Record<string, ModuleLocalizationFormState>>({})
+
+  useEffect(() => {
+    if (locales.length > 0) {
+      setActiveLocale((current) => (locales.some((locale) => locale.code === current) ? current : defaultLocaleCode))
+    }
+  }, [locales, defaultLocaleCode])
+
+  const createEmptyLocalizationDraft = useCallback((): ModuleLocalizationFormState => ({
+    title: '',
+    summary: '',
+    tags: [],
+    thumbnailUrl: '',
+    isPublished: false,
+    publishedAt: null,
+  }), [])
+
+  const deserializeLocalization = useCallback(
+    (record?: Tables<'module_localizations'>): ModuleLocalizationFormState => ({
+      title: record?.title ?? '',
+      summary: record?.summary ?? '',
+      tags: record?.tags ?? [],
+      thumbnailUrl: record?.thumbnail_url ?? '',
+      isPublished: record?.is_published ?? false,
+      publishedAt: record?.published_at ?? null,
+    }),
+    []
+  )
+
+  const updateLocalizationDraft = useCallback(
+    (locale: string, updater: (draft: ModuleLocalizationFormState) => ModuleLocalizationFormState) => {
+      setLocalizationDrafts((previous) => {
+        const current = previous[locale] ?? createEmptyLocalizationDraft()
+        return {
+          ...previous,
+          [locale]: updater(current),
+        }
+      })
+    },
+    [createEmptyLocalizationDraft]
+  )
+
+  const initializeLocalizationDrafts = useCallback(
+    (module?: ModuleWithMeta) => {
+      if (locales.length === 0) return
+      const existingRecords = module
+        ? mapLocalizationsByLocale(module.module_localizations ?? [])
+        : {}
+      const mapped = Object.fromEntries(
+        Object.entries(existingRecords).map(([localeCode, record]) => [localeCode, deserializeLocalization(record)])
+      )
+      const drafts = ensureLocaleMap(locales, mapped, () => createEmptyLocalizationDraft())
+      setLocalizationDrafts(drafts)
+      setActiveLocale(getDefaultLocale(locales))
+    },
+    [locales, deserializeLocalization, createEmptyLocalizationDraft]
+  )
+
   const [selectedPathFilter, setSelectedPathFilter] = useState<'all' | string>('all')
   const [selectedCourseFilter, setSelectedCourseFilter] = useState<'all' | string>('all')
   const [dialogOpen, setDialogOpen] = useState(false)
