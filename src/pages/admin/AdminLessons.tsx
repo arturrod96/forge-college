@@ -809,41 +809,27 @@ export default function AdminLessons() {
                 )}
               />
 
-              <div className="grid gap-6 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. Understanding Components" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="slug"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Slug</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="understanding-components"
-                          {...field}
-                          onChange={(event) => {
-                            setSlugManuallyEdited(true)
-                            field.onChange(event)
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="slug"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Slug</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="understanding-components"
+                        {...field}
+                        onChange={(event) => {
+                          setSlugManuallyEdited(true)
+                          field.onChange(event)
+                        }}
+                      />
+                    </FormControl>
+                    <FormDescription>Used in URLs. We auto-generate it from the default locale title.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <div className="grid gap-6 md:grid-cols-3">
                 <FormField
