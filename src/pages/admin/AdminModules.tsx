@@ -172,11 +172,8 @@ export default function AdminModules() {
     resolver: zodResolver(moduleFormSchema),
     defaultValues: {
       course_id: '',
-      title: '',
       slug: '',
-      summary: '',
       order: 1,
-      is_published: false,
     },
   })
 
