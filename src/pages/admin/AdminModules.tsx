@@ -399,6 +399,88 @@ export default function AdminModules() {
     }
   }
 
+  const renderLocalizationFields = (locale: string) => {
+    const draft = localizationDrafts[locale] ?? createEmptyLocalizationDraft()
+    const friendlyLabel = localeLabels[locale] ?? locale
+
+    return (
+      <div className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <FormLabel className="text-sm font-medium text-forge-dark">Title · {friendlyLabel}</FormLabel>
+            <Input
+              value={draft.title}
+              onChange={(event) =>
+                updateLocalizationDraft(locale, (previous) => ({
+                  ...previous,
+                  title: event.target.value,
+                }))
+              }
+              placeholder={`Title in ${friendlyLabel}`}
+            />
+          </div>
+          <div className="space-y-2">
+            <FormLabel className="text-sm font-medium text-forge-dark">Thumbnail URL</FormLabel>
+            <Input
+              value={draft.thumbnailUrl}
+              onChange={(event) =>
+                updateLocalizationDraft(locale, (previous) => ({
+                  ...previous,
+                  thumbnailUrl: event.target.value,
+                }))
+              }
+              placeholder="https://..."
+            />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <FormLabel className="text-sm font-medium text-forge-dark">Summary</FormLabel>
+          <Textarea
+            rows={3}
+            value={draft.summary}
+            onChange={(event) =>
+              updateLocalizationDraft(locale, (previous) => ({
+                ...previous,
+                summary: event.target.value,
+              }))
+            }
+            placeholder={`Summary in ${friendlyLabel}`}
+          />
+        </div>
+        <div className="space-y-2">
+          <FormLabel className="text-sm font-medium text-forge-dark">Tags</FormLabel>
+          <TagInput
+            value={draft.tags}
+            onChange={(tags) =>
+              updateLocalizationDraft(locale, (previous) => ({
+                ...previous,
+                tags,
+              }))
+            }
+            placeholder="Type a tag and press Enter"
+          />
+          <FormDescription>Tags only apply to the {friendlyLabel} locale.</FormDescription>
+        </div>
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-forge-cream/80 bg-forge-cream/40 p-3">
+          <Switch
+            id={`module-publish-${locale}`}
+            checked={draft.isPublished}
+            onCheckedChange={(checked) =>
+              updateLocalizationDraft(locale, (previous) => ({
+                ...previous,
+                isPublished: checked,
+                publishedAt: checked ? previous.publishedAt ?? new Date().toISOString() : null,
+              }))
+            }
+          />
+          <label htmlFor={`module-publish-${locale}`} className="text-sm text-forge-gray">
+            {draft.isPublished ? `Published in ${friendlyLabel}` : `Draft in ${friendlyLabel}`}
+          </label>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
