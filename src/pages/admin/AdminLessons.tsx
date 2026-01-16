@@ -52,57 +52,20 @@ const slugify = (value: string) =>
     .replace(/^-+|-+$/g, '')
     .slice(0, 80)
 
-const lessonFormSchema = z
-  .object({
-    module_id: z.string().uuid('Select a module'),
-    title: z.string().min(3, 'Title must have at least 3 characters'),
-    slug: z
-      .string()
-      .min(3, 'Slug must have at least 3 characters')
-      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Use lowercase letters, numbers, and hyphens only'),
-    lesson_type: z.enum(['text', 'video', 'quiz']),
-    text_content: z.string().optional().or(z.literal('')),
-    video_url: z.string().optional().or(z.literal('')),
-    quiz_json: z.string().optional().or(z.literal('')),
-    xp_value: z.coerce.number().int().min(0, 'XP must be zero or greater'),
-    order: z.coerce.number().int().min(1, 'Order must be at least 1'),
-    duration_minutes: z
-      .union([z.coerce.number().int().min(0), z.literal('')])
-      .optional()
-      .transform((value) => (value === '' || value === undefined ? null : Number(value))),
-    thumbnail_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
-    is_published: z.boolean().default(false),
-  })
-  .refine(
-    (data) => data.lesson_type !== 'text' || Boolean(data.text_content?.trim()),
-    {
-      path: ['text_content'],
-      message: 'Provide content for the text lesson',
-    }
-  )
-  .refine(
-    (data) => data.lesson_type !== 'video' || Boolean(data.video_url?.trim()),
-    {
-      path: ['video_url'],
-      message: 'Provide a video URL',
-    }
-  )
-  .refine(
-    (data) => {
-      if (data.lesson_type !== 'quiz') return true
-      if (!data.quiz_json?.trim()) return false
-      try {
-        const parsed = JSON.parse(data.quiz_json)
-        return Array.isArray(parsed)
-      } catch {
-        return false
-      }
-    },
-    {
-      path: ['quiz_json'],
-      message: 'Provide a valid JSON array of quiz questions',
-    }
-  )
+const lessonFormSchema = z.object({
+  module_id: z.string().uuid('Select a module'),
+  slug: z
+    .string()
+    .min(3, 'Slug must have at least 3 characters')
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Use lowercase letters, numbers, and hyphens only'),
+  lesson_type: z.enum(['text', 'video', 'quiz']),
+  xp_value: z.coerce.number().int().min(0, 'XP must be zero or greater'),
+  order: z.coerce.number().int().min(1, 'Order must be at least 1'),
+  duration_minutes: z
+    .union([z.coerce.number().int().min(0), z.literal('')])
+    .optional()
+    .transform((value) => (value === '' || value === undefined ? null : Number(value))),
+})
 
 type LessonFormValues = z.infer<typeof lessonFormSchema>
 
