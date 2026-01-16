@@ -84,7 +84,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
         }
       }
 
-      return (pathsData as LearningPathRow[] | null | undefined || []).map((path) => {
+      return ((pathsData as LearningPathRow[] | null | undefined) ?? []).map((path) => {
         const localization = pickPublishedLocalization(
           path.learning_path_localizations ?? [],
           resolvedLocale,
