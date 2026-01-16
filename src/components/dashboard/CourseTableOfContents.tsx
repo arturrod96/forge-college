@@ -5,23 +5,32 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { CheckCircle, Circle, Play } from 'lucide-react';
+import { CheckCircle, Circle } from 'lucide-react';
 import { useAuth } from '@/hooks/useOAuth';
 import { useEffect, useState } from 'react';
 import { createClientBrowser } from '@/lib/supabase';
+import { cn } from '@/lib/utils';
 
 interface Props {
   course: Course;
   currentLessonId?: string;
   defaultOpenModuleId?: string;
   onLessonClick: (lesson: Lesson) => void;
+  /** If true, hides the course title/description header */
+  minimal?: boolean;
 }
 
 interface LessonProgress {
   [lessonId: string]: 'completed' | 'in_progress' | 'not_started';
 }
 
-export function CourseTableOfContents({ course, currentLessonId, defaultOpenModuleId, onLessonClick }: Props) {
+export function CourseTableOfContents({
+  course,
+  currentLessonId,
+  defaultOpenModuleId,
+  onLessonClick,
+  minimal = false
+}: Props) {
   const { user } = useAuth();
   const [progress, setProgress] = useState<LessonProgress>({});
   const supabase = createClientBrowser();
@@ -31,7 +40,7 @@ export function CourseTableOfContents({ course, currentLessonId, defaultOpenModu
 
     const fetchProgress = async () => {
       const allLessonIds = course.modules.flatMap(module => module.lessons.map(lesson => lesson.id));
-      
+
       const { data, error } = await supabase
         .from('user_progress')
         .select('lesson_id, status')
@@ -63,60 +72,75 @@ export function CourseTableOfContents({ course, currentLessonId, defaultOpenModu
 
   const getProgressIcon = (lessonId: string) => {
     const status = progress[lessonId] || 'not_started';
-    
-    switch (status) {
-      case 'completed':
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'in_progress':
-        return <Play className="h-4 w-4 text-blue-600" />;
-      default:
-        return <Circle className="h-4 w-4 text-gray-400" />;
+
+    if (status === 'completed') {
+      return <CheckCircle className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0" />;
     }
+    return <Circle className="h-3.5 w-3.5 text-gray-300 flex-shrink-0" />;
   };
 
   const getModuleProgress = (module: Module) => {
     const totalLessons = module.lessons.length;
-    const completedLessons = module.lessons.filter(lesson => 
+    const completedLessons = module.lessons.filter(lesson =>
       progress[lesson.id] === 'completed'
     ).length;
     return { completed: completedLessons, total: totalLessons };
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-2">{course.title}</h2>
-      <p className="text-sm text-gray-600 mb-4">{course.description}</p>
+    <div className={cn("px-3 py-2", minimal && "py-0")}>
+      {/* Only show header if not minimal */}
+      {!minimal && (
+        <div className="mb-3 px-1">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-white">{course.title}</h2>
+          {course.description && (
+            <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{course.description}</p>
+          )}
+        </div>
+      )}
+
       <Accordion
         type="multiple"
         defaultValue={defaultOpenModuleId ? [defaultOpenModuleId] : course.modules.map((m) => m.id)}
-        className="w-full"
+        className="w-full space-y-1"
       >
         {course.modules.map((module) => {
           const moduleProgress = getModuleProgress(module);
+          const showProgress = moduleProgress.total > 1; // Only show if more than 1 lesson
+
           return (
-            <AccordionItem key={module.id} value={module.id}>
-              <AccordionTrigger>
-                <div className="flex items-center justify-between w-full pr-4">
-                  <span>{module.title}</span>
-                  <span className="text-sm text-gray-500">
-                    {moduleProgress.completed}/{moduleProgress.total}
+            <AccordionItem
+              key={module.id}
+              value={module.id}
+              className="border-none"
+            >
+              <AccordionTrigger className="py-2 px-2 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg hover:no-underline">
+                <div className="flex items-center justify-between w-full pr-2 text-left">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                    {module.title}
                   </span>
+                  {showProgress && (
+                    <span className="text-xs text-gray-400 tabular-nums">
+                      {moduleProgress.completed}/{moduleProgress.total}
+                    </span>
+                  )}
                 </div>
               </AccordionTrigger>
-              <AccordionContent>
-                <ul>
+              <AccordionContent className="pb-1 pt-0">
+                <ul className="space-y-0.5 pl-1">
                   {module.lessons.map((lesson) => (
                     <li key={lesson.id}>
-                      <button 
+                      <button
                         onClick={() => onLessonClick(lesson)}
-                        className={`w-full text-left p-2 rounded-md flex items-center gap-2 transition-colors ${
-                          lesson.id === currentLessonId 
-                            ? 'bg-blue-100 border-l-4 border-blue-500' 
-                            : 'hover:bg-gray-100'
-                        }`}>
+                        className={cn(
+                          "w-full text-left py-2 px-2 rounded-md flex items-center gap-2 transition-colors text-sm",
+                          lesson.id === currentLessonId
+                            ? 'bg-forge-orange/10 text-forge-orange font-medium'
+                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                        )}
+                      >
                         {getProgressIcon(lesson.id)}
-                        <span className="flex-1">{lesson.title}</span>
-                        <span className="text-xs text-gray-500">{lesson.xp_value} XP</span>
+                        <span className="flex-1 truncate">{lesson.title}</span>
                       </button>
                     </li>
                   ))}

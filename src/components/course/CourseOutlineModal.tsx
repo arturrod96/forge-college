@@ -1,7 +1,7 @@
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Course, Lesson } from '@/pages/CourseView';
 import { CourseTableOfContents } from '@/components/dashboard/CourseTableOfContents';
-import { BookOpen, X, Search, ChevronUp, ChevronDown } from 'lucide-react';
+import { X, Search } from 'lucide-react';
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -223,7 +223,7 @@ export function CourseOutlineModal({
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className={cn(
-                                    "w-full pl-10 pr-4 py-3 rounded-xl",
+                                    "w-full pl-10 pr-4 py-2.5 rounded-lg",
                                     "bg-gray-100/80 dark:bg-gray-800/80",
                                     "border border-gray-200/60 dark:border-gray-700/60",
                                     "text-gray-900 dark:text-gray-100 placeholder-gray-400",
@@ -247,14 +247,6 @@ export function CourseOutlineModal({
                             >
                                 <X className="w-5 h-5" />
                             </button>
-                        </div>
-
-                        {/* Course Title */}
-                        <div className="flex items-center gap-2 mt-3 px-1">
-                            <BookOpen className="w-4 h-4 text-forge-orange" />
-                            <span className="text-sm font-medium text-gray-600 dark:text-gray-400 truncate">
-                                {course.title}
-                            </span>
                         </div>
                     </div>
 
@@ -313,30 +305,7 @@ export function CourseOutlineModal({
                         )}
                     </div>
 
-                    {/* Footer with keyboard hints */}
-                    {!isMobile && (
-                        <div className="flex-shrink-0 px-4 py-2.5 border-t border-gray-200/60 dark:border-gray-700/60 bg-gray-50/50 dark:bg-gray-800/50">
-                            <div className="flex items-center justify-center gap-4 text-xs text-gray-400">
-                                <span className="flex items-center gap-1">
-                                    <kbd className="px-1.5 py-0.5 rounded bg-gray-200/80 dark:bg-gray-700/80 font-mono text-[10px]">↑</kbd>
-                                    <kbd className="px-1.5 py-0.5 rounded bg-gray-200/80 dark:bg-gray-700/80 font-mono text-[10px]">↓</kbd>
-                                    <span className="ml-1">navegar</span>
-                                </span>
-                                <span className="flex items-center gap-1">
-                                    <kbd className="px-1.5 py-0.5 rounded bg-gray-200/80 dark:bg-gray-700/80 font-mono text-[10px]">↵</kbd>
-                                    <span className="ml-1">selecionar</span>
-                                </span>
-                                <span className="flex items-center gap-1">
-                                    <kbd className="px-1.5 py-0.5 rounded bg-gray-200/80 dark:bg-gray-700/80 font-mono text-[10px]">/</kbd>
-                                    <span className="ml-1">buscar</span>
-                                </span>
-                                <span className="flex items-center gap-1">
-                                    <kbd className="px-1.5 py-0.5 rounded bg-gray-200/80 dark:bg-gray-700/80 font-mono text-[10px]">esc</kbd>
-                                    <span className="ml-1">fechar</span>
-                                </span>
-                            </div>
-                        </div>
-                    )}
+
                 </div>
             </div>
         </div>
