@@ -51,6 +51,8 @@ import { BetaPromoBar } from '@/components/BetaPromoBar'
 import { MobileBottomNav } from '@/components/dashboard/MobileBottomNav'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
+const APP_LOCALE_STORAGE_KEY = 'forge:appLocale'
+
 function MobileMenuButton() {
   const { toggleSidebar } = useSidebar()
   const { t } = useTranslation()
