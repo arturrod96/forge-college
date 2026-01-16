@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -9,7 +10,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
@@ -27,6 +27,8 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
+import { LocalizationTabs } from '@/components/admin/LocalizationTabs'
+import { TagInput } from '@/components/profile/TagInput'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
   AlertDialog,
@@ -42,6 +44,14 @@ import { Separator } from '@/components/ui/separator'
 import { Loader2, Pencil, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { formatDistanceToNow } from 'date-fns'
+import {
+  DEFAULT_LOCALE,
+  ensureLocaleMap,
+  fetchSupportedLocales,
+  getDefaultLocale,
+  mapLocalizationsByLocale,
+  type LocaleRow,
+} from '@/lib/localization'
 
 const slugify = (value: string) =>
   value
