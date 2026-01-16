@@ -42,6 +42,46 @@
       "enterCity": "Digite sua cidade",
       "typeLanguage": "Digite um idioma e pressione Enter"
     },
+    "countries": {
+      "brazil": "Brasil",
+      "unitedStates": "Estados Unidos",
+      "canada": "Canadá",
+      "unitedKingdom": "Reino Unido",
+      "germany": "Alemanha",
+      "france": "França",
+      "spain": "Espanha",
+      "italy": "Itália",
+      "netherlands": "Países Baixos",
+      "sweden": "Suécia",
+      "norway": "Noruega",
+      "denmark": "Dinamarca",
+      "finland": "Finlândia",
+      "switzerland": "Suíça",
+      "austria": "Áustria",
+      "belgium": "Bélgica",
+      "portugal": "Portugal",
+      "ireland": "Irlanda",
+      "australia": "Austrália",
+      "newZealand": "Nova Zelândia",
+      "japan": "Japão",
+      "southKorea": "Coreia do Sul",
+      "singapore": "Singapura",
+      "india": "Índia",
+      "china": "China",
+      "mexico": "México",
+      "argentina": "Argentina",
+      "chile": "Chile",
+      "colombia": "Colômbia",
+      "peru": "Peru",
+      "uruguay": "Uruguai",
+      "paraguay": "Paraguai",
+      "venezuela": "Venezuela",
+      "ecuador": "Equador",
+      "bolivia": "Bolívia",
+      "guyana": "Guiana",
+      "suriname": "Suriname",
+      "frenchGuiana": "Guiana Francesa"
+    },
     "errors": {
       "required": "Este campo é obrigatório",
       "invalidUrl": "Por favor, insira uma URL válida",
@@ -145,6 +185,16 @@
       "githubPlaceholder": "https://github.com/usuario",
       "languagePreference": "Preferência de Idioma",
       "selectLanguage": "Selecione seu idioma preferido"
+    },
+    "languageOptions": {
+      "enUS": "Inglês (EUA)",
+      "ptBR": "Português (Brasil)"
+    },
+    "sidebar": {
+      "localeTitle": "Idioma do aplicativo",
+      "localeDescription": "Escolha o idioma usado na interface.",
+      "localePlaceholder": "Selecionar idioma",
+      "anonymousUser": "Usuário convidado"
     },
     "errors": {
       "fullNameRequired": "Nome completo é obrigatório",
