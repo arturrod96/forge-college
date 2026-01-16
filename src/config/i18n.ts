@@ -2,11 +2,11 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import enUS from '../locales/en-US.json';
 import ptBR from '../locales/pt-BR.json';
+import { DEFAULT_LOCALE } from '@/lib/localization';
 
 const LANGUAGE_COOKIE = 'app_language';
 
 // Get language from cookie
-const DEFAULT_LOCALE = 'pt-BR';
 
 const getLanguageFromCookie = (): string => {
   if (typeof window === 'undefined' || typeof document === 'undefined') {
@@ -36,7 +36,7 @@ i18n
       'pt-BR': { translation: ptBR },
     },
     lng: getLanguageFromCookie(),
-    fallbackLng: 'en-US',
+    fallbackLng: DEFAULT_LOCALE,
     interpolation: {
       escapeValue: false,
     },
