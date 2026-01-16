@@ -437,6 +437,27 @@ export type Database = {
           }
         ]
       }
+      locales: {
+        Row: {
+          code: string
+          created_at: string
+          is_default: boolean
+          label: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          is_default?: boolean
+          label: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          is_default?: boolean
+          label?: string
+        }
+        Relationships: []
+      }
       waiting_list: {
         Row: {
           created_at: string | null
