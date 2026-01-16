@@ -521,12 +521,6 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
       {/* Simplified filter bar */}
       <div className="mb-6">
         <div className="flex items-center gap-3">
-          <ContentSearch
-            value={searchTerm}
-            onChange={setSearchTerm}
-            placeholder="Search learning paths..."
-            className="w-full max-w-xs"
-          />
           <FilterPopover
             statusValue={statusFilter}
             onStatusChange={setStatusFilter}
@@ -535,6 +529,12 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
             sortValue={sortOption}
             onSortChange={setSortOption}
             sortOptions={['recent', 'alphabetical', 'path_order']}
+          />
+          <ContentSearch
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Search learning paths..."
+            className="w-full max-w-xs"
           />
         </div>
       </div>
