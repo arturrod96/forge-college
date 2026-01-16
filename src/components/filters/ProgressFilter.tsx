@@ -1,5 +1,5 @@
 import { Badge } from '@/components/ui/badge';
-import { Circle, PlayCircle, CheckCircle2 } from 'lucide-react';
+import { Circle, CirclePlay, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export type ProgressFilterValue = 'not_started' | 'in_progress' | 'completed';
@@ -13,8 +13,8 @@ interface ProgressFilterProps {
 
 const PROGRESS_OPTIONS: { value: ProgressFilterValue; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { value: 'not_started', label: 'Not Started', icon: Circle },
-  { value: 'in_progress', label: 'Started', icon: PlayCircle },
-  { value: 'completed', label: 'Completed', icon: CheckCircle2 },
+  { value: 'in_progress', label: 'Enrolled', icon: CirclePlay },
+  { value: 'completed', label: 'Completed', icon: Flame },
 ];
 
 export function ProgressFilter({ selected, onChange, className, showLabels = true }: ProgressFilterProps) {
