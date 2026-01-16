@@ -13,6 +13,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Save, User, Mail, MapPin, Globe, Briefcase, Target, Building, Linkedin, Github, BookOpen, Languages } from 'lucide-react';
 
+import type { StudentProfile } from '@/types/profile'
+
 const COUNTRY_LIST = [
   { value: 'Brazil', key: 'brazil' },
   { value: 'United States', key: 'unitedStates' },
