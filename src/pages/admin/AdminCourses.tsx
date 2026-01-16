@@ -282,44 +282,79 @@ export default function AdminCourses() {
 
   const upsertMutation = useMutation({
     mutationFn: async (values: CourseFormValues) => {
-      const baseStatus = values.status
-      const statusFromSelection = baseStatus === 'published' || baseStatus === 'coming_soon'
-      const effectiveStatus = statusFromSelection
-        ? baseStatus
-        : values.is_published
-          ? 'published'
-          : 'draft'
+      if (!locales.length) {
+        throw new Error('No locales configured for courses')
+      }
 
-      const isPublishedFlag = effectiveStatus !== 'draft'
+      if (Object.keys(localizationDrafts).length === 0) {
+        throw new Error('Add localized content before saving the course')
+      }
 
-      const payload = {
+      const localeNameLookup = locales.reduce<Record<string, string>>((acc, locale) => {
+        acc[locale.code] = locale.label
+        return acc
+      }, {})
+
+      const defaultDraft = localizationDrafts[defaultLocaleCode]
+      if (!defaultDraft || !defaultDraft.title.trim()) {
+        throw new Error(`Provide a title for ${localeNameLookup[defaultLocaleCode] ?? defaultLocaleCode}`)
+      }
+
+      const anyPublished = Object.values(localizationDrafts).some((draft) => draft.isPublished)
+
+      const basePayload = {
         path_id: values.path_id,
-        title: values.title.trim(),
         slug: values.slug.trim(),
-        summary: values.summary?.trim() ? values.summary.trim() : null,
-        description: values.description?.trim() ? values.description.trim() : null,
         order: values.order,
         duration_minutes: values.duration_minutes ?? null,
-        thumbnail_url: values.thumbnail_url?.trim() ? values.thumbnail_url.trim() : null,
-        status: effectiveStatus,
-        is_published: isPublishedFlag,
-        published_at: isPublishedFlag
-          ? editingCourse?.published_at ?? new Date().toISOString()
-          : null,
+        status: values.status,
+        title: defaultDraft.title.trim(),
+        summary: defaultDraft.summary.trim() ? defaultDraft.summary.trim() : null,
+        description: defaultDraft.description.trim() ? defaultDraft.description.trim() : null,
+        thumbnail_url: defaultDraft.thumbnailUrl.trim() ? defaultDraft.thumbnailUrl.trim() : null,
+        is_published: anyPublished,
+        published_at: anyPublished ? editingCourse?.published_at ?? new Date().toISOString() : null,
       }
 
+      let courseId = editingCourse?.id ?? null
+
       if (editingCourse) {
-        const { error } = await supabase.from('courses').update(payload).eq('id', editingCourse.id)
+        const { error } = await supabase.from('courses').update(basePayload).eq('id', editingCourse.id)
         if (error) throw error
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('courses')
-          .insert({
-            ...payload,
-            published_at: isPublishedFlag ? new Date().toISOString() : null,
-          })
+          .insert(basePayload)
+          .select('id')
+          .single()
         if (error) throw error
+        courseId = data?.id ?? null
       }
+
+      if (!courseId) {
+        throw new Error('Unable to determine course identifier after saving')
+      }
+
+      const existingLocalizations = mapLocalizationsByLocale(editingCourse?.course_localizations ?? [])
+
+      const localizationRows = Object.entries(localizationDrafts).map(([locale, draft]) => ({
+        course_id: courseId!,
+        locale,
+        title: draft.title.trim(),
+        summary: draft.summary.trim() ? draft.summary.trim() : null,
+        description: draft.description.trim() ? draft.description.trim() : null,
+        tags: draft.tags,
+        thumbnail_url: draft.thumbnailUrl.trim() ? draft.thumbnailUrl.trim() : null,
+        is_published: draft.isPublished,
+        published_at: draft.isPublished
+          ? draft.publishedAt ?? existingLocalizations[locale]?.published_at ?? new Date().toISOString()
+          : null,
+      }))
+
+      const { error: localizationError } = await supabase
+        .from('course_localizations')
+        .upsert(localizationRows, { onConflict: 'course_id,locale' })
+      if (localizationError) throw localizationError
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-courses'] })
