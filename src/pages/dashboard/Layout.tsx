@@ -147,7 +147,38 @@ function EducationMenuItem({ location, educationOpen, setEducationOpen }: {
 export function DashboardLayout() {
   const { user, loading } = useAuth()
   const location = useLocation()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+
+  const [sidebarLocale, setSidebarLocale] = useState<string>(i18n.language)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const stored = localStorage.getItem(APP_LOCALE_STORAGE_KEY)
+    if (stored && stored !== i18n.language) {
+      i18n.changeLanguage(stored)
+      setSidebarLocale(stored)
+    }
+  }, [i18n])
+
+  useEffect(() => {
+    setSidebarLocale(i18n.language)
+  }, [i18n.language])
+
+  const localeOptions = useMemo(
+    () => [
+      { value: 'en-US', label: t('profile.languageOptions.enUS') },
+      { value: 'pt-BR', label: t('profile.languageOptions.ptBR') },
+    ],
+    [t]
+  )
+
+  const handleSidebarLocaleChange = (value: string) => {
+    setSidebarLocale(value)
+    i18n.changeLanguage(value)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(APP_LOCALE_STORAGE_KEY, value)
+    }
+  }
 
   const isDashboard = location.pathname === DASHBOARD_PATH
   const isExplore = location.pathname.startsWith(DASHBOARD_EXPLORE)
