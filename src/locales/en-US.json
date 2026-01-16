@@ -191,6 +191,12 @@
       "enUS": "English (US)",
       "ptBR": "Portuguese (BR)"
     },
+    "sidebar": {
+      "localeTitle": "App language",
+      "localeDescription": "Choose the language used in the interface.",
+      "localePlaceholder": "Select a language",
+      "anonymousUser": "Guest user"
+    },
     "errors": {
       "fullNameRequired": "Full name is required",
       "countryRequired": "Country is required",
@@ -219,6 +225,11 @@
     "layout": {
       "openMenu": "Open menu",
       "loading": "Loading dashboard..."
+    },
+    "sidebar": {
+      "localeTitle": "App language",
+      "localeDescription": "Choose how the interface is translated.",
+      "localePlaceholder": "Select language"
     },
     "welcomeBack": "Welcome back",
     "loading": "Loading...",

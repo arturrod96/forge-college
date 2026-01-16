@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -9,7 +9,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
@@ -26,9 +25,20 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { RichTextEditor } from '@/components/admin/RichTextEditor'
+import { LocalizationTabs } from '@/components/admin/LocalizationTabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
+import { TagInput } from '@/components/profile/TagInput'
+import {
+  DEFAULT_LOCALE,
+  ensureLocaleMap,
+  fetchSupportedLocales,
+  getDefaultLocale,
+  mapLocalizationsByLocale,
+  pickPublishedLocalization,
+  type LocaleRow,
+} from '@/lib/localization'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,63 +62,39 @@ const slugify = (value: string) =>
     .replace(/^-+|-+$/g, '')
     .slice(0, 80)
 
-const lessonFormSchema = z
-  .object({
-    module_id: z.string().uuid('Select a module'),
-    title: z.string().min(3, 'Title must have at least 3 characters'),
-    slug: z
-      .string()
-      .min(3, 'Slug must have at least 3 characters')
-      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Use lowercase letters, numbers, and hyphens only'),
-    lesson_type: z.enum(['text', 'video', 'quiz']),
-    text_content: z.string().optional().or(z.literal('')),
-    video_url: z.string().optional().or(z.literal('')),
-    quiz_json: z.string().optional().or(z.literal('')),
-    xp_value: z.coerce.number().int().min(0, 'XP must be zero or greater'),
-    order: z.coerce.number().int().min(1, 'Order must be at least 1'),
-    duration_minutes: z
-      .union([z.coerce.number().int().min(0), z.literal('')])
-      .optional()
-      .transform((value) => (value === '' || value === undefined ? null : Number(value))),
-    thumbnail_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
-    is_published: z.boolean().default(false),
-  })
-  .refine(
-    (data) => data.lesson_type !== 'text' || Boolean(data.text_content?.trim()),
-    {
-      path: ['text_content'],
-      message: 'Provide content for the text lesson',
-    }
-  )
-  .refine(
-    (data) => data.lesson_type !== 'video' || Boolean(data.video_url?.trim()),
-    {
-      path: ['video_url'],
-      message: 'Provide a video URL',
-    }
-  )
-  .refine(
-    (data) => {
-      if (data.lesson_type !== 'quiz') return true
-      if (!data.quiz_json?.trim()) return false
-      try {
-        const parsed = JSON.parse(data.quiz_json)
-        return Array.isArray(parsed)
-      } catch {
-        return false
-      }
-    },
-    {
-      path: ['quiz_json'],
-      message: 'Provide a valid JSON array of quiz questions',
-    }
-  )
+const lessonFormSchema = z.object({
+  module_id: z.string().uuid('Select a module'),
+  slug: z
+    .string()
+    .min(3, 'Slug must have at least 3 characters')
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Use lowercase letters, numbers, and hyphens only'),
+  lesson_type: z.enum(['text', 'video', 'quiz']),
+  xp_value: z.coerce.number().int().min(0, 'XP must be zero or greater'),
+  order: z.coerce.number().int().min(1, 'Order must be at least 1'),
+  duration_minutes: z
+    .union([z.coerce.number().int().min(0), z.literal('')])
+    .optional()
+    .transform((value) => (value === '' || value === undefined ? null : Number(value))),
+})
 
 type LessonFormValues = z.infer<typeof lessonFormSchema>
 
 type LessonRow = Tables<'lessons'>
 
-type LessonWithMeta = LessonRow
+type LessonWithMeta = LessonRow & {
+  lesson_localizations: Tables<'lesson_localizations'>[] | null
+}
+
+type LessonLocalizationFormState = {
+  title: string
+  tags: string[]
+  thumbnailUrl: string
+  richText: string
+  videoUrl: string
+  quizJson: string
+  isPublished: boolean
+  publishedAt: string | null
+}
 
 type ModuleRow = Tables<'modules'>
 
@@ -124,51 +110,279 @@ export default function AdminLessons() {
   const supabase = useMemo(() => createClientBrowser(), [])
   const queryClient = useQueryClient()
 
+  const { data: locales = [], isLoading: localesLoading } = useQuery<LocaleRow[]>({
+    queryKey: ['content-locales'],
+    queryFn: async () => fetchSupportedLocales(supabase),
+  })
+
+  const defaultLocaleCode = useMemo(() => getDefaultLocale(locales), [locales])
+  const [activeLocale, setActiveLocale] = useState(DEFAULT_LOCALE)
+  const [localizationDrafts, setLocalizationDrafts] = useState<Record<string, LessonLocalizationFormState>>({})
+
+  useEffect(() => {
+    if (locales.length > 0) {
+      setActiveLocale((current) => (locales.some((locale) => locale.code === current) ? current : defaultLocaleCode))
+    }
+  }, [locales, defaultLocaleCode])
+
+  const createEmptyLocalizationDraft = useCallback(
+    (): LessonLocalizationFormState => ({
+      title: '',
+      tags: [],
+      thumbnailUrl: '',
+      richText: '',
+      videoUrl: '',
+      quizJson: '[]',
+      isPublished: false,
+      publishedAt: null,
+    }),
+    []
+  )
+
+  const deserializeLocalization = useCallback(
+    (record: Tables<'lesson_localizations'> | undefined, lessonType: LessonRow['lesson_type']): LessonLocalizationFormState => {
+      let richText = ''
+      let videoUrl = ''
+      let quizJson = '[]'
+
+      if (lessonType === 'text' && typeof record?.content === 'string') {
+        richText = record.content
+      } else if (lessonType === 'video' && typeof record?.content === 'string') {
+        videoUrl = record.content
+      } else if (lessonType === 'quiz' && record?.content) {
+        try {
+          quizJson = JSON.stringify(record.content, null, 2)
+        } catch {
+          quizJson = '[]'
+        }
+      }
+
+      return {
+        title: record?.title ?? '',
+        tags: record?.tags ?? [],
+        thumbnailUrl: record?.thumbnail_url ?? '',
+        richText,
+        videoUrl,
+        quizJson,
+        isPublished: record?.is_published ?? false,
+        publishedAt: record?.published_at ?? null,
+      }
+    },
+    []
+  )
+
+  const updateLocalizationDraft = useCallback(
+    (locale: string, updater: (draft: LessonLocalizationFormState) => LessonLocalizationFormState) => {
+      setLocalizationDrafts((previous) => {
+        const current = previous[locale] ?? createEmptyLocalizationDraft()
+        return {
+          ...previous,
+          [locale]: updater(current),
+        }
+      })
+    },
+    [createEmptyLocalizationDraft]
+  )
+
   const [selectedPathFilter, setSelectedPathFilter] = useState<'all' | string>('all')
   const [selectedCourseFilter, setSelectedCourseFilter] = useState<'all' | string>('all')
   const [selectedModuleFilter, setSelectedModuleFilter] = useState<'all' | string>('all')
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingLesson, setEditingLesson] = useState<LessonWithMeta | null>(null)
-  const [deleteTarget, setDeleteTarget] = useState<LessonWithMeta | null>(null)
-  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false)
 
   const form = useForm<LessonFormValues>({
     resolver: zodResolver(lessonFormSchema),
     defaultValues: {
       module_id: '',
-      title: '',
       slug: '',
       lesson_type: 'text',
-      text_content: '',
-      video_url: '',
-      quiz_json: '',
       xp_value: 10,
       order: 1,
       duration_minutes: '',
-      thumbnail_url: '',
-      is_published: false,
     },
   })
+
+  const initializeLocalizationDrafts = useCallback(
+    (lesson?: LessonWithMeta, lessonType?: LessonFormValues['lesson_type']) => {
+      if (locales.length === 0) return
+      const baseType = lesson?.lesson_type ?? lessonType ?? form.getValues('lesson_type')
+      const existingRecords = lesson
+        ? Object.fromEntries(
+            Object.entries(mapLocalizationsByLocale(lesson.lesson_localizations ?? [])).map(([localeCode, record]) => [
+              localeCode,
+              deserializeLocalization(record, baseType),
+            ])
+          )
+        : {}
+      const drafts = ensureLocaleMap(locales, existingRecords, () => createEmptyLocalizationDraft())
+      setLocalizationDrafts(drafts)
+      setActiveLocale(getDefaultLocale(locales))
+    },
+    [locales, deserializeLocalization, createEmptyLocalizationDraft, form]
+  )
+
+  const localeLabels = useMemo(
+    () =>
+      locales.reduce<Record<string, string>>((acc, locale) => {
+        acc[locale.code] = locale.label
+        return acc
+      }, {}),
+    [locales]
+  )
+
+  const [editingLesson, setEditingLesson] = useState<LessonWithMeta | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<LessonWithMeta | null>(null)
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false)
+
+  const currentLessonType = form.watch('lesson_type')
+
+  const renderLocalizationFields = (locale: string) => {
+    const draft = localizationDrafts[locale] ?? createEmptyLocalizationDraft()
+    const friendlyLabel = localeLabels[locale] ?? locale
+
+    return (
+      <div className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <FormLabel className="text-sm font-medium text-forge-dark">Title · {friendlyLabel}</FormLabel>
+            <Input
+              value={draft.title}
+              onChange={(event) =>
+                updateLocalizationDraft(locale, (previous) => ({
+                  ...previous,
+                  title: event.target.value,
+                }))
+              }
+              placeholder={`Title in ${friendlyLabel}`}
+            />
+          </div>
+          <div className="space-y-2">
+            <FormLabel className="text-sm font-medium text-forge-dark">Thumbnail URL</FormLabel>
+            <Input
+              value={draft.thumbnailUrl}
+              onChange={(event) =>
+                updateLocalizationDraft(locale, (previous) => ({
+                  ...previous,
+                  thumbnailUrl: event.target.value,
+                }))
+              }
+              placeholder="https://..."
+            />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <FormLabel className="text-sm font-medium text-forge-dark">Tags</FormLabel>
+          <TagInput
+            value={draft.tags}
+            onChange={(tags) =>
+              updateLocalizationDraft(locale, (previous) => ({
+                ...previous,
+                tags,
+              }))
+            }
+            placeholder="Type a tag and press Enter"
+          />
+          <FormDescription>Tags help organize content for {friendlyLabel}.</FormDescription>
+        </div>
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-forge-cream/80 bg-forge-cream/40 p-3">
+          <Switch
+            id={`lesson-publish-${locale}`}
+            checked={draft.isPublished}
+            onCheckedChange={(checked) =>
+              updateLocalizationDraft(locale, (previous) => ({
+                ...previous,
+                isPublished: checked,
+                publishedAt: checked ? previous.publishedAt ?? new Date().toISOString() : null,
+              }))
+            }
+          />
+          <label htmlFor={`lesson-publish-${locale}`} className="text-sm text-forge-gray">
+            {draft.isPublished ? `Published in ${friendlyLabel}` : `Draft in ${friendlyLabel}`}
+          </label>
+        </div>
+        {currentLessonType === 'text' && (
+          <div className="space-y-2">
+            <FormLabel className="text-sm font-medium text-forge-dark">Rich text content</FormLabel>
+            <RichTextEditor
+              value={draft.richText}
+              onChange={(value) =>
+                updateLocalizationDraft(locale, (previous) => ({
+                  ...previous,
+                  richText: value,
+                }))
+              }
+              placeholder={`Write ${friendlyLabel} lesson content...`}
+              onExpand={() => {
+                if (!editingLesson) {
+                  toast.error('Please save the lesson before opening the full editor')
+                  return
+                }
+                navigate(DASHBOARD_ADMIN_LESSON_EDITOR(editingLesson.id))
+              }}
+            />
+          </div>
+        )}
+        {currentLessonType === 'video' && (
+          <div className="space-y-2">
+            <FormLabel className="text-sm font-medium text-forge-dark">Video URL</FormLabel>
+            <Input
+              value={draft.videoUrl}
+              onChange={(event) =>
+                updateLocalizationDraft(locale, (previous) => ({
+                  ...previous,
+                  videoUrl: event.target.value,
+                }))
+              }
+              placeholder="https://www.youtube.com/watch?v=..."
+            />
+          </div>
+        )}
+        {currentLessonType === 'quiz' && (
+          <div className="space-y-2">
+            <FormLabel className="text-sm font-medium text-forge-dark">Quiz JSON</FormLabel>
+            <Textarea
+              rows={8}
+              value={draft.quizJson}
+              onChange={(event) =>
+                updateLocalizationDraft(locale, (previous) => ({
+                  ...previous,
+                  quizJson: event.target.value,
+                }))
+              }
+              placeholder='[
+  {
+    "question": "What is React?",
+    "options": ["Library", "Framework"],
+    "correctAnswer": "Library"
+  }
+]'
+            />
+          </div>
+        )}
+      </div>
+    )
+  }
 
   useEffect(() => {
     if (!dialogOpen) {
       form.reset()
       setEditingLesson(null)
       setSlugManuallyEdited(false)
+      setLocalizationDrafts({})
+      setActiveLocale(defaultLocaleCode)
     }
-  }, [dialogOpen, form])
+  }, [dialogOpen, form, defaultLocaleCode])
 
-  const watchedTitle = form.watch('title')
   const watchedSlug = form.watch('slug')
+  const defaultLocaleTitle = localizationDrafts[defaultLocaleCode]?.title ?? ''
 
   useEffect(() => {
     if (!slugManuallyEdited && !editingLesson) {
-      const generated = slugify(watchedTitle ?? '')
+      const generated = slugify(defaultLocaleTitle ?? '')
       if (generated && generated !== watchedSlug) {
         form.setValue('slug', generated, { shouldValidate: false })
       }
     }
-  }, [watchedTitle, watchedSlug, slugManuallyEdited, editingLesson, form])
+  }, [defaultLocaleTitle, watchedSlug, slugManuallyEdited, editingLesson, form])
 
   const { data: learningPaths = [] } = useQuery<LearningPathRow[]>({
     queryKey: ['admin-lessons-paths'],
@@ -253,13 +467,28 @@ export default function AdminLessons() {
       const { data, error } = await supabase
         .from('lessons')
         .select(
-          'id, title, slug, lesson_type, module_id, order, content, xp_value, duration_minutes, thumbnail_url, is_published, published_at, updated_at'
+          `
+            id,
+            title,
+            slug,
+            lesson_type,
+            module_id,
+            order,
+            content,
+            xp_value,
+            duration_minutes,
+            thumbnail_url,
+            is_published,
+            published_at,
+            updated_at,
+            lesson_localizations(*)
+          `
         )
         .order('module_id', { ascending: true })
         .order('order', { ascending: true })
 
       if (error) throw error
-      return data ?? []
+      return (data ?? []) as LessonWithMeta[]
     },
   })
 
@@ -280,43 +509,110 @@ export default function AdminLessons() {
 
   const upsertMutation = useMutation({
     mutationFn: async (values: LessonFormValues) => {
-      let content: unknown = null
-      if (values.lesson_type === 'text') {
-        content = values.text_content?.trim() ?? ''
-      } else if (values.lesson_type === 'video') {
-        content = values.video_url?.trim() ?? ''
-      } else {
-        content = JSON.parse(values.quiz_json ?? '[]')
+      if (locales.length === 0) {
+        throw new Error('Configure at least one locale before saving lessons')
       }
 
-      const payload = {
+      if (Object.keys(localizationDrafts).length === 0) {
+        throw new Error('Add localized content before saving the lesson')
+      }
+
+      const localeLabels = locales.reduce<Record<string, string>>((acc, locale) => {
+        acc[locale.code] = locale.label
+        return acc
+      }, {})
+
+      const parsedContentByLocale: Record<string, unknown> = {}
+
+      for (const [locale, draft] of Object.entries(localizationDrafts)) {
+        if (!draft.title.trim()) {
+          throw new Error(`Provide a title for ${localeLabels[locale] ?? locale}`)
+        }
+
+        if (values.lesson_type === 'text') {
+          if (draft.isPublished && !draft.richText.trim()) {
+            throw new Error(`Provide content for ${localeLabels[locale] ?? locale}`)
+          }
+          parsedContentByLocale[locale] = draft.richText
+        } else if (values.lesson_type === 'video') {
+          if (draft.isPublished && !draft.videoUrl.trim()) {
+            throw new Error(`Provide a video URL for ${localeLabels[locale] ?? locale}`)
+          }
+          parsedContentByLocale[locale] = draft.videoUrl.trim()
+        } else {
+          if (draft.isPublished && !draft.quizJson.trim()) {
+            throw new Error(`Provide quiz JSON for ${localeLabels[locale] ?? locale}`)
+          }
+          try {
+            const parsed = draft.quizJson.trim() ? JSON.parse(draft.quizJson) : []
+            if (!Array.isArray(parsed)) {
+              throw new Error()
+            }
+            parsedContentByLocale[locale] = parsed
+          } catch {
+            throw new Error(`Quiz JSON is invalid for ${localeLabels[locale] ?? locale}`)
+          }
+        }
+      }
+
+      const defaultDraft = localizationDrafts[defaultLocaleCode]
+      if (!defaultDraft) {
+        throw new Error('Default locale content is missing')
+      }
+
+      const anyPublished = Object.values(localizationDrafts).some((draft) => draft.isPublished)
+
+      const basePayload = {
         module_id: values.module_id,
-        title: values.title.trim(),
         slug: values.slug.trim(),
         lesson_type: values.lesson_type,
-        content,
+        content: parsedContentByLocale[defaultLocaleCode],
+        title: defaultDraft.title.trim(),
         xp_value: values.xp_value,
         order: values.order,
         duration_minutes: values.duration_minutes ?? null,
-        thumbnail_url: values.thumbnail_url?.trim() ? values.thumbnail_url.trim() : null,
-        is_published: values.is_published,
-        published_at: values.is_published
-          ? editingLesson?.published_at ?? new Date().toISOString()
-          : null,
+        thumbnail_url: defaultDraft.thumbnailUrl.trim() ? defaultDraft.thumbnailUrl.trim() : null,
+        is_published: anyPublished,
+        published_at: anyPublished ? editingLesson?.published_at ?? new Date().toISOString() : null,
       }
 
+      let lessonId = editingLesson?.id ?? null
+
       if (editingLesson) {
-        const { error } = await supabase.from('lessons').update(payload).eq('id', editingLesson.id)
+        const { error } = await supabase.from('lessons').update(basePayload).eq('id', editingLesson.id)
         if (error) throw error
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('lessons')
-          .insert({
-            ...payload,
-            published_at: values.is_published ? new Date().toISOString() : null,
-          })
+          .insert(basePayload)
+          .select('id')
+          .single()
         if (error) throw error
+        lessonId = data?.id ?? null
       }
+
+      if (!lessonId) {
+        throw new Error('Could not determine lesson identifier after saving')
+      }
+
+      const localizationRows = Object.entries(localizationDrafts).map(([locale, draft]) => {
+        const existingPublishedAt = editingLesson?.lesson_localizations?.find((record) => record.locale === locale)?.published_at ?? null
+        return {
+          lesson_id: lessonId!,
+          locale,
+          title: draft.title.trim(),
+          tags: draft.tags,
+          thumbnail_url: draft.thumbnailUrl.trim() ? draft.thumbnailUrl.trim() : null,
+          is_published: draft.isPublished,
+          published_at: draft.isPublished ? draft.publishedAt ?? existingPublishedAt ?? new Date().toISOString() : null,
+          content: parsedContentByLocale[locale],
+        }
+      })
+
+      const { error: localizationError } = await supabase
+        .from('lesson_localizations')
+        .upsert(localizationRows, { onConflict: 'lesson_id,locale' })
+      if (localizationError) throw localizationError
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-lessons'] })
@@ -326,24 +622,6 @@ export default function AdminLessons() {
     onError: (error) => {
       console.error('Error saving lesson', error)
       toast.error(error instanceof Error ? error.message : 'Failed to save lesson')
-    },
-  })
-
-  const publishMutation = useMutation({
-    mutationFn: async ({ id, publish }: { id: string; publish: boolean }) => {
-      const { error } = await supabase
-        .from('lessons')
-        .update({ is_published: publish, published_at: publish ? new Date().toISOString() : null })
-        .eq('id', id)
-      if (error) throw error
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-lessons'] })
-      toast.success('Publish state updated')
-    },
-    onError: (error) => {
-      console.error('Error toggling publish', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to toggle publish state')
     },
   })
 
@@ -364,62 +642,42 @@ export default function AdminLessons() {
   })
 
   const openForCreate = () => {
+    if (!locales.length) {
+      toast.error('Configure locales before creating lessons')
+      return
+    }
     setEditingLesson(null)
     setSlugManuallyEdited(false)
     form.reset({
       module_id: selectedModuleFilter !== 'all' ? selectedModuleFilter : '',
-      title: '',
       slug: '',
       lesson_type: 'text',
-      text_content: '',
-      video_url: '',
-      quiz_json: '',
       xp_value: 10,
       order: 1,
       duration_minutes: '',
-      thumbnail_url: '',
-      is_published: false,
     })
+    initializeLocalizationDrafts(undefined, 'text')
     setDialogOpen(true)
   }
 
   const openForEdit = (lesson: LessonWithMeta) => {
+    if (!locales.length) {
+      toast.error('Configure locales before editing lessons')
+      return
+    }
     setEditingLesson(lesson)
     setSlugManuallyEdited(true)
 
-    const moduleId = lesson.module_id ?? ''
-    const content = lesson.content
-
-    let textContent = ''
-    let videoUrl = ''
-    let quizJson = ''
-
-    if (lesson.lesson_type === 'text') {
-      textContent = typeof content === 'string' ? content : ''
-    } else if (lesson.lesson_type === 'video') {
-      videoUrl = typeof content === 'string' ? content : ''
-    } else if (content) {
-      try {
-        quizJson = JSON.stringify(content, null, 2)
-      } catch {
-        quizJson = ''
-      }
-    }
-
     form.reset({
-      module_id: moduleId,
-      title: lesson.title ?? '',
+      module_id: lesson.module_id ?? '',
       slug: lesson.slug ?? '',
       lesson_type: lesson.lesson_type,
-      text_content: textContent,
-      video_url: videoUrl,
-      quiz_json: quizJson,
       xp_value: lesson.xp_value ?? 0,
       order: lesson.order ?? 1,
       duration_minutes: lesson.duration_minutes?.toString() ?? '',
-      thumbnail_url: lesson.thumbnail_url ?? '',
-      is_published: lesson.is_published,
     })
+
+    initializeLocalizationDrafts(lesson)
     setDialogOpen(true)
   }
 
@@ -434,14 +692,20 @@ export default function AdminLessons() {
   }
 
   const getLessonPreview = (lesson: LessonWithMeta) => {
+    const localizationMap = mapLocalizationsByLocale(lesson.lesson_localizations ?? [])
+    const localization =
+      localizationMap[defaultLocaleCode] ??
+      localizationMap[DEFAULT_LOCALE] ??
+      Object.values(localizationMap)[0]
+    const localizedContent = localization?.content ?? lesson.content
+
     if (lesson.lesson_type === 'text') {
-      const content = typeof lesson.content === 'string' ? lesson.content : ''
-      // Strip HTML tags for preview
+      const content = typeof localizedContent === 'string' ? localizedContent : ''
       const plainText = content.replace(/<[^>]*>?/gm, '')
       return plainText.slice(0, 160)
     }
     if (lesson.lesson_type === 'video') {
-      return typeof lesson.content === 'string' ? lesson.content : ''
+      return typeof localizedContent === 'string' ? localizedContent : ''
     }
     return 'Quiz lesson contents'
   }
@@ -605,23 +869,21 @@ export default function AdminLessons() {
                   <p className="text-xs text-forge-gray/90 line-clamp-3">
                     {getLessonPreview(lesson)}
                   </p>
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-forge-gray">
+                    {(lesson.lesson_localizations ?? []).map((localization) => (
+                      <Badge
+                        key={`${lesson.id}-${localization.locale}`}
+                        variant={localization.is_published ? 'default' : 'outline'}
+                        className={localization.is_published ? 'bg-forge-orange text-white hover:bg-forge-orange/90' : ''}
+                      >
+                        {localization.locale} · {localization.is_published ? 'Published' : 'Draft'}
+                      </Badge>
+                    ))}
+                  </div>
                   <div className="text-xs text-forge-gray/80">
                     Updated {lesson.updated_at ? formatDistanceToNow(new Date(lesson.updated_at), { addSuffix: true }) : 'N/A'}
                   </div>
                 </CardContent>
-                <CardFooter className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Switch
-                      id={`lesson-publish-${lesson.id}`}
-                      checked={lesson.is_published}
-                      onCheckedChange={(checked) => publishMutation.mutate({ id: lesson.id, publish: checked })}
-                      disabled={publishMutation.isPending}
-                    />
-                    <label htmlFor={`lesson-publish-${lesson.id}`} className="text-forge-gray">
-                      {lesson.is_published ? 'Unpublish' : 'Publish'}
-                    </label>
-                  </div>
-                </CardFooter>
               </Card>
             )
           })}
@@ -672,41 +934,27 @@ export default function AdminLessons() {
                 )}
               />
 
-              <div className="grid gap-6 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. Understanding Components" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="slug"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Slug</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="understanding-components"
-                          {...field}
-                          onChange={(event) => {
-                            setSlugManuallyEdited(true)
-                            field.onChange(event)
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="slug"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Slug</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="understanding-components"
+                        {...field}
+                        onChange={(event) => {
+                          setSlugManuallyEdited(true)
+                          field.onChange(event)
+                        }}
+                      />
+                    </FormControl>
+                    <FormDescription>Used in URLs. We auto-generate it from the default locale title.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <div className="grid gap-6 md:grid-cols-3">
                 <FormField
@@ -759,131 +1007,46 @@ export default function AdminLessons() {
                 />
               </div>
 
-              {form.watch('lesson_type') === 'text' && (
-                <FormField
-                  control={form.control}
-                  name="text_content"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Lesson Content (HTML)</FormLabel>
-                      <FormControl>
-                        <RichTextEditor
-                          value={field.value ?? ''}
-                          onChange={field.onChange}
-                          placeholder="Write lesson content..."
-                          onExpand={() => {
-                            if (!editingLesson) {
-                              toast.error('Please save the lesson first before opening full screen editor')
-                              return
-                            }
-                            navigate(DASHBOARD_ADMIN_LESSON_EDITOR(editingLesson.id))
-                          }}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Rich text editor with support for formatting, links, images, and embedded videos.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {form.watch('lesson_type') === 'video' && (
-                <FormField
-                  control={form.control}
-                  name="video_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Video URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://www.youtube.com/watch?v=..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {form.watch('lesson_type') === 'quiz' && (
-                <FormField
-                  control={form.control}
-                  name="quiz_json"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Quiz JSON</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          rows={8}
-                          placeholder='[
-  {
-    "question": "What is React?",
-    "options": ["Library", "Framework"],
-    "correctAnswer": "Library"
-  }
-]'
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              <div className="grid gap-6 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="duration_minutes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Duration (minutes)</FormLabel>
-                      <FormControl>
-                        <Input type="number" min={0} placeholder="Optional" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="thumbnail_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Thumbnail URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://..." {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Store media in Supabase Storage and paste the public URL here. Upload widgets are planned for
-                        a next iteration.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-base font-semibold text-forge-dark">Localized content</h4>
+                  <p className="text-sm text-forge-gray">
+                    Manage per-locale titles, tags, thumbnails, publish state, and lesson content.
+                  </p>
+                </div>
+                {localesLoading ? (
+                  <Card className="border-dashed border-forge-cream/70 bg-white/70">
+                    <CardContent className="flex items-center gap-2 p-6 text-sm text-forge-gray">
+                      <Loader2 className="h-4 w-4 animate-spin" /> Loading locales...
+                    </CardContent>
+                  </Card>
+                ) : locales.length === 0 ? (
+                  <Card className="border border-red-200 bg-red-50/80">
+                    <CardContent className="p-4 text-sm text-red-700">
+                      Add locales in Supabase before managing localized content.
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <LocalizationTabs
+                    locales={locales}
+                    activeLocale={activeLocale}
+                    onLocaleChange={setActiveLocale}
+                    renderFields={renderLocalizationFields}
+                  />
+                )}
               </div>
+
 
               <FormField
                 control={form.control}
-                name="is_published"
+                name="duration_minutes"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border border-forge-cream/80 bg-forge-cream/30 p-3">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Publish immediately</FormLabel>
-                      <DialogDescription>
-                        {field.value
-                          ? 'Published lessons appear instantly in the learner experience.'
-                          : 'Keep as draft until you are ready to release.'}
-                      </DialogDescription>
-                    </div>
+                  <FormItem>
+                    <FormLabel>Duration (minutes)</FormLabel>
                     <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        disabled={form.formState.isSubmitting}
-                      />
+                      <Input type="number" min={0} placeholder="Optional" {...field} />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />

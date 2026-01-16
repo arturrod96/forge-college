@@ -12,6 +12,10 @@ import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { LoadingGrid } from '@/components/ui/loading-states';
 import { ContentSearch, StatusFilter, SortSelector, ProgressFilter, type StatusFilterValue, type SortOption, type ProgressFilterValue } from '@/components/filters';
+import { pickPublishedLocalization, DEFAULT_LOCALE } from '@/lib/localization';
+import type { Tables } from '@/types/supabase';
+
+type LearningPathLocalization = Tables<'learning_path_localizations'>;
 
 interface LearningPath {
   id: string;
@@ -29,6 +33,11 @@ interface LearningPath {
   }>;
 }
 
+type LearningPathRow = Tables<'learning_paths'> & {
+  courses: Array<{ id: string; title: string; order: number }> | null;
+  learning_path_localizations: LearningPathLocalization[] | null;
+};
+
 type AvailablePathsProps = {
   limit?: number;
   className?: string;
@@ -36,7 +45,7 @@ type AvailablePathsProps = {
 
 export function AvailablePaths({ limit, className }: AvailablePathsProps) {
   const { user } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [enrollingId, setEnrollingId] = useState<string | null>(null);
   const [joiningWaitlistId, setJoiningWaitlistId] = useState<string | null>(null);
   const [leavingWaitlistId, setLeavingWaitlistId] = useState<string | null>(null);
@@ -48,8 +57,10 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
   const queryClient = useQueryClient();
   const supabase = createClientBrowser();
 
+  const resolvedLocale = i18n.language || DEFAULT_LOCALE;
+
   const { data: paths = [], isLoading } = useQuery<LearningPath[]>({
-    queryKey: ['availablePaths', user?.id],
+    queryKey: ['availablePaths', user?.id, resolvedLocale],
     enabled: true,
     staleTime: 60_000,
     refetchOnWindowFocus: false,
@@ -57,10 +68,16 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
     queryFn: async (): Promise<LearningPath[]> => {
       const { data: pathsData, error: pathsError } = await supabase
         .from('learning_paths')
-        .select(`
-          id, title, description, status,
-          courses(id, title, order)
-        `)
+        .select(
+          `
+            id,
+            title,
+            description,
+            status,
+            courses(id, title, order),
+            learning_path_localizations(*)
+          `
+        )
         .in('status', ['published', 'coming_soon']);
       if (pathsError) throw pathsError;
 
@@ -150,7 +167,15 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
         }
       }
 
-      return (pathsData || []).map((path: any) => {
+      return ((pathsData as LearningPathRow[] | null | undefined) ?? []).map((path) => {
+        // Get localized title and description
+        const localization = pickPublishedLocalization(
+          path.learning_path_localizations ?? [],
+          resolvedLocale,
+          DEFAULT_LOCALE
+        );
+
+        // Process courses
         const courses = (path.courses || [])
           .map((c: any) => ({
             id: c.id,
@@ -162,15 +187,15 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
 
         return {
           id: path.id,
-          title: path.title,
-          description: path.description,
+          title: localization?.title ?? path.title,
+          description: localization?.description ?? path.description ?? '',
           status: path.status,
           isEnrolled: enrolledPaths.includes(path.id),
           isOnWaitlist: waitlistedPaths.includes(path.id),
           courseCount: courses.length,
           courses,
           progressStatus: pathProgressMap[path.id] || (enrolledPaths.includes(path.id) ? 'not_started' : 'not_started'),
-        };
+        } satisfies LearningPath;
       });
     },
   });

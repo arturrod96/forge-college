@@ -1,6 +1,6 @@
 import { useAuth } from '@/hooks/useOAuth'
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { Fragment, useMemo, useState, type ReactNode } from 'react'
+import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react'
 import {
   SidebarProvider,
   Sidebar,
@@ -47,6 +47,9 @@ import {
 import { useTranslation } from 'react-i18next'
 import { BetaPromoBar } from '@/components/BetaPromoBar'
 import { MobileBottomNav } from '@/components/dashboard/MobileBottomNav'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+
+const APP_LOCALE_STORAGE_KEY = 'forge:appLocale'
 
 function MobileMenuButton() {
   const { toggleSidebar } = useSidebar()
@@ -126,7 +129,38 @@ function EducationMenuItem({ location, educationOpen, setEducationOpen }: {
 export function DashboardLayout() {
   const { user, loading } = useAuth()
   const location = useLocation()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+
+  const [sidebarLocale, setSidebarLocale] = useState<string>(i18n.language)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const stored = localStorage.getItem(APP_LOCALE_STORAGE_KEY)
+    if (stored && stored !== i18n.language) {
+      i18n.changeLanguage(stored)
+      setSidebarLocale(stored)
+    }
+  }, [i18n])
+
+  useEffect(() => {
+    setSidebarLocale(i18n.language)
+  }, [i18n.language])
+
+  const localeOptions = useMemo(
+    () => [
+      { value: 'en-US', label: t('profile.languageOptions.enUS') },
+      { value: 'pt-BR', label: t('profile.languageOptions.ptBR') },
+    ],
+    [t]
+  )
+
+  const handleSidebarLocaleChange = (value: string) => {
+    setSidebarLocale(value)
+    i18n.changeLanguage(value)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(APP_LOCALE_STORAGE_KEY, value)
+    }
+  }
 
   const isDashboard = location.pathname === DASHBOARD_PATH
   const isExplore = location.pathname.startsWith(DASHBOARD_EXPLORE)
@@ -307,7 +341,40 @@ export function DashboardLayout() {
             </SidebarGroup>
           </SidebarContent>
 
-          <SidebarFooter className="p-2">
+          <SidebarFooter className="p-2 space-y-3 group-data-[collapsible=icon]:space-y-2">
+            <div className="rounded-lg border border-forge-cream/80 bg-white/90 p-3 shadow-sm group-data-[collapsible=icon]:hidden">
+              <p className="flex items-center gap-2 text-sm font-semibold text-forge-dark">
+                <Languages className="h-4 w-4 text-forge-orange" /> {t('dashboard.sidebar.localeTitle')}
+              </p>
+              <p className="mt-1 text-xs text-forge-gray">{t('dashboard.sidebar.localeDescription')}</p>
+              <Select value={sidebarLocale} onValueChange={handleSidebarLocaleChange}>
+                <SelectTrigger className="mt-3">
+                  <SelectValue placeholder={t('dashboard.sidebar.localePlaceholder')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {localeOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="hidden justify-center group-data-[collapsible=icon]:flex">
+              <Select value={sidebarLocale} onValueChange={handleSidebarLocaleChange}>
+                <SelectTrigger className="h-10 w-10 rounded-full border border-forge-cream bg-white/90 p-0 text-forge-dark focus:ring-forge-orange">
+                  <Languages className="h-4 w-4 text-forge-orange" />
+                  <span className="sr-only">{t('dashboard.sidebar.localePlaceholder')}</span>
+                </SelectTrigger>
+                <SelectContent side="top" align="center">
+                  {localeOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <ProfileDropdown />
           </SidebarFooter>
         </Sidebar>
