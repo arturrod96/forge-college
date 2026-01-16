@@ -257,13 +257,30 @@ export default function AdminModules() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('modules')
-        .select('id, title, slug, summary, order, course_id, is_published, published_at, updated_at, lessons:lessons(id)')
+        .select(
+          `
+            id,
+            title,
+            slug,
+            summary,
+            order,
+            course_id,
+            is_published,
+            published_at,
+            updated_at,
+            module_localizations(*),
+            lessons:lessons(id)
+          `
+        )
         .order('course_id', { ascending: true })
         .order('order', { ascending: true })
 
       if (error) throw error
 
-      type QueryRow = ModuleRow & { lessons?: { id: string }[] }
+      type QueryRow = ModuleRow & {
+        lessons?: { id: string }[]
+        module_localizations: Tables<'module_localizations'>[] | null
+      }
 
       return ((data ?? []) as QueryRow[]).map((item) => ({
         ...item,
