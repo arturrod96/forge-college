@@ -692,14 +692,20 @@ export default function AdminLessons() {
   }
 
   const getLessonPreview = (lesson: LessonWithMeta) => {
+    const localizationMap = mapLocalizationsByLocale(lesson.lesson_localizations ?? [])
+    const localization =
+      localizationMap[defaultLocaleCode] ??
+      localizationMap[DEFAULT_LOCALE] ??
+      Object.values(localizationMap)[0]
+    const localizedContent = localization?.content ?? lesson.content
+
     if (lesson.lesson_type === 'text') {
-      const content = typeof lesson.content === 'string' ? lesson.content : ''
-      // Strip HTML tags for preview
+      const content = typeof localizedContent === 'string' ? localizedContent : ''
       const plainText = content.replace(/<[^>]*>?/gm, '')
       return plainText.slice(0, 160)
     }
     if (lesson.lesson_type === 'video') {
-      return typeof lesson.content === 'string' ? lesson.content : ''
+      return typeof localizedContent === 'string' ? localizedContent : ''
     }
     return 'Quiz lesson contents'
   }
