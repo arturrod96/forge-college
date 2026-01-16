@@ -25,9 +25,20 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { RichTextEditor } from '@/components/admin/RichTextEditor'
+import { LocalizationTabs } from '@/components/admin/LocalizationTabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
+import { TagInput } from '@/components/profile/TagInput'
+import {
+  DEFAULT_LOCALE,
+  ensureLocaleMap,
+  fetchSupportedLocales,
+  getDefaultLocale,
+  mapLocalizationsByLocale,
+  pickPublishedLocalization,
+  type LocaleRow,
+} from '@/lib/localization'
 import {
   AlertDialog,
   AlertDialogAction,
