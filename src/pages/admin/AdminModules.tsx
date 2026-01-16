@@ -341,24 +341,6 @@ export default function AdminModules() {
     },
   })
 
-  const publishMutation = useMutation({
-    mutationFn: async ({ id, publish }: { id: string; publish: boolean }) => {
-      const { error } = await supabase
-        .from('modules')
-        .update({ is_published: publish, published_at: publish ? new Date().toISOString() : null })
-        .eq('id', id)
-      if (error) throw error
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-modules'] })
-      toast.success('Publish state updated')
-    },
-    onError: (error) => {
-      console.error('Error toggling publish', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to toggle publish state')
-    },
-  })
-
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from('modules').delete().eq('id', id)
