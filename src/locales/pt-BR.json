@@ -225,6 +225,11 @@
       "openMenu": "Abrir menu",
       "loading": "Carregando painel..."
     },
+    "sidebar": {
+      "localeTitle": "Idioma do app",
+      "localeDescription": "Escolha como a interface é traduzida.",
+      "localePlaceholder": "Selecione o idioma"
+    },
     "welcomeBack": "Bem-vindo de volta",
     "loading": "Carregando...",
     "notFound": "Não encontrado",
