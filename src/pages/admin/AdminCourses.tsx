@@ -420,7 +420,13 @@ export default function AdminCourses() {
   }
 
   const onSubmit = (values: CourseFormValues) => {
-    upsertMutation.mutate(values)
+    try {
+      upsertMutation.mutate(values)
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message)
+      }
+    }
   }
 
   return (
