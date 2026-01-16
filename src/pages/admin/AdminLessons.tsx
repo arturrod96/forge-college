@@ -119,6 +119,12 @@ export default function AdminLessons() {
   const [activeLocale, setActiveLocale] = useState(DEFAULT_LOCALE)
   const [localizationDrafts, setLocalizationDrafts] = useState<Record<string, LessonLocalizationFormState>>({})
 
+  useEffect(() => {
+    if (locales.length > 0) {
+      setActiveLocale((current) => (locales.some((locale) => locale.code === current) ? current : defaultLocaleCode))
+    }
+  }, [locales, defaultLocaleCode])
+
   const [selectedPathFilter, setSelectedPathFilter] = useState<'all' | string>('all')
   const [selectedCourseFilter, setSelectedCourseFilter] = useState<'all' | string>('all')
   const [selectedModuleFilter, setSelectedModuleFilter] = useState<'all' | string>('all')
