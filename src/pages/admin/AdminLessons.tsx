@@ -188,6 +188,25 @@ export default function AdminLessons() {
   const [selectedCourseFilter, setSelectedCourseFilter] = useState<'all' | string>('all')
   const [selectedModuleFilter, setSelectedModuleFilter] = useState<'all' | string>('all')
   const [dialogOpen, setDialogOpen] = useState(false)
+
+  const initializeLocalizationDrafts = useCallback(
+    (lesson?: LessonWithMeta, lessonType?: LessonFormValues['lesson_type']) => {
+      if (locales.length === 0) return
+      const baseType = lesson?.lesson_type ?? lessonType ?? form.getValues('lesson_type')
+      const existingRecords = lesson
+        ? Object.fromEntries(
+            Object.entries(mapLocalizationsByLocale(lesson.lesson_localizations ?? [])).map(([localeCode, record]) => [
+              localeCode,
+              deserializeLocalization(record, baseType),
+            ])
+          )
+        : {}
+      const drafts = ensureLocaleMap(locales, existingRecords, () => createEmptyLocalizationDraft())
+      setLocalizationDrafts(drafts)
+      setActiveLocale(getDefaultLocale(locales))
+    },
+    [locales, deserializeLocalization, createEmptyLocalizationDraft, form]
+  )
   const [editingLesson, setEditingLesson] = useState<LessonWithMeta | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<LessonWithMeta | null>(null)
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false)
