@@ -76,6 +76,16 @@ type ModuleRow = Tables<'modules'>
 type ModuleWithMeta = ModuleRow & {
   lessons?: { id: string }[]
   lessonCount: number
+  module_localizations: Tables<'module_localizations'>[] | null
+}
+
+type ModuleLocalizationFormState = {
+  title: string
+  summary: string
+  tags: string[]
+  thumbnailUrl: string
+  isPublished: boolean
+  publishedAt: string | null
 }
 
 type CourseRow = Tables<'courses'>
