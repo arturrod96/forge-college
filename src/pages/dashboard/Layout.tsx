@@ -361,7 +361,25 @@ export function DashboardLayout() {
             </SidebarGroup>
           </SidebarContent>
 
-          <SidebarFooter className="p-2">
+          <SidebarFooter className="p-2 space-y-3">
+            <div className="rounded-lg border border-forge-cream/80 bg-white/90 p-3 shadow-sm group-data-[collapsible=icon]:hidden">
+              <p className="flex items-center gap-2 text-sm font-semibold text-forge-dark">
+                <Languages className="h-4 w-4 text-forge-orange" /> {t('dashboard.sidebar.localeTitle')}
+              </p>
+              <p className="mt-1 text-xs text-forge-gray">{t('dashboard.sidebar.localeDescription')}</p>
+              <Select value={sidebarLocale} onValueChange={handleSidebarLocaleChange}>
+                <SelectTrigger className="mt-3">
+                  <SelectValue placeholder={t('dashboard.sidebar.localePlaceholder')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {localeOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <ProfileDropdown />
           </SidebarFooter>
         </Sidebar>
