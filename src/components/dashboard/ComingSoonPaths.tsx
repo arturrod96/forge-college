@@ -159,7 +159,7 @@ export function ComingSoonPaths({ limit, className }: ComingSoonPathsProps) {
   return (
     <div className={`grid gap-4 md:grid-cols-2 lg:grid-cols-3 ${className}`}>
       {displayPaths.map((path) => (
-        <Card key={path.id} className="border-blue-200 bg-blue-50/30">
+        <Card key={path.id} className="bg-white">
           <CardHeader>
             <div className="flex items-start justify-between gap-2">
               <div className="space-y-1">

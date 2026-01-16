@@ -95,9 +95,6 @@ export function LearningHabits({ className }: LearningHabitsProps) {
   }, [completions]);
 
   const streakText = isLoading ? '-' : t('dashboard.learningHabits.dayCount', { count: streakDays });
-  const weeklyProgressText = isLoading
-    ? '-'
-    : t('dashboard.learningHabits.weekProgress', { completed: weekCount, goal: WEEKLY_GOAL });
 
   return (
     <EnhancedCard 
@@ -115,16 +112,14 @@ export function LearningHabits({ className }: LearningHabitsProps) {
             <div className="text-sm text-gray-600">{t('dashboard.learningHabits.currentStreak')}</div>
             <div className="text-2xl font-semibold">{streakText}</div>
           </div>
-          <div className="text-xs text-gray-500">{t('dashboard.learningHabits.keepGoing')}</div>
         </div>
 
         {/* Weekly goal */}
         <div>
           <div className="flex items-center justify-between mb-1">
             <div className="text-sm text-gray-600">{t('dashboard.learningHabits.weeklyGoal')}</div>
-            <div className="text-sm font-medium">{weeklyProgressText}</div>
           </div>
-          <Progress value={Math.min(100, (weekCount / WEEKLY_GOAL) * 100)} />
+          <Progress value={Math.min(100, (streakDays / 7) * 100)} />
         </div>
 
         {/* 7-day mini series */}

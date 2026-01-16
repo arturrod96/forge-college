@@ -94,7 +94,7 @@
     "forCompanies": "For Companies",
     "forInvestors": "For Investors",
     "dashboard": "Dashboard",
-    "paths": "Paths",
+    "paths": "Learning Path",
     "admin": "Admin",
     "scoreboard": "Scoreboard",
     "achievements": "Achievements",
@@ -252,7 +252,7 @@
     "home": {
       "badge": "Welcome back",
       "headlineSuffix": ", ready to continue your journey?",
-      "exploreCta": "View all paths"
+      "exploreCta": "View all learning paths"
     },
     "continueLearning": {
       "title": "Pick up where you left off",
