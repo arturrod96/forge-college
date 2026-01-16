@@ -882,6 +882,35 @@ export default function AdminLessons() {
                 />
               </div>
 
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-base font-semibold text-forge-dark">Localized content</h4>
+                  <p className="text-sm text-forge-gray">
+                    Manage per-locale titles, tags, thumbnails, publish state, and lesson content.
+                  </p>
+                </div>
+                {localesLoading ? (
+                  <Card className="border-dashed border-forge-cream/70 bg-white/70">
+                    <CardContent className="flex items-center gap-2 p-6 text-sm text-forge-gray">
+                      <Loader2 className="h-4 w-4 animate-spin" /> Loading locales...
+                    </CardContent>
+                  </Card>
+                ) : locales.length === 0 ? (
+                  <Card className="border border-red-200 bg-red-50/80">
+                    <CardContent className="p-4 text-sm text-red-700">
+                      Add locales in Supabase before managing localized content.
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <LocalizationTabs
+                    locales={locales}
+                    activeLocale={activeLocale}
+                    onLocaleChange={setActiveLocale}
+                    renderFields={renderLocalizationFields}
+                  />
+                )}
+              </div>
+
 
               <div className="grid gap-6 md:grid-cols-2">
                 <FormField
