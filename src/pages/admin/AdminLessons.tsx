@@ -1037,59 +1037,16 @@ export default function AdminLessons() {
               </div>
 
 
-              <div className="grid gap-6 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="duration_minutes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Duration (minutes)</FormLabel>
-                      <FormControl>
-                        <Input type="number" min={0} placeholder="Optional" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="thumbnail_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Thumbnail URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://..." {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Store media in Supabase Storage and paste the public URL here. Upload widgets are planned for
-                        a next iteration.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
               <FormField
                 control={form.control}
-                name="is_published"
+                name="duration_minutes"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border border-forge-cream/80 bg-forge-cream/30 p-3">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Publish immediately</FormLabel>
-                      <DialogDescription>
-                        {field.value
-                          ? 'Published lessons appear instantly in the learner experience.'
-                          : 'Keep as draft until you are ready to release.'}
-                      </DialogDescription>
-                    </div>
+                  <FormItem>
+                    <FormLabel>Duration (minutes)</FormLabel>
                     <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        disabled={form.formState.isSubmitting}
-                      />
+                      <Input type="number" min={0} placeholder="Optional" {...field} />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
