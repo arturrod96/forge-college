@@ -2,17 +2,19 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import enUS from '../locales/en-US.json';
 import ptBR from '../locales/pt-BR.json';
+import { DEFAULT_LOCALE } from '@/lib/localization';
 
 const LANGUAGE_COOKIE = 'app_language';
 
 // Get language from cookie
+
 const getLanguageFromCookie = (): string => {
   if (typeof window === 'undefined' || typeof document === 'undefined') {
-    return 'en-US';
+    return DEFAULT_LOCALE;
   }
   const cookies = document.cookie.split(';');
   const langCookie = cookies.find(cookie => cookie.trim().startsWith(`${LANGUAGE_COOKIE}=`));
-  return langCookie ? langCookie.split('=')[1] : 'en-US';
+  return langCookie ? langCookie.split('=')[1] : DEFAULT_LOCALE;
 };
 
 // Save language to cookie
@@ -34,7 +36,7 @@ i18n
       'pt-BR': { translation: ptBR },
     },
     lng: getLanguageFromCookie(),
-    fallbackLng: 'en-US',
+    fallbackLng: DEFAULT_LOCALE,
     interpolation: {
       escapeValue: false,
     },

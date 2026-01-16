@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useOAuth';
 import { useToast } from '@/hooks/use-toast';
-import { StudentProfile } from '@/types/profile';
+import type { StudentProfile } from '@/types/profile';
 import { getProfile, updateProfile } from '@/lib/profile.service';
 import { ProfileSidebar } from '@/components/profile/ProfileSidebar';
 import { SectionCard } from '@/components/profile/SectionCard';
@@ -97,10 +97,18 @@ export default function Profile() {
         data.email = user.email;
       }
 
-      if (data.communicationLanguage && data.communicationLanguage !== i18n.language) {
-        i18n.changeLanguage(data.communicationLanguage);
+      const preferredLanguage = (
+        data.communicationLanguage ||
+        (i18n.language as StudentProfile['communicationLanguage']) ||
+        'pt-BR'
+      ) as StudentProfile['communicationLanguage'];
+
+      data.communicationLanguage = preferredLanguage;
+
+      if (preferredLanguage !== i18n.language) {
+        i18n.changeLanguage(preferredLanguage);
       }
-      
+
       setProfile(data);
       setHasChanges(false);
     } catch (error) {
@@ -178,6 +186,11 @@ export default function Profile() {
     }
   };
 
+  const handleCommunicationLanguageChange = (locale: StudentProfile['communicationLanguage']) => {
+    updateField('communicationLanguage', locale);
+    i18n.changeLanguage(locale);
+  };
+
   const isValidUrl = (url: string): boolean => {
     try {
       new URL(url);
@@ -207,6 +220,12 @@ export default function Profile() {
     );
   }
 
+  const sidebarDisplayName =
+    (profile.fullName && profile.fullName.trim().length > 0 ? profile.fullName : user?.user_metadata?.full_name) ??
+    t('profile.sidebar.anonymousUser');
+  const sidebarLocale = profile.communicationLanguage;
+  const sidebarAvatar = (user?.user_metadata?.avatar_url as string | undefined) ?? null;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -228,7 +247,17 @@ export default function Profile() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Left Sidebar */}
         <div className="lg:col-span-1">
-          <ProfileSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+          <ProfileSidebar
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            selectedLocale={sidebarLocale}
+            onLocaleChange={(locale) =>
+              handleCommunicationLanguageChange(locale as StudentProfile['communicationLanguage'])
+            }
+            fullName={sidebarDisplayName}
+            email={profile.email}
+            avatarUrl={sidebarAvatar}
+          />
         </div>
 
         {/* Right Content */}
@@ -309,10 +338,9 @@ export default function Profile() {
                       <Languages className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <Select
                         value={profile.communicationLanguage}
-                        onValueChange={(value) => {
-                          updateField('communicationLanguage', value as StudentProfile['communicationLanguage']);
-                          i18n.changeLanguage(value);
-                        }}
+                        onValueChange={(value) =>
+                          handleCommunicationLanguageChange(value as StudentProfile['communicationLanguage'])
+                        }
                       >
                         <SelectTrigger className="pl-10">
                           <SelectValue placeholder={t('profile.fields.selectLanguage')} />

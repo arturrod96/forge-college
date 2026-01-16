@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -9,7 +9,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
@@ -22,11 +21,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { LocalizationTabs } from '@/components/admin/LocalizationTabs'
+import { TagInput } from '@/components/profile/TagInput'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,6 +43,14 @@ import { Separator } from '@/components/ui/separator'
 import { Loader2, Pencil, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { formatDistanceToNow } from 'date-fns'
+import {
+  DEFAULT_LOCALE,
+  ensureLocaleMap,
+  fetchSupportedLocales,
+  getDefaultLocale,
+  mapLocalizationsByLocale,
+  type LocaleRow,
+} from '@/lib/localization'
 
 const slugify = (value: string) =>
   value
@@ -52,14 +62,11 @@ const slugify = (value: string) =>
 
 const moduleFormSchema = z.object({
   course_id: z.string().uuid('Select a course'),
-  title: z.string().min(3, 'Title must have at least 3 characters'),
   slug: z
     .string()
     .min(3, 'Slug must have at least 3 characters')
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Use lowercase letters, numbers, and hyphens only'),
-  summary: z.string().optional().or(z.literal('')),
   order: z.coerce.number().int('Order must be an integer').min(1, 'Order must be at least 1'),
-  is_published: z.boolean().default(false),
 })
 
 type ModuleFormValues = z.infer<typeof moduleFormSchema>
@@ -69,6 +76,16 @@ type ModuleRow = Tables<'modules'>
 type ModuleWithMeta = ModuleRow & {
   lessons?: { id: string }[]
   lessonCount: number
+  module_localizations: Tables<'module_localizations'>[] | null
+}
+
+type ModuleLocalizationFormState = {
+  title: string
+  summary: string
+  tags: string[]
+  thumbnailUrl: string
+  isPublished: boolean
+  publishedAt: string | null
 }
 
 type CourseRow = Tables<'courses'>
@@ -78,6 +95,80 @@ type LearningPathRow = Tables<'learning_paths'>
 export default function AdminModules() {
   const supabase = useMemo(() => createClientBrowser(), [])
   const queryClient = useQueryClient()
+
+  const { data: locales = [], isLoading: localesLoading } = useQuery<LocaleRow[]>({
+    queryKey: ['content-locales'],
+    queryFn: async () => fetchSupportedLocales(supabase),
+  })
+
+  const defaultLocaleCode = useMemo(() => getDefaultLocale(locales), [locales])
+  const [activeLocale, setActiveLocale] = useState(DEFAULT_LOCALE)
+  const [localizationDrafts, setLocalizationDrafts] = useState<Record<string, ModuleLocalizationFormState>>({})
+
+  useEffect(() => {
+    if (locales.length > 0) {
+      setActiveLocale((current) => (locales.some((locale) => locale.code === current) ? current : defaultLocaleCode))
+    }
+  }, [locales, defaultLocaleCode])
+
+  const createEmptyLocalizationDraft = useCallback((): ModuleLocalizationFormState => ({
+    title: '',
+    summary: '',
+    tags: [],
+    thumbnailUrl: '',
+    isPublished: false,
+    publishedAt: null,
+  }), [])
+
+  const deserializeLocalization = useCallback(
+    (record?: Tables<'module_localizations'>): ModuleLocalizationFormState => ({
+      title: record?.title ?? '',
+      summary: record?.summary ?? '',
+      tags: record?.tags ?? [],
+      thumbnailUrl: record?.thumbnail_url ?? '',
+      isPublished: record?.is_published ?? false,
+      publishedAt: record?.published_at ?? null,
+    }),
+    []
+  )
+
+  const updateLocalizationDraft = useCallback(
+    (locale: string, updater: (draft: ModuleLocalizationFormState) => ModuleLocalizationFormState) => {
+      setLocalizationDrafts((previous) => {
+        const current = previous[locale] ?? createEmptyLocalizationDraft()
+        return {
+          ...previous,
+          [locale]: updater(current),
+        }
+      })
+    },
+    [createEmptyLocalizationDraft]
+  )
+
+  const initializeLocalizationDrafts = useCallback(
+    (module?: ModuleWithMeta) => {
+      if (locales.length === 0) return
+      const existingRecords = module
+        ? mapLocalizationsByLocale(module.module_localizations ?? [])
+        : {}
+      const mapped = Object.fromEntries(
+        Object.entries(existingRecords).map(([localeCode, record]) => [localeCode, deserializeLocalization(record)])
+      )
+      const drafts = ensureLocaleMap(locales, mapped, () => createEmptyLocalizationDraft())
+      setLocalizationDrafts(drafts)
+      setActiveLocale(getDefaultLocale(locales))
+    },
+    [locales, deserializeLocalization, createEmptyLocalizationDraft]
+  )
+
+  const localeLabels = useMemo(
+    () =>
+      locales.reduce<Record<string, string>>((acc, locale) => {
+        acc[locale.code] = locale.label
+        return acc
+      }, {}),
+    [locales]
+  )
 
   const [selectedPathFilter, setSelectedPathFilter] = useState<'all' | string>('all')
   const [selectedCourseFilter, setSelectedCourseFilter] = useState<'all' | string>('all')
@@ -90,11 +181,8 @@ export default function AdminModules() {
     resolver: zodResolver(moduleFormSchema),
     defaultValues: {
       course_id: '',
-      title: '',
       slug: '',
-      summary: '',
       order: 1,
-      is_published: false,
     },
   })
 
@@ -103,20 +191,22 @@ export default function AdminModules() {
       form.reset()
       setEditingModule(null)
       setSlugManuallyEdited(false)
+      setLocalizationDrafts({})
+      setActiveLocale(defaultLocaleCode)
     }
-  }, [dialogOpen, form])
+  }, [dialogOpen, form, defaultLocaleCode])
 
-  const watchedTitle = form.watch('title')
   const watchedSlug = form.watch('slug')
+  const defaultLocaleTitle = localizationDrafts[defaultLocaleCode]?.title ?? ''
 
   useEffect(() => {
     if (!slugManuallyEdited && !editingModule) {
-      const generated = slugify(watchedTitle ?? '')
+      const generated = slugify(defaultLocaleTitle ?? '')
       if (generated && generated !== watchedSlug) {
         form.setValue('slug', generated, { shouldValidate: false })
       }
     }
-  }, [watchedTitle, watchedSlug, slugManuallyEdited, editingModule, form])
+  }, [defaultLocaleTitle, watchedSlug, slugManuallyEdited, editingModule, form])
 
   const { data: learningPaths = [] } = useQuery<LearningPathRow[]>({
     queryKey: ['admin-modules-paths'],
@@ -167,13 +257,30 @@ export default function AdminModules() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('modules')
-        .select('id, title, slug, summary, order, course_id, is_published, published_at, updated_at, lessons:lessons(id)')
+        .select(
+          `
+            id,
+            title,
+            slug,
+            summary,
+            order,
+            course_id,
+            is_published,
+            published_at,
+            updated_at,
+            module_localizations(*),
+            lessons:lessons(id)
+          `
+        )
         .order('course_id', { ascending: true })
         .order('order', { ascending: true })
 
       if (error) throw error
 
-      type QueryRow = ModuleRow & { lessons?: { id: string }[] }
+      type QueryRow = ModuleRow & {
+        lessons?: { id: string }[]
+        module_localizations: Tables<'module_localizations'>[] | null
+      }
 
       return ((data ?? []) as QueryRow[]).map((item) => ({
         ...item,
@@ -198,30 +305,73 @@ export default function AdminModules() {
 
   const upsertMutation = useMutation({
     mutationFn: async (values: ModuleFormValues) => {
-      const payload = {
-        course_id: values.course_id,
-        title: values.title.trim(),
-        slug: values.slug.trim(),
-        summary: values.summary?.trim() ? values.summary.trim() : null,
-        order: values.order,
-        is_published: values.is_published,
-        published_at: values.is_published
-          ? editingModule?.published_at ?? new Date().toISOString()
-          : null,
+      if (!locales.length) {
+        throw new Error('No locales configured for modules')
       }
 
+      if (Object.keys(localizationDrafts).length === 0) {
+        throw new Error('Add localized content before saving the module')
+      }
+
+      const localeNameLookup = locales.reduce<Record<string, string>>((acc, locale) => {
+        acc[locale.code] = locale.label
+        return acc
+      }, {})
+
+      const defaultDraft = localizationDrafts[defaultLocaleCode]
+      if (!defaultDraft || !defaultDraft.title.trim()) {
+        throw new Error(`Provide a title for ${localeNameLookup[defaultLocaleCode] ?? defaultLocaleCode}`)
+      }
+
+      const anyPublished = Object.values(localizationDrafts).some((draft) => draft.isPublished)
+      const basePayload = {
+        course_id: values.course_id,
+        slug: values.slug.trim(),
+        order: values.order,
+        title: defaultDraft.title.trim(),
+        summary: defaultDraft.summary.trim() ? defaultDraft.summary.trim() : null,
+        is_published: anyPublished,
+        published_at: anyPublished ? editingModule?.published_at ?? new Date().toISOString() : null,
+      }
+
+      let moduleId = editingModule?.id ?? null
+
       if (editingModule) {
-        const { error } = await supabase.from('modules').update(payload).eq('id', editingModule.id)
+        const { error } = await supabase.from('modules').update(basePayload).eq('id', editingModule.id)
         if (error) throw error
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('modules')
-          .insert({
-            ...payload,
-            published_at: values.is_published ? new Date().toISOString() : null,
-          })
+          .insert(basePayload)
+          .select('id')
+          .single()
         if (error) throw error
+        moduleId = data?.id ?? null
       }
+
+      if (!moduleId) {
+        throw new Error('Unable to determine module identifier after saving')
+      }
+
+      const existingLocalizations = mapLocalizationsByLocale(editingModule?.module_localizations ?? [])
+
+      const localizationRows = Object.entries(localizationDrafts).map(([locale, draft]) => ({
+        module_id: moduleId!,
+        locale,
+        title: draft.title.trim(),
+        summary: draft.summary.trim() ? draft.summary.trim() : null,
+        tags: draft.tags,
+        thumbnail_url: draft.thumbnailUrl.trim() ? draft.thumbnailUrl.trim() : null,
+        is_published: draft.isPublished,
+        published_at: draft.isPublished
+          ? draft.publishedAt ?? existingLocalizations[locale]?.published_at ?? new Date().toISOString()
+          : null,
+      }))
+
+      const { error: localizationError } = await supabase
+        .from('module_localizations')
+        .upsert(localizationRows, { onConflict: 'module_id,locale' })
+      if (localizationError) throw localizationError
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-modules'] })
@@ -231,24 +381,6 @@ export default function AdminModules() {
     onError: (error) => {
       console.error('Error saving module', error)
       toast.error(error instanceof Error ? error.message : 'Failed to save module')
-    },
-  })
-
-  const publishMutation = useMutation({
-    mutationFn: async ({ id, publish }: { id: string; publish: boolean }) => {
-      const { error } = await supabase
-        .from('modules')
-        .update({ is_published: publish, published_at: publish ? new Date().toISOString() : null })
-        .eq('id', id)
-      if (error) throw error
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-modules'] })
-      toast.success('Publish state updated')
-    },
-    onError: (error) => {
-      console.error('Error toggling publish', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to toggle publish state')
     },
   })
 
@@ -269,35 +401,127 @@ export default function AdminModules() {
   })
 
   const openForCreate = () => {
+    if (!locales.length) {
+      toast.error('Configure locales before creating modules')
+      return
+    }
     setEditingModule(null)
     setSlugManuallyEdited(false)
     form.reset({
       course_id: selectedCourseFilter !== 'all' ? selectedCourseFilter : '',
-      title: '',
       slug: '',
-      summary: '',
       order: 1,
-      is_published: false,
     })
+    initializeLocalizationDrafts(undefined)
     setDialogOpen(true)
   }
 
   const openForEdit = (module: ModuleWithMeta) => {
+    if (!locales.length) {
+      toast.error('Configure locales before editing modules')
+      return
+    }
     setEditingModule(module)
     setSlugManuallyEdited(true)
     form.reset({
       course_id: module.course_id ?? '',
-      title: module.title ?? '',
       slug: module.slug ?? '',
-      summary: module.summary ?? '',
       order: module.order ?? 1,
-      is_published: module.is_published,
     })
+    initializeLocalizationDrafts(module)
     setDialogOpen(true)
   }
 
   const onSubmit = (values: ModuleFormValues) => {
-    upsertMutation.mutate(values)
+    try {
+      upsertMutation.mutate(values)
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message)
+      }
+    }
+  }
+
+  const renderLocalizationFields = (locale: string) => {
+    const draft = localizationDrafts[locale] ?? createEmptyLocalizationDraft()
+    const friendlyLabel = localeLabels[locale] ?? locale
+
+    return (
+      <div className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <FormLabel className="text-sm font-medium text-forge-dark">Title · {friendlyLabel}</FormLabel>
+            <Input
+              value={draft.title}
+              onChange={(event) =>
+                updateLocalizationDraft(locale, (previous) => ({
+                  ...previous,
+                  title: event.target.value,
+                }))
+              }
+              placeholder={`Title in ${friendlyLabel}`}
+            />
+          </div>
+          <div className="space-y-2">
+            <FormLabel className="text-sm font-medium text-forge-dark">Thumbnail URL</FormLabel>
+            <Input
+              value={draft.thumbnailUrl}
+              onChange={(event) =>
+                updateLocalizationDraft(locale, (previous) => ({
+                  ...previous,
+                  thumbnailUrl: event.target.value,
+                }))
+              }
+              placeholder="https://..."
+            />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <FormLabel className="text-sm font-medium text-forge-dark">Summary</FormLabel>
+          <Textarea
+            rows={3}
+            value={draft.summary}
+            onChange={(event) =>
+              updateLocalizationDraft(locale, (previous) => ({
+                ...previous,
+                summary: event.target.value,
+              }))
+            }
+            placeholder={`Summary in ${friendlyLabel}`}
+          />
+        </div>
+        <div className="space-y-2">
+          <FormLabel className="text-sm font-medium text-forge-dark">Tags</FormLabel>
+          <TagInput
+            value={draft.tags}
+            onChange={(tags) =>
+              updateLocalizationDraft(locale, (previous) => ({
+                ...previous,
+                tags,
+              }))
+            }
+            placeholder="Type a tag and press Enter"
+          />
+          <FormDescription>Tags only apply to the {friendlyLabel} locale.</FormDescription>
+        </div>
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-forge-cream/80 bg-forge-cream/40 p-3">
+          <Switch
+            id={`module-publish-${locale}`}
+            checked={draft.isPublished}
+            onCheckedChange={(checked) =>
+              updateLocalizationDraft(locale, (previous) => ({
+                ...previous,
+                isPublished: checked,
+                publishedAt: checked ? previous.publishedAt ?? new Date().toISOString() : null,
+              }))
+            }
+          />
+          <label htmlFor={`module-publish-${locale}`} className="text-sm text-forge-gray">
+            {draft.isPublished ? `Published in ${friendlyLabel}` : `Draft in ${friendlyLabel}`}
+          </label>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -365,13 +589,20 @@ export default function AdminModules() {
           {filteredModules.map((module) => {
             const course = module.course_id ? courseLookup[module.course_id] : null
             const path = course?.path_id ? pathLookup[course.path_id] : null
+            const localizationMap = mapLocalizationsByLocale(module.module_localizations ?? [])
+            const localization =
+              localizationMap[defaultLocaleCode] ??
+              localizationMap[DEFAULT_LOCALE] ??
+              Object.values(localizationMap)[0]
+            const displayTitle = localization?.title ?? module.title
+            const displaySummary = localization?.summary ?? module.summary ?? 'No summary'
 
             return (
               <Card key={module.id} className="border border-forge-cream/70 bg-white/80">
                 <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div className="space-y-1">
                     <CardTitle className="flex flex-wrap items-center gap-2 text-forge-dark">
-                      #{module.order} · {module.title}
+                      #{module.order} · {displayTitle}
                       <Badge
                         variant={module.is_published ? 'default' : 'outline'}
                         className={module.is_published ? 'bg-forge-orange text-white hover:bg-forge-orange/90' : ''}
@@ -379,9 +610,7 @@ export default function AdminModules() {
                         {module.is_published ? 'Published' : 'Draft'}
                       </Badge>
                     </CardTitle>
-                    <CardDescription className="text-sm text-forge-gray">
-                      {module.summary || 'No summary'}
-                    </CardDescription>
+                    <CardDescription className="text-sm text-forge-gray">{displaySummary}</CardDescription>
                   </div>
                   <div className="flex gap-2">
                     <Button variant="outline" size="icon" onClick={() => openForEdit(module)}>
@@ -417,23 +646,22 @@ export default function AdminModules() {
                       <span className="font-semibold text-forge-dark">Lessons:</span> {module.lessonCount}
                     </div>
                   </div>
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    {Object.values(localizationMap).length === 0 && <Badge variant="outline">No locales</Badge>}
+                    {Object.values(localizationMap).map((record) => (
+                      <Badge
+                        key={`${module.id}-${record.locale}`}
+                        variant={record.is_published ? 'default' : 'outline'}
+                        className={record.is_published ? 'bg-forge-orange text-white hover:bg-forge-orange/90' : ''}
+                      >
+                        {record.locale} · {record.is_published ? 'Published' : 'Draft'}
+                      </Badge>
+                    ))}
+                  </div>
                   <div className="text-xs text-forge-gray/80">
                     Updated {module.updated_at ? formatDistanceToNow(new Date(module.updated_at), { addSuffix: true }) : 'N/A'}
                   </div>
                 </CardContent>
-                <CardFooter className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Switch
-                      id={`module-publish-${module.id}`}
-                      checked={module.is_published}
-                      onCheckedChange={(checked) => publishMutation.mutate({ id: module.id, publish: checked })}
-                      disabled={publishMutation.isPending}
-                    />
-                    <label htmlFor={`module-publish-${module.id}`} className="text-forge-gray">
-                      {module.is_published ? 'Unpublish' : 'Publish'}
-                    </label>
-                  </div>
-                </CardFooter>
               </Card>
             )
           })}
@@ -484,51 +712,23 @@ export default function AdminModules() {
                 )}
               />
 
-              <div className="grid gap-6 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. React Fundamentals" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="slug"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Slug</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="react-fundamentals"
-                          {...field}
-                          onChange={(event) => {
-                            setSlugManuallyEdited(true)
-                            field.onChange(event)
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
               <FormField
                 control={form.control}
-                name="summary"
+                name="slug"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Summary</FormLabel>
+                    <FormLabel>Slug</FormLabel>
                     <FormControl>
-                      <Input placeholder="Optional highlight for the module" {...field} />
+                      <Input
+                        placeholder="react-fundamentals"
+                        {...field}
+                        onChange={(event) => {
+                          setSlugManuallyEdited(true)
+                          field.onChange(event)
+                        }}
+                      />
                     </FormControl>
+                    <FormDescription>We auto-generate this from the default locale title.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -548,29 +748,34 @@ export default function AdminModules() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="is_published"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border border-forge-cream/80 bg-forge-cream/30 p-3">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Publish immediately</FormLabel>
-                      <DialogDescription>
-                        {field.value
-                          ? 'Published modules are available inside the course.'
-                          : 'Keep as draft until lessons are ready.'}
-                      </DialogDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        disabled={form.formState.isSubmitting}
-                      />
-                    </FormControl>
-                  </FormItem>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-base font-semibold text-forge-dark">Localized content</h4>
+                  <p className="text-sm text-forge-gray">
+                    Manage per-locale titles, summaries, tags, thumbnails, and publish states.
+                  </p>
+                </div>
+                {localesLoading ? (
+                  <Card className="border-dashed border-forge-cream/70 bg-white/70">
+                    <CardContent className="flex items-center gap-2 p-6 text-sm text-forge-gray">
+                      <Loader2 className="h-4 w-4 animate-spin" /> Loading locales...
+                    </CardContent>
+                  </Card>
+                ) : locales.length === 0 ? (
+                  <Card className="border border-red-200 bg-red-50/80">
+                    <CardContent className="p-4 text-sm text-red-700">
+                      Add locales in Supabase before editing localized module content.
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <LocalizationTabs
+                    locales={locales}
+                    activeLocale={activeLocale}
+                    onLocaleChange={setActiveLocale}
+                    renderFields={renderLocalizationFields}
+                  />
                 )}
-              />
+              </div>
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} disabled={form.formState.isSubmitting}>

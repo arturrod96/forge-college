@@ -77,6 +77,86 @@ export type Database = {
           }
         ]
       }
+      course_localizations: {
+        Row: {
+          course_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_published: boolean
+          locale: string
+          published_at: string | null
+          summary: string | null
+          tags: string[]
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          locale: string
+          published_at?: string | null
+          summary?: string | null
+          tags?: string[]
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          locale?: string
+          published_at?: string | null
+          summary?: string | null
+          tags?: string[]
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_localizations_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_localizations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_localizations_locale_fkey"
+            columns: ["locale"]
+            isOneToOne: false
+            referencedRelation: "locales"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "course_localizations_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       learning_paths: {
         Row: {
           created_at: string | null
@@ -118,6 +198,83 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      learning_path_localizations: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_published: boolean
+          learning_path_id: string
+          locale: string
+          published_at: string | null
+          tags: string[]
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          learning_path_id: string
+          locale: string
+          published_at?: string | null
+          tags?: string[]
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          learning_path_id?: string
+          locale?: string
+          published_at?: string | null
+          tags?: string[]
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_path_localizations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "learning_path_localizations_learning_path_id_fkey"
+            columns: ["learning_path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "learning_path_localizations_locale_fkey"
+            columns: ["locale"]
+            isOneToOne: false
+            referencedRelation: "locales"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "learning_path_localizations_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       formations: {
         Row: {
@@ -164,6 +321,83 @@ export type Database = {
         }
         Relationships: []
       }
+      formation_localizations: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          formation_id: string
+          id: string
+          is_published: boolean
+          locale: string
+          published_at: string | null
+          tags: string[]
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          formation_id: string
+          id?: string
+          is_published?: boolean
+          locale: string
+          published_at?: string | null
+          tags?: string[]
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          formation_id?: string
+          id?: string
+          is_published?: boolean
+          locale?: string
+          published_at?: string | null
+          tags?: string[]
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "formation_localizations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "formation_localizations_formation_id_fkey"
+            columns: ["formation_id"]
+            isOneToOne: false
+            referencedRelation: "formations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "formation_localizations_locale_fkey"
+            columns: ["locale"]
+            isOneToOne: false
+            referencedRelation: "locales"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "formation_localizations_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       formation_paths: {
         Row: {
           created_at: string | null
@@ -202,6 +436,27 @@ export type Database = {
             referencedColumns: ["id"]
           }
         ]
+      }
+      locales: {
+        Row: {
+          code: string
+          created_at: string
+          is_default: boolean
+          label: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          is_default?: boolean
+          label: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          is_default?: boolean
+          label?: string
+        }
+        Relationships: []
       }
       waiting_list: {
         Row: {
@@ -317,6 +572,83 @@ export type Database = {
           }
         ]
       }
+      lesson_localizations: {
+        Row: {
+          content: Json | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_published: boolean
+          lesson_id: string
+          locale: string
+          published_at: string | null
+          tags: string[]
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content?: Json | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_published?: boolean
+          lesson_id: string
+          locale: string
+          published_at?: string | null
+          tags?: string[]
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content?: Json | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_published?: boolean
+          lesson_id?: string
+          locale?: string
+          published_at?: string | null
+          tags?: string[]
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_localizations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_localizations_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_localizations_locale_fkey"
+            columns: ["locale"]
+            isOneToOne: false
+            referencedRelation: "locales"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "lesson_localizations_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       modules: {
         Row: {
           course_id: string | null
@@ -366,6 +698,83 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      module_localizations: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          is_published: boolean
+          locale: string
+          module_id: string
+          published_at: string | null
+          summary: string | null
+          tags: string[]
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_published?: boolean
+          locale: string
+          module_id: string
+          published_at?: string | null
+          summary?: string | null
+          tags?: string[]
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_published?: boolean
+          locale?: string
+          module_id?: string
+          published_at?: string | null
+          summary?: string | null
+          tags?: string[]
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "module_localizations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "module_localizations_locale_fkey"
+            columns: ["locale"]
+            isOneToOne: false
+            referencedRelation: "locales"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "module_localizations_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "module_localizations_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           }
         ]
