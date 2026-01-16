@@ -4,14 +4,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { createClientBrowser } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useOAuth';
-import { CourseTableOfContents } from '@/components/dashboard/CourseTableOfContents';
 import { LessonViewer } from '@/components/dashboard/LessonViewer';
 import LessonAIChat from '@/components/ai/LessonAIChat';
 import { LearningModeIntro } from '@/components/course/LearningModeIntro';
+import { CourseOutlineModal } from '@/components/course/CourseOutlineModal';
 import { DASHBOARD_EXPLORE, DASHBOARD_COMMUNITY_PROJECTS } from '@/routes/paths';
 import { ModuleProjectsPanel, type ModuleProject, type ProjectSubmissionSummary } from '@/components/dashboard/ModuleProjectsPanel';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { toast } from 'sonner';
-import { Check } from 'lucide-react';
+import { Check, ChevronDown, MessageCircle, Bot } from 'lucide-react';
 
 type LessonType = 'text' | 'video' | 'quiz';
 
@@ -49,7 +50,8 @@ export default function CourseView() {
   const { courseId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
   const [searchParams] = useSearchParams();
-  const [tocVisible, setTocVisible] = useState(false);
+  const [outlineOpen, setOutlineOpen] = useState(false);
+  const [aiChatOpen, setAiChatOpen] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
   const [isCompleting, setIsCompleting] = useState(false);
   const supabase = createClientBrowser();
@@ -282,6 +284,19 @@ export default function CourseView() {
     return () => setHeaderBreadcrumb(null);
   }, [setHeaderBreadcrumb]);
 
+  // Global keyboard shortcut: Cmd+K to open course outline
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Cmd+K or Ctrl+K to open outline modal
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setOutlineOpen(true);
+      }
+    };
+    document.addEventListener('keydown', handleGlobalKeyDown);
+    return () => document.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
+
   const currentModule = useMemo(() => {
     if (!course || !currentLesson) return null;
     return (
@@ -363,26 +378,10 @@ export default function CourseView() {
       {showIntro && <LearningModeIntro onComplete={() => setShowIntro(false)} />}
 
       <div className="min-h-[100svh] flex flex-col bg-gradient-to-br from-slate-50 to-white">
-        {/* Custom Header for Course View - DataCamp Style */}
+        {/* Custom Header for Course View - Redesigned */}
         <header className="h-14 border-b bg-white/95 backdrop-blur-sm flex items-center px-4 sticky top-0 z-30 shadow-sm">
-          <div className="flex items-center gap-3 flex-1">
-            {/* Menu Toggle Button */}
-            <button
-              onClick={() => setTocVisible(!tocVisible)}
-              className={`p-2 rounded-lg transition-all duration-200 ${tocVisible
-                ? 'bg-forge-orange/10 text-forge-orange'
-                : 'hover:bg-gray-100 text-gray-600'
-                }`}
-              aria-label="Toggle course outline"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-
-            <div className="h-5 w-px bg-gray-200 hidden xs:block" />
-
-            {/* Back Link */}
+          {/* Left: Back Link */}
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Link
               to={DASHBOARD_EXPLORE}
               className="text-gray-500 hover:text-forge-dark transition-colors flex items-center gap-1.5 text-sm"
@@ -392,18 +391,24 @@ export default function CourseView() {
               </svg>
               <span className="hidden sm:inline">Exit</span>
             </Link>
-
-            <div className="h-5 w-px bg-gray-200 hidden sm:block" />
-
-            {/* Course Title */}
-            <h1 className="text-sm font-medium text-forge-dark truncate max-w-[200px] sm:max-w-none">
-              {course.title}
-            </h1>
           </div>
 
-          {/* Navigation Controls */}
+          {/* Center: Lesson Title (Clickable) */}
+          <div className="flex-1 flex justify-center px-2">
+            <button
+              onClick={() => setOutlineOpen(true)}
+              className="group flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors max-w-xs sm:max-w-md"
+            >
+              <span className="text-sm font-medium text-forge-dark truncate">
+                {currentLesson?.title || course.title}
+              </span>
+              <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-forge-orange transition-colors flex-shrink-0" />
+            </button>
+          </div>
+
+          {/* Right: Navigation Controls */}
           {currentLesson && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-shrink-0">
               {/* Progress Indicator */}
               <div className="hidden md:flex items-center gap-2 mr-2">
                 <div className="h-1.5 w-24 bg-gray-200 rounded-full overflow-hidden">
@@ -456,58 +461,11 @@ export default function CourseView() {
           )}
         </header>
 
-        {/* Main Content Area - 3 Column Layout */}
+        {/* Main Content Area - 2 Column Layout */}
         <div className="flex-1 flex h-[calc(100svh-56px)]">
-          {/* Overlay for mobile */}
-          {tocVisible && (
-            <div
-              className="fixed inset-0 bg-black/30 z-20 lg:hidden backdrop-blur-sm"
-              onClick={() => setTocVisible(false)}
-            />
-          )}
-
-          {/* TOC Sidebar - Fixed */}
-          <aside
-            className={`
-            fixed lg:sticky lg:top-14 inset-y-0 left-0 z-20 lg:z-10
-            w-[min(18rem,85vw)] lg:w-72 bg-white border-r shadow-xl lg:shadow-none
-            transform transition-all duration-300 ease-out
-            h-[calc(100svh-56px)] flex-shrink-0
-            ${tocVisible ? 'translate-x-0 lg:w-72' : '-translate-x-full lg:translate-x-0 lg:w-0 lg:border-r-0'}
-          `}
-            style={{ top: '56px' }}
-          >
-            <div className={`w-[min(18rem,85vw)] lg:w-72 h-full flex flex-col ${!tocVisible && 'lg:hidden'}`}>
-              <div className="p-4 border-b bg-gray-50/50 flex items-center justify-between">
-                <h2 className="font-semibold text-forge-dark text-sm">Course Outline</h2>
-                <button
-                  onClick={() => setTocVisible(false)}
-                  className="p-1 rounded hover:bg-gray-200 transition-colors"
-                  aria-label="Close"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              <div className="flex-1 overflow-y-auto">
-                <CourseTableOfContents
-                  course={course}
-                  currentLessonId={currentLesson?.id}
-                  defaultOpenModuleId={resolvedOpenModuleId}
-                  onLessonClick={(lesson) => {
-                    setCurrentLesson(lesson);
-                    // SSR-safe check for mobile viewport
-                    if (typeof window !== 'undefined' && window.innerWidth < 1024) setTocVisible(false);
-                  }}
-                />
-              </div>
-            </div>
-          </aside>
-
-          {/* Center Content - Scrollable */}
-          <main className="flex-1 overflow-y-auto bg-gradient-to-br from-slate-50 to-white">
-            <div className="max-w-4xl mx-auto py-4 px-3 sm:py-6 sm:px-4 lg:px-8">
+          {/* Center Content - Scrollable, Immersive Layout */}
+          <main className="flex-1 overflow-y-auto bg-gradient-to-br from-slate-50 via-white to-slate-50">
+            <div className="max-w-5xl mx-auto py-6 px-4 sm:py-8 sm:px-6 lg:px-10 xl:px-12">
               <LessonViewer lesson={currentLesson} course={course} />
 
               {currentModule && isLastLessonInModule && (
@@ -525,7 +483,7 @@ export default function CourseView() {
             </div>
           </main>
 
-          {/* AI Chat Sidebar - Fixed */}
+          {/* AI Chat Sidebar - Fixed (Desktop only) */}
           <aside className="hidden xl:flex xl:flex-col w-80 flex-shrink-0 border-l bg-white sticky top-14 h-[calc(100svh-56px)]">
             <LessonAIChat
               courseTitle={course?.title}
@@ -535,6 +493,45 @@ export default function CourseView() {
             />
           </aside>
         </div>
+
+        {/* FAB for AI Chat (Mobile/Tablet) */}
+        <button
+          onClick={() => setAiChatOpen(true)}
+          className="xl:hidden fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-gradient-to-r from-forge-orange to-orange-500 text-white shadow-lg hover:shadow-xl flex items-center justify-center transition-all hover:scale-105"
+          aria-label="Open AI Assistant"
+        >
+          <Bot className="w-6 h-6" />
+        </button>
+
+        {/* AI Chat Drawer (Mobile/Tablet) */}
+        <Drawer open={aiChatOpen} onOpenChange={setAiChatOpen}>
+          <DrawerContent className="h-[85vh]">
+            <DrawerHeader className="border-b">
+              <DrawerTitle className="flex items-center gap-2">
+                <Bot className="h-5 w-5 text-forge-orange" />
+                AI Instructor
+              </DrawerTitle>
+            </DrawerHeader>
+            <div className="flex-1 overflow-hidden">
+              <LessonAIChat
+                courseTitle={course?.title}
+                lessonTitle={currentLesson?.title}
+                lessonType={currentLesson?.lesson_type}
+                lessonContent={currentLesson?.content}
+              />
+            </div>
+          </DrawerContent>
+        </Drawer>
+
+        {/* Course Outline Modal */}
+        <CourseOutlineModal
+          open={outlineOpen}
+          onOpenChange={setOutlineOpen}
+          course={course}
+          currentLessonId={currentLesson?.id}
+          defaultOpenModuleId={resolvedOpenModuleId}
+          onLessonClick={setCurrentLesson}
+        />
       </div>
     </>
   );
