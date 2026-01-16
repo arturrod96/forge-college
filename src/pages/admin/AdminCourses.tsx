@@ -240,13 +240,32 @@ export default function AdminCourses() {
       const { data, error } = await supabase
         .from('courses')
         .select(
-          'id, title, slug, summary, description, path_id, order, duration_minutes, status, is_published, published_at, thumbnail_url, updated_at, modules:modules(id)'
+          `
+            id,
+            title,
+            slug,
+            summary,
+            description,
+            path_id,
+            order,
+            duration_minutes,
+            status,
+            is_published,
+            published_at,
+            thumbnail_url,
+            updated_at,
+            course_localizations(*),
+            modules:modules(id)
+          `
         )
         .order('order', { ascending: true })
 
       if (error) throw error
 
-      type QueryRow = CourseRow & { modules?: { id: string }[] }
+      type QueryRow = CourseRow & {
+        modules?: { id: string }[]
+        course_localizations: Tables<'course_localizations'>[] | null
+      }
 
       return ((data ?? []) as QueryRow[]).map((item) => ({
         ...item,
