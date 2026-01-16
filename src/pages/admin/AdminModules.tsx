@@ -669,51 +669,23 @@ export default function AdminModules() {
                 )}
               />
 
-              <div className="grid gap-6 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. React Fundamentals" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="slug"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Slug</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="react-fundamentals"
-                          {...field}
-                          onChange={(event) => {
-                            setSlugManuallyEdited(true)
-                            field.onChange(event)
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
               <FormField
                 control={form.control}
-                name="summary"
+                name="slug"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Summary</FormLabel>
+                    <FormLabel>Slug</FormLabel>
                     <FormControl>
-                      <Input placeholder="Optional highlight for the module" {...field} />
+                      <Input
+                        placeholder="react-fundamentals"
+                        {...field}
+                        onChange={(event) => {
+                          setSlugManuallyEdited(true)
+                          field.onChange(event)
+                        }}
+                      />
                     </FormControl>
+                    <FormDescription>We auto-generate this from the default locale title.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -733,29 +705,34 @@ export default function AdminModules() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="is_published"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border border-forge-cream/80 bg-forge-cream/30 p-3">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Publish immediately</FormLabel>
-                      <DialogDescription>
-                        {field.value
-                          ? 'Published modules are available inside the course.'
-                          : 'Keep as draft until lessons are ready.'}
-                      </DialogDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        disabled={form.formState.isSubmitting}
-                      />
-                    </FormControl>
-                  </FormItem>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-base font-semibold text-forge-dark">Localized content</h4>
+                  <p className="text-sm text-forge-gray">
+                    Manage per-locale titles, summaries, tags, thumbnails, and publish states.
+                  </p>
+                </div>
+                {localesLoading ? (
+                  <Card className="border-dashed border-forge-cream/70 bg-white/70">
+                    <CardContent className="flex items-center gap-2 p-6 text-sm text-forge-gray">
+                      <Loader2 className="h-4 w-4 animate-spin" /> Loading locales...
+                    </CardContent>
+                  </Card>
+                ) : locales.length === 0 ? (
+                  <Card className="border border-red-200 bg-red-50/80">
+                    <CardContent className="p-4 text-sm text-red-700">
+                      Add locales in Supabase before editing localized module content.
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <LocalizationTabs
+                    locales={locales}
+                    activeLocale={activeLocale}
+                    onLocaleChange={setActiveLocale}
+                    renderFields={renderLocalizationFields}
+                  />
                 )}
-              />
+              </div>
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} disabled={form.formState.isSubmitting}>
