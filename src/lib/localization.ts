@@ -100,7 +100,7 @@ export async function fetchEntityLocalizations<TTarget extends LocalizationTarge
   return (data ?? []) as LocalizationRow<TTarget>[]
 }
 
-export function ensureLocaleMap<TRow extends { locale: string }>(
+export function ensureLocaleMap<TRow>(
   locales: LocaleRow[],
   localizedRecords: Partial<Record<string, TRow>>,
   factory: (locale: string) => TRow
