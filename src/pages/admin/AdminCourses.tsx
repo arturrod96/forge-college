@@ -100,6 +100,82 @@ export default function AdminCourses() {
   const supabase = useMemo(() => createClientBrowser(), [])
   const queryClient = useQueryClient()
 
+  const { data: locales = [], isLoading: localesLoading } = useQuery<LocaleRow[]>({
+    queryKey: ['content-locales'],
+    queryFn: async () => fetchSupportedLocales(supabase),
+  })
+
+  const defaultLocaleCode = useMemo(() => getDefaultLocale(locales), [locales])
+  const [activeLocale, setActiveLocale] = useState(DEFAULT_LOCALE)
+  const [localizationDrafts, setLocalizationDrafts] = useState<Record<string, CourseLocalizationFormState>>({})
+
+  useEffect(() => {
+    if (locales.length > 0) {
+      setActiveLocale((current) => (locales.some((locale) => locale.code === current) ? current : defaultLocaleCode))
+    }
+  }, [locales, defaultLocaleCode])
+
+  const createEmptyLocalizationDraft = useCallback((): CourseLocalizationFormState => ({
+    title: '',
+    summary: '',
+    description: '',
+    tags: [],
+    thumbnailUrl: '',
+    isPublished: false,
+    publishedAt: null,
+  }), [])
+
+  const deserializeLocalization = useCallback(
+    (record?: Tables<'course_localizations'>): CourseLocalizationFormState => ({
+      title: record?.title ?? '',
+      summary: record?.summary ?? '',
+      description: record?.description ?? '',
+      tags: record?.tags ?? [],
+      thumbnailUrl: record?.thumbnail_url ?? '',
+      isPublished: record?.is_published ?? false,
+      publishedAt: record?.published_at ?? null,
+    }),
+    []
+  )
+
+  const updateLocalizationDraft = useCallback(
+    (locale: string, updater: (draft: CourseLocalizationFormState) => CourseLocalizationFormState) => {
+      setLocalizationDrafts((previous) => {
+        const current = previous[locale] ?? createEmptyLocalizationDraft()
+        return {
+          ...previous,
+          [locale]: updater(current),
+        }
+      })
+    },
+    [createEmptyLocalizationDraft]
+  )
+
+  const initializeLocalizationDrafts = useCallback(
+    (course?: CourseWithMeta) => {
+      if (locales.length === 0) return
+      const existingRecords = course
+        ? mapLocalizationsByLocale(course.course_localizations ?? [])
+        : {}
+      const mapped = Object.fromEntries(
+        Object.entries(existingRecords).map(([localeCode, record]) => [localeCode, deserializeLocalization(record)])
+      )
+      const drafts = ensureLocaleMap(locales, mapped, () => createEmptyLocalizationDraft())
+      setLocalizationDrafts(drafts)
+      setActiveLocale(getDefaultLocale(locales))
+    },
+    [locales, deserializeLocalization, createEmptyLocalizationDraft]
+  )
+
+  const localeLabels = useMemo(
+    () =>
+      locales.reduce<Record<string, string>>((acc, locale) => {
+        acc[locale.code] = locale.label
+        return acc
+      }, {}),
+    [locales]
+  )
+
   const [selectedPathFilter, setSelectedPathFilter] = useState<'all' | string>('all')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingCourse, setEditingCourse] = useState<CourseWithMeta | null>(null)
@@ -110,14 +186,9 @@ export default function AdminCourses() {
     resolver: zodResolver(courseFormSchema),
     defaultValues: {
       path_id: '',
-      title: '',
       slug: '',
-      summary: '',
-      description: '',
       order: 1,
       duration_minutes: '',
-      thumbnail_url: '',
-      is_published: false,
       status: 'draft',
     },
   })
@@ -127,20 +198,22 @@ export default function AdminCourses() {
       form.reset()
       setEditingCourse(null)
       setSlugManuallyEdited(false)
+      setLocalizationDrafts({})
+      setActiveLocale(defaultLocaleCode)
     }
-  }, [dialogOpen, form])
+  }, [dialogOpen, form, defaultLocaleCode])
 
-  const watchedTitle = form.watch('title')
   const watchedSlug = form.watch('slug')
+  const defaultLocaleTitle = localizationDrafts[defaultLocaleCode]?.title ?? ''
 
   useEffect(() => {
     if (!slugManuallyEdited && !editingCourse) {
-      const generated = slugify(watchedTitle ?? '')
+      const generated = slugify(defaultLocaleTitle ?? '')
       if (generated && generated !== watchedSlug) {
         form.setValue('slug', generated, { shouldValidate: false })
       }
     }
-  }, [watchedTitle, watchedSlug, slugManuallyEdited, editingCourse, form])
+  }, [defaultLocaleTitle, watchedSlug, slugManuallyEdited, editingCourse, form])
 
   const { data: learningPaths = [] } = useQuery<LearningPathRow[]>({
     queryKey: ['admin-courses-paths'],
