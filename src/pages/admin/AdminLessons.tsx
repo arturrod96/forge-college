@@ -99,17 +99,11 @@ export default function AdminLessons() {
     resolver: zodResolver(lessonFormSchema),
     defaultValues: {
       module_id: '',
-      title: '',
       slug: '',
       lesson_type: 'text',
-      text_content: '',
-      video_url: '',
-      quiz_json: '',
       xp_value: 10,
       order: 1,
       duration_minutes: '',
-      thumbnail_url: '',
-      is_published: false,
     },
   })
 
