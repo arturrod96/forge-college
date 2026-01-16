@@ -305,30 +305,73 @@ export default function AdminModules() {
 
   const upsertMutation = useMutation({
     mutationFn: async (values: ModuleFormValues) => {
-      const payload = {
-        course_id: values.course_id,
-        title: values.title.trim(),
-        slug: values.slug.trim(),
-        summary: values.summary?.trim() ? values.summary.trim() : null,
-        order: values.order,
-        is_published: values.is_published,
-        published_at: values.is_published
-          ? editingModule?.published_at ?? new Date().toISOString()
-          : null,
+      if (!locales.length) {
+        throw new Error('No locales configured for modules')
       }
 
+      if (Object.keys(localizationDrafts).length === 0) {
+        throw new Error('Add localized content before saving the module')
+      }
+
+      const localeNameLookup = locales.reduce<Record<string, string>>((acc, locale) => {
+        acc[locale.code] = locale.label
+        return acc
+      }, {})
+
+      const defaultDraft = localizationDrafts[defaultLocaleCode]
+      if (!defaultDraft || !defaultDraft.title.trim()) {
+        throw new Error(`Provide a title for ${localeNameLookup[defaultLocaleCode] ?? defaultLocaleCode}`)
+      }
+
+      const anyPublished = Object.values(localizationDrafts).some((draft) => draft.isPublished)
+      const basePayload = {
+        course_id: values.course_id,
+        slug: values.slug.trim(),
+        order: values.order,
+        title: defaultDraft.title.trim(),
+        summary: defaultDraft.summary.trim() ? defaultDraft.summary.trim() : null,
+        is_published: anyPublished,
+        published_at: anyPublished ? editingModule?.published_at ?? new Date().toISOString() : null,
+      }
+
+      let moduleId = editingModule?.id ?? null
+
       if (editingModule) {
-        const { error } = await supabase.from('modules').update(payload).eq('id', editingModule.id)
+        const { error } = await supabase.from('modules').update(basePayload).eq('id', editingModule.id)
         if (error) throw error
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('modules')
-          .insert({
-            ...payload,
-            published_at: values.is_published ? new Date().toISOString() : null,
-          })
+          .insert(basePayload)
+          .select('id')
+          .single()
         if (error) throw error
+        moduleId = data?.id ?? null
       }
+
+      if (!moduleId) {
+        throw new Error('Unable to determine module identifier after saving')
+      }
+
+      const existingLocalizations = mapLocalizationsByLocale(editingModule?.module_localizations ?? [])
+
+      const localizationRows = Object.entries(localizationDrafts).map(([locale, draft]) => ({
+        module_id: moduleId!,
+        locale,
+        title: draft.title.trim(),
+        summary: draft.summary.trim() ? draft.summary.trim() : null,
+        tags: draft.tags,
+        thumbnail_url: draft.thumbnailUrl.trim() ? draft.thumbnailUrl.trim() : null,
+        is_published: draft.isPublished,
+        published_at: draft.isPublished
+          ? draft.publishedAt ?? existingLocalizations[locale]?.published_at ?? new Date().toISOString()
+          : null,
+      }))
+
+      const { error: localizationError } = await supabase
+        .from('module_localizations')
+        .upsert(localizationRows, { onConflict: 'module_id,locale' })
+      if (localizationError) throw localizationError
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-modules'] })
