@@ -744,23 +744,21 @@ export default function AdminLessons() {
                   <p className="text-xs text-forge-gray/90 line-clamp-3">
                     {getLessonPreview(lesson)}
                   </p>
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-forge-gray">
+                    {(lesson.lesson_localizations ?? []).map((localization) => (
+                      <Badge
+                        key={`${lesson.id}-${localization.locale}`}
+                        variant={localization.is_published ? 'default' : 'outline'}
+                        className={localization.is_published ? 'bg-forge-orange text-white hover:bg-forge-orange/90' : ''}
+                      >
+                        {localization.locale} · {localization.is_published ? 'Published' : 'Draft'}
+                      </Badge>
+                    ))}
+                  </div>
                   <div className="text-xs text-forge-gray/80">
                     Updated {lesson.updated_at ? formatDistanceToNow(new Date(lesson.updated_at), { addSuffix: true }) : 'N/A'}
                   </div>
                 </CardContent>
-                <CardFooter className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Switch
-                      id={`lesson-publish-${lesson.id}`}
-                      checked={lesson.is_published}
-                      onCheckedChange={(checked) => publishMutation.mutate({ id: lesson.id, publish: checked })}
-                      disabled={publishMutation.isPending}
-                    />
-                    <label htmlFor={`lesson-publish-${lesson.id}`} className="text-forge-gray">
-                      {lesson.is_published ? 'Unpublish' : 'Publish'}
-                    </label>
-                  </div>
-                </CardFooter>
               </Card>
             )
           })}
