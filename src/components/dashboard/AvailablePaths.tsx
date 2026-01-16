@@ -525,7 +525,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
             value={searchTerm}
             onChange={setSearchTerm}
             placeholder="Search learning paths..."
-            className="flex-1 max-w-sm"
+            className="flex-1"
           />
           <FilterPopover
             statusValue={statusFilter}
@@ -551,22 +551,31 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
 
       {visiblePaths.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {visiblePaths.map((path) => {
+          {visiblePaths.map((path, index) => {
             const isComingSoon = path.status === 'coming_soon';
             const courseCount = path.courseCount || path.courses?.length || 0;
+
+            // Varied gradients for visual diversity
+            const gradients = [
+              'from-slate-700 to-slate-800',
+              'from-zinc-700 to-zinc-800',
+              'from-neutral-700 to-neutral-800',
+              'from-stone-700 to-stone-800',
+            ];
+            const gradient = gradients[index % gradients.length];
 
             return (
               <Card
                 key={path.id}
                 className={`group relative rounded-xl border bg-card overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col ${path.isEnrolled ? 'ring-1 ring-forge-orange/30 bg-forge-orange/5' : ''
-                  } ${isComingSoon ? 'opacity-60' : ''
+                  } ${isComingSoon ? 'opacity-50 hover:opacity-70' : ''
                   }`}
               >
-                {/* Compact Thumbnail */}
-                <div className="h-24 flex items-center justify-center relative bg-gradient-to-br from-forge-dark to-forge-dark/80">
-                  <BookOpen className="h-10 w-10 text-forge-orange/80" />
+                {/* Compact Thumbnail with varied gradient */}
+                <div className={`h-20 flex items-center justify-center relative bg-gradient-to-br ${gradient}`}>
+                  <BookOpen className="h-8 w-8 text-white/40" />
 
-                  {/* Badge inline */}
+                  {/* Badge - enrolled only, coming soon is implicit by opacity */}
                   {path.isEnrolled && (
                     <div className="absolute top-2 left-2">
                       <Badge variant="enrolled" size="sm">
@@ -574,26 +583,24 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
                       </Badge>
                     </div>
                   )}
-                  {isComingSoon && !path.isEnrolled && (
-                    <div className="absolute top-2 left-2">
-                      <Badge variant="coming-soon" size="sm">
-                        Soon
-                      </Badge>
-                    </div>
-                  )}
                 </div>
 
                 {/* Content */}
-                <div className="flex flex-col flex-1 p-4">
+                <div className="flex flex-col flex-1 p-3">
                   {/* Title - no icon */}
-                  <h3 className="font-semibold text-sm text-foreground leading-tight line-clamp-2 mb-1">
+                  <h3 className="font-medium text-sm text-foreground leading-snug line-clamp-2 mb-1">
                     {path.title}
                   </h3>
 
-                  {/* Course count - compact */}
-                  <p className="text-xs text-muted-foreground mb-4">
-                    {courseCount} {courseCount === 1 ? 'course' : 'courses'}
-                  </p>
+                  {/* Course count - only show if > 0 */}
+                  {courseCount > 0 && (
+                    <p className="text-xs text-muted-foreground mb-3">
+                      {courseCount} {courseCount === 1 ? 'course' : 'courses'}
+                    </p>
+                  )}
+                  {courseCount === 0 && !isComingSoon && (
+                    <p className="text-xs text-muted-foreground mb-3">&nbsp;</p>
+                  )}
 
                   {/* Single CTA */}
                   <div className="mt-auto">
