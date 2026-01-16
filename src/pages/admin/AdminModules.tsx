@@ -358,35 +358,45 @@ export default function AdminModules() {
   })
 
   const openForCreate = () => {
+    if (!locales.length) {
+      toast.error('Configure locales before creating modules')
+      return
+    }
     setEditingModule(null)
     setSlugManuallyEdited(false)
     form.reset({
       course_id: selectedCourseFilter !== 'all' ? selectedCourseFilter : '',
-      title: '',
       slug: '',
-      summary: '',
       order: 1,
-      is_published: false,
     })
+    initializeLocalizationDrafts(undefined)
     setDialogOpen(true)
   }
 
   const openForEdit = (module: ModuleWithMeta) => {
+    if (!locales.length) {
+      toast.error('Configure locales before editing modules')
+      return
+    }
     setEditingModule(module)
     setSlugManuallyEdited(true)
     form.reset({
       course_id: module.course_id ?? '',
-      title: module.title ?? '',
       slug: module.slug ?? '',
-      summary: module.summary ?? '',
       order: module.order ?? 1,
-      is_published: module.is_published,
     })
+    initializeLocalizationDrafts(module)
     setDialogOpen(true)
   }
 
   const onSubmit = (values: ModuleFormValues) => {
-    upsertMutation.mutate(values)
+    try {
+      upsertMutation.mutate(values)
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message)
+      }
+    }
   }
 
   return (
