@@ -70,19 +70,27 @@ interface LearningPathWithMeta extends LearningPathRow {
   courses?: { id: string }[]
   formation_id?: string | null
   order?: number | null
+  learning_path_localizations: Tables<'learning_path_localizations'>[] | null
 }
 
 const pathSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
   slug: z.string().min(1, 'Slug is required'),
-  is_published: z.boolean(),
   status: z.enum(['draft', 'published', 'coming_soon']),
   formation_id: z.string().optional().or(z.literal('')),
   order: z.number().int().min(1).optional(),
 })
 
+const defaultLocalizationState = () => ({})
 type PathFormData = z.infer<typeof pathSchema>
+
+type LearningPathLocalizationFormState = {
+  title: string
+  description: string
+  thumbnailUrl: string
+  tags: string[]
+  isPublished: boolean
+  publishedAt: string | null
+}
 
 export default function AdminPaths() {
   const { t } = useTranslation()
