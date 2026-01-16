@@ -64,7 +64,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
             description,
             status,
             courses(id),
-            learning_path_localizations(* )
+            learning_path_localizations(*)
           `
         )
         .in('status', ['published', 'coming_soon']);
