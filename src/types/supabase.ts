@@ -572,6 +572,83 @@ export type Database = {
           }
         ]
       }
+      lesson_localizations: {
+        Row: {
+          content: Json | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_published: boolean
+          lesson_id: string
+          locale: string
+          published_at: string | null
+          tags: string[]
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content?: Json | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_published?: boolean
+          lesson_id: string
+          locale: string
+          published_at?: string | null
+          tags?: string[]
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content?: Json | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_published?: boolean
+          lesson_id?: string
+          locale?: string
+          published_at?: string | null
+          tags?: string[]
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_localizations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_localizations_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_localizations_locale_fkey"
+            columns: ["locale"]
+            isOneToOne: false
+            referencedRelation: "locales"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "lesson_localizations_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       modules: {
         Row: {
           course_id: string | null
