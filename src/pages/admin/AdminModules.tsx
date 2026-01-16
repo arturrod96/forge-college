@@ -182,20 +182,22 @@ export default function AdminModules() {
       form.reset()
       setEditingModule(null)
       setSlugManuallyEdited(false)
+      setLocalizationDrafts({})
+      setActiveLocale(defaultLocaleCode)
     }
-  }, [dialogOpen, form])
+  }, [dialogOpen, form, defaultLocaleCode])
 
-  const watchedTitle = form.watch('title')
   const watchedSlug = form.watch('slug')
+  const defaultLocaleTitle = localizationDrafts[defaultLocaleCode]?.title ?? ''
 
   useEffect(() => {
     if (!slugManuallyEdited && !editingModule) {
-      const generated = slugify(watchedTitle ?? '')
+      const generated = slugify(defaultLocaleTitle ?? '')
       if (generated && generated !== watchedSlug) {
         form.setValue('slug', generated, { shouldValidate: false })
       }
     }
-  }, [watchedTitle, watchedSlug, slugManuallyEdited, editingModule, form])
+  }, [defaultLocaleTitle, watchedSlug, slugManuallyEdited, editingModule, form])
 
   const { data: learningPaths = [] } = useQuery<LearningPathRow[]>({
     queryKey: ['admin-modules-paths'],
