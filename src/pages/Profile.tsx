@@ -247,7 +247,17 @@ export default function Profile() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Left Sidebar */}
         <div className="lg:col-span-1">
-          <ProfileSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+          <ProfileSidebar
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            selectedLocale={sidebarLocale}
+            onLocaleChange={(locale) =>
+              handleCommunicationLanguageChange(locale as StudentProfile['communicationLanguage'])
+            }
+            fullName={sidebarDisplayName}
+            email={profile.email}
+            avatarUrl={sidebarAvatar}
+          />
         </div>
 
         {/* Right Content */}
