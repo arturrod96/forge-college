@@ -26,6 +26,11 @@ interface LearningPath {
   status?: 'draft' | 'published' | 'coming_soon';
 }
 
+type LearningPathRow = Tables<'learning_paths'> & {
+  courses: { id: string }[] | null;
+  learning_path_localizations: LearningPathLocalization[] | null;
+};
+
 type AvailablePathsProps = {
   limit?: number;
   className?: string;
