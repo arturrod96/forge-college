@@ -226,6 +226,11 @@
       "openMenu": "Open menu",
       "loading": "Loading dashboard..."
     },
+    "sidebar": {
+      "localeTitle": "App language",
+      "localeDescription": "Choose how the interface is translated.",
+      "localePlaceholder": "Select language"
+    },
     "welcomeBack": "Welcome back",
     "loading": "Loading...",
     "notFound": "Not found",
