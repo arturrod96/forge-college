@@ -161,6 +161,15 @@ export default function AdminModules() {
     [locales, deserializeLocalization, createEmptyLocalizationDraft]
   )
 
+  const localeLabels = useMemo(
+    () =>
+      locales.reduce<Record<string, string>>((acc, locale) => {
+        acc[locale.code] = locale.label
+        return acc
+      }, {}),
+    [locales]
+  )
+
   const [selectedPathFilter, setSelectedPathFilter] = useState<'all' | string>('all')
   const [selectedCourseFilter, setSelectedCourseFilter] = useState<'all' | string>('all')
   const [dialogOpen, setDialogOpen] = useState(false)
