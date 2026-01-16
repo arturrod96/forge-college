@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useOAuth';
 import { useToast } from '@/hooks/use-toast';
-import type { StudentProfile } from '@/types/profile'
+import type { StudentProfile } from '@/types/profile';
 import { getProfile, updateProfile } from '@/lib/profile.service';
 import { ProfileSidebar } from '@/components/profile/ProfileSidebar';
 import { SectionCard } from '@/components/profile/SectionCard';
