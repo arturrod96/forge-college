@@ -367,48 +367,6 @@ export default function AdminCourses() {
     },
   })
 
-  const publishMutation = useMutation({
-    mutationFn: async ({
-      id,
-      publish,
-      previousStatus,
-      previousPublishedAt,
-    }: {
-      id: string
-      publish: boolean
-      previousStatus: CourseFormValues['status']
-      previousPublishedAt: string | null
-    }) => {
-      const nextStatus = publish
-        ? previousStatus === 'coming_soon'
-          ? 'coming_soon'
-          : 'published'
-        : 'draft'
-
-      const nextIsPublished = nextStatus !== 'draft'
-
-      const { error } = await supabase
-        .from('courses')
-        .update({
-          status: nextStatus,
-          is_published: nextIsPublished,
-          published_at: nextIsPublished
-            ? previousPublishedAt ?? new Date().toISOString()
-            : null,
-        })
-        .eq('id', id)
-      if (error) throw error
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-courses'] })
-      toast.success('Publish state updated')
-    },
-    onError: (error) => {
-      console.error('Error toggling publish', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to toggle publish state')
-    },
-  })
-
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from('courses').delete().eq('id', id)
