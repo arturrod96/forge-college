@@ -526,7 +526,7 @@ export function AdminFormations() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl air font-bold">Formations</h1>
+          <h1 className="text-3xl font-bold">Formations</h1>
           <p className="text-muted-foreground">Manage formations, their localized content, and linked learning paths.</p>
         </div>
         <Button onClick={handleAddNew}>
