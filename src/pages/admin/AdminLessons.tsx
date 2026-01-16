@@ -189,6 +189,18 @@ export default function AdminLessons() {
   const [selectedModuleFilter, setSelectedModuleFilter] = useState<'all' | string>('all')
   const [dialogOpen, setDialogOpen] = useState(false)
 
+  const form = useForm<LessonFormValues>({
+    resolver: zodResolver(lessonFormSchema),
+    defaultValues: {
+      module_id: '',
+      slug: '',
+      lesson_type: 'text',
+      xp_value: 10,
+      order: 1,
+      duration_minutes: '',
+    },
+  })
+
   const initializeLocalizationDrafts = useCallback(
     (lesson?: LessonWithMeta, lessonType?: LessonFormValues['lesson_type']) => {
       if (locales.length === 0) return
@@ -220,18 +232,6 @@ export default function AdminLessons() {
   const [editingLesson, setEditingLesson] = useState<LessonWithMeta | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<LessonWithMeta | null>(null)
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false)
-
-  const form = useForm<LessonFormValues>({
-    resolver: zodResolver(lessonFormSchema),
-    defaultValues: {
-      module_id: '',
-      slug: '',
-      lesson_type: 'text',
-      xp_value: 10,
-      order: 1,
-      duration_minutes: '',
-    },
-  })
 
   const currentLessonType = form.watch('lesson_type')
 
