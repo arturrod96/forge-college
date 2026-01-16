@@ -125,6 +125,65 @@ export default function AdminLessons() {
     }
   }, [locales, defaultLocaleCode])
 
+  const createEmptyLocalizationDraft = useCallback(
+    (): LessonLocalizationFormState => ({
+      title: '',
+      tags: [],
+      thumbnailUrl: '',
+      richText: '',
+      videoUrl: '',
+      quizJson: '[]',
+      isPublished: false,
+      publishedAt: null,
+    }),
+    []
+  )
+
+  const deserializeLocalization = useCallback(
+    (record: Tables<'lesson_localizations'> | undefined, lessonType: LessonRow['lesson_type']): LessonLocalizationFormState => {
+      let richText = ''
+      let videoUrl = ''
+      let quizJson = '[]'
+
+      if (lessonType === 'text' && typeof record?.content === 'string') {
+        richText = record.content
+      } else if (lessonType === 'video' && typeof record?.content === 'string') {
+        videoUrl = record.content
+      } else if (lessonType === 'quiz' && record?.content) {
+        try {
+          quizJson = JSON.stringify(record.content, null, 2)
+        } catch {
+          quizJson = '[]'
+        }
+      }
+
+      return {
+        title: record?.title ?? '',
+        tags: record?.tags ?? [],
+        thumbnailUrl: record?.thumbnail_url ?? '',
+        richText,
+        videoUrl,
+        quizJson,
+        isPublished: record?.is_published ?? false,
+        publishedAt: record?.published_at ?? null,
+      }
+    },
+    []
+  )
+
+  const updateLocalizationDraft = useCallback(
+    (locale: string, updater: (draft: LessonLocalizationFormState) => LessonLocalizationFormState) => {
+      setLocalizationDrafts((previous) => {
+        const current = previous[locale] ?? createEmptyLocalizationDraft()
+        return {
+          ...previous,
+          [locale]: updater(current),
+        }
+      })
+    },
+    [createEmptyLocalizationDraft]
+  )
+
   const [selectedPathFilter, setSelectedPathFilter] = useState<'all' | string>('all')
   const [selectedCourseFilter, setSelectedCourseFilter] = useState<'all' | string>('all')
   const [selectedModuleFilter, setSelectedModuleFilter] = useState<'all' | string>('all')
