@@ -328,13 +328,28 @@ export default function AdminLessons() {
       const { data, error } = await supabase
         .from('lessons')
         .select(
-          'id, title, slug, lesson_type, module_id, order, content, xp_value, duration_minutes, thumbnail_url, is_published, published_at, updated_at'
+          `
+            id,
+            title,
+            slug,
+            lesson_type,
+            module_id,
+            order,
+            content,
+            xp_value,
+            duration_minutes,
+            thumbnail_url,
+            is_published,
+            published_at,
+            updated_at,
+            lesson_localizations(*)
+          `
         )
         .order('module_id', { ascending: true })
         .order('order', { ascending: true })
 
       if (error) throw error
-      return data ?? []
+      return (data ?? []) as LessonWithMeta[]
     },
   })
 
