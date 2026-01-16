@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useOAuth';
 import { useToast } from '@/hooks/use-toast';
-import { StudentProfile } from '@/types/profile';
+import type { StudentProfile } from '@/types/profile'
 import { getProfile, updateProfile } from '@/lib/profile.service';
 import { ProfileSidebar } from '@/components/profile/ProfileSidebar';
 import { SectionCard } from '@/components/profile/SectionCard';
@@ -12,8 +12,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Save, User, Mail, MapPin, Globe, Briefcase, Target, Building, Linkedin, Github, BookOpen, Languages } from 'lucide-react';
-
-import type { StudentProfile } from '@/types/profile'
 
 const COUNTRY_LIST = [
   { value: 'Brazil', key: 'brazil' },
