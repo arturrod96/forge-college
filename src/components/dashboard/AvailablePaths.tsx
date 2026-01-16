@@ -38,7 +38,7 @@ type AvailablePathsProps = {
 
 export function AvailablePaths({ limit, className }: AvailablePathsProps) {
   const { user } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [enrollingId, setEnrollingId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>('all');
@@ -46,8 +46,10 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
   const queryClient = useQueryClient();
   const supabase = createClientBrowser();
 
+  const resolvedLocale = i18n.language || DEFAULT_LOCALE;
+
   const { data: paths = [], isLoading } = useQuery<LearningPath[]>({
-    queryKey: ['availablePaths', user?.id],
+    queryKey: ['availablePaths', user?.id, resolvedLocale],
     enabled: true,
     staleTime: 60_000,
     refetchOnWindowFocus: false,
@@ -55,10 +57,16 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
     queryFn: async (): Promise<LearningPath[]> => {
       const { data: pathsData, error: pathsError } = await supabase
         .from('learning_paths')
-        .select(`
-          id, title, description, status,
-          courses(id)
-        `)
+        .select(
+          `
+            id,
+            title,
+            description,
+            status,
+            courses(id),
+            learning_path_localizations(* )
+          `
+        )
         .in('status', ['published', 'coming_soon']);
       if (pathsError) throw pathsError;
 
@@ -76,14 +84,22 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
         }
       }
 
-      return (pathsData || []).map((path: any) => ({
-        id: path.id,
-        title: path.title,
-        description: path.description,
-        status: path.status,
-        isEnrolled: enrolledPaths.includes(path.id),
-        courseCount: path.courses?.length || 0,
-      }));
+      return (pathsData as LearningPathRow[] | null | undefined || []).map((path) => {
+        const localization = pickPublishedLocalization(
+          path.learning_path_localizations ?? [],
+          resolvedLocale,
+          DEFAULT_LOCALE
+        );
+
+        return {
+          id: path.id,
+          title: localization?.title ?? path.title,
+          description: localization?.description ?? path.description ?? '',
+          status: path.status,
+          isEnrolled: enrolledPaths.includes(path.id),
+          courseCount: path.courses?.length || 0,
+        } satisfies LearningPath;
+      });
     },
   });
 
