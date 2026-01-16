@@ -101,12 +101,12 @@ export default function Profile() {
         data.communicationLanguage ||
         (i18n.language as StudentProfile['communicationLanguage']) ||
         'pt-BR'
-      ) as StudentProfile['communicationLanguage']
+      ) as StudentProfile['communicationLanguage'];
 
-      data.communicationLanguage = preferredLanguage
+      data.communicationLanguage = preferredLanguage;
 
       if (preferredLanguage !== i18n.language) {
-        i18n.changeLanguage(preferredLanguage)
+        i18n.changeLanguage(preferredLanguage);
       }
 
       setProfile(data);
