@@ -23,9 +23,12 @@ import {
 } from '@/components/ui/dialog'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { LocalizationTabs } from '@/components/admin/LocalizationTabs'
+import { TagInput } from '@/components/profile/TagInput'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,6 +43,14 @@ import { Separator } from '@/components/ui/separator'
 import { Loader2, Pencil, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { formatDistanceToNow } from 'date-fns'
+import {
+  DEFAULT_LOCALE,
+  ensureLocaleMap,
+  fetchSupportedLocales,
+  getDefaultLocale,
+  mapLocalizationsByLocale,
+  type LocaleRow,
+} from '@/lib/localization'
 
 const slugify = (value: string) =>
   value
