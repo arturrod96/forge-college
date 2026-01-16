@@ -2,15 +2,17 @@ import { useMemo, useState } from 'react';
 import { createClientBrowser } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useOAuth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { LoadingGrid } from '@/components/ui/loading-states';
 import { EmptyState } from '@/components/ui/empty-state';
-import { BookOpen, Clock, PlayCircle, CircleCheck, Layers, CirclePlay, Flame } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { BookOpen, Clock, PlayCircle, CircleCheck, Layers, CirclePlay, Flame, Bell, X, CheckCircle } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { DASHBOARD_LEARN_COURSE } from '@/routes/paths';
 import { ContentSearch, StatusFilter, ProgressFilter, SortSelector, type StatusFilterValue, type ProgressFilterValue, type SortOption } from '@/components/filters';
+import { EnhancedButton } from '@/components/ui/enhanced-button';
+import { toast } from 'sonner';
 
 interface Course {
   id: string;
@@ -43,10 +45,15 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
   const { t } = useTranslation();
   const { user } = useAuth();
   const supabase = useMemo(() => createClientBrowser(), []);
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>('all');
   const [progressFilter, setProgressFilter] = useState<ProgressFilterValue[]>([]);
   const [sortOption, setSortOption] = useState<SortOption>('path_order');
+  const [joiningWaitlistId, setJoiningWaitlistId] = useState<string | null>(null);
+  const [leavingWaitlistId, setLeavingWaitlistId] = useState<string | null>(null);
+  const [hoveredWaitlistCourseId, setHoveredWaitlistCourseId] = useState<string | null>(null);
 
   // Fetch courses
   const { data: courses = [], isLoading: isLoadingCourses } = useQuery<Course[]>({
@@ -76,6 +83,29 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
           modules,
         };
       });
+    },
+  });
+
+  // Fetch waitlist status for courses
+  const { data: waitlistedCourses = [] } = useQuery<string[]>({
+    queryKey: ['waitlistedCourses', user?.id],
+    enabled: !!user?.id && courses.length > 0,
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+    queryFn: async (): Promise<string[]> => {
+      if (!user?.id) return [];
+      const { data, error } = await supabase
+        .from('waiting_list')
+        .select('course_id')
+        .eq('user_id', user.id)
+        .not('course_id', 'is', null);
+      
+      if (error) {
+        console.error('Error fetching waitlisted courses:', error);
+        return [];
+      }
+      
+      return (data || []).map((entry: any) => entry.course_id).filter(Boolean);
     },
   });
 
@@ -156,6 +186,191 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
     },
   });
 
+  // Join waitlist mutation
+  const joinWaitlistMutation = useMutation({
+    mutationFn: async (courseId: string) => {
+      if (!user || !user.id) {
+        throw new Error('Must be logged in to join waiting list');
+      }
+      
+      // Check if already on waitlist first
+      const { data: existingEntry } = await supabase
+        .from('waiting_list')
+        .select('id, created_at')
+        .eq('user_id', user.id)
+        .eq('course_id', courseId)
+        .maybeSingle();
+      
+      if (existingEntry) {
+        return { courseId, alreadyOnList: true };
+      }
+      
+      // Try using RPC function first
+      let entryId: string | null = null;
+      let rpcError: any = null;
+      
+      try {
+        const { data, error } = await supabase.rpc('add_to_waiting_list', {
+          p_learning_path_id: null,
+          p_formation_id: null,
+          p_course_id: courseId,
+          p_email: user.email || ''
+        });
+        
+        if (error) {
+          rpcError = error;
+        } else {
+          entryId = data;
+        }
+      } catch (err) {
+        rpcError = err;
+      }
+      
+      // If RPC function doesn't exist or fails, fall back to direct insert
+      if (rpcError && (rpcError.code === '42883' || rpcError.message?.includes('function') || rpcError.message?.includes('does not exist'))) {
+        const { data: insertData, error: insertError } = await supabase
+          .from('waiting_list')
+          .insert({ 
+            user_id: user.id, 
+            course_id: courseId,
+            email: user.email || ''
+          })
+          .select()
+          .single();
+        
+        if (insertError) {
+          console.error('Error inserting into waiting_list:', insertError);
+          if (insertError.code === '23505') {
+            return { courseId, alreadyOnList: true };
+          }
+          throw new Error(insertError.message || 'Failed to join waiting list');
+        }
+        
+        if (insertData) {
+          return { courseId, alreadyOnList: false };
+        }
+      } else if (rpcError) {
+        if (rpcError.message?.includes('already') || rpcError.message?.includes('unique') || rpcError.code === '23505') {
+          return { courseId, alreadyOnList: true };
+        }
+        throw new Error(rpcError.message || 'Failed to join waiting list');
+      }
+      
+      if (entryId) {
+        return { courseId, alreadyOnList: false };
+      }
+      
+      return { courseId, alreadyOnList: false };
+    },
+    onMutate: async (courseId) => {
+      setJoiningWaitlistId(courseId);
+      
+      await queryClient.cancelQueries({ queryKey: ['waitlistedCourses', user?.id] });
+      
+      const previousWaitlisted = queryClient.getQueryData<string[]>(['waitlistedCourses', user?.id]);
+      
+      if (previousWaitlisted) {
+        queryClient.setQueryData<string[]>(['waitlistedCourses', user?.id], (old) => {
+          if (!old) return old;
+          return [...old, courseId];
+        });
+      }
+      
+      return { previousWaitlisted };
+    },
+    onSuccess: (result) => {
+      if (result.alreadyOnList) {
+        toast.info('You are already on the waiting list for this course!');
+      } else {
+        toast.success('You have been added to the waiting list! You will receive an email when this course becomes available.');
+      }
+      queryClient.invalidateQueries({ queryKey: ['waitlistedCourses', user?.id] });
+    },
+    onError: (error, courseId, context) => {
+      console.error('Error joining waiting list:', error);
+      const message = error instanceof Error ? error.message : 'Failed to join waiting list';
+      
+      if (context?.previousWaitlisted) {
+        queryClient.setQueryData(['waitlistedCourses', user?.id], context.previousWaitlisted);
+      }
+      
+      if (message.includes('already on') || message.includes('already')) {
+        toast.info('You are already on the waiting list for this course!');
+        queryClient.invalidateQueries({ queryKey: ['waitlistedCourses', user?.id] });
+      } else {
+        toast.error(message);
+      }
+    },
+    onSettled: () => setJoiningWaitlistId(null),
+  });
+
+  // Leave waitlist mutation
+  const leaveWaitlistMutation = useMutation({
+    mutationFn: async (courseId: string) => {
+      if (!user || !user.id) {
+        throw new Error('Must be logged in to leave waiting list');
+      }
+      
+      const { error } = await supabase
+        .from('waiting_list')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('course_id', courseId);
+      
+      if (error) {
+        throw new Error(error.message || 'Failed to leave waiting list');
+      }
+      
+      return courseId;
+    },
+    onMutate: async (courseId) => {
+      setLeavingWaitlistId(courseId);
+      
+      await queryClient.cancelQueries({ queryKey: ['waitlistedCourses', user?.id] });
+      
+      const previousWaitlisted = queryClient.getQueryData<string[]>(['waitlistedCourses', user?.id]);
+      
+      if (previousWaitlisted) {
+        queryClient.setQueryData<string[]>(['waitlistedCourses', user?.id], (old) => {
+          if (!old) return old;
+          return old.filter(id => id !== courseId);
+        });
+      }
+      
+      return { previousWaitlisted };
+    },
+    onSuccess: () => {
+      toast.success('You have been removed from the waiting list.');
+      queryClient.invalidateQueries({ queryKey: ['waitlistedCourses', user?.id] });
+    },
+    onError: (error, courseId, context) => {
+      console.error('Error leaving waiting list:', error);
+      const message = error instanceof Error ? error.message : 'Failed to leave waiting list';
+      toast.error(message);
+      
+      if (context?.previousWaitlisted) {
+        queryClient.setQueryData(['waitlistedCourses', user?.id], context.previousWaitlisted);
+      }
+    },
+    onSettled: () => setLeavingWaitlistId(null),
+  });
+
+  const handleJoinWaitlist = async (courseId: string) => {
+    if (!user) {
+      toast.error('You must be logged in to join the waiting list');
+      return;
+    }
+    joinWaitlistMutation.mutate(courseId);
+  };
+
+  const handleLeaveWaitlist = async (courseId: string) => {
+    if (!user) {
+      toast.error('You must be logged in to leave the waiting list');
+      return;
+    }
+    leaveWaitlistMutation.mutate(courseId);
+  };
+
   const isLoading = isLoadingCourses;
 
   // Combine courses with progress and apply filtering/sorting
@@ -197,19 +412,30 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
 
     // Sort
     result.sort((a, b) => {
+      // Helper function to get priority: Enrolled > Available/Not Started > Completed > Coming Soon
+      const getPriority = (course: CourseWithProgress) => {
+        if (course.status === 'coming_soon') return 3;
+        if (course.progressStatus === 'in_progress') return 0;
+        if (course.progressStatus === 'not_started') return 1;
+        if (course.progressStatus === 'completed') return 2;
+        return 4; // fallback
+      };
+
       switch (sortOption) {
         case 'recent':
-          // Courses don't have created_at in this query, so use order as fallback
+          // Courses don't have created_at in this query, so use priority first, then order
+          const recentPriorityDiff = getPriority(a) - getPriority(b);
+          if (recentPriorityDiff !== 0) return recentPriorityDiff;
           return a.order - b.order;
         case 'alphabetical':
+          const alphaPriorityDiff = getPriority(a) - getPriority(b);
+          if (alphaPriorityDiff !== 0) return alphaPriorityDiff;
           return a.title.localeCompare(b.title);
         case 'path_order':
-          return a.order - b.order;
         default:
-          // Default: progress status first, then order
-          const statusOrder = { in_progress: 0, not_started: 1, completed: 2 };
-          const orderDiff = statusOrder[a.progressStatus] - statusOrder[b.progressStatus];
-          if (orderDiff !== 0) return orderDiff;
+          // Default order: Enrolled (in_progress) > Available/Not Started (not_started) > Completed (completed) > Coming Soon (coming_soon)
+          const priorityDiff = getPriority(a) - getPriority(b);
+          if (priorityDiff !== 0) return priorityDiff;
           return a.order - b.order;
       }
     });
@@ -281,6 +507,8 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
             const isAvailable = course.status !== 'coming_soon';
             const isInProgress = course.progressStatus === 'in_progress';
             const isCompleted = course.progressStatus === 'completed';
+            const isComingSoon = course.status === 'coming_soon';
+            const isOnWaitlist = waitlistedCourses.includes(course.id);
 
             const card = (
               <Card
@@ -291,7 +519,7 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
                 ].join(' ')}
               >
                 {/* Thumbnail */}
-                <div className="h-48 flex items-center justify-center relative" style={{ backgroundColor: '#303b2e' }}>
+                <div className="h-48 flex items-center justify-center relative" style={{ backgroundColor: !isAvailable ? '#4a5a4a' : '#303b2e' }}>
                   {course.thumbnail_url ? (
                     <img
                       src={course.thumbnail_url}
@@ -321,6 +549,13 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
                     <div className="absolute top-2 right-2 z-10">
                       <Badge variant="coming-soon" size="sm" icon={Clock} iconPosition="left">
                         Coming Soon
+                      </Badge>
+                    </div>
+                  )}
+                  {isAvailable && !isInProgress && !isCompleted && course.status !== 'coming_soon' && (
+                    <div className="absolute top-2 right-2 z-10">
+                      <Badge variant="default" size="sm" icon={CheckCircle} iconPosition="left">
+                        Available
                       </Badge>
                     </div>
                   )}
@@ -369,6 +604,84 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
                     </div>
                   )}
 
+                  {/* Action button */}
+                  {isInProgress ? (
+                    <EnhancedButton 
+                      className="w-full text-sm py-2" 
+                      size="sm" 
+                      withGradient
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        navigate(DASHBOARD_LEARN_COURSE(course.id));
+                      }}
+                    >
+                      Continue learning
+                    </EnhancedButton>
+                  ) : isComingSoon ? (
+                    isOnWaitlist ? (
+                      <EnhancedButton
+                        onClick={() => handleLeaveWaitlist(course.id)}
+                        onMouseEnter={() => setHoveredWaitlistCourseId(course.id)}
+                        onMouseLeave={() => setHoveredWaitlistCourseId(null)}
+                        disabled={leavingWaitlistId === course.id}
+                        className="w-full text-sm py-2 bg-green-50 text-green-700 border-green-200 hover:bg-red-50 hover:text-red-700 hover:border-red-200 transition-colors"
+                        variant="outline"
+                        size="sm"
+                      >
+                        {leavingWaitlistId === course.id ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                            Leaving...
+                          </>
+                        ) : hoveredWaitlistCourseId === course.id ? (
+                          <>
+                            <X className="h-4 w-4 mr-2" />
+                            Leave Waitlist
+                          </>
+                        ) : (
+                          <>
+                            <Bell className="h-4 w-4 mr-2" />
+                            On Waitlist
+                          </>
+                        )}
+                      </EnhancedButton>
+                    ) : (
+                      <EnhancedButton
+                        onClick={() => handleJoinWaitlist(course.id)}
+                        disabled={joiningWaitlistId === course.id}
+                        className="w-full text-sm py-2"
+                        variant="outline"
+                        size="sm"
+                      >
+                        {joiningWaitlistId === course.id ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                            Joining...
+                          </>
+                        ) : (
+                          <>
+                            <Bell className="h-4 w-4 mr-2" />
+                            Join Waitlist
+                          </>
+                        )}
+                      </EnhancedButton>
+                    )
+                  ) : (
+                    <EnhancedButton 
+                      className="w-full text-sm py-2" 
+                      size="sm" 
+                      withGradient
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        navigate(DASHBOARD_LEARN_COURSE(course.id));
+                      }}
+                    >
+                      Start Course
+                    </EnhancedButton>
+                  )}
+
                 </CardContent>
               </Card>
             );
@@ -377,6 +690,7 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
               return <div key={course.id}>{card}</div>;
             }
 
+            // For available courses, wrap in Link to make card clickable
             return (
               <Link
                 key={course.id}

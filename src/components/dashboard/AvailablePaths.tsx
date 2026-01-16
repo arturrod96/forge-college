@@ -447,17 +447,31 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
 
     // Sort
     result.sort((a, b) => {
+      // Helper function to get priority: Enrolled > Available/Not Started > Completed > Coming Soon
+      const getPriority = (path: LearningPath) => {
+        if (path.status === 'coming_soon') return 3;
+        if (path.isEnrolled || path.progressStatus === 'in_progress') return 0;
+        if (path.progressStatus === 'not_started') return 1;
+        if (path.progressStatus === 'completed') return 2;
+        return 4; // fallback
+      };
+
       switch (sortOption) {
         case 'recent':
-          // For paths, we don't have created_at, so sort by title as fallback
-          return 0;
+          // For paths, we don't have created_at, so use priority first, then title
+          const recentPriorityDiff = getPriority(a) - getPriority(b);
+          if (recentPriorityDiff !== 0) return recentPriorityDiff;
+          return a.title.localeCompare(b.title);
         case 'alphabetical':
+          const alphaPriorityDiff = getPriority(a) - getPriority(b);
+          if (alphaPriorityDiff !== 0) return alphaPriorityDiff;
           return a.title.localeCompare(b.title);
         case 'path_order':
-          // Paths don't have an order field in this context, so use alphabetical
-          return a.title.localeCompare(b.title);
         default:
-          return 0;
+          // Default order: Enrolled (isEnrolled or in_progress) > Available/Not Started (not_started) > Completed (completed) > Coming Soon (coming_soon)
+          const priorityDiff = getPriority(a) - getPriority(b);
+          if (priorityDiff !== 0) return priorityDiff;
+          return a.title.localeCompare(b.title);
       }
     });
 
@@ -513,10 +527,10 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
             return (
               <Card
                 key={path.id}
-                className={`relative rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[300px] flex flex-col ${path.isEnrolled ? 'ring-1 ring-forge-orange/20' : ''}`}
+                className={`relative rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[300px] flex flex-col ${path.isEnrolled ? 'ring-1 ring-forge-orange/20' : ''} ${isComingSoon ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
                 {/* Thumbnail */}
-                <div className="h-48 flex items-center justify-center relative" style={{ backgroundColor: '#303b2e' }}>
+                <div className="h-48 flex items-center justify-center relative" style={{ backgroundColor: isComingSoon ? '#4a5a4a' : '#303b2e' }}>
                   <BookOpen className="h-16 w-16 text-forge-orange" />
                   
                   {/* Badges sobre a thumbnail */}

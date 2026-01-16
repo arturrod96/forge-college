@@ -21,8 +21,6 @@ import ComingSoonPage from './pages/ComingSoonPage';
 import DashboardHome from './pages/dashboard/DashboardHome';
 import FormationDetailPage from './pages/dashboard/FormationDetailPage';
 import CoursesPage from './pages/dashboard/CoursesPage';
-import ModulesPage from './pages/dashboard/ModulesPage';
-import LessonsPage from './pages/dashboard/LessonsPage';
 import LearningPathsPage from './pages/dashboard/LearningPathsPage';
 import { AvailablePaths } from './components/dashboard/AvailablePaths';
 import { MyLearningPaths } from './components/dashboard/MyLearningPaths';
@@ -101,8 +99,6 @@ const App = () => {
                     <Route path="formations" element={<FormationsPage />} />
                     <Route path="formations/:formationId" element={<FormationDetailPage />} />
                     <Route path="courses" element={<CoursesPage />} />
-                    <Route path="modules" element={<ModulesPage />} />
-                    <Route path="lessons" element={<LessonsPage />} />
                     <Route path="coming-soon" element={<ComingSoonPage />} />
                     <Route path="profile" element={<Profile />} />
                     <Route path="community-projects" element={<CommunityProjects />} />
