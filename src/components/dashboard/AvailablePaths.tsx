@@ -11,7 +11,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { LoadingGrid } from '@/components/ui/loading-states';
-import { ContentSearch, StatusFilter, SortSelector, ProgressFilter, type StatusFilterValue, type SortOption, type ProgressFilterValue } from '@/components/filters';
+import { ContentSearch, FilterPopover, type StatusFilterValue, type SortOption, type ProgressFilterValue } from '@/components/filters';
 import { pickPublishedLocalization, DEFAULT_LOCALE } from '@/lib/localization';
 import type { Tables } from '@/types/supabase';
 
@@ -84,7 +84,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
       let enrolledPaths: string[] = [];
       let waitlistedPaths: string[] = [];
       const pathProgressMap: Record<string, 'not_started' | 'in_progress' | 'completed'> = {};
-      
+
       if (user) {
         // Get enrolled paths
         const { data: enrollments, error: enrollmentError } = await supabase
@@ -96,7 +96,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
           console.error('Error fetching enrollments:', enrollmentError);
         } else {
           enrolledPaths = (enrollments || []).map((e: any) => e.learning_path_id);
-          
+
           // Calculate progress for enrolled paths
           if (enrolledPaths.length > 0) {
             const progressPromises = enrolledPaths.map(async (pathId) => {
@@ -128,7 +128,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
         // Get waitlisted paths - try RPC function first, then fallback to direct query
         try {
           const { data: waitlistData, error: waitlistError } = await supabase.rpc('get_user_waitlisted_paths');
-          
+
           if (!waitlistError && waitlistData) {
             // Successfully got data from RPC
             waitlistedPaths = waitlistData.map((e: any) => e.learning_path_id);
@@ -142,7 +142,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
               .select('learning_path_id')
               .eq('user_id', user.id)
               .not('learning_path_id', 'is', null);
-            
+
             if (fallbackError) {
               console.error('Error fetching waitlist entries (fallback):', fallbackError);
               // If both fail, waitlistedPaths remains empty array
@@ -237,7 +237,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
       if (!user || !user.id) {
         throw new Error('Must be logged in to join waiting list');
       }
-      
+
       // Check if already on waitlist first
       const { data: existingEntry } = await supabase
         .from('waiting_list')
@@ -245,23 +245,23 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
         .eq('user_id', user.id)
         .eq('learning_path_id', pathId)
         .maybeSingle();
-      
+
       if (existingEntry) {
         // User is already on waitlist
         return { pathId, alreadyOnList: true };
       }
-      
+
       // Try using RPC function first (bypasses RLS issues)
       let entryId: string | null = null;
       let rpcError: any = null;
-      
+
       try {
         const { data, error } = await supabase.rpc('add_to_waiting_list', {
           p_learning_path_id: pathId,
           p_formation_id: null,
           p_email: user.email || ''
         });
-        
+
         if (error) {
           rpcError = error;
         } else {
@@ -270,22 +270,22 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
       } catch (err) {
         rpcError = err;
       }
-      
+
       // If RPC function doesn't exist or fails, fall back to direct insert
       if (rpcError && (rpcError.code === '42883' || rpcError.message?.includes('function') || rpcError.message?.includes('does not exist'))) {
         // RPC function not available, fall back to direct insert
-        
+
         // Fallback: Direct insert (may fail if RLS policies aren't fixed)
         const { data: insertData, error: insertError } = await supabase
           .from('waiting_list')
-          .insert({ 
-            user_id: user.id, 
+          .insert({
+            user_id: user.id,
             learning_path_id: pathId,
             email: user.email || ''
           })
           .select()
           .single();
-        
+
         if (insertError) {
           console.error('Error inserting into waiting_list:', insertError);
           if (insertError.code === '23505') {
@@ -294,37 +294,37 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
           }
           throw new Error(insertError.message || 'Failed to join waiting list');
         }
-        
+
         if (insertData) {
           return { pathId, alreadyOnList: false };
         }
       } else if (rpcError) {
         // RPC function exists but returned an error
         console.error('Error adding to waiting list via RPC:', rpcError);
-        
+
         // If error mentions already exists or unique violation, user is already on list
         if (rpcError.message?.includes('already') || rpcError.message?.includes('unique') || rpcError.code === '23505') {
           return { pathId, alreadyOnList: true };
         }
-        
+
         throw new Error(rpcError.message || 'Failed to join waiting list');
       }
-      
+
       // If we got an entry ID from RPC, it was successfully added
       if (entryId) {
         return { pathId, alreadyOnList: false };
       }
-      
+
       return { pathId, alreadyOnList: false };
     },
     onMutate: async (pathId) => {
       setJoiningWaitlistId(pathId);
-      
+
       // Optimistic update: immediately update the UI
       await queryClient.cancelQueries({ queryKey: ['availablePaths', user?.id] });
-      
+
       const previousPaths = queryClient.getQueryData<LearningPath[]>(['availablePaths', user?.id]);
-      
+
       if (previousPaths) {
         queryClient.setQueryData<LearningPath[]>(['availablePaths', user?.id], (old) => {
           if (!old) return old;
@@ -333,7 +333,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
           );
         });
       }
-      
+
       return { previousPaths };
     },
     onSuccess: (result, pathId, context) => {
@@ -348,12 +348,12 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
     onError: (error, pathId, context) => {
       console.error('Error joining waiting list:', error);
       const message = error instanceof Error ? error.message : 'Failed to join waiting list';
-      
+
       // Rollback optimistic update on error
       if (context?.previousPaths) {
         queryClient.setQueryData(['availablePaths', user?.id], context.previousPaths);
       }
-      
+
       if (message.includes('already on') || message.includes('already')) {
         toast.info('You are already on the waiting list for this path!');
         queryClient.invalidateQueries({ queryKey: ['availablePaths', user?.id] });
@@ -378,27 +378,27 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
       if (!user || !user.id) {
         throw new Error('Must be logged in to leave waiting list');
       }
-      
+
       const { error } = await supabase
         .from('waiting_list')
         .delete()
         .eq('user_id', user.id)
         .eq('learning_path_id', pathId);
-      
+
       if (error) {
         throw new Error(error.message || 'Failed to leave waiting list');
       }
-      
+
       return pathId;
     },
     onMutate: async (pathId) => {
       setLeavingWaitlistId(pathId);
-      
+
       // Optimistic update: immediately update the UI
       await queryClient.cancelQueries({ queryKey: ['availablePaths', user?.id] });
-      
+
       const previousPaths = queryClient.getQueryData<LearningPath[]>(['availablePaths', user?.id]);
-      
+
       if (previousPaths) {
         queryClient.setQueryData<LearningPath[]>(['availablePaths', user?.id], (old) => {
           if (!old) return old;
@@ -407,7 +407,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
           );
         });
       }
-      
+
       return { previousPaths };
     },
     onSuccess: () => {
@@ -419,7 +419,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
       console.error('Error leaving waiting list:', error);
       const message = error instanceof Error ? error.message : 'Failed to leave waiting list';
       toast.error(message);
-      
+
       // Rollback optimistic update on error
       if (context?.previousPaths) {
         queryClient.setQueryData(['availablePaths', user?.id], context.previousPaths);
@@ -518,19 +518,23 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
 
   return (
     <div className={className}>
+      {/* Simplified filter bar */}
       <div className="mb-6">
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-3">
           <ContentSearch
             value={searchTerm}
             onChange={setSearchTerm}
             placeholder="Search learning paths..."
+            className="flex-1 max-w-sm"
           />
-          <StatusFilter value={statusFilter} onChange={setStatusFilter} />
-          <ProgressFilter selected={progressFilter} onChange={setProgressFilter} />
-          <SortSelector
-            value={sortOption}
-            onChange={setSortOption}
-            options={['recent', 'alphabetical', 'path_order']}
+          <FilterPopover
+            statusValue={statusFilter}
+            onStatusChange={setStatusFilter}
+            progressSelected={progressFilter}
+            onProgressChange={setProgressFilter}
+            sortValue={sortOption}
+            onSortChange={setSortOption}
+            sortOptions={['recent', 'alphabetical', 'path_order']}
           />
         </div>
       </div>
@@ -546,147 +550,104 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
       )}
 
       {visiblePaths.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 items-stretch">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {visiblePaths.map((path) => {
             const isComingSoon = path.status === 'coming_soon';
+            const courseCount = path.courseCount || path.courses?.length || 0;
+
             return (
               <Card
                 key={path.id}
-                className={`relative rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[300px] flex flex-col ${path.isEnrolled ? 'ring-1 ring-forge-orange/20' : ''} ${isComingSoon ? 'opacity-70 cursor-not-allowed' : ''}`}
+                className={`group relative rounded-xl border bg-card overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col ${path.isEnrolled ? 'ring-1 ring-forge-orange/30 bg-forge-orange/5' : ''
+                  } ${isComingSoon ? 'opacity-60' : ''
+                  }`}
               >
-                {/* Thumbnail */}
-                <div className="h-48 flex items-center justify-center relative" style={{ backgroundColor: isComingSoon ? '#4a5a4a' : '#303b2e' }}>
-                  <BookOpen className="h-16 w-16 text-forge-orange" />
-                  
-                  {/* Badges sobre a thumbnail */}
+                {/* Compact Thumbnail */}
+                <div className="h-24 flex items-center justify-center relative bg-gradient-to-br from-forge-dark to-forge-dark/80">
+                  <BookOpen className="h-10 w-10 text-forge-orange/80" />
+
+                  {/* Badge inline */}
                   {path.isEnrolled && (
-                    <div className="absolute top-2 right-2 z-10">
-                      <Badge
-                        variant="enrolled"
-                        size="sm"
-                        icon={CirclePlay}
-                        iconPosition="left"
-                      >
-                        {t('dashboard.availablePaths.enrolledBadge')}
+                    <div className="absolute top-2 left-2">
+                      <Badge variant="enrolled" size="sm">
+                        Enrolled
                       </Badge>
                     </div>
                   )}
                   {isComingSoon && !path.isEnrolled && (
-                    <div className="absolute top-2 right-2 z-10">
-                      <Badge
-                        variant="coming-soon"
-                        size="sm"
-                        icon={Clock}
-                        iconPosition="left"
-                      >
-                        Coming Soon
+                    <div className="absolute top-2 left-2">
+                      <Badge variant="coming-soon" size="sm">
+                        Soon
                       </Badge>
                     </div>
                   )}
                 </div>
-                <CardHeader className="space-y-2">
-                  <CardTitle className="flex items-start gap-2 text-forge-dark tracking-normal text-lg md:text-xl leading-tight line-clamp-2 break-words">
-                    <BookOpen className="h-4 w-4 mt-0.5 text-forge-orange shrink-0" />
-                    <span>{path.title}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 mt-auto">
-                  {/* Courses preview */}
-                  {path.courses && path.courses.length > 0 && (
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-sm text-gray-900">Courses:</h4>
-                      <div className="space-y-1">
-                        {path.courses.slice(0, 3).map((course, index) => (
-                          <div key={course.id} className="flex items-center gap-2 text-xs text-gray-600">
-                            <span className="text-blue-500 font-medium">{index + 1}.</span>
-                            <span className="truncate">{course.title}</span>
-                          </div>
-                        ))}
-                        {path.courses.length > 3 && (
-                          <div className="text-xs text-gray-500">
-                            +{path.courses.length - 3} more courses
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
 
-                  {path.isEnrolled ? (
-                    <EnhancedButton className="w-full text-sm py-2" size="sm" withGradient asChild>
-                      <Link to={DASHBOARD_LEARN_PATH(path.id)}>
-                        {t('common.buttons.continueLearning')}
-                      </Link>
-                    </EnhancedButton>
-                  ) : isComingSoon ? (
-                    path.isOnWaitlist ? (
-                      <EnhancedButton
-                        onClick={() => handleLeaveWaitlist(path.id)}
-                        onMouseEnter={() => setHoveredWaitlistPathId(path.id)}
-                        onMouseLeave={() => setHoveredWaitlistPathId(null)}
-                        disabled={leavingWaitlistId === path.id}
-                        className="w-full text-sm py-2 bg-green-50 text-green-700 border-green-200 hover:bg-red-50 hover:text-red-700 hover:border-red-200 transition-colors"
-                        variant="outline"
-                        size="sm"
-                      >
-                        {leavingWaitlistId === path.id ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
-                            Leaving...
-                          </>
-                        ) : hoveredWaitlistPathId === path.id ? (
-                          <>
-                            <X className="h-4 w-4 mr-2" />
-                            Leave Waitlist
-                          </>
-                        ) : (
-                          <>
-                            <Bell className="h-4 w-4 mr-2" />
-                            On Waitlist
-                          </>
-                        )}
+                {/* Content */}
+                <div className="flex flex-col flex-1 p-4">
+                  {/* Title - no icon */}
+                  <h3 className="font-semibold text-sm text-foreground leading-tight line-clamp-2 mb-1">
+                    {path.title}
+                  </h3>
+
+                  {/* Course count - compact */}
+                  <p className="text-xs text-muted-foreground mb-4">
+                    {courseCount} {courseCount === 1 ? 'course' : 'courses'}
+                  </p>
+
+                  {/* Single CTA */}
+                  <div className="mt-auto">
+                    {path.isEnrolled ? (
+                      <EnhancedButton className="w-full" size="sm" withGradient asChild>
+                        <Link to={DASHBOARD_LEARN_PATH(path.id)}>
+                          Continue
+                        </Link>
                       </EnhancedButton>
+                    ) : isComingSoon ? (
+                      path.isOnWaitlist ? (
+                        <EnhancedButton
+                          onClick={() => handleLeaveWaitlist(path.id)}
+                          onMouseEnter={() => setHoveredWaitlistPathId(path.id)}
+                          onMouseLeave={() => setHoveredWaitlistPathId(null)}
+                          disabled={leavingWaitlistId === path.id}
+                          className="w-full text-xs"
+                          variant="outline"
+                          size="sm"
+                        >
+                          {leavingWaitlistId === path.id ? 'Leaving...' :
+                            hoveredWaitlistPathId === path.id ? 'Leave' : '✓ Waitlist'}
+                        </EnhancedButton>
+                      ) : (
+                        <EnhancedButton
+                          onClick={() => handleJoinWaitlist(path.id)}
+                          disabled={joiningWaitlistId === path.id}
+                          className="w-full text-xs"
+                          variant="outline"
+                          size="sm"
+                        >
+                          {joiningWaitlistId === path.id ? 'Joining...' : 'Notify Me'}
+                        </EnhancedButton>
+                      )
                     ) : (
-                      <EnhancedButton
-                        onClick={() => handleJoinWaitlist(path.id)}
-                        disabled={joiningWaitlistId === path.id}
-                        className="w-full text-sm py-2"
-                        variant="outline"
-                        size="sm"
-                      >
-                        {joiningWaitlistId === path.id ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
-                            Joining...
-                          </>
-                        ) : (
-                          <>
-                            <Bell className="h-4 w-4 mr-2" />
-                            Join Waitlist
-                          </>
-                        )}
-                      </EnhancedButton>
-                    )
-                  ) : (
-                    <>
                       <EnhancedButton
                         onClick={() => handleEnroll(path.id)}
                         disabled={enrollingId === path.id || !user}
-                        className="w-full text-sm py-2"
+                        className="w-full"
                         variant="outline"
                         size="sm"
+                        asChild={!enrollingId}
                       >
-                        {enrollingId === path.id ? t('dashboard.enrolling') : t('dashboard.enroll')}
-                      </EnhancedButton>
-                      {user && (
-                        <EnhancedButton variant="ghost" size="sm" className="w-full" asChild>
+                        {enrollingId === path.id ? (
+                          <span>Enrolling...</span>
+                        ) : (
                           <Link to={DASHBOARD_LEARN_PATH(path.id)}>
-                            {t('dashboard.viewDetails')}
+                            Start Learning
                           </Link>
-                        </EnhancedButton>
-                      )}
-                    </>
-                  )}
-                </CardContent>
+                        )}
+                      </EnhancedButton>
+                    )}
+                  </div>
+                </div>
               </Card>
             );
           })}
