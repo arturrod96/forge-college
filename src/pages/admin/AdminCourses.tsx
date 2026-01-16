@@ -62,20 +62,15 @@ const slugify = (value: string) =>
 
 const courseFormSchema = z.object({
   path_id: z.string().uuid('Select a learning path'),
-  title: z.string().min(3, 'Title must have at least 3 characters'),
   slug: z
     .string()
     .min(3, 'Slug must have at least 3 characters')
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Use lowercase letters, numbers, and hyphens only'),
-  summary: z.string().max(200, 'Summary is too long').optional().or(z.literal('')),
-  description: z.string().optional().or(z.literal('')),
   order: z.coerce.number().int('Order must be an integer').min(1, 'Order must be at least 1'),
   duration_minutes: z
     .union([z.coerce.number().int().min(0), z.literal('')])
     .optional()
     .transform((value) => (value === '' || value === undefined ? null : Number(value))),
-  thumbnail_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
-  is_published: z.boolean().default(false),
   status: z.enum(['draft', 'published', 'coming_soon']),
 })
 
