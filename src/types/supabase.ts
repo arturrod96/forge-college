@@ -437,7 +437,6 @@ export type Database = {
           }
         ]
       }
-      learning_path_localizations: never
       waiting_list: {
         Row: {
           created_at: string | null
