@@ -284,6 +284,19 @@ export default function CourseView() {
     return () => setHeaderBreadcrumb(null);
   }, [setHeaderBreadcrumb]);
 
+  // Global keyboard shortcut: Cmd+K to open course outline
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Cmd+K or Ctrl+K to open outline modal
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setOutlineOpen(true);
+      }
+    };
+    document.addEventListener('keydown', handleGlobalKeyDown);
+    return () => document.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
+
   const currentModule = useMemo(() => {
     if (!course || !currentLesson) return null;
     return (
@@ -450,9 +463,9 @@ export default function CourseView() {
 
         {/* Main Content Area - 2 Column Layout */}
         <div className="flex-1 flex h-[calc(100svh-56px)]">
-          {/* Center Content - Scrollable */}
-          <main className="flex-1 overflow-y-auto bg-gradient-to-br from-slate-50 to-white">
-            <div className="max-w-4xl mx-auto py-4 px-3 sm:py-6 sm:px-4 lg:px-8">
+          {/* Center Content - Scrollable, Immersive Layout */}
+          <main className="flex-1 overflow-y-auto bg-gradient-to-br from-slate-50 via-white to-slate-50">
+            <div className="max-w-5xl mx-auto py-6 px-4 sm:py-8 sm:px-6 lg:px-10 xl:px-12">
               <LessonViewer lesson={currentLesson} course={course} />
 
               {currentModule && isLastLessonInModule && (
