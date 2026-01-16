@@ -299,15 +299,33 @@ export function FormationsList({ limit, className }: FormationsListProps) {
 
     // Sort
     result.sort((a, b) => {
+      // Helper function to get priority: Enrolled > Available/Not Started > Completed > Coming Soon
+      const getPriority = (formation: FormationCardModel) => {
+        if (formation.status === 'coming_soon') return 3;
+        if (formation.progressStatus === 'in_progress') return 0;
+        if (formation.progressStatus === 'not_started') return 1;
+        if (formation.progressStatus === 'completed') return 2;
+        return 4; // fallback
+      };
+
       switch (sortOption) {
         case 'recent':
+          const recentPriorityDiff = getPriority(a) - getPriority(b);
+          if (recentPriorityDiff !== 0) return recentPriorityDiff;
           const aDate = a.created_at ? new Date(a.created_at).getTime() : 0;
           const bDate = b.created_at ? new Date(b.created_at).getTime() : 0;
           return bDate - aDate;
         case 'alphabetical':
+          const alphaPriorityDiff = getPriority(a) - getPriority(b);
+          if (alphaPriorityDiff !== 0) return alphaPriorityDiff;
           return a.title.localeCompare(b.title);
         default:
-          return 0;
+          // Default order: Enrolled (in_progress) > Available/Not Started (not_started) > Completed (completed) > Coming Soon (coming_soon)
+          const priorityDiff = getPriority(a) - getPriority(b);
+          if (priorityDiff !== 0) return priorityDiff;
+          const defaultADate = a.created_at ? new Date(a.created_at).getTime() : 0;
+          const defaultBDate = b.created_at ? new Date(b.created_at).getTime() : 0;
+          return defaultBDate - defaultADate; // Most recent first within same priority
       }
     });
 
@@ -375,10 +393,15 @@ export function FormationsList({ limit, className }: FormationsListProps) {
             ? formatDistanceToNow(new Date(formation.created_at))
             : null;
 
+          const isComingSoon = formation.status === 'coming_soon' && formation.progressStatus !== 'in_progress' && formation.progressStatus !== 'completed';
+
           return (
-          <Card key={formation.id} className="relative overflow-hidden hover:shadow-lg transition-shadow">
+          <Card key={formation.id} className={cn(
+            "relative overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[300px] flex flex-col",
+            isComingSoon && "opacity-70 cursor-not-allowed"
+          )}>
             {/* Thumbnail or placeholder */}
-            <div className="h-48 flex items-center justify-center relative" style={{ backgroundColor: '#303b2e' }}>
+            <div className="h-48 flex items-center justify-center relative" style={{ backgroundColor: isComingSoon ? '#4a5a4a' : '#303b2e' }}>
               {formation.thumbnail_url ? (
                 <img 
                   src={formation.thumbnail_url} 

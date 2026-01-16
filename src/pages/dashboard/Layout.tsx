@@ -28,8 +28,6 @@ import {
   DASHBOARD_EXPLORE,
   DASHBOARD_FORMATIONS,
   DASHBOARD_COURSES,
-  DASHBOARD_MODULES,
-  DASHBOARD_LESSONS,
   DASHBOARD_ADMIN,
   DASHBOARD_SCOREBOARD,
   DASHBOARD_ACHIEVEMENTS,
@@ -121,22 +119,6 @@ function EducationMenuItem({ location, educationOpen, setEducationOpen }: {
                 </Link>
               </SidebarMenuSubButton>
             </SidebarMenuSubItem>
-            <SidebarMenuSubItem>
-              <SidebarMenuSubButton asChild isActive={location.pathname.startsWith(DASHBOARD_MODULES)}>
-                <Link to={DASHBOARD_MODULES}>
-                  <ListChecks className="h-4 w-4" />
-                  <span>Modules</span>
-                </Link>
-              </SidebarMenuSubButton>
-            </SidebarMenuSubItem>
-            <SidebarMenuSubItem>
-              <SidebarMenuSubButton asChild isActive={location.pathname.startsWith(DASHBOARD_LESSONS)}>
-                <Link to={DASHBOARD_LESSONS}>
-                  <FileText className="h-4 w-4" />
-                  <span>Lessons</span>
-                </Link>
-              </SidebarMenuSubButton>
-            </SidebarMenuSubItem>
           </SidebarMenuSub>
         </CollapsibleContent>
       </Collapsible>
@@ -189,9 +171,7 @@ export function DashboardLayout() {
   const isCommunityProjects = location.pathname.startsWith(DASHBOARD_COMMUNITY_PROJECTS)
   const isEducationRoute = location.pathname.startsWith(DASHBOARD_FORMATIONS) ||
     location.pathname.startsWith(DASHBOARD_EXPLORE) ||
-    location.pathname.startsWith(DASHBOARD_COURSES) ||
-    location.pathname.startsWith(DASHBOARD_MODULES) ||
-    location.pathname.startsWith(DASHBOARD_LESSONS)
+    location.pathname.startsWith(DASHBOARD_COURSES)
 
   // DataCamp-style: Hide platform sidebar when viewing a course
   const isCourseView = /^\/dashboard\/learn\/course\/[^/]+/.test(location.pathname)
