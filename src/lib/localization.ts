@@ -110,3 +110,7 @@ export function ensureLocaleMap<TRow>(
     return acc
   }, {})
 }
+
+export function getDefaultLocale(locales: LocaleRow[]) {
+  return locales.find((locale) => locale.is_default)?.code ?? DEFAULT_LOCALE
+}
