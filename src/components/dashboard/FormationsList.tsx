@@ -1,7 +1,7 @@
 import { createClientBrowser } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
-import { GraduationCap, BookOpen, Star, CircleCheckBig } from 'lucide-react';
+import { GraduationCap, BookOpen, Star, CircleCheckBig, Clock, CirclePlay, Flame } from 'lucide-react';
 import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { useQuery } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
@@ -13,7 +13,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useOAuth';
 import { useState, useMemo } from 'react';
-import { ContentSearch, StatusFilter, SortSelector, type StatusFilterValue, type SortOption } from '@/components/filters';
+import { ContentSearch, StatusFilter, SortSelector, ProgressFilter, type StatusFilterValue, type SortOption, type ProgressFilterValue } from '@/components/filters';
 
 type FormationRow = Tables<'formations'>['Row'];
 type FormationPathRow = Tables<'formation_paths'>['Row'];
@@ -40,6 +40,7 @@ interface FormationCardModel {
     order: number;
   }>;
   created_at: string | null;
+  progressStatus?: 'not_started' | 'in_progress' | 'completed';
 }
 
 type FormationsListProps = {
@@ -84,6 +85,7 @@ export function FormationsList({ limit, className }: FormationsListProps) {
   const supabase = createClientBrowser();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>('all');
+  const [progressFilter, setProgressFilter] = useState<ProgressFilterValue[]>([]);
   const [sortOption, setSortOption] = useState<SortOption>('recent');
   // const queryClient = useQueryClient();
   // const [selectedFormation, setSelectedFormation] = useState<FormationCardModel | null>(null);
@@ -99,7 +101,7 @@ export function FormationsList({ limit, className }: FormationsListProps) {
   // });
 
   const { data: formations = [], isLoading } = useQuery<FormationCardModel[]>({
-    queryKey: ['formations'],
+    queryKey: ['formations', user?.id],
     enabled: true,
     staleTime: 60_000,
     refetchOnWindowFocus: false,
@@ -120,6 +122,75 @@ export function FormationsList({ limit, className }: FormationsListProps) {
       if (error) throw error;
 
       const rows = (data ?? []) as FormationQueryRow[];
+
+      // Calculate progress for formations if user is logged in
+      const formationProgressMap: Record<string, 'not_started' | 'in_progress' | 'completed'> = {};
+      
+      if (user && rows.length > 0) {
+        // Get all path IDs from all formations
+        const allPathIds: string[] = [];
+        rows.forEach((formation) => {
+          const paths = (formation.formation_paths ?? [])
+            .map((fp) => fp.learning_paths?.id)
+            .filter((id): id is string => Boolean(id));
+          allPathIds.push(...paths);
+        });
+
+        // Calculate progress for all paths
+        if (allPathIds.length > 0) {
+          const progressPromises = allPathIds.map(async (pathId) => {
+            try {
+              const { data: progress, error: progressError } = await supabase.rpc('get_path_progress', {
+                path_id: pathId,
+                user_id: user.id,
+              });
+              if (!progressError && progress !== null && progress !== undefined) {
+                const progressPercent = progress as number;
+                if (progressPercent === 0) {
+                  return { pathId, status: 'not_started' as const };
+                } else if (progressPercent === 100) {
+                  return { pathId, status: 'completed' as const };
+                } else {
+                  return { pathId, status: 'in_progress' as const };
+                }
+              }
+              return { pathId, status: 'not_started' as const };
+            } catch (err) {
+              return { pathId, status: 'not_started' as const };
+            }
+          });
+          const pathProgresses = await Promise.all(progressPromises);
+          const pathProgressMap: Record<string, 'not_started' | 'in_progress' | 'completed'> = {};
+          pathProgresses.forEach(({ pathId, status }) => {
+            pathProgressMap[pathId] = status;
+          });
+
+          // Calculate formation progress based on path progress
+          rows.forEach((formation) => {
+            const paths = (formation.formation_paths ?? [])
+              .map((fp) => fp.learning_paths?.id)
+              .filter((id): id is string => Boolean(id));
+            
+            if (paths.length === 0) {
+              formationProgressMap[formation.id] = 'not_started';
+              return;
+            }
+
+            const pathStatuses = paths.map(pathId => pathProgressMap[pathId] || 'not_started');
+            const hasCompleted = pathStatuses.some(s => s === 'completed');
+            const hasInProgress = pathStatuses.some(s => s === 'in_progress');
+            const allCompleted = pathStatuses.every(s => s === 'completed');
+
+            if (allCompleted) {
+              formationProgressMap[formation.id] = 'completed';
+            } else if (hasInProgress || hasCompleted) {
+              formationProgressMap[formation.id] = 'in_progress';
+            } else {
+              formationProgressMap[formation.id] = 'not_started';
+            }
+          });
+        }
+      }
 
       return rows.map((formation) => {
         const paths = (formation.formation_paths ?? [])
@@ -143,6 +214,7 @@ export function FormationsList({ limit, className }: FormationsListProps) {
           paths_count: paths.length,
           paths,
           created_at: formation.created_at,
+          progressStatus: formationProgressMap[formation.id] || 'not_started',
         } as FormationCardModel;
       });
     },
@@ -208,6 +280,13 @@ export function FormationsList({ limit, className }: FormationsListProps) {
       });
     }
 
+    // Filter by progress
+    if (progressFilter.length > 0) {
+      result = result.filter((formation) => {
+        return progressFilter.includes(formation.progressStatus || 'not_started');
+      });
+    }
+
     // Filter by search term
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
@@ -233,7 +312,7 @@ export function FormationsList({ limit, className }: FormationsListProps) {
     });
 
     return result;
-  }, [formations, statusFilter, searchTerm, sortOption]);
+  }, [formations, statusFilter, progressFilter, searchTerm, sortOption]);
 
   const displayFormations = limit ? processedFormations.slice(0, limit) : processedFormations;
 
@@ -281,6 +360,7 @@ export function FormationsList({ limit, className }: FormationsListProps) {
             placeholder="Search formations..."
           />
           <StatusFilter value={statusFilter} onChange={setStatusFilter} />
+          <ProgressFilter selected={progressFilter} onChange={setProgressFilter} />
           <SortSelector
             value={sortOption}
             onChange={setSortOption}
@@ -296,9 +376,9 @@ export function FormationsList({ limit, className }: FormationsListProps) {
             : null;
 
           return (
-          <Card key={formation.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+          <Card key={formation.id} className="relative overflow-hidden hover:shadow-lg transition-shadow">
             {/* Thumbnail or placeholder */}
-            <div className="h-48 flex items-center justify-center" style={{ backgroundColor: '#303b2e' }}>
+            <div className="h-48 flex items-center justify-center relative" style={{ backgroundColor: '#303b2e' }}>
               {formation.thumbnail_url ? (
                 <img 
                   src={formation.thumbnail_url} 
@@ -308,23 +388,36 @@ export function FormationsList({ limit, className }: FormationsListProps) {
               ) : (
                 <GraduationCap className="h-16 w-16 text-forge-orange" />
               )}
+              
+              {/* Badges sobre a thumbnail */}
+              {formation.progressStatus === 'in_progress' && (
+                <div className="absolute top-2 right-2 z-10">
+                  <Badge variant="enrolled" size="sm" icon={CirclePlay} iconPosition="left">
+                    Enrolled
+                  </Badge>
+                </div>
+              )}
+              {formation.progressStatus === 'completed' && (
+                <div className="absolute top-2 right-2 z-10">
+                  <Badge variant="success" size="sm" icon={Flame} iconPosition="left">
+                    Completed
+                  </Badge>
+                </div>
+              )}
+              {formation.status === 'coming_soon' && formation.progressStatus !== 'in_progress' && formation.progressStatus !== 'completed' && (
+                <div className="absolute top-2 right-2 z-10">
+                  <Badge variant="coming-soon" size="sm" icon={Clock} iconPosition="left">
+                    Coming Soon
+                  </Badge>
+                </div>
+              )}
             </div>
 
             <CardHeader>
               <div className="space-y-2">
                 <CardTitle className="flex items-center gap-2 text-xl">
                   {formation.title}
-                  <Badge 
-                    variant={formation.status === 'published' ? 'available' : formation.status === 'coming_soon' ? 'coming-soon' : 'outline'}
-                    icon={formation.status === 'published' ? CircleCheckBig : undefined}
-                    iconPosition="left"
-                  >
-                    {formation.status === 'published' ? 'Available' : formation.status === 'coming_soon' ? 'Coming Soon' : 'Draft'}
-                  </Badge>
                 </CardTitle>
-                <CardDescription className="text-sm line-clamp-3">
-                  {formation.description || 'A comprehensive learning program to advance your skills.'}
-                </CardDescription>
               </div>
             </CardHeader>
 
@@ -334,10 +427,6 @@ export function FormationsList({ limit, className }: FormationsListProps) {
                 <div className="flex items-center gap-1">
                   <BookOpen className="h-4 w-4" />
                   {formation.paths_count} paths
-                </div>
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4" />
-                  Program
                 </div>
               </div>
 
@@ -363,17 +452,12 @@ export function FormationsList({ limit, className }: FormationsListProps) {
 
               {/* Action button */}
               {formation.status === 'published' && (
-                <Link to={R.DASHBOARD_FORMATION_DETAIL(formation.id)}>
+                <Link to={R.DASHBOARD_FORMATION_DETAIL(formation.id)} className="mt-4 block">
                   <EnhancedButton className="w-full">
                     View Formation
                   </EnhancedButton>
                 </Link>
               )}
-
-              {/* Creation date */}
-              <div className="text-xs text-gray-500 text-center">
-                {createdAtDistance ? `Created ${createdAtDistance} ago` : 'Recently added'}
-              </div>
             </CardContent>
           </Card>
           );

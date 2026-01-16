@@ -3,13 +3,14 @@ import { createClientBrowser } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/hooks/useOAuth';
 import { Badge } from '@/components/ui/badge';
 import { LoadingGrid } from '@/components/ui/loading-states';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Layers, ChevronDown, ChevronRight } from 'lucide-react';
+import { Layers, ChevronDown, ChevronRight, CirclePlay, Flame } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { DASHBOARD_LEARN_COURSE } from '@/routes/paths';
-import { ContentSearch, StatusFilter, SortSelector, type StatusFilterValue, type SortOption } from '@/components/filters';
+import { ContentSearch, StatusFilter, SortSelector, ProgressFilter, type StatusFilterValue, type SortOption, type ProgressFilterValue } from '@/components/filters';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface Module {
@@ -25,6 +26,7 @@ interface Module {
     title: string;
     order: number;
   };
+  progressStatus?: 'not_started' | 'in_progress' | 'completed';
 }
 
 type PublishedModulesProps = {
@@ -35,14 +37,16 @@ type PublishedModulesProps = {
 
 export function PublishedModules({ limit, className, showSearch = true }: PublishedModulesProps) {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const supabase = useMemo(() => createClientBrowser(), []);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>('all');
+  const [progressFilter, setProgressFilter] = useState<ProgressFilterValue[]>([]);
   const [sortOption, setSortOption] = useState<SortOption>('course_order');
   const [expandedCourses, setExpandedCourses] = useState<Set<string>>(new Set());
 
   const { data: modules = [], isLoading } = useQuery<Module[]>({
-    queryKey: ['publishedModules'],
+    queryKey: ['publishedModules', user?.id],
     staleTime: 60_000,
     refetchOnWindowFocus: false,
     queryFn: async (): Promise<Module[]> => {
@@ -53,7 +57,77 @@ export function PublishedModules({ limit, className, showSearch = true }: Publis
         .order('course_id', { ascending: true })
         .order('order', { ascending: true });
       if (error) throw error;
-      return data || [];
+      
+      // Calculate progress for modules if user is logged in
+      const moduleProgressMap: Record<string, 'not_started' | 'in_progress' | 'completed'> = {};
+      
+      if (user && data && data.length > 0) {
+        const moduleIds = data.map(m => m.id);
+        
+        // Get all lessons for these modules
+        const { data: lessonsData } = await supabase
+          .from('lessons')
+          .select('id, module_id')
+          .in('module_id', moduleIds);
+        
+        if (lessonsData && lessonsData.length > 0) {
+          const lessonIds = lessonsData.map(l => l.id);
+          const lessonToModule: Record<string, string> = {};
+          lessonsData.forEach(lesson => {
+            lessonToModule[lesson.id] = lesson.module_id;
+          });
+          
+          // Get user progress for these lessons
+          const { data: progressData } = await supabase
+            .from('user_progress')
+            .select('lesson_id, status')
+            .eq('user_id', user.id)
+            .in('lesson_id', lessonIds);
+          
+          // Calculate progress per module
+          const moduleProgress: Record<string, { total: number; completed: number; inProgress: number }> = {};
+          moduleIds.forEach(id => {
+            moduleProgress[id] = { total: 0, completed: 0, inProgress: 0 };
+          });
+          
+          lessonsData.forEach(lesson => {
+            const moduleId = lesson.module_id;
+            if (moduleId && moduleProgress[moduleId]) {
+              moduleProgress[moduleId].total++;
+            }
+          });
+          
+          progressData?.forEach(progress => {
+            const moduleId = lessonToModule[progress.lesson_id];
+            if (moduleId && moduleProgress[moduleId]) {
+              if (progress.status === 'completed') {
+                moduleProgress[moduleId].completed++;
+              } else if (progress.status === 'in_progress') {
+                moduleProgress[moduleId].inProgress++;
+              }
+            }
+          });
+          
+          // Determine module status
+          Object.keys(moduleProgress).forEach(moduleId => {
+            const stats = moduleProgress[moduleId];
+            if (stats.total === 0) {
+              moduleProgressMap[moduleId] = 'not_started';
+            } else if (stats.completed === stats.total) {
+              moduleProgressMap[moduleId] = 'completed';
+            } else if (stats.completed > 0 || stats.inProgress > 0) {
+              moduleProgressMap[moduleId] = 'in_progress';
+            } else {
+              moduleProgressMap[moduleId] = 'not_started';
+            }
+          });
+        }
+      }
+      
+      return (data || []).map(module => ({
+        ...module,
+        progressStatus: moduleProgressMap[module.id] || 'not_started',
+      }));
     },
   });
 
@@ -69,6 +143,13 @@ export function PublishedModules({ limit, className, showSearch = true }: Publis
         }
         // For coming_soon, we don't have that status for modules, so show all published
         return mod.is_published === true;
+      });
+    }
+
+    // Filter by progress
+    if (progressFilter.length > 0) {
+      filtered = filtered.filter((mod) => {
+        return progressFilter.includes(mod.progressStatus || 'not_started');
       });
     }
 
@@ -121,7 +202,7 @@ export function PublishedModules({ limit, className, showSearch = true }: Publis
 
     // Sort groups by course order
     return Array.from(groups.entries()).sort((a, b) => a[1].courseOrder - b[1].courseOrder);
-  }, [modules, searchTerm, statusFilter, sortOption]);
+  }, [modules, searchTerm, statusFilter, progressFilter, sortOption]);
 
   // Initialize expanded courses on first load
   useEffect(() => {
@@ -181,6 +262,7 @@ export function PublishedModules({ limit, className, showSearch = true }: Publis
               />
             )}
             <StatusFilter value={statusFilter} onChange={setStatusFilter} />
+            <ProgressFilter selected={progressFilter} onChange={setProgressFilter} />
             <SortSelector
               value={sortOption}
               onChange={setSortOption}
@@ -230,7 +312,27 @@ export function PublishedModules({ limit, className, showSearch = true }: Publis
                         to={`${DASHBOARD_LEARN_COURSE(module.course_id)}?${query}`}
                         className="block rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-forge-orange/60"
                       >
-                        <Card className="relative overflow-hidden border-forge-cream/80 hover:shadow-md transition-shadow h-full min-h-[200px] flex flex-col cursor-pointer">
+                        <Card className="relative rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[200px] flex flex-col cursor-pointer">
+                          {/* Thumbnail */}
+                          <div className="h-48 flex items-center justify-center relative" style={{ backgroundColor: '#303b2e' }}>
+                            <Layers className="h-16 w-16 text-forge-orange" />
+                            
+                            {/* Badge sobre a thumbnail */}
+                            {module.progressStatus === 'in_progress' && (
+                              <div className="absolute top-2 right-2 z-10">
+                                <Badge variant="enrolled" size="sm" icon={CirclePlay} iconPosition="left">
+                                  Enrolled
+                                </Badge>
+                              </div>
+                            )}
+                            {module.progressStatus === 'completed' && (
+                              <div className="absolute top-2 right-2 z-10">
+                                <Badge variant="success" size="sm" icon={Flame} iconPosition="left">
+                                  Completed
+                                </Badge>
+                              </div>
+                            )}
+                          </div>
                           <CardHeader className="space-y-2">
                             <CardTitle className="flex items-start gap-2 text-forge-dark tracking-normal text-base leading-tight line-clamp-2 break-words">
                               <Layers className="h-4 w-4 mt-0.5 text-forge-orange shrink-0" />
@@ -242,7 +344,7 @@ export function PublishedModules({ limit, className, showSearch = true }: Publis
                               </CardDescription>
                             )}
                           </CardHeader>
-                          <CardContent className="space-y-2 mt-auto">
+                          <CardContent className="space-y-4 mt-auto">
                             <Badge variant="outline" size="sm">
                               Module
                             </Badge>

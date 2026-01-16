@@ -7,10 +7,10 @@ import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { LoadingGrid } from '@/components/ui/loading-states';
 import { EmptyState } from '@/components/ui/empty-state';
-import { BookOpenText, Clock, Play, HelpCircle, ChevronDown, ChevronRight, PlayCircle } from 'lucide-react';
+import { BookOpenText, Clock, Play, HelpCircle, ChevronDown, ChevronRight, PlayCircle, CircleCheck, CirclePlay, Flame } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { DASHBOARD_LEARN_COURSE } from '@/routes/paths';
-import { ContentSearch, StatusFilter, SortSelector, type StatusFilterValue, type SortOption } from '@/components/filters';
+import { ContentSearch, StatusFilter, SortSelector, ProgressFilter, type StatusFilterValue, type SortOption, type ProgressFilterValue } from '@/components/filters';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface Lesson {
@@ -72,6 +72,7 @@ export function PublishedLessons({ limit, className, showSearch = true, showFilt
   const supabase = useMemo(() => createClientBrowser(), []);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>('all');
+  const [progressFilter, setProgressFilter] = useState<ProgressFilterValue[]>([]);
   const [sortOption, setSortOption] = useState<SortOption>('module_order');
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
 
@@ -134,6 +135,13 @@ export function PublishedLessons({ limit, className, showSearch = true, showFilt
       });
     }
 
+    // Filter by progress
+    if (progressFilter.length > 0) {
+      result = result.filter((lesson) => {
+        return progressFilter.includes(lesson.progressStatus);
+      });
+    }
+
     // Filter by search term
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
@@ -165,7 +173,7 @@ export function PublishedLessons({ limit, className, showSearch = true, showFilt
     });
 
     return result;
-  }, [lessons, lessonProgress, searchTerm, statusFilter, sortOption]);
+  }, [lessons, lessonProgress, searchTerm, statusFilter, progressFilter, sortOption]);
 
   // Group lessons by module
   const groupedLessons = useMemo(() => {
@@ -257,6 +265,7 @@ export function PublishedLessons({ limit, className, showSearch = true, showFilt
             {showFilters && (
               <>
                 <StatusFilter value={statusFilter} onChange={setStatusFilter} />
+                <ProgressFilter selected={progressFilter} onChange={setProgressFilter} />
                 <SortSelector
                   value={sortOption}
                   onChange={setSortOption}
@@ -309,30 +318,38 @@ export function PublishedLessons({ limit, className, showSearch = true, showFilt
                     const card = (
                       <Card
                         className={[
-                          'relative overflow-hidden border-forge-cream/80 transition-shadow h-full min-h-[200px] flex flex-col',
-                          courseId ? 'hover:shadow-md cursor-pointer' : 'opacity-70 cursor-not-allowed',
+                          'relative rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[200px] flex flex-col',
+                          courseId ? 'cursor-pointer' : 'opacity-70 cursor-not-allowed',
                           isInProgress ? 'ring-2 ring-forge-orange/30' : '',
                         ].join(' ')}
                       >
+                        {/* Thumbnail */}
+                        <div className="h-48 flex items-center justify-center relative" style={{ backgroundColor: '#303b2e' }}>
+                          <Icon className="h-16 w-16 text-forge-orange" />
+                          
+                          {/* Badge sobre a thumbnail */}
+                          {isInProgress && (
+                            <div className="absolute top-2 right-2 z-10">
+                              <Badge variant="enrolled" size="sm" icon={CirclePlay} iconPosition="left">
+                                Enrolled
+                              </Badge>
+                            </div>
+                          )}
+                          {isCompleted && (
+                            <div className="absolute top-2 right-2 z-10">
+                              <Badge variant="success" size="sm" icon={Flame} iconPosition="left">
+                                Completed
+                              </Badge>
+                            </div>
+                          )}
+                        </div>
                         <CardHeader className="space-y-2">
-                          <div className="flex items-center justify-between gap-2">
-                            <CardTitle className="flex items-start gap-2 text-forge-dark tracking-normal text-base leading-tight line-clamp-2 break-words flex-1">
-                              <Icon className="h-4 w-4 mt-0.5 text-forge-orange shrink-0" />
-                              <span>#{lesson.order} · {lesson.title}</span>
-                            </CardTitle>
-                            {isInProgress && (
-                              <Badge variant="brand" size="sm" icon={PlayCircle} iconPosition="left">
-                                Continue
-                              </Badge>
-                            )}
-                            {isCompleted && (
-                              <Badge variant="success" size="sm">
-                                Done
-                              </Badge>
-                            )}
-                          </div>
+                          <CardTitle className="flex items-start gap-2 text-forge-dark tracking-normal text-base leading-tight line-clamp-2 break-words flex-1">
+                            <Icon className="h-4 w-4 mt-0.5 text-forge-orange shrink-0" />
+                            <span>#{lesson.order} · {lesson.title}</span>
+                          </CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-3 mt-auto">
+                        <CardContent className="space-y-4 mt-auto">
                           <div className="flex items-center gap-2 flex-wrap">
                             <Badge variant="outline" size="sm">
                               {getLessonTypeLabel(lesson.lesson_type)}

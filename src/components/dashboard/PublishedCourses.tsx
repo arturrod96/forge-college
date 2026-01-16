@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { LoadingGrid } from '@/components/ui/loading-states';
 import { EmptyState } from '@/components/ui/empty-state';
-import { BookOpen, Clock, PlayCircle } from 'lucide-react';
+import { BookOpen, Clock, PlayCircle, CircleCheck, Layers, CirclePlay, Flame } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { DASHBOARD_LEARN_COURSE } from '@/routes/paths';
 import { ContentSearch, StatusFilter, ProgressFilter, SortSelector, type StatusFilterValue, type ProgressFilterValue, type SortOption } from '@/components/filters';
@@ -22,6 +22,11 @@ interface Course {
   order: number;
   status: 'draft' | 'published' | 'coming_soon';
   is_published: boolean;
+  modules?: Array<{
+    id: string;
+    title: string;
+    order: number;
+  }>;
 }
 
 type CourseWithProgress = Course & {
@@ -51,11 +56,26 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
     queryFn: async (): Promise<Course[]> => {
       const { data, error } = await supabase
         .from('courses')
-        .select('id, title, description, slug, duration_minutes, thumbnail_url, order, status, is_published')
+        .select('id, title, description, slug, duration_minutes, thumbnail_url, order, status, is_published, modules(id, title, order)')
         .eq('is_published', true)
         .order('order', { ascending: true });
       if (error) throw error;
-      return data || [];
+      
+      return (data || []).map((course: any) => {
+        const modules = (course.modules || [])
+          .map((m: any) => ({
+            id: m.id,
+            title: m.title,
+            order: m.order ?? 0,
+          }))
+          .filter((m: any) => m.id && m.title)
+          .sort((a: any, b: any) => a.order - b.order);
+
+        return {
+          ...course,
+          modules,
+        };
+      });
     },
   });
 
@@ -265,55 +285,90 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
             const card = (
               <Card
                 className={[
-                  'relative overflow-hidden border-forge-cream/80 transition-shadow h-full min-h-[300px] flex flex-col',
-                  isAvailable ? 'hover:shadow-md cursor-pointer' : 'opacity-70 cursor-not-allowed',
+                  'relative rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[300px] flex flex-col',
+                  isAvailable ? 'cursor-pointer' : 'opacity-70 cursor-not-allowed',
                   isInProgress ? 'ring-2 ring-forge-orange/30' : '',
                 ].join(' ')}
               >
-                {course.thumbnail_url && (
-                  <div className="h-40 bg-gradient-to-b from-forge-orange/10 to-forge-cream/30 overflow-hidden">
+                {/* Thumbnail */}
+                <div className="h-48 flex items-center justify-center relative" style={{ backgroundColor: '#303b2e' }}>
+                  {course.thumbnail_url ? (
                     <img
                       src={course.thumbnail_url}
                       alt={course.title}
                       className="w-full h-full object-cover"
                     />
-                  </div>
-                )}
-                <CardHeader className="space-y-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <CardTitle className="flex items-start gap-2 text-forge-dark tracking-normal text-lg md:text-xl leading-tight line-clamp-2 break-words flex-1">
-                      <BookOpen className="h-4 w-4 mt-0.5 text-forge-orange shrink-0" />
-                      <span>{course.title}</span>
-                    </CardTitle>
-                    {isInProgress && (
-                      <Badge variant="brand" size="sm" icon={PlayCircle} iconPosition="left">
-                        Continue
+                  ) : (
+                    <BookOpen className="h-16 w-16 text-forge-orange" />
+                  )}
+                  
+                  {/* Badges sobre a thumbnail */}
+                  {isInProgress && (
+                    <div className="absolute top-2 right-2 z-10">
+                      <Badge variant="enrolled" size="sm" icon={CirclePlay} iconPosition="left">
+                        Enrolled
                       </Badge>
-                    )}
-                    {isCompleted && (
-                      <Badge variant="success" size="sm">
+                    </div>
+                  )}
+                  {isCompleted && (
+                    <div className="absolute top-2 right-2 z-10">
+                      <Badge variant="success" size="sm" icon={Flame} iconPosition="left">
                         Completed
                       </Badge>
-                    )}
-                  </div>
+                    </div>
+                  )}
+                  {course.status === 'coming_soon' && !isInProgress && !isCompleted && (
+                    <div className="absolute top-2 right-2 z-10">
+                      <Badge variant="coming-soon" size="sm" icon={Clock} iconPosition="left">
+                        Coming Soon
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+                <CardHeader className="space-y-2">
+                  <CardTitle className="flex items-start gap-2 text-forge-dark tracking-normal text-lg md:text-xl leading-tight line-clamp-2 break-words flex-1">
+                    <BookOpen className="h-4 w-4 mt-0.5 text-forge-orange shrink-0" />
+                    <span>{course.title}</span>
+                  </CardTitle>
                   <CardDescription className="text-[13px] text-forge-gray line-clamp-3 min-h-[3.75rem]">
                     {course.description || 'Explore this course to enhance your skills'}
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-2 mt-auto">
-                  <div className="flex items-center gap-2 text-xs text-forge-gray">
+                <CardContent className="space-y-4 mt-auto">
+                  {/* Stats */}
+                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <div className="flex items-center gap-1">
+                      <Layers className="h-4 w-4" />
+                      {course.modules?.length || 0} {course.modules?.length === 1 ? 'module' : 'modules'}
+                    </div>
                     {course.duration_minutes && (
-                      <>
-                        <Clock className="h-3.5 w-3.5 text-forge-orange" />
-                        {course.duration_minutes} minutes
-                      </>
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        {course.duration_minutes} min
+                      </div>
                     )}
                   </div>
-                  {course.status === 'coming_soon' && (
-                    <Badge variant="coming-soon" size="sm" icon={Clock} iconPosition="left">
-                      Coming Soon
-                    </Badge>
+
+                  {/* Modules preview */}
+                  {course.modules && course.modules.length > 0 && (
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-sm text-gray-900">Modules:</h4>
+                      <div className="space-y-1">
+                        {course.modules.slice(0, 3).map((module, index) => (
+                          <div key={module.id} className="flex items-center gap-2 text-xs text-gray-600">
+                            <span className="text-blue-500 font-medium">{index + 1}.</span>
+                            <span className="truncate">{module.title}</span>
+                          </div>
+                        ))}
+                        {course.modules.length > 3 && (
+                          <div className="text-xs text-gray-500">
+                            +{course.modules.length - 3} more modules
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   )}
+
                 </CardContent>
               </Card>
             );
