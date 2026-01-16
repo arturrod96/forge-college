@@ -80,7 +80,6 @@ const pathSchema = z.object({
   order: z.number().int().min(1).optional(),
 })
 
-const defaultLocalizationState = () => ({})
 type PathFormData = z.infer<typeof pathSchema>
 
 type LearningPathLocalizationFormState = {
