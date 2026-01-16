@@ -705,71 +705,29 @@ export default function AdminCourses() {
                 )}
               />
 
+              <FormField
+                control={form.control}
+                name="slug"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Slug</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="react-typescript-foundations"
+                        {...field}
+                        onChange={(event) => {
+                          setSlugManuallyEdited(true)
+                          field.onChange(event)
+                        }}
+                      />
+                    </FormControl>
+                    <FormDescription>We auto-generate this from the default locale title.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <div className="grid gap-6 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. React & TypeScript Foundations" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="slug"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Slug</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="react-typescript-foundations"
-                          {...field}
-                          onChange={(event) => {
-                            setSlugManuallyEdited(true)
-                            field.onChange(event)
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="summary"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Summary</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Short one-liner for dashboards" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea rows={4} placeholder="Detailed course description" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid gap-6 md:grid-cols-3">
                 <FormField
                   control={form.control}
                   name="order"
@@ -796,23 +754,6 @@ export default function AdminCourses() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="thumbnail_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Thumbnail URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://..." {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Use a Supabase Storage public URL or any accessible image. Media uploads will be integrated
-                        soon.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
 
               <FormField
@@ -825,13 +766,7 @@ export default function AdminCourses() {
                       <select
                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         value={field.value}
-                        onChange={(event) => {
-                          const value = event.target.value as CourseFormValues['status']
-                          field.onChange(value)
-                          form.setValue('is_published', value !== 'draft', {
-                            shouldDirty: true,
-                          })
-                        }}
+                        onChange={(event) => field.onChange(event.target.value as CourseFormValues['status'])}
                       >
                         <option value="draft">Draft</option>
                         <option value="published">Published</option>
@@ -846,38 +781,34 @@ export default function AdminCourses() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="is_published"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border border-forge-cream/80 bg-forge-cream/30 p-3">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Publish immediately</FormLabel>
-                      <DialogDescription>
-                        {field.value
-                          ? 'Published courses are visible to learners enrolled in the path.'
-                          : 'Keep as draft until modules and lessons are ready.'}
-                      </DialogDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={(checked) => {
-                          field.onChange(checked)
-                          const currentStatus = form.getValues('status')
-                          if (checked && currentStatus === 'draft') {
-                            form.setValue('status', 'published', { shouldDirty: true })
-                          }
-                          if (!checked && currentStatus !== 'draft') {
-                            form.setValue('status', 'draft', { shouldDirty: true })
-                          }
-                        }}
-                        disabled={form.formState.isSubmitting}
-                      />
-                    </FormControl>
-                  </FormItem>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-base font-semibold text-forge-dark">Localized content</h4>
+                  <p className="text-sm text-forge-gray">
+                    Manage per-locale titles, summaries, descriptions, thumbnails, tags, and publish states.
+                  </p>
+                </div>
+                {localesLoading ? (
+                  <Card className="border-dashed border-forge-cream/70 bg-white/70">
+                    <CardContent className="flex items-center gap-2 p-6 text-sm text-forge-gray">
+                      <Loader2 className="h-4 w-4 animate-spin" /> Loading locales...
+                    </CardContent>
+                  </Card>
+                ) : locales.length === 0 ? (
+                  <Card className="border border-red-200 bg-red-50/80">
+                    <CardContent className="p-4 text-sm text-red-700">
+                      Add locales in Supabase before editing localized course content.
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <LocalizationTabs
+                    locales={locales}
+                    activeLocale={activeLocale}
+                    onLocaleChange={setActiveLocale}
+                    renderFields={renderLocalizationFields}
+                  />
                 )}
-              />
+              </div>
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} disabled={form.formState.isSubmitting}>
