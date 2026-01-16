@@ -19,7 +19,7 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
-import { LayoutDashboard, BookOpen, Shield, Trophy, Award, FolderGit2, Menu, ChevronDown, GraduationCap, Layers3, BookMarked, Users } from 'lucide-react'
+import { LayoutDashboard, BookOpen, Shield, Trophy, Award, FolderGit2, Menu, ChevronDown, GraduationCap, Layers3, BookMarked, ListChecks, FileText, Users, Languages } from 'lucide-react'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { ProfileDropdown } from '@/components/ProfileDropdown'
 import { useSidebar } from '@/components/ui/sidebar'
