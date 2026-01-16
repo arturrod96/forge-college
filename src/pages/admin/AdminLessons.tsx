@@ -81,7 +81,20 @@ type LessonFormValues = z.infer<typeof lessonFormSchema>
 
 type LessonRow = Tables<'lessons'>
 
-type LessonWithMeta = LessonRow
+type LessonWithMeta = LessonRow & {
+  lesson_localizations: Tables<'lesson_localizations'>[] | null
+}
+
+type LessonLocalizationFormState = {
+  title: string
+  tags: string[]
+  thumbnailUrl: string
+  richText: string
+  videoUrl: string
+  quizJson: string
+  isPublished: boolean
+  publishedAt: string | null
+}
 
 type ModuleRow = Tables<'modules'>
 
