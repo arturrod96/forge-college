@@ -472,13 +472,20 @@ export default function AdminModules() {
           {filteredModules.map((module) => {
             const course = module.course_id ? courseLookup[module.course_id] : null
             const path = course?.path_id ? pathLookup[course.path_id] : null
+            const localizationMap = mapLocalizationsByLocale(module.module_localizations ?? [])
+            const localization =
+              localizationMap[defaultLocaleCode] ??
+              localizationMap[DEFAULT_LOCALE] ??
+              Object.values(localizationMap)[0]
+            const displayTitle = localization?.title ?? module.title
+            const displaySummary = localization?.summary ?? module.summary ?? 'No summary'
 
             return (
               <Card key={module.id} className="border border-forge-cream/70 bg-white/80">
                 <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div className="space-y-1">
                     <CardTitle className="flex flex-wrap items-center gap-2 text-forge-dark">
-                      #{module.order} · {module.title}
+                      #{module.order} · {displayTitle}
                       <Badge
                         variant={module.is_published ? 'default' : 'outline'}
                         className={module.is_published ? 'bg-forge-orange text-white hover:bg-forge-orange/90' : ''}
@@ -486,9 +493,7 @@ export default function AdminModules() {
                         {module.is_published ? 'Published' : 'Draft'}
                       </Badge>
                     </CardTitle>
-                    <CardDescription className="text-sm text-forge-gray">
-                      {module.summary || 'No summary'}
-                    </CardDescription>
+                    <CardDescription className="text-sm text-forge-gray">{displaySummary}</CardDescription>
                   </div>
                   <div className="flex gap-2">
                     <Button variant="outline" size="icon" onClick={() => openForEdit(module)}>
@@ -524,23 +529,22 @@ export default function AdminModules() {
                       <span className="font-semibold text-forge-dark">Lessons:</span> {module.lessonCount}
                     </div>
                   </div>
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    {Object.values(localizationMap).length === 0 && <Badge variant="outline">No locales</Badge>}
+                    {Object.values(localizationMap).map((record) => (
+                      <Badge
+                        key={`${module.id}-${record.locale}`}
+                        variant={record.is_published ? 'default' : 'outline'}
+                        className={record.is_published ? 'bg-forge-orange text-white hover:bg-forge-orange/90' : ''}
+                      >
+                        {record.locale} · {record.is_published ? 'Published' : 'Draft'}
+                      </Badge>
+                    ))}
+                  </div>
                   <div className="text-xs text-forge-gray/80">
                     Updated {module.updated_at ? formatDistanceToNow(new Date(module.updated_at), { addSuffix: true }) : 'N/A'}
                   </div>
                 </CardContent>
-                <CardFooter className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Switch
-                      id={`module-publish-${module.id}`}
-                      checked={module.is_published}
-                      onCheckedChange={(checked) => publishMutation.mutate({ id: module.id, publish: checked })}
-                      disabled={publishMutation.isPending}
-                    />
-                    <label htmlFor={`module-publish-${module.id}`} className="text-forge-gray">
-                      {module.is_published ? 'Unpublish' : 'Publish'}
-                    </label>
-                  </div>
-                </CardFooter>
               </Card>
             )
           })}
