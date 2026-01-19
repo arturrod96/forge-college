@@ -8,6 +8,8 @@ import { useAuth } from '@/hooks/useOAuth';
 import * as R from '@/routes/paths';
 import { useTranslation } from 'react-i18next';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Info } from 'lucide-react';
 
 export default function DashboardHome() {
   const { user } = useAuth();
@@ -66,7 +68,19 @@ export default function DashboardHome() {
           {/* Formations Section */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold tracking-tight">Formations</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-semibold tracking-tight">Formations</h2>
+                <TooltipProvider delayDuration={0}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{t('dashboard.home.formationsTooltip')}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <Link to={R.DASHBOARD_FORMATIONS} className="text-forge-orange hover:underline">
                 View all formations
               </Link>
@@ -79,7 +93,19 @@ export default function DashboardHome() {
           {/* Available Paths Section */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold tracking-tight">{t(R.ROUTE_LABELS[R.DASHBOARD_EXPLORE])}</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-semibold tracking-tight">{t(R.ROUTE_LABELS[R.DASHBOARD_EXPLORE])}</h2>
+<TooltipProvider delayDuration={0}>
+                    <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{t('dashboard.home.learningPathTooltip')}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <Link to={R.DASHBOARD_EXPLORE} className="text-forge-orange hover:underline">
                 {t('dashboard.home.exploreCta')}
               </Link>

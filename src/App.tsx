@@ -59,7 +59,7 @@ const App = () => {
     return (
       <>
         {!isDashboardRoute && <BetaPromoBar />}
-        <TooltipProvider>
+        <TooltipProvider delayDuration={0}>
           <div className={isDashboardRoute ? undefined : "pt-[30px]"}>
             <Toaster />
             <Sonner />

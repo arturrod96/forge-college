@@ -20,7 +20,10 @@ ADD CONSTRAINT waiting_list_unique_user_course UNIQUE (user_id, course_id);
 -- Create index for course_id
 CREATE INDEX IF NOT EXISTS idx_waiting_list_course_id ON public.waiting_list(course_id);
 
--- Update add_to_waiting_list function to support course_id
+-- Drop old overload (3 args: learning_path_id, formation_id, email) to avoid ambiguity
+DROP FUNCTION IF EXISTS public.add_to_waiting_list(uuid, uuid, text);
+
+-- Create add_to_waiting_list with course_id support (replaces old behavior via 4-arg overload)
 CREATE OR REPLACE FUNCTION public.add_to_waiting_list(
   p_learning_path_id uuid DEFAULT NULL,
   p_formation_id uuid DEFAULT NULL,
@@ -115,6 +118,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Grant execute permissions
-GRANT EXECUTE ON FUNCTION public.add_to_waiting_list TO authenticated;
-GRANT EXECUTE ON FUNCTION public.get_course_waiting_list_count TO authenticated;
+-- Grant execute permissions (use full signature when multiple overloads exist)
+GRANT EXECUTE ON FUNCTION public.add_to_waiting_list(uuid, uuid, uuid, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_course_waiting_list_count(uuid) TO authenticated;

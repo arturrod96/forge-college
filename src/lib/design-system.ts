@@ -128,6 +128,11 @@ export const designTokens = {
       gap: "gap-card-gap",
     },
   },
+  /** Padrão de altura dos cards: usar min-h-[480px] em Formations/Courses e min-h-[320px] em Learning Paths (layout compacto). Grids: items-stretch. */
+  cards: {
+    minHeightStandard: "min-h-[480px]",
+    minHeightCompact: "min-h-[320px]",
+  },
   patterns: {
     layout: {
       heroGrid: "grid lg:grid-cols-2 gap-16 items-center",
