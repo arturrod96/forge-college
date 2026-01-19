@@ -13,7 +13,8 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useOAuth';
 import { useState, useMemo } from 'react';
-import { ContentSearch, StatusFilter, SortSelector, ProgressFilter, type StatusFilterValue, type SortOption, type ProgressFilterValue } from '@/components/filters';
+import { ContentSearch, FilterPopover, type StatusFilterValue, type SortOption, type ProgressFilterValue } from '@/components/filters';
+import { HoverEffectGrid } from '@/components/ui/card-hover-effect';
 
 type FormationRow = Tables<'formations'>['Row'];
 type FormationPathRow = Tables<'formation_paths'>['Row'];
@@ -371,23 +372,26 @@ export function FormationsList({ limit, className }: FormationsListProps) {
   return (
     <>
       <div className="mb-6">
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-3">
+          <FilterPopover
+            statusValue={statusFilter}
+            onStatusChange={setStatusFilter}
+            progressSelected={progressFilter}
+            onProgressChange={setProgressFilter}
+            sortValue={sortOption}
+            onSortChange={setSortOption}
+            sortOptions={['recent', 'alphabetical']}
+          />
           <ContentSearch
             value={searchTerm}
             onChange={setSearchTerm}
             placeholder="Search formations..."
-          />
-          <StatusFilter value={statusFilter} onChange={setStatusFilter} />
-          <ProgressFilter selected={progressFilter} onChange={setProgressFilter} />
-          <SortSelector
-            value={sortOption}
-            onChange={setSortOption}
-            options={['recent', 'alphabetical']}
+            className="w-full max-w-xs"
           />
         </div>
       </div>
 
-      <div className={cn('grid gap-6 md:grid-cols-2 lg:grid-cols-3', className)}>
+      <HoverEffectGrid className={cn('grid gap-6 md:grid-cols-2 lg:grid-cols-3 items-stretch', className)}>
         {displayFormations.map((formation) => {
           const createdAtDistance = formation.created_at
             ? formatDistanceToNow(new Date(formation.created_at))
@@ -396,102 +400,104 @@ export function FormationsList({ limit, className }: FormationsListProps) {
           const isComingSoon = formation.status === 'coming_soon' && formation.progressStatus !== 'in_progress' && formation.progressStatus !== 'completed';
 
           return (
-          <Card key={formation.id} className={cn(
-            "relative overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[300px] flex flex-col",
-            isComingSoon && "opacity-70 cursor-not-allowed"
-          )}>
-            {/* Thumbnail or placeholder */}
-            <div className="h-48 flex items-center justify-center relative" style={{ backgroundColor: isComingSoon ? '#4a5a4a' : '#303b2e' }}>
-              {formation.thumbnail_url ? (
-                <img 
-                  src={formation.thumbnail_url} 
-                  alt={formation.title}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <GraduationCap className="h-16 w-16 text-forge-orange" />
-              )}
-              
-              {/* Badges sobre a thumbnail */}
-              {formation.progressStatus === 'in_progress' && (
-                <div className="absolute top-2 right-2 z-10">
-                  <Badge variant="enrolled" size="sm" icon={CirclePlay} iconPosition="left">
-                    Enrolled
-                  </Badge>
-                </div>
-              )}
-              {formation.progressStatus === 'completed' && (
-                <div className="absolute top-2 right-2 z-10">
-                  <Badge variant="success" size="sm" icon={Flame} iconPosition="left">
-                    Completed
-                  </Badge>
-                </div>
-              )}
-              {formation.status === 'coming_soon' && formation.progressStatus !== 'in_progress' && formation.progressStatus !== 'completed' && (
-                <div className="absolute top-2 right-2 z-10">
-                  <Badge variant="coming-soon" size="sm" icon={Clock} iconPosition="left">
-                    Coming Soon
-                  </Badge>
-                </div>
-              )}
-            </div>
-
-            <CardHeader>
-              <div className="space-y-2">
-                <CardTitle className="flex items-center gap-2 text-xl">
-                  {formation.title}
-                </CardTitle>
-              </div>
-            </CardHeader>
-
-            <CardContent className="space-y-4">
-              {/* Stats */}
-              <div className="flex items-center gap-4 text-sm text-gray-600">
-                <div className="flex items-center gap-1">
-                  <BookOpen className="h-4 w-4" />
-                  {formation.paths_count} paths
-                </div>
+            <Card
+              key={formation.id}
+              className={cn(
+              "relative overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[480px] flex flex-col group",
+              isComingSoon && "opacity-70 cursor-not-allowed"
+            )}>
+              {/* Thumbnail or placeholder */}
+              <div className="h-48 flex items-center justify-center relative" style={{ backgroundColor: isComingSoon ? '#4a5a4a' : '#303b2e' }}>
+                {formation.thumbnail_url ? (
+                  <img 
+                    src={formation.thumbnail_url} 
+                    alt={formation.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <GraduationCap className="h-16 w-16 text-forge-orange" />
+                )}
+                
+                {/* Badges sobre a thumbnail */}
+                {formation.progressStatus === 'in_progress' && (
+                  <div className="absolute top-2 right-2 z-10">
+                    <Badge variant="enrolled" size="sm" icon={CirclePlay} iconPosition="left">
+                      Enrolled
+                    </Badge>
+                  </div>
+                )}
+                {formation.progressStatus === 'completed' && (
+                  <div className="absolute top-2 right-2 z-10">
+                    <Badge variant="success" size="sm" icon={Flame} iconPosition="left">
+                      Completed
+                    </Badge>
+                  </div>
+                )}
+                {formation.status === 'coming_soon' && formation.progressStatus !== 'in_progress' && formation.progressStatus !== 'completed' && (
+                  <div className="absolute top-2 right-2 z-10">
+                    <Badge variant="coming-soon" size="sm" icon={Clock} iconPosition="left">
+                      Coming Soon
+                    </Badge>
+                  </div>
+                )}
               </div>
 
-              {/* Learning paths preview */}
-              {formation.paths && formation.paths.length > 0 && (
+              <CardHeader className="flex-1 min-h-0 flex flex-col">
                 <div className="space-y-2">
-                  <h4 className="font-medium text-sm text-gray-900">Learning Paths:</h4>
-                  <div className="space-y-1">
-                    {formation.paths.slice(0, 3).map((path, index) => (
-                      <div key={path.id} className="flex items-center gap-2 text-xs text-gray-600">
-                        <span className="text-blue-500 font-medium">{index + 1}.</span>
-                        <span className="truncate">{path.title}</span>
-                      </div>
-                    ))}
-                    {formation.paths.length > 3 && (
-                      <div className="text-xs text-gray-500">
-                        +{formation.paths.length - 3} more paths
-                      </div>
-                    )}
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    {formation.title}
+                  </CardTitle>
+                </div>
+              </CardHeader>
+
+              <CardContent className="space-y-4">
+                {/* Stats */}
+                <div className="flex items-center gap-4 text-sm text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <BookOpen className="h-4 w-4" />
+                    {formation.paths_count} paths
                   </div>
                 </div>
-              )}
 
-              {/* Action button */}
-              {formation.status === 'published' && (
-                <Link to={R.DASHBOARD_FORMATION_DETAIL(formation.id)} className="mt-4 block">
-                  <EnhancedButton className="w-full">
-                    View Formation
-                  </EnhancedButton>
-                </Link>
-              )}
-            </CardContent>
-          </Card>
+                {/* Learning paths preview */}
+                {formation.paths && formation.paths.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm text-gray-900">Learning Paths:</h4>
+                    <div className="space-y-1">
+                      {formation.paths.slice(0, 3).map((path, index) => (
+                        <div key={path.id} className="flex items-center gap-2 text-xs text-gray-600">
+                          <span className="text-blue-500 font-medium">{index + 1}.</span>
+                          <span className="truncate">{path.title}</span>
+                        </div>
+                      ))}
+                      {formation.paths.length > 3 && (
+                        <div className="text-xs text-gray-500">
+                          +{formation.paths.length - 3} more paths
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Action button */}
+                {formation.status === 'published' && (
+                  <Link to={R.DASHBOARD_FORMATION_DETAIL(formation.id)} className="mt-4 block">
+                    <EnhancedButton className="w-full">
+                      View Formation
+                    </EnhancedButton>
+                  </Link>
+                )}
+              </CardContent>
+            </Card>
           );
         })}
-      </div>
+      </HoverEffectGrid>
 
       {/* Waitlist Dialog - Commented out */}
       {/* <Dialog open={waitlistDialogOpen} onOpenChange={setWaitlistDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Join Waitlist - {selectedFormation?.title}</DialogTitle>
+            <DialogTitle>Notify Me - {selectedFormation?.title}</DialogTitle>
             <DialogDescription>
               Tell us about your interest in this formation. We'll notify you when it launches!
             </DialogDescription>
@@ -561,7 +567,7 @@ export function FormationsList({ limit, className }: FormationsListProps) {
                   type="submit"
                   disabled={waitlistMutation.isPending}
                 >
-                  {waitlistMutation.isPending ? 'Joining...' : 'Join Waitlist'}
+                  {waitlistMutation.isPending ? 'Joining...' : 'Notify Me'}
                 </EnhancedButton>
               </DialogFooter>
             </form>

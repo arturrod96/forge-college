@@ -7,12 +7,13 @@ import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { LoadingGrid } from '@/components/ui/loading-states';
 import { EmptyState } from '@/components/ui/empty-state';
-import { BookOpen, Clock, PlayCircle, CircleCheck, Layers, CirclePlay, Flame, Bell, X, CheckCircle } from 'lucide-react';
+import { BookOpen, Check, Clock, PlayCircle, CircleCheck, Layers, CirclePlay, Flame, Bell, X, CheckCircle, BookMarked } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { DASHBOARD_LEARN_COURSE } from '@/routes/paths';
-import { ContentSearch, StatusFilter, ProgressFilter, SortSelector, type StatusFilterValue, type ProgressFilterValue, type SortOption } from '@/components/filters';
+import { ContentSearch, FilterPopover, type StatusFilterValue, type ProgressFilterValue, type SortOption } from '@/components/filters';
 import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { toast } from 'sonner';
+import { HoverEffectGrid } from '@/components/ui/card-hover-effect';
 
 interface Course {
   id: string;
@@ -472,21 +473,24 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
     <div className={className}>
       {(showSearch || true) && (
         <div className="mb-6">
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-3">
+            <FilterPopover
+              statusValue={statusFilter}
+              onStatusChange={setStatusFilter}
+              progressSelected={progressFilter}
+              onProgressChange={setProgressFilter}
+              sortValue={sortOption}
+              onSortChange={setSortOption}
+              sortOptions={['recent', 'alphabetical', 'path_order']}
+            />
             {showSearch && (
               <ContentSearch
                 value={searchTerm}
                 onChange={setSearchTerm}
                 placeholder="Search courses..."
+                className="w-full max-w-xs"
               />
             )}
-            <StatusFilter value={statusFilter} onChange={setStatusFilter} />
-            <ProgressFilter selected={progressFilter} onChange={setProgressFilter} />
-            <SortSelector
-              value={sortOption}
-              onChange={setSortOption}
-              options={['recent', 'alphabetical', 'path_order']}
-            />
           </div>
         </div>
       )}
@@ -502,7 +506,7 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
       )}
 
       {visibleCourses.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 items-stretch">
+        <HoverEffectGrid className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 items-stretch">
           {visibleCourses.map((course) => {
             const isAvailable = course.status !== 'coming_soon';
             const isInProgress = course.progressStatus === 'in_progress';
@@ -513,11 +517,11 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
             const card = (
               <Card
                 className={[
-                  'relative rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[300px] flex flex-col',
-                  isAvailable ? 'cursor-pointer' : 'opacity-70 cursor-not-allowed',
-                  isInProgress ? 'ring-2 ring-forge-orange/30' : '',
-                ].join(' ')}
-              >
+                    'relative rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[480px] flex flex-col group',
+                    isAvailable ? 'cursor-pointer' : 'opacity-70 cursor-not-allowed',
+                    isInProgress ? 'ring-2 ring-forge-orange/30' : '',
+                  ].join(' ')}
+                >
                 {/* Thumbnail */}
                 <div className="h-48 flex items-center justify-center relative" style={{ backgroundColor: !isAvailable ? '#4a5a4a' : '#303b2e' }}>
                   {course.thumbnail_url ? (
@@ -527,7 +531,7 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <BookOpen className="h-16 w-16 text-forge-orange" />
+                    <BookMarked className="h-16 w-16 text-forge-orange" />
                   )}
                   
                   {/* Badges sobre a thumbnail */}
@@ -560,9 +564,9 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
                     </div>
                   )}
                 </div>
-                <CardHeader className="space-y-2">
+                <CardHeader className="flex-1 min-h-0 flex flex-col space-y-2">
                   <CardTitle className="flex items-start gap-2 text-forge-dark tracking-normal text-lg md:text-xl leading-tight line-clamp-2 break-words flex-1">
-                    <BookOpen className="h-4 w-4 mt-0.5 text-forge-orange shrink-0" />
+                    <BookMarked className="h-4 w-4 mt-0.5 text-forge-orange shrink-0" />
                     <span>{course.title}</span>
                   </CardTitle>
                   <CardDescription className="text-[13px] text-forge-gray line-clamp-3 min-h-[3.75rem]">
@@ -625,7 +629,7 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
                         onMouseEnter={() => setHoveredWaitlistCourseId(course.id)}
                         onMouseLeave={() => setHoveredWaitlistCourseId(null)}
                         disabled={leavingWaitlistId === course.id}
-                        className="w-full text-sm py-2 bg-green-50 text-green-700 border-green-200 hover:bg-red-50 hover:text-red-700 hover:border-red-200 transition-colors"
+                        className="w-full text-sm py-2"
                         variant="outline"
                         size="sm"
                       >
@@ -637,11 +641,11 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
                         ) : hoveredWaitlistCourseId === course.id ? (
                           <>
                             <X className="h-4 w-4 mr-2" />
-                            Leave Waitlist
+                            Leave
                           </>
                         ) : (
                           <>
-                            <Bell className="h-4 w-4 mr-2" />
+                            <Check className="h-4 w-4 mr-2" />
                             On Waitlist
                           </>
                         )}
@@ -662,7 +666,7 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
                         ) : (
                           <>
                             <Bell className="h-4 w-4 mr-2" />
-                            Join Waitlist
+                            Notify Me
                           </>
                         )}
                       </EnhancedButton>
@@ -687,7 +691,7 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
             );
 
             if (!isAvailable) {
-              return <div key={course.id}>{card}</div>;
+              return <div key={course.id} className="h-full">{card}</div>;
             }
 
             // For available courses, wrap in Link to make card clickable
@@ -695,13 +699,13 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
               <Link
                 key={course.id}
                 to={DASHBOARD_LEARN_COURSE(course.id)}
-                className="block rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-forge-orange/60"
+                className="block h-full rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-forge-orange/60"
               >
                 {card}
               </Link>
             );
           })}
-        </div>
+        </HoverEffectGrid>
       )}
     </div>
   );

@@ -40,19 +40,18 @@ export function FilterPopover({
 }: FilterPopoverProps) {
     const [open, setOpen] = useState(false);
 
-    // Count active filters
+    // Count active filters (sort is not counted as a filter, it's just an ordering option)
     const activeFilterCount = useMemo(() => {
         let count = 0;
         if (statusValue !== 'all') count++;
         count += progressSelected.length;
-        if (sortValue !== 'recent') count++;
         return count;
-    }, [statusValue, progressSelected, sortValue]);
+    }, [statusValue, progressSelected]);
 
     const handleClearAll = () => {
         onStatusChange('all');
         onProgressChange([]);
-        onSortChange('recent');
+        // Note: We don't reset sort as it's not considered a filter
     };
 
     return (

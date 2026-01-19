@@ -108,7 +108,7 @@
   },
   "layout": {
     "betaPromo": {
-      "message": "⚡️ Forge College está em beta. Espere atualizações rápidas. ⚡️"
+      "message": "Forge College está em beta, espere atualizações rápidas ⚡️"
     }
   },
   "auth": {
@@ -251,7 +251,10 @@
     "home": {
       "badge": "Bem-vindo de volta",
       "headlineSuffix": ", pronto para continuar sua jornada?",
-      "exploreCta": "Ver todas as trilhas"
+      "exploreCta": "Ver todas as trilhas",
+      "formationsTooltip": "Formações são programas de aprendizado abrangentes que agrupam múltiplas trilhas de aprendizado, projetadas para avançar sua carreira em um campo ou tecnologia específica.",
+      "learningPathTooltip": "Trilhas de aprendizado são sequências estruturadas de cursos que guiam você através de um tópico ou habilidade específica, do nível iniciante ao avançado.",
+      "coursesTooltip": "Cursos são unidades de aprendizado individuais que cobrem tópicos ou habilidades específicas. Eles são organizados em módulos e lições, e podem fazer parte de trilhas de aprendizado ou formações."
     },
     "continueLearning": {
       "title": "Retome de onde parou",

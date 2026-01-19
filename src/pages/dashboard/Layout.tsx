@@ -70,10 +70,11 @@ function EducationMenuItem({ location, educationOpen, setEducationOpen }: {
   educationOpen: boolean;
   setEducationOpen: (open: boolean) => void;
 }) {
-  const { state: sidebarState, toggleSidebar } = useSidebar()
+  const { state: sidebarState, toggleSidebar, expandOnHover } = useSidebar()
 
   const handleEducationClick = (e: React.MouseEvent) => {
-    if (sidebarState === 'collapsed') {
+    // When expandOnHover, do not expand on click; user must hover to expand
+    if (sidebarState === 'collapsed' && !expandOnHover) {
       e.preventDefault()
       e.stopPropagation()
       toggleSidebar()
@@ -256,17 +257,24 @@ export function DashboardLayout() {
   }
 
   return (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider defaultOpen={false} expandOnHover>
       {!isCourseView && (
         <Sidebar collapsible="icon">
           <SidebarRail />
           <SidebarHeader className="p-4">
-            <div className="flex items-center justify-between w-full">
-              <Link to="/dashboard" className="flex items-center gap-3">
+            <div className="flex items-center justify-between w-full group-data-[collapsible=icon]:justify-center">
+              <Link to="/dashboard" className="flex items-center gap-3 group-data-[collapsible=icon]:gap-0">
+                {/* Logo ícone (arco + estrela) — visível só com a barra colapsada */}
+                <img
+                  src="/forge-logo-icon.png"
+                  alt="Forge College"
+                  className="h-9 w-auto hidden object-contain group-data-[collapsible=icon]:block"
+                />
+                {/* Logo completa — visível com a barra expandida */}
                 <img
                   src="https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/forgecollege-2c35f0?format=webp&width=800"
                   alt="Forge College"
-                  className="h-10 w-auto"
+                  className="h-10 w-auto group-data-[collapsible=icon]:hidden"
                 />
               </Link>
               <SidebarTrigger className="h-8 w-8 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-800" />
@@ -362,7 +370,7 @@ export function DashboardLayout() {
             </div>
             <div className="hidden justify-center group-data-[collapsible=icon]:flex">
               <Select value={sidebarLocale} onValueChange={handleSidebarLocaleChange}>
-                <SelectTrigger className="h-10 w-10 rounded-full border border-forge-cream bg-white/90 p-0 text-forge-dark focus:ring-forge-orange">
+                <SelectTrigger className="h-10 w-10 rounded-full border border-forge-cream bg-white/90 p-0 text-forge-dark focus:ring-forge-orange justify-center [&>svg:last-child]:hidden">
                   <Languages className="h-4 w-4 text-forge-orange" />
                   <span className="sr-only">{t('dashboard.sidebar.localePlaceholder')}</span>
                 </SelectTrigger>

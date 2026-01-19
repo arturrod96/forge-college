@@ -195,18 +195,19 @@ export function ComingSoonPaths({ limit, className }: ComingSoonPathsProps) {
             <EnhancedButton
               onClick={() => handleJoinWaitingList(path.id)}
               disabled={joiningId === path.id}
-              className="w-full"
+              className="w-full text-xs"
               variant="outline"
+              size="sm"
             >
               {joiningId === path.id ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2" />
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
                   Joining...
                 </>
               ) : (
                 <>
                   <Bell className="h-4 w-4 mr-2" />
-                  Join Waiting List
+                  Notify Me
                 </>
               )}
             </EnhancedButton>

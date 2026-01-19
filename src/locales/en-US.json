@@ -108,7 +108,7 @@
   },
   "layout": {
     "betaPromo": {
-      "message": "⚡️ Forge College is currently in beta. Expect rapid updates. ⚡️"
+      "message": "Forge College is currently in beta, expect rapid updates ⚡️"
     }
   },
   "auth": {
@@ -252,7 +252,10 @@
     "home": {
       "badge": "Welcome back",
       "headlineSuffix": ", ready to continue your journey?",
-      "exploreCta": "View all learning paths"
+      "exploreCta": "View all learning paths",
+      "formationsTooltip": "Formations are comprehensive learning programs that group multiple learning paths together, designed to advance your career in a specific field or technology.",
+      "learningPathTooltip": "Learning paths are structured sequences of courses that guide you through a specific topic or skill, from beginner to advanced levels.",
+      "coursesTooltip": "Courses are individual learning units that cover specific topics or skills. They are organized into modules and lessons, and can be part of learning paths or formations."
     },
     "continueLearning": {
       "title": "Pick up where you left off",

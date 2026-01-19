@@ -33,6 +33,7 @@ type SidebarContext = {
   setOpenMobile: (open: boolean) => void
   isMobile: boolean
   toggleSidebar: () => void
+  expandOnHover?: boolean
 }
 
 const SidebarContext = React.createContext<SidebarContext | null>(null)
@@ -52,6 +53,8 @@ const SidebarProvider = React.forwardRef<
     defaultOpen?: boolean
     open?: boolean
     onOpenChange?: (open: boolean) => void
+    /** When true, desktop sidebar expands only on hover and collapses when the cursor leaves (Aceternity-style). */
+    expandOnHover?: boolean
   }
 >(
   (
@@ -59,6 +62,7 @@ const SidebarProvider = React.forwardRef<
       defaultOpen = true,
       open: openProp,
       onOpenChange: setOpenProp,
+      expandOnHover = false,
       className,
       style,
       children,
@@ -82,10 +86,12 @@ const SidebarProvider = React.forwardRef<
           _setOpen(openState)
         }
 
-        // This sets the cookie to keep the sidebar state.
-        document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+        // Only persist to cookie when not in hover-only mode
+        if (!expandOnHover) {
+          document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+        }
       },
-      [setOpenProp, open]
+      [setOpenProp, open, expandOnHover]
     )
 
     // Helper to toggle the sidebar.
@@ -124,8 +130,9 @@ const SidebarProvider = React.forwardRef<
         openMobile,
         setOpenMobile,
         toggleSidebar,
+        expandOnHover,
       }),
-      [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+      [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar, expandOnHover]
     )
 
     return (
@@ -174,7 +181,29 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+    const { isMobile, state, openMobile, setOpenMobile, setOpen, expandOnHover } = useSidebar()
+    const leaveTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+
+    const handleMouseEnter = React.useCallback(() => {
+      if (leaveTimeoutRef.current) {
+        clearTimeout(leaveTimeoutRef.current)
+        leaveTimeoutRef.current = null
+      }
+      setOpen(true)
+    }, [setOpen])
+
+    const handleMouseLeave = React.useCallback(() => {
+      leaveTimeoutRef.current = setTimeout(() => {
+        setOpen(false)
+        leaveTimeoutRef.current = null
+      }, 200)
+    }, [setOpen])
+
+    React.useEffect(() => {
+      return () => {
+        if (leaveTimeoutRef.current) clearTimeout(leaveTimeoutRef.current)
+      }
+    }, [])
 
     if (collapsible === "none") {
       return (
@@ -219,6 +248,8 @@ const Sidebar = React.forwardRef<
         data-collapsible={state === "collapsed" ? collapsible : ""}
         data-variant={variant}
         data-side={side}
+        onMouseEnter={expandOnHover ? handleMouseEnter : undefined}
+        onMouseLeave={expandOnHover ? handleMouseLeave : undefined}
       >
         {/* This is what handles the sidebar gap on desktop */}
         <div
@@ -262,7 +293,9 @@ const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar, state } = useSidebar()
+  const { toggleSidebar, state, expandOnHover } = useSidebar()
+
+  if (expandOnHover) return null
 
   return (
     <Button
@@ -291,7 +324,9 @@ const SidebarRail = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<"button">
 >(({ className, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar, expandOnHover } = useSidebar()
+
+  if (expandOnHover) return null
 
   return (
     <button
