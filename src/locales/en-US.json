@@ -94,6 +94,10 @@
     "forCompanies": "For Companies",
     "forInvestors": "For Investors",
     "dashboard": "Dashboard",
+    "education": "Education",
+    "formations": "Formations",
+    "learningPaths": "Learning Paths",
+    "courses": "Courses",
     "paths": "Learning Path",
     "admin": "Admin",
     "scoreboard": "Scoreboard",
@@ -106,9 +110,105 @@
     "myProfile": "My Profile",
     "page": "Page"
   },
+  "learningPaths": {
+    "title": "Learning Paths",
+    "subtitle": "Browse and explore all available learning paths",
+    "emptyNoMatch": "No learning paths match your filters",
+    "emptyNoData": "No learning paths available"
+  },
+  "courses": {
+    "title": "Courses",
+    "subtitle": "Browse and explore all available courses",
+    "modules_one": "{{count}} module",
+    "modules_other": "{{count}} modules",
+    "modulesLabel": "Modules:",
+    "moreModules": "+{{count}} more modules",
+    "startCourse": "Start Course",
+    "descriptionFallback": "Explore this course to enhance your skills",
+    "leaving": "Leaving...",
+    "leave": "Leave",
+    "onWaitlist": "On Waitlist",
+    "notifyMe": "Notify Me",
+    "joining": "Joining...",
+    "emptyNoData": "No courses available",
+    "emptyNoDataDescription": "Start exploring our courses soon!",
+    "emptyNoResults": "No courses found",
+    "emptyNoMatch": "No courses match \"{{term}}\""
+  },
+  "formations": {
+    "title": "Formations",
+    "subtitle": "Comprehensive learning programs designed to advance your career",
+    "paths_one": "{{count}} path",
+    "paths_other": "{{count}} paths",
+    "learningPathsLabel": "Learning Paths:",
+    "morePaths": "+{{count}} more paths",
+    "viewFormation": "View Formation",
+    "startPath": "Start Path",
+    "emptyNoData": "No formations available",
+    "emptyNoDataDescription": "Comprehensive learning programs will be available soon. Check back later!",
+    "emptyNoResults": "No formations found",
+    "emptyNoMatch": "No formations match \"{{term}}\"",
+    "emptyNoFilters": "No formations match the selected filters"
+  },
+  "formationDetail": {
+    "backToFormations": "Back to formations",
+    "loadError": "We could not load this formation.",
+    "descriptionFallback": "Explore the curated learning paths included in this formation.",
+    "learningPathsCount": "{{count}} learning paths",
+    "onWaitingList": "on waiting list",
+    "createdAgo": "Created {{date}}",
+    "publishedAgo": "Published {{date}}",
+    "addedToWaitlist": "You have been added to the waiting list for this formation",
+    "alreadyOnWaitlist": "You are already on the waiting list for this formation",
+    "mustLoginToJoinWaitlist": "You need to be logged in to join the waiting list",
+    "joinWaitlistFailed": "Failed to join waiting list",
+    "onWaitlist": "You are on the waiting list",
+    "joining": "Joining...",
+    "joinWaitlist": "Join the waiting list",
+    "signInToJoin": "Sign in to join",
+    "mustSignInToJoinWaitlist": "You must be signed in to join the waiting list.",
+    "notifyWhenOpen": "We will notify you as soon as this formation opens for enrollment.",
+    "pathsComingSoon": "Paths coming soon",
+    "includedPaths": "Included learning paths",
+    "pathsAddedSoon": "Learning paths will be added to this formation soon.",
+    "notYetPublished": "Not yet published",
+    "startLearning": "Start learning",
+    "viewPath": "View path"
+  },
+  "search": {
+    "formations": "Search formations...",
+    "courses": "Search courses...",
+    "learningPaths": "Search learning paths..."
+  },
+  "filters": {
+    "title": "Filters",
+    "clearAll": "Clear all",
+    "status": "Status",
+    "progress": "Progress",
+    "sort": "Sort",
+    "sortBy": "Sort by:",
+    "statusOptions": {
+      "all": "All",
+      "available": "Available",
+      "coming_soon": "Coming Soon",
+      "draft": "Draft"
+    },
+    "progressOptions": {
+      "not_started": "Not Started",
+      "in_progress": "Enrolled",
+      "completed": "Completed"
+    },
+    "sortOptions": {
+      "recent": "Most Recent",
+      "alphabetical": "Alphabetical",
+      "path_order": "Path Order",
+      "course_order": "Course Order",
+      "module_order": "Module Order"
+    }
+  },
   "layout": {
     "betaPromo": {
-      "message": "Forge College is currently in beta, expect rapid updates ⚡️"
+      "message": "We are currently in beta, expect rapid updates ⚡️"
     }
   },
   "auth": {
@@ -227,7 +327,7 @@
       "loading": "Loading dashboard..."
     },
     "sidebar": {
-      "localeTitle": "App language",
+      "localeTitle": "Language",
       "localeDescription": "Choose how the interface is translated.",
       "localePlaceholder": "Select language"
     },
@@ -253,6 +353,7 @@
       "badge": "Welcome back",
       "headlineSuffix": ", ready to continue your journey?",
       "exploreCta": "View all learning paths",
+      "viewAllFormations": "View all formations",
       "formationsTooltip": "Formations are comprehensive learning programs that group multiple learning paths together, designed to advance your career in a specific field or technology.",
       "learningPathTooltip": "Learning paths are structured sequences of courses that guide you through a specific topic or skill, from beginner to advanced levels.",
       "coursesTooltip": "Courses are individual learning units that cover specific topics or skills. They are organized into modules and lessons, and can be part of learning paths or formations."
@@ -269,7 +370,10 @@
     "availablePaths": {
       "enrolledBadge": "Enrolled",
       "courses_one": "{{count}} course",
-      "courses_other": "{{count}} courses"
+      "courses_other": "{{count}} courses",
+      "viewPath": "View path",
+      "coursesLabel": "Courses:",
+      "moreCourses": "+{{count}} more courses"
     },
     "learningHabits": {
       "title": "Study habits",
@@ -301,6 +405,8 @@
     },
     "pathOverview": {
       "badge": "Path",
+      "backToPaths": "Back to learning paths",
+      "descriptionFallback": "Explore the courses in this learning path.",
       "notFound": "Learning path not found.",
       "continue": "Continue",
       "courses": "Courses"
@@ -313,7 +419,17 @@
   "lessons": {
     "selectToBegin": "Select a lesson to begin.",
     "lessonInfo": "Lesson {{current}} of {{total}} • {{xp}} XP",
+    "unsupportedType": "Unsupported lesson type: {{type}}",
+    "types": {
+      "video": "Video",
+      "text": "Reading",
+      "quiz": "Quiz"
+    },
     "previousLesson": "Previous lesson",
+    "complete": "Complete",
+    "completed": "Completed",
+    "unmark": "Unmark",
+    "unmarked": "Progress unchecked",
     "completeAndContinue": "Complete and Continue",
     "markAsCompleted": "Mark as Completed",
     "submitAnswer": "Submit Answer",
@@ -321,6 +437,16 @@
     "progressSaveFailed": "Failed to save progress",
     "lessonCompleted": "Lesson marked as completed!",
     "completionError": "Error marking lesson as completed"
+  },
+  "aiInstructor": {
+    "title": "AI Instructor",
+    "hint": "Hint: Click on a suggested question or ask yours.",
+    "placeholder": "Ask me about this lesson...",
+    "loadingSuggestions": "Loading suggestions...",
+    "suggestion": "Suggestion",
+    "me": "Me:",
+    "instructor": "Instructor:",
+    "thinking": "Thinking..."
   },
   "admin": {
     "layout": {
@@ -513,7 +639,13 @@
     "rankingGlobal": "Global Ranking - All Paths",
     "ranking": "Ranking - {{pathName}}",
     "xp": "XP",
-    "lessons": "lessons"
+    "lessons": "lessons",
+    "emptyNoPaths": "No paths available."
+  },
+  "ambassadors": {
+    "title": "Ambassadors",
+    "subtitle": "Join our community of ambassadors and help spread knowledge",
+    "comingSoon": "Ambassadors program coming soon"
   },
   "achievements": {
     "title": "Achievements",

@@ -10,7 +10,7 @@ export default function LearningPathsPage() {
     <div className="space-y-6">
       <div>
         <div className="flex items-center gap-2">
-          <h1 className="text-3xl font-bold text-forge-dark">Learning Paths</h1>
+          <h1 className="text-3xl font-bold text-forge-dark">{t('learningPaths.title')}</h1>
           <TooltipProvider delayDuration={0}>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -22,7 +22,7 @@ export default function LearningPathsPage() {
             </Tooltip>
           </TooltipProvider>
         </div>
-        <p className="text-muted-foreground">Browse and explore all available learning paths</p>
+        <p className="text-muted-foreground">{t('learningPaths.subtitle')}</p>
       </div>
 
       <AvailablePaths />

@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { LoadingGrid } from '@/components/ui/loading-states';
 import { EmptyState } from '@/components/ui/empty-state';
-import { BookOpen, Check, Clock, PlayCircle, CircleCheck, Layers, CirclePlay, Flame, Bell, X, CheckCircle, BookMarked } from 'lucide-react';
+import { BookOpen, Check, Clock, PlayCircle, CircleCheck, Folder, CirclePlay, Flame, Bell, X, CheckCircle, BookMarked } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { DASHBOARD_LEARN_COURSE } from '@/routes/paths';
 import { ContentSearch, FilterPopover, type StatusFilterValue, type ProgressFilterValue, type SortOption } from '@/components/filters';
@@ -462,8 +462,8 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
       <EmptyState
         variant="no-data"
         icon={BookOpen}
-        title="No courses available"
-        description="Start exploring our courses soon!"
+        title={t('courses.emptyNoData')}
+        description={t('courses.emptyNoDataDescription')}
         size="md"
       />
     );
@@ -487,7 +487,7 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
               <ContentSearch
                 value={searchTerm}
                 onChange={setSearchTerm}
-                placeholder="Search courses..."
+                placeholder={t('search.courses')}
                 className="w-full max-w-xs"
               />
             )}
@@ -499,8 +499,8 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
         <EmptyState
           variant="no-results"
           icon={BookOpen}
-          title="No courses found"
-          description={`No courses match "${searchTerm}"`}
+          title={t('courses.emptyNoResults')}
+          description={t('courses.emptyNoMatch', { term: searchTerm })}
           size="md"
         />
       )}
@@ -519,7 +519,6 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
                 className={[
                     'relative rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[480px] flex flex-col group',
                     isAvailable ? 'cursor-pointer' : 'opacity-70 cursor-not-allowed',
-                    isInProgress ? 'ring-2 ring-forge-orange/30' : '',
                   ].join(' ')}
                 >
                 {/* Thumbnail */}
@@ -538,28 +537,28 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
                   {isInProgress && (
                     <div className="absolute top-2 right-2 z-10">
                       <Badge variant="enrolled" size="sm" icon={CirclePlay} iconPosition="left">
-                        Enrolled
+                        {t('dashboard.enrolled')}
                       </Badge>
                     </div>
                   )}
                   {isCompleted && (
                     <div className="absolute top-2 right-2 z-10">
                       <Badge variant="success" size="sm" icon={Flame} iconPosition="left">
-                        Completed
+                        {t('filters.progressOptions.completed')}
                       </Badge>
                     </div>
                   )}
                   {course.status === 'coming_soon' && !isInProgress && !isCompleted && (
                     <div className="absolute top-2 right-2 z-10">
                       <Badge variant="coming-soon" size="sm" icon={Clock} iconPosition="left">
-                        Coming Soon
+                        {t('filters.statusOptions.coming_soon')}
                       </Badge>
                     </div>
                   )}
                   {isAvailable && !isInProgress && !isCompleted && course.status !== 'coming_soon' && (
                     <div className="absolute top-2 right-2 z-10">
                       <Badge variant="default" size="sm" icon={CheckCircle} iconPosition="left">
-                        Available
+                        {t('filters.statusOptions.available')}
                       </Badge>
                     </div>
                   )}
@@ -570,15 +569,15 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
                     <span>{course.title}</span>
                   </CardTitle>
                   <CardDescription className="text-[13px] text-forge-gray line-clamp-3 min-h-[3.75rem]">
-                    {course.description || 'Explore this course to enhance your skills'}
+                    {course.description || t('courses.descriptionFallback')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4 mt-auto">
                   {/* Stats */}
                   <div className="flex items-center gap-4 text-sm text-gray-600">
                     <div className="flex items-center gap-1">
-                      <Layers className="h-4 w-4" />
-                      {course.modules?.length || 0} {course.modules?.length === 1 ? 'module' : 'modules'}
+                      <Folder className="h-4 w-4" />
+                      {t('courses.modules', { count: course.modules?.length || 0 })}
                     </div>
                     {course.duration_minutes && (
                       <div className="flex items-center gap-1">
@@ -591,17 +590,17 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
                   {/* Modules preview */}
                   {course.modules && course.modules.length > 0 && (
                     <div className="space-y-2">
-                      <h4 className="font-medium text-sm text-gray-900">Modules:</h4>
+                      <h4 className="font-medium text-sm text-gray-900">{t('courses.modulesLabel')}</h4>
                       <div className="space-y-1">
                         {course.modules.slice(0, 3).map((module, index) => (
                           <div key={module.id} className="flex items-center gap-2 text-xs text-gray-600">
-                            <span className="text-blue-500 font-medium">{index + 1}.</span>
+                            <span className="text-forge-orange font-medium">{index + 1}.</span>
                             <span className="truncate">{module.title}</span>
                           </div>
                         ))}
                         {course.modules.length > 3 && (
                           <div className="text-xs text-gray-500">
-                            +{course.modules.length - 3} more modules
+                            {t('courses.moreModules', { count: course.modules.length - 3 })}
                           </div>
                         )}
                       </div>
@@ -620,7 +619,7 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
                         navigate(DASHBOARD_LEARN_COURSE(course.id));
                       }}
                     >
-                      Continue learning
+                      {t('common.buttons.continueLearning')}
                     </EnhancedButton>
                   ) : isComingSoon ? (
                     isOnWaitlist ? (
@@ -636,17 +635,17 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
                         {leavingWaitlistId === course.id ? (
                           <>
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
-                            Leaving...
+                            {t('courses.leaving')}
                           </>
                         ) : hoveredWaitlistCourseId === course.id ? (
                           <>
                             <X className="h-4 w-4 mr-2" />
-                            Leave
+                            {t('courses.leave')}
                           </>
                         ) : (
                           <>
                             <Check className="h-4 w-4 mr-2" />
-                            On Waitlist
+                            {t('courses.onWaitlist')}
                           </>
                         )}
                       </EnhancedButton>
@@ -661,12 +660,12 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
                         {joiningWaitlistId === course.id ? (
                           <>
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
-                            Joining...
+                            {t('courses.joining')}
                           </>
                         ) : (
                           <>
                             <Bell className="h-4 w-4 mr-2" />
-                            Notify Me
+                            {t('courses.notifyMe')}
                           </>
                         )}
                       </EnhancedButton>
@@ -682,7 +681,7 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
                         navigate(DASHBOARD_LEARN_COURSE(course.id));
                       }}
                     >
-                      Start Course
+                      {t('courses.startCourse')}
                     </EnhancedButton>
                   )}
 
@@ -699,7 +698,7 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
               <Link
                 key={course.id}
                 to={DASHBOARD_LEARN_COURSE(course.id)}
-                className="block h-full rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-forge-orange/60"
+                className="block h-full rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 {card}
               </Link>

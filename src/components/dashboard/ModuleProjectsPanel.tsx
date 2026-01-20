@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
-import { ArrowUpRight, ExternalLink, FolderGit2 } from 'lucide-react'
+import { ArrowUpRight, FolderGit2 } from 'lucide-react'
 
 export interface ModuleProject {
   id: string
@@ -102,19 +102,7 @@ export function ModuleProjectsPanel({
   }
 
   if (projects.length === 0) {
-    return (
-      <Card className="border border-dashed border-forge-cream/70 bg-white/80">
-        <CardContent className="flex items-center justify-between gap-3 p-5 text-sm text-forge-gray">
-          <span>{t('projects.module.noProjects')}</span>
-          <Button asChild variant="outline" size="sm">
-            <Link to={communityLink}>
-              {t('projects.module.communityLink')}
-              <ExternalLink className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
-    )
+    return null
   }
 
   return (

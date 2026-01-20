@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,6 +29,7 @@ function normalizeContext({ courseTitle, lessonTitle, lessonType, lessonContent 
 }
 
 export default function LessonAIChat(props: Props) {
+  const { t } = useTranslation();
   const contextText = useMemo(() => normalizeContext(props), [props.courseTitle, props.lessonTitle, props.lessonType, props.lessonContent]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -183,13 +185,13 @@ export default function LessonAIChat(props: Props) {
       <CardHeader className="pb-3">
         <CardTitle className="text-sm flex items-center gap-2">
           <Bot className="h-4 w-4 text-forge-dark" />
-          <span>AI Instructor</span>
+          <span>{t('aiInstructor.title')}</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 min-h-0 flex flex-col gap-3 text-xs">
         <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto rounded-md border p-3 bg-white flex flex-col gap-2">
           {suggestionsLoading && (
-            <div className="text-[11px] text-muted-foreground">Loading suggestions...</div>
+            <div className="text-[11px] text-muted-foreground">{t('aiInstructor.loadingSuggestions')}</div>
           )}
           {!!suggestions.length && !suggestionsLoading && (
             <div className="grid gap-2">
@@ -200,7 +202,7 @@ export default function LessonAIChat(props: Props) {
                   onClick={() => send(q)}
                   className="w-full text-left border rounded-lg p-3 bg-white hover:bg-forge-cream transition-colors shadow-sm"
                 >
-                  <div className="text-[10px] text-muted-foreground mb-1">Suggestion</div>
+                  <div className="text-[10px] text-muted-foreground mb-1">{t('aiInstructor.suggestion')}</div>
                   <div className="text-xs">{q}</div>
                 </button>
               ))}
@@ -210,12 +212,12 @@ export default function LessonAIChat(props: Props) {
           <div className="flex-1" />
 
           {messages.length === 0 && (
-            <div className="text-xs text-muted-foreground">Hint: Click on a suggested question or ask yours.</div>
+            <div className="text-xs text-muted-foreground">{t('aiInstructor.hint')}</div>
           )}
           {messages.map((m, i) => (
             <div key={i} className={m.role === 'user' ? 'text-right' : 'text-left'}>
               <div className="text-[10px] uppercase tracking-wide mb-1 text-muted-foreground">
-                {m.role === 'user' ? 'Me:' : 'Instructor:'}
+                {m.role === 'user' ? t('aiInstructor.me') : t('aiInstructor.instructor')}
               </div>
               <div className={
                 'inline-block rounded-lg px-3 py-2 text-xs break-words text-left ' +
@@ -231,7 +233,7 @@ export default function LessonAIChat(props: Props) {
               </div>
             </div>
           ))}
-          {loading && <div className="text-xs text-muted-foreground">Thinking...</div>}
+          {loading && <div className="text-xs text-muted-foreground">{t('aiInstructor.thinking')}</div>}
         </div>
 
         <form
@@ -246,7 +248,7 @@ export default function LessonAIChat(props: Props) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
           />
-          <Button type="submit" disabled={loading}>Send</Button>
+          <Button type="submit" disabled={loading}>{t('common.buttons.send')}</Button>
         </form>
       </CardContent>
     </Card>

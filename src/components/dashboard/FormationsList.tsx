@@ -1,9 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { createClientBrowser } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
-import { GraduationCap, BookOpen, Star, CircleCheckBig, Clock, CirclePlay, Flame } from 'lucide-react';
+import { GraduationCap, Layers3, Star, CircleCheckBig, Clock, CirclePlay, Flame, CheckCircle } from 'lucide-react';
 import { EnhancedButton } from '@/components/ui/enhanced-button';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 import * as R from '@/routes/paths';
@@ -15,6 +16,7 @@ import { useAuth } from '@/hooks/useOAuth';
 import { useState, useMemo } from 'react';
 import { ContentSearch, FilterPopover, type StatusFilterValue, type SortOption, type ProgressFilterValue } from '@/components/filters';
 import { HoverEffectGrid } from '@/components/ui/card-hover-effect';
+import { toast } from 'sonner';
 
 type FormationRow = Tables<'formations'>['Row'];
 type FormationPathRow = Tables<'formation_paths'>['Row'];
@@ -42,6 +44,8 @@ interface FormationCardModel {
   }>;
   created_at: string | null;
   progressStatus?: 'not_started' | 'in_progress' | 'completed';
+  /** User is enrolled in the first path of this formation (trilha) */
+  firstPathEnrolled?: boolean;
 }
 
 type FormationsListProps = {
@@ -82,13 +86,15 @@ type FormationsListProps = {
 // }
 
 export function FormationsList({ limit, className }: FormationsListProps) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const supabase = createClientBrowser();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>('all');
   const [progressFilter, setProgressFilter] = useState<ProgressFilterValue[]>([]);
   const [sortOption, setSortOption] = useState<SortOption>('recent');
-  // const queryClient = useQueryClient();
+  const [enrollingPathId, setEnrollingPathId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   // const [selectedFormation, setSelectedFormation] = useState<FormationCardModel | null>(null);
   // const [waitlistDialogOpen, setWaitlistDialogOpen] = useState(false);
 
@@ -124,18 +130,30 @@ export function FormationsList({ limit, className }: FormationsListProps) {
 
       const rows = (data ?? []) as FormationQueryRow[];
 
-      // Calculate progress for formations if user is logged in
+      // Calculate progress and enrollment for formations if user is logged in
       const formationProgressMap: Record<string, 'not_started' | 'in_progress' | 'completed'> = {};
-      
+      let enrolledPathIds: string[] = [];
+
       if (user && rows.length > 0) {
         // Get all path IDs from all formations
         const allPathIds: string[] = [];
         rows.forEach((formation) => {
-          const paths = (formation.formation_paths ?? [])
+          const pathIds = (formation.formation_paths ?? [])
             .map((fp) => fp.learning_paths?.id)
             .filter((id): id is string => Boolean(id));
-          allPathIds.push(...paths);
+          allPathIds.push(...pathIds);
         });
+
+        // Fetch user enrollments for these paths
+        if (allPathIds.length > 0) {
+          const { data: enrollments } = await supabase
+            .from('user_enrollments')
+            .select('learning_path_id')
+            .eq('user_id', user.id)
+            .eq('is_active', true)
+            .in('learning_path_id', allPathIds);
+          enrolledPathIds = (enrollments || []).map((e: { learning_path_id?: string }) => e.learning_path_id).filter((id): id is string => Boolean(id));
+        }
 
         // Calculate progress for all paths
         if (allPathIds.length > 0) {
@@ -216,6 +234,7 @@ export function FormationsList({ limit, className }: FormationsListProps) {
           paths,
           created_at: formation.created_at,
           progressStatus: formationProgressMap[formation.id] || 'not_started',
+          firstPathEnrolled: paths.length > 0 && enrolledPathIds.includes(paths[0].id),
         } as FormationCardModel;
       });
     },
@@ -335,6 +354,39 @@ export function FormationsList({ limit, className }: FormationsListProps) {
 
   const displayFormations = limit ? processedFormations.slice(0, limit) : processedFormations;
 
+  const enrollMutation = useMutation({
+    mutationFn: async (pathId: string) => {
+      if (!user) throw new Error(t('dashboard.mustLoginToEnroll'));
+      const { error } = await supabase
+        .from('user_enrollments')
+        .insert({ user_id: user.id, learning_path_id: pathId });
+      if (error) throw new Error(error.message || t('dashboard.errors.failedToEnroll'));
+      return pathId;
+    },
+    onMutate: (pathId) => setEnrollingPathId(pathId),
+    onSuccess: () => {
+      toast.success(t('dashboard.enrollSuccess'));
+      queryClient.invalidateQueries({ queryKey: ['formations'] });
+      queryClient.invalidateQueries({ queryKey: ['availablePaths'] });
+      queryClient.invalidateQueries({ queryKey: ['myPaths'] });
+      queryClient.invalidateQueries({ queryKey: ['pathOverview'] });
+      queryClient.invalidateQueries({ queryKey: ['formation-detail'] });
+    },
+    onError: (err) => {
+      console.error('Enroll error:', err);
+      toast.error(t('dashboard.enrollError'));
+    },
+    onSettled: () => setEnrollingPathId(null),
+  });
+
+  const handleEnroll = (pathId: string) => {
+    if (!user) {
+      toast.error(t('dashboard.mustLoginToEnroll'));
+      return;
+    }
+    enrollMutation.mutate(pathId);
+  };
+
   if (isLoading) {
     return (
       <LoadingGrid
@@ -352,8 +404,8 @@ export function FormationsList({ limit, className }: FormationsListProps) {
         <EmptyState
           variant="no-results"
           icon={GraduationCap}
-          title="No formations found"
-          description={searchTerm ? `No formations match "${searchTerm}"` : 'No formations match the selected filters'}
+          title={t('formations.emptyNoResults')}
+          description={searchTerm ? t('formations.emptyNoMatch', { term: searchTerm }) : t('formations.emptyNoFilters')}
           size="md"
         />
       );
@@ -362,8 +414,8 @@ export function FormationsList({ limit, className }: FormationsListProps) {
       <EmptyState
         variant="no-data"
         icon={GraduationCap}
-        title="No formations available"
-        description="Comprehensive learning programs will be available soon. Check back later!"
+        title={t('formations.emptyNoData')}
+        description={t('formations.emptyNoDataDescription')}
         size="md"
       />
     );
@@ -385,7 +437,7 @@ export function FormationsList({ limit, className }: FormationsListProps) {
           <ContentSearch
             value={searchTerm}
             onChange={setSearchTerm}
-            placeholder="Search formations..."
+            placeholder={t('search.formations')}
             className="w-full max-w-xs"
           />
         </div>
@@ -418,25 +470,32 @@ export function FormationsList({ limit, className }: FormationsListProps) {
                   <GraduationCap className="h-16 w-16 text-forge-orange" />
                 )}
                 
-                {/* Badges sobre a thumbnail */}
-                {formation.progressStatus === 'in_progress' && (
-                  <div className="absolute top-2 right-2 z-10">
-                    <Badge variant="enrolled" size="sm" icon={CirclePlay} iconPosition="left">
-                      Enrolled
-                    </Badge>
-                  </div>
-                )}
+                {/* Badges sobre a thumbnail: Completed > Inscrito (enrolled) > Coming soon > Disponível */}
                 {formation.progressStatus === 'completed' && (
                   <div className="absolute top-2 right-2 z-10">
                     <Badge variant="success" size="sm" icon={Flame} iconPosition="left">
-                      Completed
+                      {t('filters.progressOptions.completed')}
                     </Badge>
                   </div>
                 )}
-                {formation.status === 'coming_soon' && formation.progressStatus !== 'in_progress' && formation.progressStatus !== 'completed' && (
+                {formation.progressStatus !== 'completed' && (formation.progressStatus === 'in_progress' || formation.firstPathEnrolled) && (
+                  <div className="absolute top-2 right-2 z-10">
+                    <Badge variant="enrolled" size="sm" icon={CirclePlay} iconPosition="left">
+                      {t('dashboard.enrolled')}
+                    </Badge>
+                  </div>
+                )}
+                {formation.status === 'coming_soon' && formation.progressStatus !== 'in_progress' && formation.progressStatus !== 'completed' && !formation.firstPathEnrolled && (
                   <div className="absolute top-2 right-2 z-10">
                     <Badge variant="coming-soon" size="sm" icon={Clock} iconPosition="left">
-                      Coming Soon
+                      {t('filters.statusOptions.coming_soon')}
+                    </Badge>
+                  </div>
+                )}
+                {formation.status === 'published' && formation.progressStatus !== 'in_progress' && formation.progressStatus !== 'completed' && !formation.firstPathEnrolled && (
+                  <div className="absolute top-2 right-2 z-10">
+                    <Badge variant="default" size="sm" icon={CheckCircle} iconPosition="left">
+                      {t('filters.statusOptions.available')}
                     </Badge>
                   </div>
                 )}
@@ -454,38 +513,59 @@ export function FormationsList({ limit, className }: FormationsListProps) {
                 {/* Stats */}
                 <div className="flex items-center gap-4 text-sm text-gray-600">
                   <div className="flex items-center gap-1">
-                    <BookOpen className="h-4 w-4" />
-                    {formation.paths_count} paths
+                    <Layers3 className="h-4 w-4" />
+                    {t('formations.paths', { count: formation.paths_count })}
                   </div>
                 </div>
 
                 {/* Learning paths preview */}
                 {formation.paths && formation.paths.length > 0 && (
                   <div className="space-y-2">
-                    <h4 className="font-medium text-sm text-gray-900">Learning Paths:</h4>
+                    <h4 className="font-medium text-sm text-gray-900">{t('formations.learningPathsLabel')}</h4>
                     <div className="space-y-1">
                       {formation.paths.slice(0, 3).map((path, index) => (
                         <div key={path.id} className="flex items-center gap-2 text-xs text-gray-600">
-                          <span className="text-blue-500 font-medium">{index + 1}.</span>
+                          <span className="text-forge-orange font-medium">{index + 1}.</span>
                           <span className="truncate">{path.title}</span>
                         </div>
                       ))}
                       {formation.paths.length > 3 && (
                         <div className="text-xs text-gray-500">
-                          +{formation.paths.length - 3} more paths
+                          {t('formations.morePaths', { count: formation.paths.length - 3 })}
                         </div>
                       )}
                     </div>
                   </div>
                 )}
 
-                {/* Action button */}
+                {/* Action buttons */}
                 {formation.status === 'published' && (
-                  <Link to={R.DASHBOARD_FORMATION_DETAIL(formation.id)} className="mt-4 block">
-                    <EnhancedButton className="w-full">
-                      View Formation
-                    </EnhancedButton>
-                  </Link>
+                  <div className="mt-4 flex flex-col sm:flex-row gap-2">
+                    <Link to={R.DASHBOARD_FORMATION_DETAIL(formation.id)} className="flex-1 min-w-0">
+                      <EnhancedButton variant="outline" className="w-full !bg-white hover:!bg-gray-50 hover:!text-forge-orange">
+                        {t('formations.viewFormation')}
+                      </EnhancedButton>
+                    </Link>
+                    {formation.paths && formation.paths.length > 0 && (
+                      formation.firstPathEnrolled ? (
+                        <Link to={R.DASHBOARD_LEARN_PATH(formation.paths[0].id)} className="flex-1 min-w-0">
+                          <EnhancedButton className="w-full">
+                            {t('common.buttons.continue')}
+                          </EnhancedButton>
+                        </Link>
+                      ) : (
+                        <div className="flex-1 min-w-0">
+                          <EnhancedButton
+                            className="w-full"
+                            onClick={() => handleEnroll(formation.paths[0].id)}
+                            disabled={!user || enrollingPathId === formation.paths[0].id}
+                          >
+                            {enrollingPathId === formation.paths[0].id ? t('dashboard.enrolling') : t('dashboard.enroll')}
+                          </EnhancedButton>
+                        </div>
+                      )
+                    )}
+                  </div>
                 )}
               </CardContent>
             </Card>

@@ -3,7 +3,7 @@ import { createClientBrowser } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useOAuth';
 import { toast } from 'sonner';
-import { Clock, Users, Bell, BookOpen } from 'lucide-react';
+import { Clock, Users, Bell, BookMarked } from 'lucide-react';
 import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -183,7 +183,7 @@ export function ComingSoonPaths({ limit, className }: ComingSoonPathsProps) {
           <CardContent className="space-y-4">
             <div className="flex items-center gap-4 text-sm text-gray-600">
               <div className="flex items-center gap-1">
-                <BookOpen className="h-4 w-4" />
+                <BookMarked className="h-4 w-4" />
                 {path.courseCount} courses
               </div>
               <div className="flex items-center gap-1">

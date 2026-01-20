@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Circle, CirclePlay, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -11,13 +12,15 @@ interface ProgressFilterProps {
   showLabels?: boolean;
 }
 
-const PROGRESS_OPTIONS: { value: ProgressFilterValue; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { value: 'not_started', label: 'Not Started', icon: Circle },
-  { value: 'in_progress', label: 'Enrolled', icon: CirclePlay },
-  { value: 'completed', label: 'Completed', icon: Flame },
+const PROGRESS_OPTIONS: { value: ProgressFilterValue; icon: React.ComponentType<{ className?: string }> }[] = [
+  { value: 'not_started', icon: Circle },
+  { value: 'in_progress', icon: CirclePlay },
+  { value: 'completed', icon: Flame },
 ];
 
 export function ProgressFilter({ selected, onChange, className, showLabels = true }: ProgressFilterProps) {
+  const { t } = useTranslation();
+
   const handleToggle = (value: ProgressFilterValue) => {
     if (selected.includes(value)) {
       onChange(selected.filter((v) => v !== value));
@@ -28,8 +31,9 @@ export function ProgressFilter({ selected, onChange, className, showLabels = tru
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      {PROGRESS_OPTIONS.map(({ value: optionValue, label, icon: Icon }) => {
+      {PROGRESS_OPTIONS.map(({ value: optionValue, icon: Icon }) => {
         const isSelected = selected.includes(optionValue);
+        const label = t(`filters.progressOptions.${optionValue}`);
         return (
           <button
             key={optionValue}

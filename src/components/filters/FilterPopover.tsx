@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     Popover,
     PopoverContent,
@@ -38,6 +39,7 @@ export function FilterPopover({
     sortOptions = ['recent', 'alphabetical', 'path_order'],
     className,
 }: FilterPopoverProps) {
+    const { t } = useTranslation();
     const [open, setOpen] = useState(false);
 
     // Count active filters (sort is not counted as a filter, it's just an ordering option)
@@ -67,7 +69,7 @@ export function FilterPopover({
                     )}
                 >
                     <SlidersHorizontal className="h-4 w-4" />
-                    <span>Filters</span>
+                    <span>{t('filters.title')}</span>
                     {activeFilterCount > 0 && (
                         <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-forge-orange text-[10px] font-medium text-white">
                             {activeFilterCount}
@@ -83,7 +85,7 @@ export function FilterPopover({
                 <div className="space-y-4">
                     {/* Header */}
                     <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-medium">Filters</h4>
+                        <h4 className="text-sm font-medium">{t('filters.title')}</h4>
                         {activeFilterCount > 0 && (
                             <Button
                                 variant="ghost"
@@ -92,7 +94,7 @@ export function FilterPopover({
                                 className="h-auto p-0 text-xs text-muted-foreground hover:text-foreground"
                             >
                                 <X className="mr-1 h-3 w-3" />
-                                Clear all
+                                {t('filters.clearAll')}
                             </Button>
                         )}
                     </div>
@@ -100,7 +102,7 @@ export function FilterPopover({
                     {/* Status Filter */}
                     <div className="space-y-2">
                         <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                            Status
+                            {t('filters.status')}
                         </label>
                         <StatusFilter
                             value={statusValue}
@@ -112,7 +114,7 @@ export function FilterPopover({
                     {/* Progress Filter */}
                     <div className="space-y-2">
                         <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                            Progress
+                            {t('filters.progress')}
                         </label>
                         <ProgressFilter
                             selected={progressSelected}
@@ -124,7 +126,7 @@ export function FilterPopover({
                     {/* Sort */}
                     <div className="space-y-2">
                         <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                            Sort
+                            {t('filters.sort')}
                         </label>
                         <SortSelector
                             value={sortValue}

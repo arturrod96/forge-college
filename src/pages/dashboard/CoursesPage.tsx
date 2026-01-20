@@ -10,7 +10,7 @@ export default function CoursesPage() {
     <div className="space-y-6">
       <div>
         <div className="flex items-center gap-2">
-          <h1 className="text-3xl font-bold text-forge-dark">Courses</h1>
+          <h1 className="text-3xl font-bold text-forge-dark">{t('courses.title')}</h1>
           <TooltipProvider delayDuration={0}>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -22,7 +22,7 @@ export default function CoursesPage() {
             </Tooltip>
           </TooltipProvider>
         </div>
-        <p className="text-muted-foreground">Browse and explore all available courses</p>
+        <p className="text-muted-foreground">{t('courses.subtitle')}</p>
       </div>
 
       <PublishedCourses />

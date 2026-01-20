@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useOAuth';
 import { Badge } from '@/components/ui/badge';
 import { LoadingGrid } from '@/components/ui/loading-states';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Layers, ChevronDown, ChevronRight, CirclePlay, Flame } from 'lucide-react';
+import { Folder, ChevronDown, ChevronRight, CirclePlay, Flame } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { DASHBOARD_LEARN_COURSE } from '@/routes/paths';
 import { ContentSearch, StatusFilter, SortSelector, ProgressFilter, type StatusFilterValue, type SortOption, type ProgressFilterValue } from '@/components/filters';
@@ -239,7 +239,7 @@ export function PublishedModules({ limit, className, showSearch = true }: Publis
     return (
       <EmptyState
         variant="no-data"
-        icon={Layers}
+        icon={Folder}
         title="No modules available"
         description="Modules will be available as courses are published"
         size="md"
@@ -275,7 +275,7 @@ export function PublishedModules({ limit, className, showSearch = true }: Publis
       {groupedModules.length === 0 && searchTerm && (
         <EmptyState
           variant="search"
-          icon={Layers}
+          icon={Folder}
           title="No modules found"
           description={`No modules match "${searchTerm}"`}
           size="md"
@@ -315,7 +315,7 @@ export function PublishedModules({ limit, className, showSearch = true }: Publis
                         <Card className="relative rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[200px] flex flex-col cursor-pointer">
                           {/* Thumbnail */}
                           <div className="h-48 flex items-center justify-center relative" style={{ backgroundColor: '#303b2e' }}>
-                            <Layers className="h-16 w-16 text-forge-orange" />
+                            <Folder className="h-16 w-16 text-forge-orange" />
                             
                             {/* Badge sobre a thumbnail */}
                             {module.progressStatus === 'in_progress' && (
@@ -335,7 +335,7 @@ export function PublishedModules({ limit, className, showSearch = true }: Publis
                           </div>
                           <CardHeader className="space-y-2">
                             <CardTitle className="flex items-start gap-2 text-forge-dark tracking-normal text-base leading-tight line-clamp-2 break-words">
-                              <Layers className="h-4 w-4 mt-0.5 text-forge-orange shrink-0" />
+                              <Folder className="h-4 w-4 mt-0.5 text-forge-orange shrink-0" />
                               <span>#{module.order} · {module.title}</span>
                             </CardTitle>
                             {module.summary && (
