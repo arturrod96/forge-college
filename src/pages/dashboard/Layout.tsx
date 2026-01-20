@@ -2,6 +2,7 @@ import { useAuth } from '@/hooks/useOAuth'
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react'
 import {
+  SidebarPreventCollapseContext,
   SidebarProvider,
   Sidebar,
   SidebarContent,
@@ -51,6 +52,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 const APP_LOCALE_STORAGE_KEY = 'forge:appLocale'
 
+function SidebarLogo() {
+  const { state } = useSidebar()
+  return (
+    <Link
+      to="/dashboard"
+      className="absolute left-2 top-4 z-10 flex items-start group-data-[collapsible=icon]:left-1/2 group-data-[collapsible=icon]:-translate-x-1/2"
+    >
+      {state === 'collapsed' ? (
+        <img src="/lovable-uploads/forge-logo-icon.png" alt="Forge College" className="h-9 w-9 shrink-0 object-contain" />
+      ) : (
+        <img src="https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/forgecollege-2c35f0?format=webp&width=800" alt="Forge College" className="h-10 w-auto max-w-full object-contain" />
+      )}
+    </Link>
+  )
+}
+
 function MobileMenuButton() {
   const { toggleSidebar } = useSidebar()
   const { t } = useTranslation()
@@ -65,11 +82,13 @@ function MobileMenuButton() {
   )
 }
 
-function EducationMenuItem({ location, educationOpen, setEducationOpen }: {
+function EducationMenuItem({ location, educationOpen, setEducationOpen, isActive }: {
   location: any;
   educationOpen: boolean;
   setEducationOpen: (open: boolean) => void;
+  isActive: boolean;
 }) {
+  const { t } = useTranslation()
   const { state: sidebarState, toggleSidebar, expandOnHover } = useSidebar()
 
   const handleEducationClick = (e: React.MouseEvent) => {
@@ -86,12 +105,13 @@ function EducationMenuItem({ location, educationOpen, setEducationOpen }: {
       <Collapsible open={educationOpen} onOpenChange={setEducationOpen} className="group/collapsible">
         <CollapsibleTrigger asChild>
           <SidebarMenuButton
-            tooltip="Education"
+            isActive={isActive}
+            tooltip={t('nav.education')}
             onClick={handleEducationClick}
           >
             <BookOpen />
-            <span className="group-data-[collapsible=icon]:hidden">Education</span>
-            <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+            <span className="transition-opacity duration-200 ease-in-out group-data-[collapsible=icon]:opacity-0">{t('nav.education')}</span>
+            <ChevronDown className="ml-auto h-4 w-4 shrink-0 transition-transform group-data-[state=open]/collapsible:rotate-180 group-data-[collapsible=icon]:hidden" />
           </SidebarMenuButton>
         </CollapsibleTrigger>
         <CollapsibleContent>
@@ -100,7 +120,7 @@ function EducationMenuItem({ location, educationOpen, setEducationOpen }: {
               <SidebarMenuSubButton asChild isActive={location.pathname.startsWith(DASHBOARD_FORMATIONS)}>
                 <Link to={DASHBOARD_FORMATIONS}>
                   <GraduationCap className="h-4 w-4" />
-                  <span>Formations</span>
+                  <span>{t('nav.formations')}</span>
                 </Link>
               </SidebarMenuSubButton>
             </SidebarMenuSubItem>
@@ -108,7 +128,7 @@ function EducationMenuItem({ location, educationOpen, setEducationOpen }: {
               <SidebarMenuSubButton asChild isActive={location.pathname.startsWith(DASHBOARD_EXPLORE)}>
                 <Link to={DASHBOARD_EXPLORE}>
                   <Layers3 className="h-4 w-4" />
-                  <span>Learning Paths</span>
+                  <span>{t('nav.learningPaths')}</span>
                 </Link>
               </SidebarMenuSubButton>
             </SidebarMenuSubItem>
@@ -116,7 +136,7 @@ function EducationMenuItem({ location, educationOpen, setEducationOpen }: {
               <SidebarMenuSubButton asChild isActive={location.pathname.startsWith(DASHBOARD_COURSES)}>
                 <Link to={DASHBOARD_COURSES}>
                   <BookMarked className="h-4 w-4" />
-                  <span>Courses</span>
+                  <span>{t('nav.courses')}</span>
                 </Link>
               </SidebarMenuSubButton>
             </SidebarMenuSubItem>
@@ -133,6 +153,7 @@ export function DashboardLayout() {
   const { t, i18n } = useTranslation()
 
   const [sidebarLocale, setSidebarLocale] = useState<string>(i18n.language)
+  const [languageSelectOpen, setLanguageSelectOpen] = useState(false)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -149,10 +170,10 @@ export function DashboardLayout() {
 
   const localeOptions = useMemo(
     () => [
-      { value: 'en-US', label: t('profile.languageOptions.enUS') },
-      { value: 'pt-BR', label: t('profile.languageOptions.ptBR') },
+      { value: 'en-US', label: 'EN', flag: 'https://flagcdn.com/24x18/us.png' },
+      { value: 'pt-BR', label: 'PT', flag: 'https://flagcdn.com/24x18/br.png' },
     ],
-    [t]
+    []
   )
 
   const handleSidebarLocaleChange = (value: string) => {
@@ -259,29 +280,17 @@ export function DashboardLayout() {
   return (
     <SidebarProvider defaultOpen={false} expandOnHover>
       {!isCourseView && (
+        <SidebarPreventCollapseContext.Provider value={{ prevent: languageSelectOpen }}>
         <Sidebar collapsible="icon">
           <SidebarRail />
-          <SidebarHeader className="p-4">
-            <div className="flex items-center justify-between w-full group-data-[collapsible=icon]:justify-center">
-              <Link to="/dashboard" className="flex items-center gap-3 group-data-[collapsible=icon]:gap-0">
-                {/* Logo ícone (arco + estrela) — visível só com a barra colapsada */}
-                <img
-                  src="/forge-logo-icon.png"
-                  alt="Forge College"
-                  className="h-9 w-auto hidden object-contain group-data-[collapsible=icon]:block"
-                />
-                {/* Logo completa — visível com a barra expandida */}
-                <img
-                  src="https://cdn.builder.io/api/v1/assets/a59c9d8d677c4c99bcaffef64866607b/forgecollege-2c35f0?format=webp&width=800"
-                  alt="Forge College"
-                  className="h-10 w-auto group-data-[collapsible=icon]:hidden"
-                />
-              </Link>
-              <SidebarTrigger className="h-8 w-8 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all duration-200 text-gray-600 hover:text-gray-800" />
+          <SidebarHeader className="relative h-[72px] shrink-0 flex flex-col justify-center gap-0 px-4 py-0 group-data-[collapsible=icon]:px-1.5 overflow-hidden">
+            <div className="flex items-center justify-end w-full">
+              <SidebarLogo />
+              <SidebarTrigger className="h-8 w-8 shrink-0 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all duration-300 ease-in-out text-gray-600 hover:text-gray-800 group-data-[collapsible=icon]:hidden" />
             </div>
           </SidebarHeader>
 
-          <SidebarContent>
+          <SidebarContent className="pt-8">
             <SidebarGroup>
               <SidebarGroupContent>
                 <SidebarMenu>
@@ -289,7 +298,7 @@ export function DashboardLayout() {
                     <SidebarMenuButton asChild isActive={isDashboard} tooltip={t('nav.dashboard')}>
                       <Link to={DASHBOARD_PATH}>
                         <LayoutDashboard />
-                        <span className="group-data-[collapsible=icon]:hidden">{t('nav.dashboard')}</span>
+                        <span className="transition-opacity duration-200 ease-in-out group-data-[collapsible=icon]:opacity-0">{t('nav.dashboard')}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -297,6 +306,7 @@ export function DashboardLayout() {
                     location={location}
                     educationOpen={educationOpen}
                     setEducationOpen={setEducationOpen}
+                    isActive={isEducationRoute}
                   />
                   <SidebarMenuItem>
                     <SidebarMenuButton
@@ -306,7 +316,7 @@ export function DashboardLayout() {
                     >
                       <Link to={DASHBOARD_COMMUNITY_PROJECTS}>
                         <FolderGit2 />
-                        <span className="group-data-[collapsible=icon]:hidden">{t('nav.communityProjects')}</span>
+                        <span className="transition-opacity duration-200 ease-in-out group-data-[collapsible=icon]:opacity-0">{t('nav.communityProjects')}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -314,7 +324,7 @@ export function DashboardLayout() {
                     <SidebarMenuButton asChild isActive={isScoreboard} tooltip={t('nav.scoreboard')}>
                       <Link to={DASHBOARD_SCOREBOARD}>
                         <Trophy />
-                        <span className="group-data-[collapsible=icon]:hidden">{t('nav.scoreboard')}</span>
+                        <span className="transition-opacity duration-200 ease-in-out group-data-[collapsible=icon]:opacity-0">{t('nav.scoreboard')}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -322,7 +332,7 @@ export function DashboardLayout() {
                     <SidebarMenuButton asChild isActive={isAchievements} tooltip={t('nav.achievements')}>
                       <Link to={DASHBOARD_ACHIEVEMENTS}>
                         <Award />
-                        <span className="group-data-[collapsible=icon]:hidden">{t('nav.achievements')}</span>
+                        <span className="transition-opacity duration-200 ease-in-out group-data-[collapsible=icon]:opacity-0">{t('nav.achievements')}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -330,7 +340,7 @@ export function DashboardLayout() {
                     <SidebarMenuButton asChild isActive={isAmbassadors} tooltip={t('nav.ambassadors')}>
                       <Link to={DASHBOARD_AMBASSADORS}>
                         <Users />
-                        <span className="group-data-[collapsible=icon]:hidden">{t('nav.ambassadors')}</span>
+                        <span className="transition-opacity duration-200 ease-in-out group-data-[collapsible=icon]:opacity-0">{t('nav.ambassadors')}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -339,7 +349,7 @@ export function DashboardLayout() {
                       <SidebarMenuButton asChild isActive={isAdminRoute} tooltip={t('nav.admin')}>
                         <Link to={DASHBOARD_ADMIN}>
                           <Shield />
-                          <span className="group-data-[collapsible=icon]:hidden">{t('nav.admin')}</span>
+                          <span className="transition-opacity duration-200 ease-in-out group-data-[collapsible=icon]:opacity-0">{t('nav.admin')}</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -350,34 +360,40 @@ export function DashboardLayout() {
           </SidebarContent>
 
           <SidebarFooter className="p-2 space-y-3 group-data-[collapsible=icon]:space-y-2">
-            <div className="rounded-lg border border-forge-cream/80 bg-white/90 p-3 shadow-sm group-data-[collapsible=icon]:hidden">
-              <p className="flex items-center gap-2 text-sm font-semibold text-forge-dark">
-                <Languages className="h-4 w-4 text-forge-orange" /> {t('dashboard.sidebar.localeTitle')}
-              </p>
-              <p className="mt-1 text-xs text-forge-gray">{t('dashboard.sidebar.localeDescription')}</p>
-              <Select value={sidebarLocale} onValueChange={handleSidebarLocaleChange}>
-                <SelectTrigger className="mt-3">
-                  <SelectValue placeholder={t('dashboard.sidebar.localePlaceholder')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {localeOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="rounded-full border border-forge-cream/80 bg-white/90 px-3 py-2 shadow-sm group-data-[collapsible=icon]:hidden">
+              <div className="flex items-center gap-2">
+                <Languages className="h-4 w-4 shrink-0 text-forge-orange" />
+                <span className="shrink-0 text-sm font-semibold text-forge-dark">{t('dashboard.sidebar.localeTitle')}</span>
+                <Select value={sidebarLocale} onValueChange={handleSidebarLocaleChange} onOpenChange={setLanguageSelectOpen}>
+                  <SelectTrigger className="h-8 flex-1 min-w-0">
+                    <SelectValue placeholder={t('dashboard.sidebar.localePlaceholder')} />
+                  </SelectTrigger>
+                  <SelectContent side="right" align="start" sideOffset={4}>
+                    {localeOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        <span className="flex items-center gap-1.5">
+                          <img src={option.flag} alt="" className="h-4 w-5 shrink-0 object-cover rounded-sm" />
+                          {option.label}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <div className="hidden justify-center group-data-[collapsible=icon]:flex">
-              <Select value={sidebarLocale} onValueChange={handleSidebarLocaleChange}>
+              <Select value={sidebarLocale} onValueChange={handleSidebarLocaleChange} onOpenChange={setLanguageSelectOpen}>
                 <SelectTrigger className="h-10 w-10 rounded-full border border-forge-cream bg-white/90 p-0 text-forge-dark focus:ring-forge-orange justify-center [&>svg:last-child]:hidden">
                   <Languages className="h-4 w-4 text-forge-orange" />
                   <span className="sr-only">{t('dashboard.sidebar.localePlaceholder')}</span>
                 </SelectTrigger>
-                <SelectContent side="top" align="center">
+                <SelectContent side="right" align="center" sideOffset={4}>
                   {localeOptions.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
-                      {option.label}
+                      <span className="flex items-center gap-1.5">
+                        <img src={option.flag} alt="" className="h-4 w-5 shrink-0 object-cover rounded-sm" />
+                        {option.label}
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -386,6 +402,7 @@ export function DashboardLayout() {
             <ProfileDropdown />
           </SidebarFooter>
         </Sidebar>
+        </SidebarPreventCollapseContext.Provider>
       )}
 
       <SidebarInset>

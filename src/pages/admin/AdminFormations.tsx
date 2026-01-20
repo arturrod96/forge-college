@@ -37,7 +37,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Separator } from '@/components/ui/separator'
-import { Loader2, Plus, Pencil, Trash2, BookOpen } from 'lucide-react'
+import { Loader2, Plus, Pencil, Trash2, Layers3 } from 'lucide-react'
 import { toast } from 'sonner'
 import { formatDistanceToNow } from 'date-fns'
 import { LearningPathSelector } from '@/components/admin/LearningPathSelector'
@@ -590,7 +590,7 @@ export function AdminFormations() {
               <CardContent>
                 <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
-                    <BookOpen className="h-4 w-4" />
+                    <Layers3 className="h-4 w-4" />
                     {formation.paths_count} paths
                   </div>
                   <div>Created {formation.created_at ? formatDistanceToNow(new Date(formation.created_at)) : 'N/A'} ago</div>

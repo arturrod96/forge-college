@@ -12,7 +12,8 @@ import { DASHBOARD_EXPLORE, DASHBOARD_COMMUNITY_PROJECTS } from '@/routes/paths'
 import { ModuleProjectsPanel, type ModuleProject, type ProjectSubmissionSummary } from '@/components/dashboard/ModuleProjectsPanel';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { toast } from 'sonner';
-import { Check, ChevronDown, MessageCircle, Bot } from 'lucide-react';
+import { Check, ChevronDown, Flame, MessageCircle, Bot } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 type LessonType = 'text' | 'video' | 'quiz';
 
@@ -54,6 +55,8 @@ export default function CourseView() {
   const [aiChatOpen, setAiChatOpen] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [isUnmarking, setIsUnmarking] = useState(false);
+  const [isHoveringComplete, setIsHoveringComplete] = useState(false);
   const supabase = createClientBrowser();
   const queryClient = useQueryClient();
   const { setHeaderBreadcrumb } = useOutletContext<DashboardOutletContext>();
@@ -212,6 +215,24 @@ export default function CourseView() {
 
   const projectIdsKey = useMemo(() => sortedProjectIds.join(','), [sortedProjectIds]);
 
+  const { data: currentLessonProgress } = useQuery<{ status: string } | null>({
+    queryKey: ['user-lesson-progress', user?.id, currentLesson?.id],
+    enabled: Boolean(user && currentLesson?.id),
+    queryFn: async () => {
+      if (!user || !currentLesson) return null;
+      const { data, error } = await supabase
+        .from('user_progress')
+        .select('status')
+        .eq('user_id', user.id)
+        .eq('lesson_id', currentLesson.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const isLessonCompleted = currentLessonProgress?.status === 'completed';
+
   const { data: submissionsMap = {} } = useQuery<Record<string, ProjectSubmissionSummary>>({
     queryKey: ['module-project-submissions', user?.id, projectIdsKey],
     enabled: Boolean(user && sortedProjectIds.length > 0),
@@ -347,7 +368,8 @@ export default function CourseView() {
 
       if (error) throw new Error(error.message || 'Failed to save progress');
 
-      toast.success('Lesson completed! 🎉');
+      queryClient.invalidateQueries({ queryKey: ['user-lesson-progress', user.id, currentLesson.id] });
+      toast.success(t('lessons.lessonCompleted'));
 
       // Auto navigate to next lesson if available
       if (nextLesson) {
@@ -358,6 +380,35 @@ export default function CourseView() {
       toast.error('Error saving progress');
     } finally {
       setIsCompleting(false);
+    }
+  };
+
+  const unmarkComplete = async () => {
+    if (!user || !currentLesson) return;
+
+    setIsUnmarking(true);
+    try {
+      const { error } = await supabase
+        .from('user_progress')
+        .upsert(
+          {
+            user_id: user.id,
+            lesson_id: currentLesson.id,
+            status: 'in_progress',
+            completed_at: null,
+          },
+          { onConflict: 'user_id,lesson_id' }
+        );
+
+      if (error) throw new Error(error.message || 'Failed to update progress');
+
+      queryClient.invalidateQueries({ queryKey: ['user-lesson-progress', user.id, currentLesson.id] });
+      toast.success(t('lessons.unmarked'));
+    } catch (error) {
+      console.error('Error unmarking lesson:', error);
+      toast.error(t('lessons.progressSaveFailed'));
+    } finally {
+      setIsUnmarking(false);
     }
   };
 
@@ -446,15 +497,40 @@ export default function CourseView() {
                 </button>
               </div>
 
-              {/* Complete Button */}
+              {/* Complete Button - w e h fixos: mesmo tamanho e posição estável nas 3 opções */}
               <button
-                onClick={markAsComplete}
-                disabled={isCompleting}
-                className="ml-2 px-4 py-2 rounded-lg bg-gradient-to-r from-forge-orange to-orange-500 text-white text-sm font-medium flex items-center gap-2 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+                onClick={isLessonCompleted ? unmarkComplete : markAsComplete}
+                disabled={isCompleting || isUnmarking}
+                onMouseEnter={() => isLessonCompleted && setIsHoveringComplete(true)}
+                onMouseLeave={() => setIsHoveringComplete(false)}
+                className={cn(
+                  'ml-2 w-[130px] h-9 flex-shrink-0 px-4 py-2 rounded-lg text-white text-sm font-medium flex items-center justify-center gap-2 transition-colors whitespace-nowrap',
+                  isLessonCompleted
+                    ? isHoveringComplete
+                      ? 'bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed'
+                      : 'bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed'
+                    : 'bg-gradient-to-r from-forge-orange to-orange-500 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed'
+                )}
               >
-                <Check className="w-4 h-4" />
+                {isLessonCompleted && isHoveringComplete ? (
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : isLessonCompleted ? (
+                  <Flame className="w-4 h-4 flex-shrink-0" aria-hidden />
+                ) : (
+                  <Check className="w-4 h-4 flex-shrink-0" />
+                )}
                 <span className="hidden sm:inline">
-                  {isCompleting ? 'Saving...' : 'Complete'}
+                  {isLessonCompleted
+                    ? isUnmarking
+                      ? t('common.buttons.saving')
+                      : isHoveringComplete
+                        ? t('lessons.unmark')
+                        : t('lessons.completed')
+                    : isCompleting
+                      ? t('common.buttons.saving')
+                      : t('lessons.complete')}
                 </span>
               </button>
             </div>
@@ -468,7 +544,7 @@ export default function CourseView() {
             <div className="max-w-5xl mx-auto py-6 px-4 sm:py-8 sm:px-6 lg:px-10 xl:px-12">
               <LessonViewer lesson={currentLesson} course={course} />
 
-              {currentModule && isLastLessonInModule && (
+              {currentModule && isLastLessonInModule && (currentModule.projects?.length ?? 0) > 0 && (
                 <div className="mt-8 border rounded-xl bg-white shadow-sm">
                   <ModuleProjectsPanel
                     moduleTitle={currentModule.title}
@@ -509,7 +585,7 @@ export default function CourseView() {
             <DrawerHeader className="border-b">
               <DrawerTitle className="flex items-center gap-2">
                 <Bot className="h-5 w-5 text-forge-orange" />
-                AI Instructor
+                {t('aiInstructor.title')}
               </DrawerTitle>
             </DrawerHeader>
             <div className="flex-1 overflow-hidden">

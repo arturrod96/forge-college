@@ -2,25 +2,21 @@ import { Lesson, Course } from '@/pages/CourseView';
 import { TextLesson } from '@/components/lessons/TextLesson';
 import { VideoLesson } from '@/components/lessons/VideoLesson';
 import { QuizLesson } from '@/components/lessons/QuizLesson';
-import { Play, FileText, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   lesson: Lesson | null;
   course: Course | null;
 }
 
-const lessonTypeConfig = {
-  video: { icon: Play, label: 'Vídeo', color: 'text-blue-500' },
-  text: { icon: FileText, label: 'Leitura', color: 'text-emerald-500' },
-  quiz: { icon: HelpCircle, label: 'Quiz', color: 'text-purple-500' },
-};
-
 export function LessonViewer({ lesson, course }: Props) {
+  const { t } = useTranslation();
+
   if (!lesson) {
     return (
       <div className="flex-1 flex items-center justify-center py-20">
-        <p className="text-gray-500">Select a lesson to begin.</p>
+        <p className="text-gray-500">{t('lessons.selectToBegin')}</p>
       </div>
     );
   }
@@ -28,9 +24,6 @@ export function LessonViewer({ lesson, course }: Props) {
   // Find current lesson index for display
   const allLessons = course?.modules.flatMap(module => module.lessons) ?? [];
   const currentIndex = allLessons.findIndex(l => l.id === lesson.id);
-
-  const typeConfig = lessonTypeConfig[lesson.lesson_type] || lessonTypeConfig.text;
-  const TypeIcon = typeConfig.icon;
 
   const renderLessonContent = () => {
     switch (lesson.lesson_type) {
@@ -41,7 +34,7 @@ export function LessonViewer({ lesson, course }: Props) {
       case 'quiz':
         return <QuizLesson quizData={typeof lesson.content === 'string' ? JSON.parse(lesson.content) : lesson.content} />;
       default:
-        return <div className="text-red-500">Unsupported lesson type: {lesson.lesson_type}</div>;
+        return <div className="text-red-500">{t('lessons.unsupportedType', { type: lesson.lesson_type })}</div>;
     }
   };
 
@@ -51,20 +44,9 @@ export function LessonViewer({ lesson, course }: Props) {
       <header className="mb-6 sm:mb-8">
         {/* Lesson metadata */}
         <div className="flex items-center gap-3 mb-3 text-sm">
-          <span className={cn(
-            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-medium",
-            "bg-gray-100 dark:bg-gray-800",
-            typeConfig.color
-          )}>
-            <TypeIcon className="w-3.5 h-3.5" />
-            {typeConfig.label}
-          </span>
-          <span className="text-gray-400">•</span>
           <span className="text-gray-500">
-            Lição {currentIndex + 1} de {allLessons.length}
+            {t('lessons.lessonInfo', { current: currentIndex + 1, total: allLessons.length, xp: lesson.xp_value })}
           </span>
-          <span className="text-gray-400">•</span>
-          <span className="text-forge-orange font-semibold">{lesson.xp_value} XP</span>
         </div>
 
         {/* Lesson title - Large and prominent */}

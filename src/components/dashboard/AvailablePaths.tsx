@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useOAuth';
 import { toast } from 'sonner';
-import { BookOpen, Check, Flame, Clock, Bell, X, CirclePlay, Layers3 } from 'lucide-react';
+import { BookMarked, Check, CheckCircle, CirclePlay, Clock, Flame, Bell, X, Layers3 } from 'lucide-react';
 import EnhancedButton from '@/components/ui/enhanced-button';
 import { DASHBOARD_LEARN_PATH } from '@/routes/paths';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { LoadingGrid } from '@/components/ui/loading-states';
 import { ContentSearch, FilterPopover, type StatusFilterValue, type SortOption, type ProgressFilterValue } from '@/components/filters';
 import { pickPublishedLocalization, DEFAULT_LOCALE } from '@/lib/localization';
+import { cn } from '@/lib/utils';
 import type { Tables } from '@/types/supabase';
 import { HoverEffectGrid } from '@/components/ui/card-hover-effect';
 
@@ -534,7 +535,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
           <ContentSearch
             value={searchTerm}
             onChange={setSearchTerm}
-            placeholder="Search learning paths..."
+            placeholder={t('search.learningPaths')}
             className="w-full max-w-xs"
           />
         </div>
@@ -544,143 +545,197 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
         <div className="text-center py-12">
           <p className="text-muted-foreground">
             {searchTerm || statusFilter !== 'all'
-              ? 'No learning paths match your filters'
-              : 'No learning paths available'}
+              ? t('learningPaths.emptyNoMatch')
+              : t('learningPaths.emptyNoData')}
           </p>
         </div>
       )}
 
       {visiblePaths.length > 0 && (
         <HoverEffectGrid className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-stretch">
-          {visiblePaths.map((path, index) => {
+          {visiblePaths.map((path) => {
             const isComingSoon = path.status === 'coming_soon';
             const courseCount = path.courseCount || path.courses?.length || 0;
-
-            // Varied gradients for visual diversity
-            const gradients = [
-              'from-slate-700 to-slate-800',
-              'from-zinc-700 to-zinc-800',
-              'from-neutral-700 to-neutral-800',
-              'from-stone-700 to-stone-800',
-            ];
-            const gradient = gradients[index % gradients.length];
+            const courses = path.courses ?? [];
 
             return (
               <Card
                 key={path.id}
-                className={`group relative rounded-xl border bg-card overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col h-full min-h-[320px] ${path.isEnrolled ? 'ring-1 ring-forge-orange/30' : ''
-                  } ${isComingSoon ? 'opacity-50 hover:opacity-70' : ''
-                  }`}
+                className={cn(
+                  'relative overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[480px] flex flex-col group',
+                  isComingSoon && 'opacity-70 cursor-not-allowed'
+                )}
               >
-                  {/* Compact Thumbnail with varied gradient */}
-                  <div className={`h-20 flex items-center justify-center relative bg-gradient-to-br ${gradient}`}>
-                    <Layers3 className="h-8 w-8 text-forge-orange" />
+                {/* Thumbnail - same pattern as FormationsList */}
+                <div
+                  className="h-48 flex items-center justify-center relative"
+                  style={{ backgroundColor: isComingSoon ? '#4a5a4a' : '#303b2e' }}
+                >
+                  <Layers3 className="h-16 w-16 text-forge-orange" />
 
-                    {/* Badge - enrolled only, coming soon is implicit by opacity */}
-                    {path.isEnrolled && (
-                      <div className="absolute top-2 left-2">
-                        <Badge variant="enrolled" size="sm">
-                          Enrolled
+                  {/* Badges: Completed > Inscrito > Coming soon > Available */}
+                  {path.progressStatus === 'completed' && (
+                    <div className="absolute top-2 right-2 z-10">
+                      <Badge variant="success" size="sm" icon={Flame} iconPosition="left">
+                        {t('filters.progressOptions.completed')}
+                      </Badge>
+                    </div>
+                  )}
+                  {path.progressStatus !== 'completed' &&
+                    (path.progressStatus === 'in_progress' || path.isEnrolled) && (
+                      <div className="absolute top-2 right-2 z-10">
+                        <Badge variant="enrolled" size="sm" icon={CirclePlay} iconPosition="left">
+                          {t('dashboard.enrolled')}
                         </Badge>
                       </div>
                     )}
+                  {path.status === 'coming_soon' &&
+                    path.progressStatus !== 'in_progress' &&
+                    path.progressStatus !== 'completed' &&
+                    !path.isEnrolled && (
+                      <div className="absolute top-2 right-2 z-10">
+                        <Badge variant="coming-soon" size="sm" icon={Clock} iconPosition="left">
+                          {t('filters.statusOptions.coming_soon')}
+                        </Badge>
+                      </div>
+                    )}
+                  {path.status === 'published' &&
+                    path.progressStatus !== 'in_progress' &&
+                    path.progressStatus !== 'completed' &&
+                    !path.isEnrolled && (
+                      <div className="absolute top-2 right-2 z-10">
+                        <Badge variant="default" size="sm" icon={CheckCircle} iconPosition="left">
+                          {t('filters.statusOptions.available')}
+                        </Badge>
+                      </div>
+                    )}
+                </div>
+
+                <CardHeader className="flex-1 min-h-0 flex flex-col">
+                  <div className="space-y-2">
+                    <CardTitle className="flex items-center gap-2 text-xl">
+                      {path.title}
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="space-y-4">
+                  {/* Stats */}
+                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <div className="flex items-center gap-1">
+                      <BookMarked className="h-4 w-4" />
+                      {t('dashboard.availablePaths.courses', { count: courseCount })}
+                    </div>
                   </div>
 
-                  {/* Content */}
-                  <div className="flex flex-col flex-1 p-3">
-                    {/* Title - no icon */}
-                    <h3 className="font-medium text-sm text-foreground leading-snug line-clamp-2 mb-1">
-                      {path.title}
-                    </h3>
+                  {/* Courses preview */}
+                  {courses.length > 0 && (
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-sm text-gray-900">
+                        {t('dashboard.availablePaths.coursesLabel')}
+                      </h4>
+                      <div className="space-y-1">
+                        {courses.slice(0, 3).map((course, index) => (
+                          <div key={course.id} className="flex items-center gap-2 text-xs text-gray-600">
+                            <span className="text-forge-orange font-medium">{index + 1}.</span>
+                            <span className="truncate">{course.title}</span>
+                          </div>
+                        ))}
+                        {courses.length > 3 && (
+                          <div className="text-xs text-gray-500">
+                            {t('dashboard.availablePaths.moreCourses', { count: courses.length - 3 })}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
-                    {/* Course count - only show if > 0 */}
-                    {courseCount > 0 && (
-                      <p className="text-xs text-muted-foreground mb-3">
-                        {courseCount} {courseCount === 1 ? 'course' : 'courses'}
-                      </p>
-                    )}
-                    {courseCount === 0 && !isComingSoon && (
-                      <p className="text-xs text-muted-foreground mb-3">&nbsp;</p>
-                    )}
-
-                    {/* Single CTA */}
-                    <div className="mt-auto">
-                      {path.isEnrolled ? (
-                        <EnhancedButton className="w-full" size="sm" withGradient asChild>
-                          <Link to={DASHBOARD_LEARN_PATH(path.id)}>
-                            Continue
-                          </Link>
-                        </EnhancedButton>
-                      ) : isComingSoon ? (
-                        path.isOnWaitlist ? (
-                          <EnhancedButton
-                            onClick={() => handleLeaveWaitlist(path.id)}
-                            onMouseEnter={() => setHoveredWaitlistPathId(path.id)}
-                            onMouseLeave={() => setHoveredWaitlistPathId(null)}
-                            disabled={leavingWaitlistId === path.id}
-                            className="w-full text-xs"
-                            variant="outline"
-                            size="sm"
-                          >
-                            {leavingWaitlistId === path.id ? (
-                              <>
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
-                                Leaving...
-                              </>
-                            ) : hoveredWaitlistPathId === path.id ? (
-                              <>
-                                <X className="h-4 w-4 mr-2" />
-                                Leave
-                              </>
-                            ) : (
-                              <>
-                                <Check className="h-4 w-4 mr-2" />
-                                On Waitlist
-                              </>
-                            )}
-                          </EnhancedButton>
-                        ) : (
-                          <EnhancedButton
-                            onClick={() => handleJoinWaitlist(path.id)}
-                            disabled={joiningWaitlistId === path.id}
-                            className="w-full text-xs"
-                            variant="outline"
-                            size="sm"
-                          >
-                            {joiningWaitlistId === path.id ? (
-                              <>
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
-                                Joining...
-                              </>
-                            ) : (
-                              <>
-                                <Bell className="h-4 w-4 mr-2" />
-                                Notify Me
-                              </>
-                            )}
-                          </EnhancedButton>
-                        )
-                      ) : (
+                  {/* Action buttons */}
+                  {path.status === 'published' && (
+                    <div className="mt-4 flex flex-col sm:flex-row gap-2">
+                      <Link to={DASHBOARD_LEARN_PATH(path.id)} className="flex-1 min-w-0">
                         <EnhancedButton
-                          onClick={() => handleEnroll(path.id)}
-                          disabled={enrollingId === path.id || !user}
+                          variant="outline"
+                          className="w-full !bg-white hover:!bg-gray-50 hover:!text-forge-orange"
+                        >
+                          {t('dashboard.availablePaths.viewPath')}
+                        </EnhancedButton>
+                      </Link>
+                      {path.isEnrolled ? (
+                        <Link to={DASHBOARD_LEARN_PATH(path.id)} className="flex-1 min-w-0">
+                          <EnhancedButton className="w-full">
+                            {t('common.buttons.continue')}
+                          </EnhancedButton>
+                        </Link>
+                      ) : (
+                        <div className="flex-1 min-w-0">
+                          <EnhancedButton
+                            className="w-full"
+                            onClick={() => handleEnroll(path.id)}
+                            disabled={!user || enrollingId === path.id}
+                          >
+                            {enrollingId === path.id
+                              ? t('dashboard.enrolling')
+                              : t('dashboard.enroll')}
+                          </EnhancedButton>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {isComingSoon && (
+                    <div className="mt-4">
+                      {path.isOnWaitlist ? (
+                        <EnhancedButton
+                          onClick={() => handleLeaveWaitlist(path.id)}
+                          onMouseEnter={() => setHoveredWaitlistPathId(path.id)}
+                          onMouseLeave={() => setHoveredWaitlistPathId(null)}
+                          disabled={leavingWaitlistId === path.id}
                           className="w-full"
                           variant="outline"
                           size="sm"
-                          asChild={!enrollingId}
                         >
-                          {enrollingId === path.id ? (
-                            <span>Enrolling...</span>
+                          {leavingWaitlistId === path.id ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                              {t('courses.leaving')}
+                            </>
+                          ) : hoveredWaitlistPathId === path.id ? (
+                            <>
+                              <X className="h-4 w-4 mr-2" />
+                              {t('courses.leave')}
+                            </>
                           ) : (
-                            <Link to={DASHBOARD_LEARN_PATH(path.id)}>
-                              Start Learning
-                            </Link>
+                            <>
+                              <Check className="h-4 w-4 mr-2" />
+                              {t('courses.onWaitlist')}
+                            </>
+                          )}
+                        </EnhancedButton>
+                      ) : (
+                        <EnhancedButton
+                          onClick={() => handleJoinWaitlist(path.id)}
+                          disabled={joiningWaitlistId === path.id}
+                          className="w-full"
+                          variant="outline"
+                          size="sm"
+                        >
+                          {joiningWaitlistId === path.id ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                              {t('courses.joining')}
+                            </>
+                          ) : (
+                            <>
+                              <Bell className="h-4 w-4 mr-2" />
+                              {t('courses.notifyMe')}
+                            </>
                           )}
                         </EnhancedButton>
                       )}
                     </div>
-                  </div>
-                </Card>
+                  )}
+                </CardContent>
+              </Card>
             );
           })}
         </HoverEffectGrid>

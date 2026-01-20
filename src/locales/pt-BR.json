@@ -94,6 +94,10 @@
     "forCompanies": "Para Empresas",
     "forInvestors": "Para Investidores",
     "dashboard": "Painel",
+    "education": "Educação",
+    "formations": "Formações",
+    "learningPaths": "Trilhas de Aprendizado",
+    "courses": "Cursos",
     "paths": "Trilhas",
     "admin": "Admin",
     "scoreboard": "Placar",
@@ -106,9 +110,105 @@
     "myProfile": "Meu Perfil",
     "page": "Página"
   },
+  "learningPaths": {
+    "title": "Trilhas de Aprendizado",
+    "subtitle": "Navegue e explore todas as trilhas de aprendizado disponíveis",
+    "emptyNoMatch": "Nenhuma trilha corresponde aos filtros",
+    "emptyNoData": "Nenhuma trilha disponível"
+  },
+  "courses": {
+    "title": "Cursos",
+    "subtitle": "Navegue e explore todos os cursos disponíveis",
+    "modules_one": "{{count}} módulo",
+    "modules_other": "{{count}} módulos",
+    "modulesLabel": "Módulos:",
+    "moreModules": "+{{count}} módulos a mais",
+    "startCourse": "Iniciar curso",
+    "descriptionFallback": "Explore este curso para desenvolver suas habilidades",
+    "leaving": "Saindo...",
+    "leave": "Sair",
+    "onWaitlist": "Na lista de espera",
+    "notifyMe": "Avise-me",
+    "joining": "Entrando...",
+    "emptyNoData": "Nenhum curso disponível",
+    "emptyNoDataDescription": "Em breve você poderá explorar nossos cursos!",
+    "emptyNoResults": "Nenhum curso encontrado",
+    "emptyNoMatch": "Nenhum curso corresponde a \"{{term}}\""
+  },
+  "formations": {
+    "title": "Formações",
+    "subtitle": "Programas de aprendizado completos para avançar na sua carreira",
+    "paths_one": "{{count}} trilha",
+    "paths_other": "{{count}} trilhas",
+    "learningPathsLabel": "Trilhas de Aprendizado:",
+    "morePaths": "+{{count}} trilhas a mais",
+    "viewFormation": "Ver formação",
+    "startPath": "Iniciar Trilha",
+    "emptyNoData": "Nenhuma formação disponível",
+    "emptyNoDataDescription": "Programas de aprendizado estarão disponíveis em breve. Volte depois!",
+    "emptyNoResults": "Nenhuma formação encontrada",
+    "emptyNoMatch": "Nenhuma formação corresponde a \"{{term}}\"",
+    "emptyNoFilters": "Nenhuma formação corresponde aos filtros selecionados"
+  },
+  "formationDetail": {
+    "backToFormations": "Voltar às formações",
+    "loadError": "Não foi possível carregar esta formação.",
+    "descriptionFallback": "Explore as trilhas de aprendizado incluídas nesta formação.",
+    "learningPathsCount": "{{count}} trilhas de aprendizado",
+    "onWaitingList": "na lista de espera",
+    "createdAgo": "Criado {{date}}",
+    "publishedAgo": "Publicado {{date}}",
+    "addedToWaitlist": "Você foi adicionado à lista de espera desta formação",
+    "alreadyOnWaitlist": "Você já está na lista de espera desta formação",
+    "mustLoginToJoinWaitlist": "Você precisa estar logado para entrar na lista de espera",
+    "joinWaitlistFailed": "Falha ao entrar na lista de espera",
+    "onWaitlist": "Você está na lista de espera",
+    "joining": "Entrando...",
+    "joinWaitlist": "Entrar na lista de espera",
+    "signInToJoin": "Entrar para participar",
+    "mustSignInToJoinWaitlist": "Você precisa estar logado para entrar na lista de espera.",
+    "notifyWhenOpen": "Avisaremos quando esta formação abrir para inscrições.",
+    "pathsComingSoon": "Trilhas em breve",
+    "includedPaths": "Trilhas incluídas",
+    "pathsAddedSoon": "As trilhas serão adicionadas a esta formação em breve.",
+    "notYetPublished": "Ainda não publicado",
+    "startLearning": "Iniciar aprendizagem",
+    "viewPath": "Ver trilha"
+  },
+  "search": {
+    "formations": "Buscar formações...",
+    "courses": "Buscar cursos...",
+    "learningPaths": "Buscar trilhas..."
+  },
+  "filters": {
+    "title": "Filtros",
+    "clearAll": "Limpar todos",
+    "status": "Status",
+    "progress": "Progresso",
+    "sort": "Ordenar",
+    "sortBy": "Ordenar por:",
+    "statusOptions": {
+      "all": "Todos",
+      "available": "Disponível",
+      "coming_soon": "Em breve",
+      "draft": "Rascunho"
+    },
+    "progressOptions": {
+      "not_started": "Não iniciado",
+      "in_progress": "Inscrito",
+      "completed": "Concluído"
+    },
+    "sortOptions": {
+      "recent": "Mais recente",
+      "alphabetical": "Alfabético",
+      "path_order": "Ordem da trilha",
+      "course_order": "Ordem do curso",
+      "module_order": "Ordem do módulo"
+    }
+  },
   "layout": {
     "betaPromo": {
-      "message": "Forge College está em beta, espere atualizações rápidas ⚡️"
+      "message": "Estamos em beta, espere atualizações rápidas ⚡️"
     }
   },
   "auth": {
@@ -226,7 +326,7 @@
       "loading": "Carregando painel..."
     },
     "sidebar": {
-      "localeTitle": "Idioma do app",
+      "localeTitle": "Idioma",
       "localeDescription": "Escolha como a interface é traduzida.",
       "localePlaceholder": "Selecione o idioma"
     },
@@ -252,6 +352,7 @@
       "badge": "Bem-vindo de volta",
       "headlineSuffix": ", pronto para continuar sua jornada?",
       "exploreCta": "Ver todas as trilhas",
+      "viewAllFormations": "Ver todas as formações",
       "formationsTooltip": "Formações são programas de aprendizado abrangentes que agrupam múltiplas trilhas de aprendizado, projetadas para avançar sua carreira em um campo ou tecnologia específica.",
       "learningPathTooltip": "Trilhas de aprendizado são sequências estruturadas de cursos que guiam você através de um tópico ou habilidade específica, do nível iniciante ao avançado.",
       "coursesTooltip": "Cursos são unidades de aprendizado individuais que cobrem tópicos ou habilidades específicas. Eles são organizados em módulos e lições, e podem fazer parte de trilhas de aprendizado ou formações."
@@ -268,7 +369,10 @@
     "availablePaths": {
       "enrolledBadge": "Inscrito",
       "courses_one": "{{count}} curso",
-      "courses_other": "{{count}} cursos"
+      "courses_other": "{{count}} cursos",
+      "viewPath": "Ver trilha",
+      "coursesLabel": "Cursos:",
+      "moreCourses": "+{{count}} cursos a mais"
     },
     "learningHabits": {
       "title": "Hábitos de estudo",
@@ -300,6 +404,8 @@
     },
     "pathOverview": {
       "badge": "Trilha",
+      "backToPaths": "Voltar às trilhas",
+      "descriptionFallback": "Explore os cursos desta trilha de aprendizado.",
       "notFound": "Trilha de aprendizado não encontrada.",
       "continue": "Continuar",
       "courses": "Cursos"
@@ -312,7 +418,17 @@
   "lessons": {
     "selectToBegin": "Selecione uma lição para começar.",
     "lessonInfo": "Lição {{current}} de {{total}} • {{xp}} XP",
+    "unsupportedType": "Tipo de lição não suportado: {{type}}",
+    "types": {
+      "video": "Vídeo",
+      "text": "Leitura",
+      "quiz": "Quiz"
+    },
     "previousLesson": "Lição anterior",
+    "complete": "Completar",
+    "completed": "Concluído",
+    "unmark": "Desmarcar",
+    "unmarked": "Conclusão desmarcada",
     "completeAndContinue": "Completar e Continuar",
     "markAsCompleted": "Marcar como Concluído",
     "submitAnswer": "Enviar Resposta",
@@ -320,6 +436,16 @@
     "progressSaveFailed": "Falha ao salvar progresso",
     "lessonCompleted": "Lição marcada como concluída!",
     "completionError": "Erro ao marcar lição como concluída"
+  },
+  "aiInstructor": {
+    "title": "Instrutor de IA",
+    "hint": "Dica: Clique em uma pergunta sugerida ou faça a sua.",
+    "placeholder": "Pergunte-me sobre esta lição...",
+    "loadingSuggestions": "Carregando sugestões...",
+    "suggestion": "Sugestão",
+    "me": "Eu:",
+    "instructor": "Instrutor:",
+    "thinking": "Pensando..."
   },
   "admin": {
     "layout": {
@@ -505,14 +631,20 @@
     }
   },
   "scoreboard": {
-    "title": "Scoreboard",
+    "title": "Placar",
     "subtitle": "Confira os rankings dos estudantes com maior XP",
     "global": "Global",
-    "byPath": "Por Path",
-    "rankingGlobal": "Ranking Global - Todos os Paths",
+    "byPath": "Por trilha",
+    "rankingGlobal": "Ranking Global - Todas as trilhas",
     "ranking": "Ranking - {{pathName}}",
     "xp": "XP",
-    "lessons": "lições"
+    "lessons": "lições",
+    "emptyNoPaths": "Nenhuma trilha disponível."
+  },
+  "ambassadors": {
+    "title": "Embaixadores",
+    "subtitle": "Junte-se à nossa comunidade de embaixadores e ajude a divulgar conhecimento",
+    "comingSoon": "Programa de embaixadores em breve"
   },
   "achievements": {
     "title": "Achievements",

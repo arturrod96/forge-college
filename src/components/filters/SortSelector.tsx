@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowUpDown, Calendar, Type, ListOrdered } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -17,12 +18,12 @@ interface SortSelectorProps {
   showLabel?: boolean;
 }
 
-const SORT_OPTIONS: Record<SortOption, { label: string; icon: React.ComponentType<{ className?: string }> }> = {
-  recent: { label: 'Most Recent', icon: Calendar },
-  alphabetical: { label: 'Alphabetical', icon: Type },
-  path_order: { label: 'Path Order', icon: ListOrdered },
-  course_order: { label: 'Course Order', icon: ListOrdered },
-  module_order: { label: 'Module Order', icon: ListOrdered },
+const SORT_OPTIONS: Record<SortOption, { icon: React.ComponentType<{ className?: string }> }> = {
+  recent: { icon: Calendar },
+  alphabetical: { icon: Type },
+  path_order: { icon: ListOrdered },
+  course_order: { icon: ListOrdered },
+  module_order: { icon: ListOrdered },
 };
 
 export function SortSelector({ 
@@ -32,16 +33,19 @@ export function SortSelector({
   options = ['recent', 'alphabetical', 'path_order'],
   showLabel = true
 }: SortSelectorProps) {
+  const { t } = useTranslation();
+
   const availableOptions = options.map(opt => ({
     value: opt,
-    ...SORT_OPTIONS[opt]
+    label: t(`filters.sortOptions.${opt}`),
+    icon: SORT_OPTIONS[opt].icon,
   }));
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <ArrowUpDown className="h-4 w-4 text-muted-foreground shrink-0" />
       {showLabel && (
-        <span className="text-sm text-muted-foreground whitespace-nowrap">Sort by:</span>
+        <span className="text-sm text-muted-foreground whitespace-nowrap">{t('filters.sortBy')}</span>
       )}
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger className="h-10 w-[180px]">

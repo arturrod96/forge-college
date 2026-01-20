@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Clock, List } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -11,16 +12,17 @@ interface StatusFilterProps {
   showLabels?: boolean;
 }
 
-const STATUS_OPTIONS: { value: StatusFilterValue; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { value: 'all', label: 'All', icon: List },
-  { value: 'available', label: 'Available', icon: CheckCircle },
-  { value: 'coming_soon', label: 'Coming Soon', icon: Clock },
+const STATUS_OPTIONS: { value: StatusFilterValue; icon: React.ComponentType<{ className?: string }> }[] = [
+  { value: 'all', icon: List },
+  { value: 'available', icon: CheckCircle },
+  { value: 'coming_soon', icon: Clock },
 ];
 
 export function StatusFilter({ value, onChange, className, showLabels = true }: StatusFilterProps) {
+  const { t } = useTranslation();
+
   const handleToggle = (optionValue: StatusFilterValue) => {
     if (value === optionValue) {
-      // Se clicar no mesmo filtro, desmarca voltando para 'all'
       onChange('all');
     } else {
       onChange(optionValue);
@@ -29,8 +31,9 @@ export function StatusFilter({ value, onChange, className, showLabels = true }: 
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      {STATUS_OPTIONS.map(({ value: optionValue, label, icon: Icon }) => {
+      {STATUS_OPTIONS.map(({ value: optionValue, icon: Icon }) => {
         const isSelected = value === optionValue;
+        const label = t(`filters.statusOptions.${optionValue}`);
         return (
           <button
             key={optionValue}

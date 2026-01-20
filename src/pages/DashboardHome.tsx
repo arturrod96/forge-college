@@ -69,7 +69,7 @@ export default function DashboardHome() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <h2 className="text-xl font-semibold tracking-tight">Formations</h2>
+                <h2 className="text-xl font-semibold tracking-tight">{t('formations.title')}</h2>
                 <TooltipProvider delayDuration={0}>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -82,7 +82,7 @@ export default function DashboardHome() {
                 </TooltipProvider>
               </div>
               <Link to={R.DASHBOARD_FORMATIONS} className="text-forge-orange hover:underline">
-                View all formations
+                {t('dashboard.home.viewAllFormations')}
               </Link>
             </div>
             <ErrorBoundary>

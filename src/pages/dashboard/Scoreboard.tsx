@@ -316,7 +316,7 @@ export default function Scoreboard() {
                 {path.title}
               </button>
             ))}
-            {paths.length === 0 && !loading && <div className="text-gray-500">No paths available.</div>}
+            {paths.length === 0 && !loading && <div className="text-gray-500">{t('scoreboard.emptyNoPaths')}</div>}
           </div>
 
           <ScoreboardList
