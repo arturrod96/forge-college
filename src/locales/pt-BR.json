@@ -173,7 +173,13 @@
     "pathsAddedSoon": "As trilhas serão adicionadas a esta formação em breve.",
     "notYetPublished": "Ainda não publicado",
     "startLearning": "Iniciar aprendizagem",
-    "viewPath": "Ver trilha"
+    "viewPath": "Ver trilha",
+    "formationProgress": "Progresso da formação",
+    "pathsCompleted": "{{completed}}/{{total}} trilhas concluídas",
+    "inProgressPaths": "Em Andamento",
+    "completedPaths": "Concluídos",
+    "availablePaths": "Disponíveis",
+    "comingSoonPaths": "Em Breve"
   },
   "search": {
     "formations": "Buscar formações...",
