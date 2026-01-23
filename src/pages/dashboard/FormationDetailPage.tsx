@@ -7,12 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { EnhancedButton } from '@/components/ui/enhanced-button'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import { ArrowLeft, BookMarked, Users, Clock, CircleCheckBig, CirclePlay, Layers3, CheckCircle } from 'lucide-react'
+import { ArrowLeft, BookMarked, Users, Clock, CircleCheckBig, CirclePlay, Layers3, CheckCircle, Flame, TrendingUp } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import * as R from '@/routes/paths'
 import type { Tables } from '@/types/supabase'
 import type { PostgrestError } from '@supabase/supabase-js'
+
+type PathProgressStatus = 'not_started' | 'in_progress' | 'completed'
 
 type FormationPathItem = {
   id: string
@@ -35,6 +37,8 @@ interface FormationDetail {
   isUserOnWaitlist: boolean
   /** Path IDs the user is enrolled in (from user_enrollments) */
   enrolledPathIds: string[]
+  /** Progress status per path (only for enrolled paths) */
+  pathProgress: Record<string, PathProgressStatus>
 }
 
 const isPostgrestError = (value: unknown): value is PostgrestError =>
@@ -126,6 +130,8 @@ export default function FormationDetailPage() {
       }
 
       let enrolledPathIds: string[] = []
+      const pathProgress: Record<string, PathProgressStatus> = {}
+
       if (user?.id && paths.length > 0) {
         const pathIds = paths.map((p) => p.id)
         const { data: enrolls } = await supabase
@@ -135,6 +141,86 @@ export default function FormationDetailPage() {
           .eq('is_active', true)
           .in('learning_path_id', pathIds)
         enrolledPathIds = (enrolls || []).map((e: { learning_path_id?: string }) => e.learning_path_id).filter((id): id is string => Boolean(id))
+
+        // Calculate progress for enrolled paths
+        if (enrolledPathIds.length > 0) {
+          // Get all courses for enrolled paths with their modules and lessons
+          const { data: coursesData } = await supabase
+            .from('courses')
+            .select('id, path_id, modules(id, lessons(id))')
+            .in('path_id', enrolledPathIds)
+
+          // Build lesson to path mapping
+          const lessonToPath: Record<string, string> = {}
+          const allLessonIds: string[] = []
+          const pathLessonCounts: Record<string, number> = {}
+
+          for (const pathId of enrolledPathIds) {
+            pathLessonCounts[pathId] = 0
+          }
+
+          for (const course of coursesData || []) {
+            const coursePathId = (course as { path_id?: string }).path_id
+            if (!coursePathId || !enrolledPathIds.includes(coursePathId)) continue
+
+            const modules = (course as { modules?: Array<{ id: string; lessons?: Array<{ id: string }> }> }).modules || []
+            for (const mod of modules) {
+              for (const lesson of mod.lessons || []) {
+                if (lesson?.id) {
+                  lessonToPath[lesson.id] = coursePathId
+                  allLessonIds.push(lesson.id)
+                  pathLessonCounts[coursePathId] = (pathLessonCounts[coursePathId] || 0) + 1
+                }
+              }
+            }
+          }
+
+          // Fetch user progress for all lessons
+          if (allLessonIds.length > 0) {
+            const { data: progressData } = await supabase
+              .from('user_progress')
+              .select('lesson_id, status')
+              .eq('user_id', user.id)
+              .in('lesson_id', allLessonIds)
+
+            // Count completed lessons per path
+            const pathCompletedCounts: Record<string, number> = {}
+            const pathInProgressCounts: Record<string, number> = {}
+
+            for (const pathId of enrolledPathIds) {
+              pathCompletedCounts[pathId] = 0
+              pathInProgressCounts[pathId] = 0
+            }
+
+            for (const p of progressData || []) {
+              const pathId = lessonToPath[p.lesson_id]
+              if (pathId) {
+                if (p.status === 'completed') {
+                  pathCompletedCounts[pathId] = (pathCompletedCounts[pathId] || 0) + 1
+                } else if (p.status === 'in_progress') {
+                  pathInProgressCounts[pathId] = (pathInProgressCounts[pathId] || 0) + 1
+                }
+              }
+            }
+
+            // Determine progress status for each path
+            for (const pathId of enrolledPathIds) {
+              const total = pathLessonCounts[pathId] || 0
+              const completed = pathCompletedCounts[pathId] || 0
+              const inProgress = pathInProgressCounts[pathId] || 0
+
+              if (total === 0) {
+                pathProgress[pathId] = 'not_started'
+              } else if (completed === total) {
+                pathProgress[pathId] = 'completed'
+              } else if (completed > 0 || inProgress > 0) {
+                pathProgress[pathId] = 'in_progress'
+              } else {
+                pathProgress[pathId] = 'not_started'
+              }
+            }
+          }
+        }
       }
 
       return {
@@ -149,6 +235,7 @@ export default function FormationDetailPage() {
         waitingListCount: waitingListCount ?? 0,
         isUserOnWaitlist,
         enrolledPathIds,
+        pathProgress,
       }
     },
   })
@@ -267,6 +354,173 @@ export default function FormationDetailPage() {
   const formationEnrolled = formation.enrolledPathIds.length > 0
   const firstPathEnrolled = firstPublishedPath ? formation.enrolledPathIds.includes(firstPublishedPath.id) : false
 
+  // Categorize paths
+  const inProgressPaths = formation.paths.filter(
+    (p) => formation.enrolledPathIds.includes(p.id) && formation.pathProgress[p.id] === 'in_progress'
+  )
+  const completedPaths = formation.paths.filter(
+    (p) => formation.enrolledPathIds.includes(p.id) && formation.pathProgress[p.id] === 'completed'
+  )
+  const availablePaths = formation.paths.filter(
+    (p) => p.status === 'published' && !formation.enrolledPathIds.includes(p.id)
+  )
+  const comingSoonPaths = formation.paths.filter(
+    (p) => p.status === 'coming_soon' || p.status === 'draft'
+  )
+
+  // Progress stats
+  const totalPaths = formation.paths.length
+  const completedCount = completedPaths.length
+  const inProgressCount = inProgressPaths.length
+  const progressPercentage = totalPaths > 0 ? Math.round((completedCount / totalPaths) * 100) : 0
+
+  // Helper to render a path card
+  const renderPathCard = (path: FormationPathItem) => {
+    const pathIsComingSoon = path.status === 'coming_soon'
+    const pathIsDraft = path.status === 'draft'
+    const isEnrolled = formation.enrolledPathIds.includes(path.id)
+    const courseCount = path.courses?.length ?? 0
+    const courses = path.courses ?? []
+    const pathProgressStatus = formation.pathProgress[path.id]
+
+    return (
+      <Card
+        key={path.id}
+        className={cn(
+          'relative rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[480px] flex flex-col group',
+          (pathIsComingSoon || pathIsDraft) && 'opacity-70 cursor-not-allowed'
+        )}
+      >
+        {/* Thumbnail */}
+        <div
+          className="h-48 flex items-center justify-center relative"
+          style={{ backgroundColor: pathIsComingSoon || pathIsDraft ? '#4a5a4a' : '#303b2e' }}
+        >
+          <Layers3 className="h-16 w-16 text-forge-orange" />
+
+          {/* Badges */}
+          {pathProgressStatus === 'completed' && (
+            <div className="absolute top-2 right-2 z-10">
+              <Badge variant="success" size="sm" icon={Flame} iconPosition="left">
+                {t('filters.progressOptions.completed')}
+              </Badge>
+            </div>
+          )}
+          {pathProgressStatus === 'in_progress' && (
+            <div className="absolute top-2 right-2 z-10">
+              <Badge variant="enrolled" size="sm" icon={CirclePlay} iconPosition="left">
+                {t('filters.progressOptions.in_progress')}
+              </Badge>
+            </div>
+          )}
+          {path.status === 'published' && !isEnrolled && (
+            <div className="absolute top-2 right-2 z-10">
+              <Badge variant="default" size="sm" icon={CheckCircle} iconPosition="left">
+                {t('filters.statusOptions.available')}
+              </Badge>
+            </div>
+          )}
+          {path.status === 'coming_soon' && (
+            <div className="absolute top-2 right-2 z-10">
+              <Badge variant="coming-soon" size="sm" icon={Clock} iconPosition="left">
+                {t('filters.statusOptions.coming_soon')}
+              </Badge>
+            </div>
+          )}
+          {path.status === 'draft' && (
+            <div className="absolute top-2 right-2 z-10">
+              <Badge variant="outline" size="sm">
+                {t('filters.statusOptions.draft')}
+              </Badge>
+            </div>
+          )}
+        </div>
+
+        <CardHeader className="flex-1 min-h-0 flex flex-col">
+          <div className="space-y-2">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              {path.title}
+            </CardTitle>
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          {/* Stats */}
+          <div className="flex items-center gap-4 text-sm text-gray-600">
+            <div className="flex items-center gap-1">
+              <BookMarked className="h-4 w-4" />
+              {t('dashboard.availablePaths.courses', { count: courseCount })}
+            </div>
+          </div>
+
+          {/* Courses preview */}
+          {courses.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="font-medium text-sm text-gray-900">
+                {t('dashboard.availablePaths.coursesLabel')}
+              </h4>
+              <div className="space-y-1">
+                {courses.slice(0, 3).map((course, idx) => (
+                  <div key={course.id} className="flex items-center gap-2 text-xs text-gray-600">
+                    <span className="text-forge-orange font-medium">{idx + 1}.</span>
+                    <span className="truncate">{course.title}</span>
+                  </div>
+                ))}
+                {courses.length > 3 && (
+                  <div className="text-xs text-gray-500">
+                    {t('dashboard.availablePaths.moreCourses', { count: courses.length - 3 })}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Action buttons */}
+          {path.status === 'published' && (
+            <div className="mt-4 flex flex-col sm:flex-row gap-2">
+              <Link to={R.DASHBOARD_LEARN_PATH(path.id)} className="flex-1 min-w-0">
+                <EnhancedButton
+                  variant="outline"
+                  className="w-full !bg-white hover:!bg-gray-50 hover:!text-forge-orange"
+                >
+                  {t('dashboard.availablePaths.viewPath')}
+                </EnhancedButton>
+              </Link>
+              {isEnrolled ? (
+                <Link to={R.DASHBOARD_LEARN_PATH(path.id)} className="flex-1 min-w-0">
+                  <EnhancedButton className="w-full">
+                    {t('common.buttons.continue')}
+                  </EnhancedButton>
+                </Link>
+              ) : (
+                <div className="flex-1 min-w-0">
+                  <EnhancedButton
+                    className="w-full"
+                    onClick={() => handleEnroll(path.id)}
+                    disabled={!user || enrollingPathId === path.id}
+                  >
+                    {enrollingPathId === path.id
+                      ? t('dashboard.enrolling')
+                      : t('dashboard.enroll')}
+                  </EnhancedButton>
+                </div>
+              )}
+            </div>
+          )}
+          {(pathIsComingSoon || pathIsDraft) && (
+            <div className="mt-4">
+              <EnhancedButton variant="ghost" className="w-full" disabled>
+                {pathIsComingSoon
+                  ? t('filters.statusOptions.coming_soon')
+                  : t('formationDetail.notYetPublished')}
+              </EnhancedButton>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <div className="space-y-8">
       <div className="space-y-4">
@@ -336,156 +590,107 @@ export default function FormationDetailPage() {
         </div>
       </div>
 
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-forge-dark">{t('formationDetail.includedPaths')}</h2>
-        {formation.paths.length === 0 ? (
+      {/* Progress Overview - only show if user has enrolled in at least one path */}
+      {formationEnrolled && (
+        <section className="space-y-4">
+          <Card className="bg-gradient-to-r from-forge-cream/50 to-white border-forge-cream/70">
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center h-16 w-16 rounded-full bg-forge-orange/10">
+                    <TrendingUp className="h-8 w-8 text-forge-orange" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-forge-dark">{t('formationDetail.formationProgress')}</h3>
+                    <p className="text-sm text-forge-gray">
+                      {t('formationDetail.pathsCompleted', { completed: completedCount, total: totalPaths })}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-full md:w-48 bg-gray-200 rounded-full h-3">
+                    <div
+                      className="bg-forge-orange h-3 rounded-full transition-all duration-500"
+                      style={{ width: `${progressPercentage}%` }}
+                    />
+                  </div>
+                  <span className="text-lg font-bold text-forge-orange whitespace-nowrap">
+                    {progressPercentage}%
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+      )}
+
+      {/* In Progress Paths */}
+      {inProgressPaths.length > 0 && (
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <CirclePlay className="h-5 w-5 text-forge-orange" />
+            <h2 className="text-xl font-semibold text-forge-dark">{t('formationDetail.inProgressPaths')}</h2>
+            <Badge variant="outline" className="ml-2">{inProgressPaths.length}</Badge>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-stretch">
+            {inProgressPaths.map(renderPathCard)}
+          </div>
+        </section>
+      )}
+
+      {/* Completed Paths */}
+      {completedPaths.length > 0 && (
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Flame className="h-5 w-5 text-green-600" />
+            <h2 className="text-xl font-semibold text-forge-dark">{t('formationDetail.completedPaths')}</h2>
+            <Badge variant="success" className="ml-2">{completedPaths.length}</Badge>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-stretch">
+            {completedPaths.map(renderPathCard)}
+          </div>
+        </section>
+      )}
+
+      {/* Available Paths */}
+      {availablePaths.length > 0 && (
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <CheckCircle className="h-5 w-5 text-blue-600" />
+            <h2 className="text-xl font-semibold text-forge-dark">{t('formationDetail.availablePaths')}</h2>
+            <Badge variant="default" className="ml-2">{availablePaths.length}</Badge>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-stretch">
+            {availablePaths.map(renderPathCard)}
+          </div>
+        </section>
+      )}
+
+      {/* Coming Soon Paths */}
+      {comingSoonPaths.length > 0 && (
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Clock className="h-5 w-5 text-gray-500" />
+            <h2 className="text-xl font-semibold text-forge-dark">{t('formationDetail.comingSoonPaths')}</h2>
+            <Badge variant="coming-soon" className="ml-2">{comingSoonPaths.length}</Badge>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-stretch">
+            {comingSoonPaths.map(renderPathCard)}
+          </div>
+        </section>
+      )}
+
+      {/* Empty state when no paths at all */}
+      {formation.paths.length === 0 && (
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold text-forge-dark">{t('formationDetail.includedPaths')}</h2>
           <Card className="border-dashed border-forge-cream/70 bg-white/70">
             <CardContent className="p-8 text-center text-forge-gray">
               {t('formationDetail.pathsAddedSoon')}
             </CardContent>
           </Card>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-stretch">
-            {formation.paths.map((path) => {
-              const isComingSoon = path.status === 'coming_soon'
-              const isDraft = path.status === 'draft'
-              const isEnrolled = formation.enrolledPathIds.includes(path.id)
-              const courseCount = path.courses?.length ?? 0
-              const courses = path.courses ?? []
-
-              return (
-                <Card
-                  key={path.id}
-                  className={cn(
-                    'relative rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[480px] flex flex-col group',
-                    (isComingSoon || isDraft) && 'opacity-70 cursor-not-allowed'
-                  )}
-                >
-                  {/* Thumbnail */}
-                  <div
-                    className="h-48 flex items-center justify-center relative"
-                    style={{ backgroundColor: isComingSoon || isDraft ? '#4a5a4a' : '#303b2e' }}
-                  >
-                    <Layers3 className="h-16 w-16 text-forge-orange" />
-
-                    {/* Badges */}
-                    {path.status === 'published' && isEnrolled && (
-                      <div className="absolute top-2 right-2 z-10">
-                        <Badge variant="enrolled" size="sm" icon={CirclePlay} iconPosition="left">
-                          {t('dashboard.enrolled')}
-                        </Badge>
-                      </div>
-                    )}
-                    {path.status === 'published' && !isEnrolled && (
-                      <div className="absolute top-2 right-2 z-10">
-                        <Badge variant="default" size="sm" icon={CheckCircle} iconPosition="left">
-                          {t('filters.statusOptions.available')}
-                        </Badge>
-                      </div>
-                    )}
-                    {path.status === 'coming_soon' && (
-                      <div className="absolute top-2 right-2 z-10">
-                        <Badge variant="coming-soon" size="sm" icon={Clock} iconPosition="left">
-                          {t('filters.statusOptions.coming_soon')}
-                        </Badge>
-                      </div>
-                    )}
-                    {path.status === 'draft' && (
-                      <div className="absolute top-2 right-2 z-10">
-                        <Badge variant="outline" size="sm">
-                          {t('filters.statusOptions.draft')}
-                        </Badge>
-                      </div>
-                    )}
-                  </div>
-
-                  <CardHeader className="flex-1 min-h-0 flex flex-col">
-                    <div className="space-y-2">
-                      <CardTitle className="flex items-center gap-2 text-xl">
-                        {path.title}
-                      </CardTitle>
-                    </div>
-                  </CardHeader>
-
-                  <CardContent className="space-y-4">
-                    {/* Stats */}
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <BookMarked className="h-4 w-4" />
-                        {t('dashboard.availablePaths.courses', { count: courseCount })}
-                      </div>
-                    </div>
-
-                    {/* Courses preview */}
-                    {courses.length > 0 && (
-                      <div className="space-y-2">
-                        <h4 className="font-medium text-sm text-gray-900">
-                          {t('dashboard.availablePaths.coursesLabel')}
-                        </h4>
-                        <div className="space-y-1">
-                          {courses.slice(0, 3).map((course, idx) => (
-                            <div key={course.id} className="flex items-center gap-2 text-xs text-gray-600">
-                              <span className="text-forge-orange font-medium">{idx + 1}.</span>
-                              <span className="truncate">{course.title}</span>
-                            </div>
-                          ))}
-                          {courses.length > 3 && (
-                            <div className="text-xs text-gray-500">
-                              {t('dashboard.availablePaths.moreCourses', { count: courses.length - 3 })}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Action buttons */}
-                    {path.status === 'published' && (
-                      <div className="mt-4 flex flex-col sm:flex-row gap-2">
-                        <Link to={R.DASHBOARD_LEARN_PATH(path.id)} className="flex-1 min-w-0">
-                          <EnhancedButton
-                            variant="outline"
-                            className="w-full !bg-white hover:!bg-gray-50 hover:!text-forge-orange"
-                          >
-                            {t('dashboard.availablePaths.viewPath')}
-                          </EnhancedButton>
-                        </Link>
-                        {isEnrolled ? (
-                          <Link to={R.DASHBOARD_LEARN_PATH(path.id)} className="flex-1 min-w-0">
-                            <EnhancedButton className="w-full">
-                              {t('common.buttons.continue')}
-                            </EnhancedButton>
-                          </Link>
-                        ) : (
-                          <div className="flex-1 min-w-0">
-                            <EnhancedButton
-                              className="w-full"
-                              onClick={() => handleEnroll(path.id)}
-                              disabled={!user || enrollingPathId === path.id}
-                            >
-                              {enrollingPathId === path.id
-                                ? t('dashboard.enrolling')
-                                : t('dashboard.enroll')}
-                            </EnhancedButton>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    {(isComingSoon || isDraft) && (
-                      <div className="mt-4">
-                        <EnhancedButton variant="ghost" className="w-full" disabled>
-                          {isComingSoon
-                            ? t('filters.statusOptions.coming_soon')
-                            : t('formationDetail.notYetPublished')}
-                        </EnhancedButton>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
-        )}
-      </section>
+        </section>
+      )}
     </div>
   )
 }

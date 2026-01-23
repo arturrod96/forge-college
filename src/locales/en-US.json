@@ -173,7 +173,13 @@
     "pathsAddedSoon": "Learning paths will be added to this formation soon.",
     "notYetPublished": "Not yet published",
     "startLearning": "Start learning",
-    "viewPath": "View path"
+    "viewPath": "View path",
+    "formationProgress": "Formation progress",
+    "pathsCompleted": "{{completed}}/{{total}} paths completed",
+    "inProgressPaths": "In Progress",
+    "completedPaths": "Completed",
+    "availablePaths": "Available",
+    "comingSoonPaths": "Coming Soon"
   },
   "search": {
     "formations": "Search formations...",
