@@ -55,6 +55,9 @@ contract CohortManager is AccessControl {
     // Mapping from mentor address to array of cohort IDs
     mapping(address => uint256[]) public mentorCohorts;
 
+    // Mapping from cohort ID to mentor address to assignment status
+    mapping(uint256 => mapping(address => bool)) private _cohortMentorAssignment;
+
     // Events
     event CohortCreated(uint256 indexed cohortId, string name, address indexed creator);
     event CohortUpdated(uint256 indexed cohortId, CohortStatus status);
@@ -115,8 +118,11 @@ contract CohortManager is AccessControl {
         // Assign mentors to cohort
         for (uint256 i = 0; i < mentors.length; i++) {
             if (mentors[i] != address(0)) {
-                mentorCohorts[mentors[i]].push(cohortId);
-                emit MentorAssigned(cohortId, mentors[i]);
+                if (!_cohortMentorAssignment[cohortId][mentors[i]]) {
+                    mentorCohorts[mentors[i]].push(cohortId);
+                    _cohortMentorAssignment[cohortId][mentors[i]] = true;
+                    emit MentorAssigned(cohortId, mentors[i]);
+                }
             }
         }
 
@@ -206,12 +212,11 @@ contract CohortManager is AccessControl {
         require(mentor != address(0), "Invalid mentor address");
 
         // Check if mentor is already assigned
-        for (uint256 i = 0; i < cohorts[cohortId].mentors.length; i++) {
-            require(cohorts[cohortId].mentors[i] != mentor, "Mentor already assigned");
-        }
+        require(!_cohortMentorAssignment[cohortId][mentor], "Mentor already assigned");
 
         cohorts[cohortId].mentors.push(mentor);
         mentorCohorts[mentor].push(cohortId);
+        _cohortMentorAssignment[cohortId][mentor] = true;
         cohorts[cohortId].lastUpdated = block.timestamp;
 
         emit MentorAssigned(cohortId, mentor);
@@ -233,6 +238,7 @@ contract CohortManager is AccessControl {
             if (mentors[i] == mentor) {
                 mentors[i] = mentors[mentors.length - 1];
                 mentors.pop();
+                _cohortMentorAssignment[cohortId][mentor] = false;
                 break;
             }
         }
