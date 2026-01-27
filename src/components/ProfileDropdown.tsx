@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import { Button } from "./ui/button";
 import { useAuth, useOAuth } from '@/hooks/useOAuth';
 import { useTranslation } from 'react-i18next';
@@ -14,7 +15,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LogOut, User, Wallet, Shield } from "lucide-react";
 import { shouldUseMockAuth } from '@/lib/supabase-simple';
-import { useSidebar } from "@/components/ui/sidebar";
+import { SidebarContext } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
 
@@ -22,8 +23,8 @@ export function ProfileDropdown() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { signOut: oAuthSignOut, loading: signOutLoading } = useOAuth();
-  const { state } = useSidebar();
-  const isCollapsed = state === 'collapsed';
+  const sidebarContext = useContext(SidebarContext);
+  const isCollapsed = sidebarContext?.state === 'collapsed';
   const isMock = shouldUseMockAuth();
   const mockUserRaw = isMock ? localStorage.getItem('mock-auth-user') : null;
   let mockUser: { is_admin?: boolean } | null = null;
