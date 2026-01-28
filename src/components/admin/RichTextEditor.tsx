@@ -148,7 +148,7 @@ interface RichTextEditorProps {
 }
 
 export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, onExpand }: RichTextEditorProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   const [isFullScreen, setIsFullScreen] = useState(false)
   const [isSourceView, setIsSourceView] = useState(false)
