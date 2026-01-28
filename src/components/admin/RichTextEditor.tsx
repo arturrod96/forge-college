@@ -367,6 +367,16 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
     setImageAspectRatio('auto')
   }
 
+  const resetEditImageDialog = () => {
+    setEditImageUrl('')
+    setEditImageAlt('')
+    setEditImageWidth('')
+    setEditImageHeight('')
+    setEditImageObjectFit('contain')
+    setEditImageObjectPosition('center')
+    setEditImageAspectRatio('auto')
+  }
+
   const insertImageByUrl = () => {
     if (!imageUrl.trim()) return
 
