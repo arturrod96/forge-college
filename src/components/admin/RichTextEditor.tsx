@@ -29,7 +29,7 @@ import {
   Heading3,
   FileCode,
 } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -39,6 +39,105 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useTranslation } from 'react-i18next'
+
+type ObjectFit = 'contain' | 'cover' | 'fill' | 'none' | 'scale-down'
+
+type ObjectPosition =
+  | 'center'
+  | 'top'
+  | 'bottom'
+  | 'left'
+  | 'right'
+  | 'top left'
+  | 'top right'
+  | 'bottom left'
+  | 'bottom right'
+
+type AspectRatio = '1/1' | '16/9' | '4/3' | '3/4'
+
+type ImageAttributes = {
+  src: string
+  alt?: string | null
+  width?: string | null
+  height?: string | null
+  objectFit?: ObjectFit | null
+  objectPosition?: ObjectPosition | null
+  aspectRatio?: AspectRatio | null
+}
+
+const ForgeImage = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      width: {
+        default: null,
+        parseHTML: (element) => (element as HTMLImageElement).style.width || null,
+      },
+      height: {
+        default: null,
+        parseHTML: (element) => (element as HTMLImageElement).style.height || null,
+      },
+      objectFit: {
+        default: null,
+        parseHTML: (element) => ((element as HTMLImageElement).style.objectFit as ObjectFit) || null,
+      },
+      objectPosition: {
+        default: null,
+        parseHTML: (element) => ((element as HTMLImageElement).style.objectPosition as ObjectPosition) || null,
+      },
+      aspectRatio: {
+        default: null,
+        parseHTML: (element) => ((element as HTMLImageElement).style.aspectRatio as AspectRatio) || null,
+      },
+    }
+  },
+  renderHTML({ HTMLAttributes }) {
+    const { width, height, objectFit, objectPosition, aspectRatio, style, class: cls, ...rest } =
+      HTMLAttributes as Record<string, any>
+
+    const styleParts: string[] = []
+    if (width) styleParts.push(`width: ${width};`)
+    if (height) styleParts.push(`height: ${height};`)
+    if (objectFit) styleParts.push(`object-fit: ${objectFit};`)
+    if (objectPosition) styleParts.push(`object-position: ${objectPosition};`)
+    if (aspectRatio) styleParts.push(`aspect-ratio: ${aspectRatio};`)
+
+    const nextStyle = [style, styleParts.join(' ')].filter(Boolean).join(' ')
+    const nextClass = [this.options.HTMLAttributes?.class, cls].filter(Boolean).join(' ') || undefined
+
+    return [
+      'img',
+      {
+        ...this.options.HTMLAttributes,
+        ...rest,
+        class: nextClass,
+        style: nextStyle || undefined,
+      },
+    ]
+  },
+}).configure({
+  HTMLAttributes: {
+    class: 'rounded-lg max-w-full h-auto',
+  },
+})
+
+const pxFromString = (value: unknown) => {
+  if (typeof value !== 'string') return ''
+  const trimmed = value.trim()
+  if (!trimmed.endsWith('px')) return ''
+  const asNumber = Number.parseInt(trimmed.slice(0, -2), 10)
+  return Number.isFinite(asNumber) ? String(asNumber) : ''
+}
+
+const toPx = (value: string) => {
+  const trimmed = value.trim()
+  if (!trimmed) return null
+  const asNumber = Number.parseInt(trimmed, 10)
+  if (!Number.isFinite(asNumber) || asNumber <= 0) return null
+  return `${asNumber}px`
+}
 
 interface RichTextEditorProps {
   value: string
@@ -49,10 +148,23 @@ interface RichTextEditorProps {
 }
 
 export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, onExpand }: RichTextEditorProps) {
+  const { t } = useTranslation()
+
   const [isFullScreen, setIsFullScreen] = useState(false)
   const [isSourceView, setIsSourceView] = useState(false)
+
   const [youtubeDialogOpen, setYoutubeDialogOpen] = useState(false)
   const [youtubeUrl, setYoutubeUrl] = useState('')
+
+  const [imageDialogOpen, setImageDialogOpen] = useState(false)
+  const [imageUrl, setImageUrl] = useState('')
+  const [imageAlt, setImageAlt] = useState('')
+  const [imageWidth, setImageWidth] = useState('')
+  const [imageHeight, setImageHeight] = useState('')
+  const [imageObjectFit, setImageObjectFit] = useState<ObjectFit>('contain')
+  const [imageObjectPosition, setImageObjectPosition] = useState<ObjectPosition>('center')
+  const [imageAspectRatio, setImageAspectRatio] = useState<AspectRatio | 'auto'>('auto')
+
   const [sourceCode, setSourceCode] = useState('')
 
   const editor = useEditor({
@@ -65,11 +177,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
           class: 'text-forge-orange hover:underline cursor-pointer',
         },
       }),
-      Image.configure({
-        HTMLAttributes: {
-          class: 'rounded-lg max-w-full h-auto',
-        },
-      }),
+      ForgeImage,
       Youtube.configure({
         controls: false,
         width: 640,
@@ -93,6 +201,57 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
     },
   })
 
+  const [isImageSelected, setIsImageSelected] = useState(false)
+  const [selectedImageSettings, setSelectedImageSettings] = useState({
+    width: '',
+    height: '',
+    objectFit: 'contain' as ObjectFit,
+    objectPosition: 'center' as ObjectPosition,
+    aspectRatio: 'auto' as AspectRatio | 'auto',
+    alt: '',
+    src: '',
+  })
+
+  const imagePositionOptions = useMemo(
+    () =>
+      [
+        { value: 'center' as const, label: t('admin.richTextEditor.image.position.center') },
+        { value: 'top' as const, label: t('admin.richTextEditor.image.position.top') },
+        { value: 'bottom' as const, label: t('admin.richTextEditor.image.position.bottom') },
+        { value: 'left' as const, label: t('admin.richTextEditor.image.position.left') },
+        { value: 'right' as const, label: t('admin.richTextEditor.image.position.right') },
+        { value: 'top left' as const, label: t('admin.richTextEditor.image.position.topLeft') },
+        { value: 'top right' as const, label: t('admin.richTextEditor.image.position.topRight') },
+        { value: 'bottom left' as const, label: t('admin.richTextEditor.image.position.bottomLeft') },
+        { value: 'bottom right' as const, label: t('admin.richTextEditor.image.position.bottomRight') },
+      ] satisfies { value: ObjectPosition; label: string }[],
+    [t]
+  )
+
+  const imageFitOptions = useMemo(
+    () =>
+      [
+        { value: 'contain' as const, label: t('admin.richTextEditor.image.fit.contain') },
+        { value: 'cover' as const, label: t('admin.richTextEditor.image.fit.cover') },
+        { value: 'fill' as const, label: t('admin.richTextEditor.image.fit.fill') },
+        { value: 'none' as const, label: t('admin.richTextEditor.image.fit.none') },
+        { value: 'scale-down' as const, label: t('admin.richTextEditor.image.fit.scaleDown') },
+      ] satisfies { value: ObjectFit; label: string }[],
+    [t]
+  )
+
+  const aspectRatioOptions = useMemo(
+    () =>
+      [
+        { value: 'auto' as const, label: t('admin.richTextEditor.image.aspectRatio.auto') },
+        { value: '1/1' as const, label: t('admin.richTextEditor.image.aspectRatio.square') },
+        { value: '16/9' as const, label: t('admin.richTextEditor.image.aspectRatio.wide') },
+        { value: '4/3' as const, label: t('admin.richTextEditor.image.aspectRatio.classic') },
+        { value: '3/4' as const, label: t('admin.richTextEditor.image.aspectRatio.portrait') },
+      ] satisfies { value: AspectRatio | 'auto'; label: string }[],
+    [t]
+  )
+
   // Update editor content if external value changes significantly
   useEffect(() => {
     if (editor && value !== editor.getHTML()) {
@@ -111,6 +270,38 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
     }
   }, [isSourceView, editor])
 
+  // Track when an image node is selected and keep an edit panel in sync
+  useEffect(() => {
+    if (!editor) return
+
+    const sync = () => {
+      const active = editor.isActive('image')
+      setIsImageSelected(active)
+
+      if (!active) return
+
+      const attrs = editor.getAttributes('image') as ImageAttributes
+      setSelectedImageSettings({
+        src: attrs.src || '',
+        alt: attrs.alt || '',
+        width: pxFromString(attrs.width),
+        height: pxFromString(attrs.height),
+        objectFit: (attrs.objectFit || 'contain') as ObjectFit,
+        objectPosition: (attrs.objectPosition || 'center') as ObjectPosition,
+        aspectRatio: (attrs.aspectRatio || 'auto') as AspectRatio | 'auto',
+      })
+    }
+
+    sync()
+    editor.on('selectionUpdate', sync)
+    editor.on('transaction', sync)
+
+    return () => {
+      editor.off('selectionUpdate', sync)
+      editor.off('transaction', sync)
+    }
+  }, [editor])
+
   const handleSourceCodeChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newContent = e.target.value
     setSourceCode(newContent)
@@ -118,10 +309,6 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
     if (editor) {
       editor.commands.setContent(newContent, false)
     }
-  }
-
-  if (!editor) {
-    return null
   }
 
   const addYoutubeVideo = () => {
@@ -132,8 +319,63 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
     }
   }
 
+  const resetImageDialog = () => {
+    setImageUrl('')
+    setImageAlt('')
+    setImageWidth('')
+    setImageHeight('')
+    setImageObjectFit('contain')
+    setImageObjectPosition('center')
+    setImageAspectRatio('auto')
+  }
+
+  const insertImageByUrl = () => {
+    if (!imageUrl.trim()) return
+
+    editor
+      .chain()
+      .focus()
+      .setImage({
+        src: imageUrl.trim(),
+        alt: imageAlt.trim() || null,
+        width: toPx(imageWidth),
+        height: toPx(imageHeight),
+        objectFit: imageObjectFit,
+        objectPosition: imageObjectPosition,
+        aspectRatio: imageAspectRatio === 'auto' ? null : imageAspectRatio,
+      })
+      .run()
+
+    setImageDialogOpen(false)
+    resetImageDialog()
+  }
+
+  const updateSelectedImage = (partial: Partial<typeof selectedImageSettings>) => {
+    if (!editor || !editor.isActive('image')) return
+
+    const merged = { ...selectedImageSettings, ...partial }
+    setSelectedImageSettings(merged)
+
+    editor
+      .chain()
+      .focus()
+      .updateAttributes('image', {
+        alt: merged.alt.trim() || null,
+        width: toPx(merged.width),
+        height: toPx(merged.height),
+        objectFit: merged.objectFit,
+        objectPosition: merged.objectPosition,
+        aspectRatio: merged.aspectRatio === 'auto' ? null : merged.aspectRatio,
+      })
+      .run()
+  }
+
   const toggleFullScreen = () => {
     setIsFullScreen(!isFullScreen)
+  }
+
+  if (!editor) {
+    return null
   }
 
   return (
@@ -149,7 +391,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
           size="icon"
           onClick={() => editor.chain().focus().toggleBold().run()}
           className={editor.isActive('bold') ? 'bg-gray-200' : ''}
-          title="Bold"
+          title={t('admin.richTextEditor.toolbar.bold')}
           type="button"
         >
           <Bold className="h-4 w-4" />
@@ -159,7 +401,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
           size="icon"
           onClick={() => editor.chain().focus().toggleItalic().run()}
           className={editor.isActive('italic') ? 'bg-gray-200' : ''}
-          title="Italic"
+          title={t('admin.richTextEditor.toolbar.italic')}
           type="button"
         >
           <Italic className="h-4 w-4" />
@@ -169,7 +411,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
           size="icon"
           onClick={() => editor.chain().focus().toggleUnderline().run()}
           className={editor.isActive('underline') ? 'bg-gray-200' : ''}
-          title="Underline"
+          title={t('admin.richTextEditor.toolbar.underline')}
           type="button"
         >
           <div className="underline font-bold text-xs">U</div>
@@ -179,7 +421,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
           size="icon"
           onClick={() => editor.chain().focus().toggleStrike().run()}
           className={editor.isActive('strike') ? 'bg-gray-200' : ''}
-          title="Strikethrough"
+          title={t('admin.richTextEditor.toolbar.strikethrough')}
           type="button"
         >
           <Strikethrough className="h-4 w-4" />
@@ -192,7 +434,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
           size="icon"
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
           className={editor.isActive('heading', { level: 1 }) ? 'bg-gray-200' : ''}
-          title="Heading 1"
+          title={t('admin.richTextEditor.toolbar.heading1')}
           type="button"
         >
           <Heading1 className="h-4 w-4" />
@@ -202,7 +444,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
           size="icon"
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
           className={editor.isActive('heading', { level: 2 }) ? 'bg-gray-200' : ''}
-          title="Heading 2"
+          title={t('admin.richTextEditor.toolbar.heading2')}
           type="button"
         >
           <Heading2 className="h-4 w-4" />
@@ -212,7 +454,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
           size="icon"
           onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
           className={editor.isActive('heading', { level: 3 }) ? 'bg-gray-200' : ''}
-          title="Heading 3"
+          title={t('admin.richTextEditor.toolbar.heading3')}
           type="button"
         >
           <Heading3 className="h-4 w-4" />
@@ -225,7 +467,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
           size="icon"
           onClick={() => editor.chain().focus().setTextAlign('left').run()}
           className={editor.isActive({ textAlign: 'left' }) ? 'bg-gray-200' : ''}
-          title="Align Left"
+          title={t('admin.richTextEditor.toolbar.alignLeft')}
           type="button"
         >
           <AlignLeft className="h-4 w-4" />
@@ -235,7 +477,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
           size="icon"
           onClick={() => editor.chain().focus().setTextAlign('center').run()}
           className={editor.isActive({ textAlign: 'center' }) ? 'bg-gray-200' : ''}
-          title="Align Center"
+          title={t('admin.richTextEditor.toolbar.alignCenter')}
           type="button"
         >
           <AlignCenter className="h-4 w-4" />
@@ -245,7 +487,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
           size="icon"
           onClick={() => editor.chain().focus().setTextAlign('right').run()}
           className={editor.isActive({ textAlign: 'right' }) ? 'bg-gray-200' : ''}
-          title="Align Right"
+          title={t('admin.richTextEditor.toolbar.alignRight')}
           type="button"
         >
           <AlignRight className="h-4 w-4" />
@@ -258,7 +500,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
           size="icon"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           className={editor.isActive('bulletList') ? 'bg-gray-200' : ''}
-          title="Bullet List"
+          title={t('admin.richTextEditor.toolbar.bulletList')}
           type="button"
         >
           <List className="h-4 w-4" />
@@ -268,7 +510,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
           size="icon"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           className={editor.isActive('orderedList') ? 'bg-gray-200' : ''}
-          title="Ordered List"
+          title={t('admin.richTextEditor.toolbar.orderedList')}
           type="button"
         >
           <ListOrdered className="h-4 w-4" />
@@ -278,7 +520,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
           size="icon"
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
           className={editor.isActive('blockquote') ? 'bg-gray-200' : ''}
-          title="Quote"
+          title={t('admin.richTextEditor.toolbar.quote')}
           type="button"
         >
           <Quote className="h-4 w-4" />
@@ -288,7 +530,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
           size="icon"
           onClick={() => editor.chain().focus().toggleCodeBlock().run()}
           className={editor.isActive('codeBlock') ? 'bg-gray-200' : ''}
-          title="Code Block"
+          title={t('admin.richTextEditor.toolbar.codeBlock')}
           type="button"
         >
           <Code className="h-4 w-4" />
@@ -301,7 +543,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
           size="icon"
           onClick={() => {
             const previousUrl = editor.getAttributes('link').href
-            const url = window.prompt('URL', previousUrl)
+            const url = window.prompt(t('admin.richTextEditor.link.prompt'), previousUrl)
             if (url === null) return
             if (url === '') {
               editor.chain().focus().extendMarkRange('link').unsetLink().run()
@@ -310,18 +552,29 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
             editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
           }}
           className={editor.isActive('link') ? 'bg-gray-200' : ''}
-          title="Link"
+          title={t('admin.richTextEditor.toolbar.link')}
           type="button"
         >
           <LinkIcon className="h-4 w-4" />
         </Button>
-        
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setImageDialogOpen(true)}
+          className={editor.isActive('image') ? 'bg-gray-200' : ''}
+          title={t('admin.richTextEditor.toolbar.image')}
+          type="button"
+        >
+          <ImageIcon className="h-4 w-4" />
+        </Button>
+
         <Button
           variant="ghost"
           size="icon"
           onClick={() => setYoutubeDialogOpen(true)}
           className={editor.isActive('youtube') ? 'bg-gray-200' : ''}
-          title="Add YouTube Video"
+          title={t('admin.richTextEditor.toolbar.youtube')}
           type="button"
         >
           <YoutubeIcon className="h-4 w-4" />
@@ -334,7 +587,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
           size="icon"
           onClick={() => editor.chain().focus().undo().run()}
           disabled={!editor.can().undo()}
-          title="Undo"
+          title={t('admin.richTextEditor.toolbar.undo')}
           type="button"
         >
           <Undo className="h-4 w-4" />
@@ -344,7 +597,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
           size="icon"
           onClick={() => editor.chain().focus().redo().run()}
           disabled={!editor.can().redo()}
-          title="Redo"
+          title={t('admin.richTextEditor.toolbar.redo')}
           type="button"
         >
           <Redo className="h-4 w-4" />
@@ -358,9 +611,13 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
               variant="ghost"
               size="icon"
               onClick={onExpand || toggleFullScreen}
-              title={isFullScreen ? "Exit Full Screen" : "Full Screen (New Page)"}
+              title={
+                isFullScreen
+                  ? t('admin.richTextEditor.toolbar.exitFullScreen')
+                  : t('admin.richTextEditor.toolbar.fullScreen')
+              }
               type="button"
-              className={isFullScreen ? "bg-forge-orange/10 text-forge-orange" : ""}
+              className={isFullScreen ? 'bg-forge-orange/10 text-forge-orange' : ''}
             >
               {isFullScreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
             </Button>
@@ -373,22 +630,127 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
           variant="ghost"
           size="icon"
           onClick={() => setIsSourceView(!isSourceView)}
-          title="View HTML Source"
+          title={t('admin.richTextEditor.toolbar.viewHtml')}
           type="button"
-          className={isSourceView ? "bg-forge-orange/10 text-forge-orange" : ""}
+          className={isSourceView ? 'bg-forge-orange/10 text-forge-orange' : ''}
         >
           <FileCode className="h-4 w-4" />
         </Button>
       </div>
 
+      {isImageSelected && !isSourceView && (
+        <div className="border-b bg-white p-3">
+          <div className="text-sm font-medium text-gray-900 mb-3">{t('admin.richTextEditor.image.settingsTitle')}</div>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-6">
+            <div className="space-y-1 md:col-span-2">
+              <Label htmlFor="rte-image-alt">{t('admin.richTextEditor.image.altLabel')}</Label>
+              <Input
+                id="rte-image-alt"
+                value={selectedImageSettings.alt}
+                onChange={(e) => updateSelectedImage({ alt: e.target.value })}
+                placeholder={t('admin.richTextEditor.image.altPlaceholder')}
+              />
+            </div>
+
+            <div className="space-y-1 md:col-span-1">
+              <Label htmlFor="rte-image-width">{t('admin.richTextEditor.image.widthLabel')}</Label>
+              <Input
+                id="rte-image-width"
+                inputMode="numeric"
+                value={selectedImageSettings.width}
+                onChange={(e) => updateSelectedImage({ width: e.target.value })}
+                placeholder={t('admin.richTextEditor.image.widthPlaceholder')}
+              />
+            </div>
+
+            <div className="space-y-1 md:col-span-1">
+              <Label htmlFor="rte-image-height">{t('admin.richTextEditor.image.heightLabel')}</Label>
+              <Input
+                id="rte-image-height"
+                inputMode="numeric"
+                value={selectedImageSettings.height}
+                onChange={(e) => updateSelectedImage({ height: e.target.value })}
+                placeholder={t('admin.richTextEditor.image.heightPlaceholder')}
+              />
+            </div>
+
+            <div className="space-y-1 md:col-span-1">
+              <Label>{t('admin.richTextEditor.image.fitLabel')}</Label>
+              <Select
+                value={selectedImageSettings.objectFit}
+                onValueChange={(value) => updateSelectedImage({ objectFit: value as ObjectFit })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {imageFitOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1 md:col-span-1">
+              <Label>{t('admin.richTextEditor.image.positionLabel')}</Label>
+              <Select
+                value={selectedImageSettings.objectPosition}
+                onValueChange={(value) => updateSelectedImage({ objectPosition: value as ObjectPosition })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {imagePositionOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1 md:col-span-1">
+              <Label>{t('admin.richTextEditor.image.aspectRatioLabel')}</Label>
+              <Select
+                value={selectedImageSettings.aspectRatio}
+                onValueChange={(value) => updateSelectedImage({ aspectRatio: value as AspectRatio | 'auto' })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {aspectRatioOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {selectedImageSettings.src ? (
+            <div className="mt-2 text-xs text-gray-500 break-all">{selectedImageSettings.src}</div>
+          ) : null}
+        </div>
+      )}
+
       {/* Editor Content */}
-      <div className={`flex-1 overflow-auto bg-white ${isFullScreen ? 'p-8 max-w-5xl mx-auto w-full shadow-lg my-4 rounded' : ''}`}>
+      <div
+        className={`flex-1 overflow-auto bg-white ${
+          isFullScreen ? 'p-8 max-w-5xl mx-auto w-full shadow-lg my-4 rounded' : ''
+        }`}
+      >
         {isSourceView ? (
           <textarea
             value={sourceCode}
             onChange={handleSourceCodeChange}
             className="w-full h-full min-h-[300px] p-4 font-mono text-sm bg-gray-50 text-gray-800 resize-none focus:outline-none"
             spellCheck={false}
+            placeholder={placeholder}
           />
         ) : (
           <EditorContent editor={editor} className="min-h-full" />
@@ -397,31 +759,155 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
 
       {isFullScreen && (
         <div className="fixed bottom-4 right-4 z-50">
-           <Button onClick={toggleFullScreen} variant="secondary" className="shadow-lg">
-             Done Editing
-           </Button>
+          <Button onClick={toggleFullScreen} variant="secondary" className="shadow-lg">
+            {t('admin.richTextEditor.toolbar.doneEditing')}
+          </Button>
         </div>
       )}
 
       <Dialog open={youtubeDialogOpen} onOpenChange={setYoutubeDialogOpen}>
         <DialogContent className="z-[110]">
           <DialogHeader>
-            <DialogTitle>Add YouTube Video</DialogTitle>
+            <DialogTitle>{t('admin.richTextEditor.youtube.title')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="youtube-url">Video URL</Label>
+              <Label htmlFor="youtube-url">{t('admin.richTextEditor.youtube.urlLabel')}</Label>
               <Input
                 id="youtube-url"
-                placeholder="https://www.youtube.com/watch?v=..."
+                placeholder={t('admin.richTextEditor.youtube.urlPlaceholder')}
                 value={youtubeUrl}
                 onChange={(e) => setYoutubeUrl(e.target.value)}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setYoutubeDialogOpen(false)}>Cancel</Button>
-            <Button onClick={addYoutubeVideo}>Add Video</Button>
+            <Button variant="outline" onClick={() => setYoutubeDialogOpen(false)}>
+              {t('common.buttons.cancel')}
+            </Button>
+            <Button onClick={addYoutubeVideo}>{t('admin.richTextEditor.youtube.addButton')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={imageDialogOpen}
+        onOpenChange={(open) => {
+          setImageDialogOpen(open)
+          if (!open) resetImageDialog()
+        }}
+      >
+        <DialogContent className="z-[110]">
+          <DialogHeader>
+            <DialogTitle>{t('admin.richTextEditor.image.insertTitle')}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="image-url">{t('admin.richTextEditor.image.urlLabel')}</Label>
+              <Input
+                id="image-url"
+                placeholder={t('admin.richTextEditor.image.urlPlaceholder')}
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="image-alt">{t('admin.richTextEditor.image.altLabel')}</Label>
+              <Input
+                id="image-alt"
+                placeholder={t('admin.richTextEditor.image.altPlaceholder')}
+                value={imageAlt}
+                onChange={(e) => setImageAlt(e.target.value)}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="image-width">{t('admin.richTextEditor.image.widthLabel')}</Label>
+                <Input
+                  id="image-width"
+                  inputMode="numeric"
+                  placeholder={t('admin.richTextEditor.image.widthPlaceholder')}
+                  value={imageWidth}
+                  onChange={(e) => setImageWidth(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="image-height">{t('admin.richTextEditor.image.heightLabel')}</Label>
+                <Input
+                  id="image-height"
+                  inputMode="numeric"
+                  placeholder={t('admin.richTextEditor.image.heightPlaceholder')}
+                  value={imageHeight}
+                  onChange={(e) => setImageHeight(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              <div className="space-y-2">
+                <Label>{t('admin.richTextEditor.image.fitLabel')}</Label>
+                <Select value={imageObjectFit} onValueChange={(value) => setImageObjectFit(value as ObjectFit)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {imageFitOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>{t('admin.richTextEditor.image.positionLabel')}</Label>
+                <Select
+                  value={imageObjectPosition}
+                  onValueChange={(value) => setImageObjectPosition(value as ObjectPosition)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {imagePositionOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>{t('admin.richTextEditor.image.aspectRatioLabel')}</Label>
+                <Select
+                  value={imageAspectRatio}
+                  onValueChange={(value) => setImageAspectRatio(value as AspectRatio | 'auto')}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {aspectRatioOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setImageDialogOpen(false)}>
+              {t('common.buttons.cancel')}
+            </Button>
+            <Button onClick={insertImageByUrl} disabled={!imageUrl.trim()}>
+              {t('admin.richTextEditor.image.insertButton')}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
