@@ -509,6 +509,7 @@
         "settingsTitle": "Image settings",
         "urlLabel": "Image URL",
         "urlPlaceholder": "https://example.com/image.png",
+        "overlayEditHint": "Click the image to edit",
         "altLabel": "Alt text",
         "altPlaceholder": "Describe the image (optional)",
         "widthLabel": "Width (px)",
