@@ -380,6 +380,8 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
   const insertImageByUrl = () => {
     if (!imageUrl.trim()) return
 
+    suppressNextImageEditOpenRef.current = true
+
     editor
       .chain()
       .focus()
