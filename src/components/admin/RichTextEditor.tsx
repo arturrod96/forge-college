@@ -67,29 +67,59 @@ type ImageAttributes = {
   aspectRatio?: AspectRatio | null
 }
 
+const getImgFromElement = (element: HTMLElement): HTMLImageElement | null => {
+  if (element instanceof HTMLImageElement) return element
+  return element.querySelector('img')
+}
+
 const ForgeImage = Image.extend({
+  parseHTML() {
+    return [
+      {
+        tag: 'span[data-forge-image]',
+        getAttrs: (node) => {
+          const wrapper = node as HTMLElement
+          const img = getImgFromElement(wrapper)
+          if (!img) return false
+
+          return {
+            src: img.getAttribute('src'),
+            alt: img.getAttribute('alt'),
+            title: img.getAttribute('title'),
+            width: img.style.width || null,
+            height: img.style.height || null,
+            objectFit: (img.style.objectFit as ObjectFit) || null,
+            objectPosition: (img.style.objectPosition as ObjectPosition) || null,
+            aspectRatio: (img.style.aspectRatio as AspectRatio) || null,
+          }
+        },
+      },
+      { tag: 'img[src]' },
+    ]
+  },
   addAttributes() {
     return {
       ...this.parent?.(),
       width: {
         default: null,
-        parseHTML: (element) => (element as HTMLImageElement).style.width || null,
+        parseHTML: (element) => getImgFromElement(element as HTMLElement)?.style.width || null,
       },
       height: {
         default: null,
-        parseHTML: (element) => (element as HTMLImageElement).style.height || null,
+        parseHTML: (element) => getImgFromElement(element as HTMLElement)?.style.height || null,
       },
       objectFit: {
         default: null,
-        parseHTML: (element) => ((element as HTMLImageElement).style.objectFit as ObjectFit) || null,
+        parseHTML: (element) => (getImgFromElement(element as HTMLElement)?.style.objectFit as ObjectFit) || null,
       },
       objectPosition: {
         default: null,
-        parseHTML: (element) => ((element as HTMLImageElement).style.objectPosition as ObjectPosition) || null,
+        parseHTML: (element) =>
+          (getImgFromElement(element as HTMLElement)?.style.objectPosition as ObjectPosition) || null,
       },
       aspectRatio: {
         default: null,
-        parseHTML: (element) => ((element as HTMLImageElement).style.aspectRatio as AspectRatio) || null,
+        parseHTML: (element) => (getImgFromElement(element as HTMLElement)?.style.aspectRatio as AspectRatio) || null,
       },
     }
   },
@@ -108,13 +138,20 @@ const ForgeImage = Image.extend({
     const nextClass = [this.options.HTMLAttributes?.class, cls].filter(Boolean).join(' ') || undefined
 
     return [
-      'img',
+      'span',
       {
-        ...this.options.HTMLAttributes,
-        ...rest,
-        class: nextClass,
-        style: nextStyle || undefined,
+        'data-forge-image': 'true',
+        class: 'forge-rte-image-wrapper',
       },
+      [
+        'img',
+        {
+          ...this.options.HTMLAttributes,
+          ...rest,
+          class: nextClass,
+          style: nextStyle || undefined,
+        },
+      ],
     ]
   },
 }).configure({
