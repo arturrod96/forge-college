@@ -504,6 +504,7 @@
       },
       "image": {
         "insertTitle": "Inserir imagem",
+        "editTitle": "Editar imagem",
         "settingsTitle": "Configurações da imagem",
         "urlLabel": "URL da imagem",
         "urlPlaceholder": "https://exemplo.com/imagem.png",
@@ -517,6 +518,7 @@
         "positionLabel": "Posição",
         "aspectRatioLabel": "Proporção",
         "insertButton": "Inserir",
+        "saveButton": "Salvar",
         "fit": {
           "contain": "Conter",
           "cover": "Cobrir",
