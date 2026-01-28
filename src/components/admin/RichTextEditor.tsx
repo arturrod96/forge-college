@@ -644,6 +644,17 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
       {isImageSelected && !isSourceView && (
         <div className="border-b bg-white p-3">
           <div className="text-sm font-medium text-gray-900 mb-3">{t('admin.richTextEditor.image.settingsTitle')}</div>
+
+          <div className="space-y-1 mb-3">
+            <Label htmlFor="rte-image-src">{t('admin.richTextEditor.image.urlLabel')}</Label>
+            <Input
+              id="rte-image-src"
+              value={selectedImageSettings.src}
+              onChange={(e) => updateSelectedImage({ src: e.target.value })}
+              placeholder={t('admin.richTextEditor.image.urlPlaceholder')}
+            />
+          </div>
+
           <div className="grid grid-cols-1 gap-3 md:grid-cols-6">
             <div className="space-y-1 md:col-span-2">
               <Label htmlFor="rte-image-alt">{t('admin.richTextEditor.image.altLabel')}</Label>
