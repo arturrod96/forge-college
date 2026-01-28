@@ -459,10 +459,52 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
 
   return (
     <div
-      className={`flex flex-col border rounded-md bg-white ${
+      className={`forge-rte flex flex-col border rounded-md bg-white ${
         isFullScreen ? 'fixed inset-0 z-50 m-0 rounded-none h-screen w-screen' : 'w-full'
       }`}
+      style={{
+        ['--rte-image-edit-label' as any]: JSON.stringify(t('admin.richTextEditor.image.overlayEditHint')),
+      }}
     >
+      <style>{`
+        .forge-rte .ProseMirror .forge-rte-image-wrapper {
+          position: relative;
+          display: inline-block;
+        }
+
+        .forge-rte .ProseMirror .forge-rte-image-wrapper > img {
+          display: block;
+        }
+
+        .forge-rte .ProseMirror .forge-rte-image-wrapper:hover {
+          cursor: pointer;
+        }
+
+        .forge-rte .ProseMirror .forge-rte-image-wrapper::after {
+          content: var(--rte-image-edit-label);
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          padding: 0.5rem;
+          border-radius: 0.5rem;
+          background: rgba(0, 0, 0, 0.35);
+          color: white;
+          font-size: 0.75rem;
+          font-weight: 500;
+          opacity: 0;
+          transition: opacity 120ms ease-in-out;
+          pointer-events: none;
+          user-select: none;
+        }
+
+        .forge-rte .ProseMirror .forge-rte-image-wrapper:hover::after,
+        .forge-rte .ProseMirror .ProseMirror-selectednode.forge-rte-image-wrapper::after {
+          opacity: 1;
+        }
+      `}</style>
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-1 border-b bg-gray-50 p-2 sticky top-0 z-10">
         <Button
