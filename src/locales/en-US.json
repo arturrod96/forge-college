@@ -468,6 +468,86 @@
         "projects": "Projects"
       }
     },
+    "richTextEditor": {
+      "toolbar": {
+        "bold": "Bold",
+        "italic": "Italic",
+        "underline": "Underline",
+        "strikethrough": "Strikethrough",
+        "heading1": "Heading 1",
+        "heading2": "Heading 2",
+        "heading3": "Heading 3",
+        "alignLeft": "Align left",
+        "alignCenter": "Align center",
+        "alignRight": "Align right",
+        "bulletList": "Bullet list",
+        "orderedList": "Ordered list",
+        "quote": "Quote",
+        "codeBlock": "Code block",
+        "link": "Link",
+        "image": "Insert image",
+        "youtube": "Add YouTube video",
+        "undo": "Undo",
+        "redo": "Redo",
+        "fullScreen": "Full screen",
+        "exitFullScreen": "Exit full screen",
+        "viewHtml": "View HTML source",
+        "doneEditing": "Done editing"
+      },
+      "link": {
+        "prompt": "URL"
+      },
+      "youtube": {
+        "title": "Add YouTube video",
+        "urlLabel": "Video URL",
+        "urlPlaceholder": "https://www.youtube.com/watch?v=...",
+        "addButton": "Add video"
+      },
+      "image": {
+        "insertTitle": "Insert image",
+        "editTitle": "Edit image",
+        "settingsTitle": "Image settings",
+        "urlLabel": "Image URL",
+        "urlPlaceholder": "https://example.com/image.png",
+        "overlayEditHint": "Click the image to edit",
+        "altLabel": "Alt text",
+        "altPlaceholder": "Describe the image (optional)",
+        "widthLabel": "Width (px)",
+        "widthPlaceholder": "Auto",
+        "heightLabel": "Height (px)",
+        "heightPlaceholder": "Auto",
+        "fitLabel": "Fit",
+        "positionLabel": "Position",
+        "aspectRatioLabel": "Aspect ratio",
+        "insertButton": "Insert",
+        "saveButton": "Save",
+        "fit": {
+          "contain": "Contain",
+          "cover": "Cover",
+          "fill": "Fill",
+          "none": "None",
+          "scaleDown": "Scale down"
+        },
+        "position": {
+          "center": "Center",
+          "top": "Top",
+          "bottom": "Bottom",
+          "left": "Left",
+          "right": "Right",
+          "topLeft": "Top left",
+          "topRight": "Top right",
+          "bottomLeft": "Bottom left",
+          "bottomRight": "Bottom right"
+        },
+        "aspectRatio": {
+          "auto": "Auto",
+          "square": "1:1",
+          "wide": "16:9",
+          "classic": "4:3",
+          "portrait": "3:4"
+        }
+      }
+    },
     "paths": {
       "title": "Learning Paths",
       "new": "New learning path",
