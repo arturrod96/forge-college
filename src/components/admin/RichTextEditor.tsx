@@ -746,9 +746,6 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
             </div>
           </div>
 
-          {selectedImageSettings.src ? (
-            <div className="mt-2 text-xs text-gray-500 break-all">{selectedImageSettings.src}</div>
-          ) : null}
         </div>
       )}
 
