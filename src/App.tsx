@@ -101,10 +101,10 @@ const App = () => {
                     <Route path="courses" element={<CoursesPage />} />
                     <Route path="coming-soon" element={<ComingSoonPage />} />
                     <Route path="profile" element={<Profile />} />
-                    <Route path="community-projects" element={<CommunityProjects />} />
+                    {/* <Route path="community-projects" element={<CommunityProjects />} /> */}
                     <Route path="scoreboard" element={<Scoreboard />} />
                     <Route path="achievements" element={<AchievementsPage />} />
-                    <Route path="ambassadors" element={<AmbassadorsPage />} />
+                    {/* <Route path="ambassadors" element={<AmbassadorsPage />} /> */}
                     <Route path="learn/course/:courseId" element={<CourseView />} />
                     <Route path="learn/path/:pathId" element={<PathOverview />} />
                     <Route
