@@ -338,6 +338,7 @@ export function DashboardLayout() {
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
+                  {/*
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild isActive={isAmbassadors} tooltip={t('nav.ambassadors')}>
                       <Link to={DASHBOARD_AMBASSADORS}>
@@ -346,6 +347,7 @@ export function DashboardLayout() {
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
+                  */}
                   {isAdmin && (
                     <SidebarMenuItem>
                       <SidebarMenuButton asChild isActive={isAdminRoute} tooltip={t('nav.admin')}>
