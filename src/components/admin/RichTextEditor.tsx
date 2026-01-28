@@ -282,7 +282,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
     }
   }, [isSourceView, editor])
 
-  // Track when an image node is selected and keep an edit panel in sync
+  // Track when an image node is selected and keep state in sync
   useEffect(() => {
     if (!editor) return
 
@@ -290,10 +290,13 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
       const active = editor.isActive('image')
       setIsImageSelected(active)
 
-      if (!active) return
+      if (!active) {
+        wasImageSelectedRef.current = false
+        return
+      }
 
       const attrs = editor.getAttributes('image') as ImageAttributes
-      setSelectedImageSettings({
+      const nextSettings = {
         src: attrs.src || '',
         alt: attrs.alt || '',
         width: pxFromString(attrs.width),
@@ -301,7 +304,30 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
         objectFit: (attrs.objectFit || 'contain') as ObjectFit,
         objectPosition: (attrs.objectPosition || 'center') as ObjectPosition,
         aspectRatio: (attrs.aspectRatio || 'auto') as AspectRatio | 'auto',
-      })
+      }
+
+      setSelectedImageSettings(nextSettings)
+
+      // Open the edit dialog when the user clicks/selects an image.
+      // We suppress auto-open right after inserting an image.
+      if (
+        !wasImageSelectedRef.current &&
+        !suppressNextImageEditOpenRef.current &&
+        !isSourceView &&
+        !imageDialogOpen
+      ) {
+        setEditImageUrl(nextSettings.src)
+        setEditImageAlt(nextSettings.alt)
+        setEditImageWidth(nextSettings.width)
+        setEditImageHeight(nextSettings.height)
+        setEditImageObjectFit(nextSettings.objectFit)
+        setEditImageObjectPosition(nextSettings.objectPosition)
+        setEditImageAspectRatio(nextSettings.aspectRatio)
+        setEditImageDialogOpen(true)
+      }
+
+      suppressNextImageEditOpenRef.current = false
+      wasImageSelectedRef.current = true
     }
 
     sync()
@@ -312,7 +338,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
       editor.off('selectionUpdate', sync)
       editor.off('transaction', sync)
     }
-  }, [editor])
+  }, [editor, imageDialogOpen, isSourceView])
 
   const handleSourceCodeChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newContent = e.target.value
