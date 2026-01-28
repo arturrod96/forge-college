@@ -335,6 +335,10 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
     }
   }, [isSourceView, editor])
 
+  useEffect(() => {
+    uiGuardsRef.current = { isSourceView, imageDialogOpen }
+  }, [isSourceView, imageDialogOpen])
+
   // Track selected image attributes (used when saving the edit modal)
   useEffect(() => {
     if (!editor) return
