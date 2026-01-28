@@ -308,6 +308,7 @@ export function DashboardLayout() {
                     setEducationOpen={setEducationOpen}
                     isActive={isEducationRoute}
                   />
+                  {/*
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       asChild
@@ -320,6 +321,7 @@ export function DashboardLayout() {
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
+                  */}
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild isActive={isScoreboard} tooltip={t('nav.scoreboard')}>
                       <Link to={DASHBOARD_SCOREBOARD}>
