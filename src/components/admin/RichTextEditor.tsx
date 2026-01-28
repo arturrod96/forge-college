@@ -745,6 +745,143 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
       </Dialog>
 
       <Dialog
+        open={editImageDialogOpen}
+        onOpenChange={(open) => {
+          setEditImageDialogOpen(open)
+          if (!open) resetEditImageDialog()
+        }}
+      >
+        <DialogContent className="z-[110]">
+          <DialogHeader>
+            <DialogTitle>{t('admin.richTextEditor.image.editTitle')}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-image-url">{t('admin.richTextEditor.image.urlLabel')}</Label>
+              <Input
+                id="edit-image-url"
+                placeholder={t('admin.richTextEditor.image.urlPlaceholder')}
+                value={editImageUrl}
+                onChange={(e) => setEditImageUrl(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-image-alt">{t('admin.richTextEditor.image.altLabel')}</Label>
+              <Input
+                id="edit-image-alt"
+                placeholder={t('admin.richTextEditor.image.altPlaceholder')}
+                value={editImageAlt}
+                onChange={(e) => setEditImageAlt(e.target.value)}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="edit-image-width">{t('admin.richTextEditor.image.widthLabel')}</Label>
+                <Input
+                  id="edit-image-width"
+                  inputMode="numeric"
+                  placeholder={t('admin.richTextEditor.image.widthPlaceholder')}
+                  value={editImageWidth}
+                  onChange={(e) => setEditImageWidth(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-image-height">{t('admin.richTextEditor.image.heightLabel')}</Label>
+                <Input
+                  id="edit-image-height"
+                  inputMode="numeric"
+                  placeholder={t('admin.richTextEditor.image.heightPlaceholder')}
+                  value={editImageHeight}
+                  onChange={(e) => setEditImageHeight(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              <div className="space-y-2">
+                <Label>{t('admin.richTextEditor.image.fitLabel')}</Label>
+                <Select value={editImageObjectFit} onValueChange={(value) => setEditImageObjectFit(value as ObjectFit)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {imageFitOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>{t('admin.richTextEditor.image.positionLabel')}</Label>
+                <Select
+                  value={editImageObjectPosition}
+                  onValueChange={(value) => setEditImageObjectPosition(value as ObjectPosition)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {imagePositionOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>{t('admin.richTextEditor.image.aspectRatioLabel')}</Label>
+                <Select
+                  value={editImageAspectRatio}
+                  onValueChange={(value) => setEditImageAspectRatio(value as AspectRatio | 'auto')}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {aspectRatioOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditImageDialogOpen(false)}>
+              {t('common.buttons.cancel')}
+            </Button>
+            <Button
+              onClick={() => {
+                updateSelectedImage({
+                  src: editImageUrl,
+                  alt: editImageAlt,
+                  width: editImageWidth,
+                  height: editImageHeight,
+                  objectFit: editImageObjectFit,
+                  objectPosition: editImageObjectPosition,
+                  aspectRatio: editImageAspectRatio,
+                })
+                setEditImageDialogOpen(false)
+                resetEditImageDialog()
+              }}
+              disabled={!editImageUrl.trim()}
+            >
+              {t('admin.richTextEditor.image.saveButton')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
         open={imageDialogOpen}
         onOpenChange={(open) => {
           setImageDialogOpen(open)
