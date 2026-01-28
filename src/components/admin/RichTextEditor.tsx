@@ -165,6 +165,18 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
   const [imageObjectPosition, setImageObjectPosition] = useState<ObjectPosition>('center')
   const [imageAspectRatio, setImageAspectRatio] = useState<AspectRatio | 'auto'>('auto')
 
+  const [editImageDialogOpen, setEditImageDialogOpen] = useState(false)
+  const [editImageUrl, setEditImageUrl] = useState('')
+  const [editImageAlt, setEditImageAlt] = useState('')
+  const [editImageWidth, setEditImageWidth] = useState('')
+  const [editImageHeight, setEditImageHeight] = useState('')
+  const [editImageObjectFit, setEditImageObjectFit] = useState<ObjectFit>('contain')
+  const [editImageObjectPosition, setEditImageObjectPosition] = useState<ObjectPosition>('center')
+  const [editImageAspectRatio, setEditImageAspectRatio] = useState<AspectRatio | 'auto'>('auto')
+
+  const suppressNextImageEditOpenRef = useRef(false)
+  const wasImageSelectedRef = useRef(false)
+
   const [sourceCode, setSourceCode] = useState('')
 
   const editor = useEditor({
