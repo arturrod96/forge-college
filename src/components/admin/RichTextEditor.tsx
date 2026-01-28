@@ -356,18 +356,21 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
     const merged = { ...selectedImageSettings, ...partial }
     setSelectedImageSettings(merged)
 
-    editor
-      .chain()
-      .focus()
-      .updateAttributes('image', {
-        alt: merged.alt.trim() || null,
-        width: toPx(merged.width),
-        height: toPx(merged.height),
-        objectFit: merged.objectFit,
-        objectPosition: merged.objectPosition,
-        aspectRatio: merged.aspectRatio === 'auto' ? null : merged.aspectRatio,
-      })
-      .run()
+    const attrs: Record<string, any> = {
+      alt: merged.alt.trim() || null,
+      width: toPx(merged.width),
+      height: toPx(merged.height),
+      objectFit: merged.objectFit,
+      objectPosition: merged.objectPosition,
+      aspectRatio: merged.aspectRatio === 'auto' ? null : merged.aspectRatio,
+    }
+
+    if ('src' in partial) {
+      const nextSrc = merged.src.trim()
+      if (nextSrc) attrs.src = nextSrc
+    }
+
+    editor.chain().focus().updateAttributes('image', attrs).run()
   }
 
   const toggleFullScreen = () => {
