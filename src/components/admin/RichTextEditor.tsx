@@ -225,7 +225,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
         { value: 'bottom left' as const, label: t('admin.richTextEditor.image.position.bottomLeft') },
         { value: 'bottom right' as const, label: t('admin.richTextEditor.image.position.bottomRight') },
       ] satisfies { value: ObjectPosition; label: string }[],
-    [t]
+    [i18n.language, t]
   )
 
   const imageFitOptions = useMemo(
@@ -237,7 +237,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
         { value: 'none' as const, label: t('admin.richTextEditor.image.fit.none') },
         { value: 'scale-down' as const, label: t('admin.richTextEditor.image.fit.scaleDown') },
       ] satisfies { value: ObjectFit; label: string }[],
-    [t]
+    [i18n.language, t]
   )
 
   const aspectRatioOptions = useMemo(
@@ -249,7 +249,7 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
         { value: '4/3' as const, label: t('admin.richTextEditor.image.aspectRatio.classic') },
         { value: '3/4' as const, label: t('admin.richTextEditor.image.aspectRatio.portrait') },
       ] satisfies { value: AspectRatio | 'auto'; label: string }[],
-    [t]
+    [i18n.language, t]
   )
 
   // Update editor content if external value changes significantly
