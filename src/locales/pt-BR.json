@@ -508,6 +508,7 @@
         "settingsTitle": "Configurações da imagem",
         "urlLabel": "URL da imagem",
         "urlPlaceholder": "https://exemplo.com/imagem.png",
+        "overlayEditHint": "Clique na imagem para editar",
         "altLabel": "Texto alternativo",
         "altPlaceholder": "Descreva a imagem (opcional)",
         "widthLabel": "Largura (px)",
