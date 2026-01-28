@@ -467,6 +467,83 @@
         "projects": "Projetos"
       }
     },
+    "richTextEditor": {
+      "toolbar": {
+        "bold": "Negrito",
+        "italic": "Itálico",
+        "underline": "Sublinhado",
+        "strikethrough": "Tachado",
+        "heading1": "Título 1",
+        "heading2": "Título 2",
+        "heading3": "Título 3",
+        "alignLeft": "Alinhar à esquerda",
+        "alignCenter": "Centralizar",
+        "alignRight": "Alinhar à direita",
+        "bulletList": "Lista com marcadores",
+        "orderedList": "Lista numerada",
+        "quote": "Citação",
+        "codeBlock": "Bloco de código",
+        "link": "Link",
+        "image": "Inserir imagem",
+        "youtube": "Adicionar vídeo do YouTube",
+        "undo": "Desfazer",
+        "redo": "Refazer",
+        "fullScreen": "Tela cheia",
+        "exitFullScreen": "Sair da tela cheia",
+        "viewHtml": "Ver HTML",
+        "doneEditing": "Concluir edição"
+      },
+      "link": {
+        "prompt": "URL"
+      },
+      "youtube": {
+        "title": "Adicionar vídeo do YouTube",
+        "urlLabel": "URL do vídeo",
+        "urlPlaceholder": "https://www.youtube.com/watch?v=...",
+        "addButton": "Adicionar vídeo"
+      },
+      "image": {
+        "insertTitle": "Inserir imagem",
+        "settingsTitle": "Configurações da imagem",
+        "urlLabel": "URL da imagem",
+        "urlPlaceholder": "https://exemplo.com/imagem.png",
+        "altLabel": "Texto alternativo",
+        "altPlaceholder": "Descreva a imagem (opcional)",
+        "widthLabel": "Largura (px)",
+        "widthPlaceholder": "Auto",
+        "heightLabel": "Altura (px)",
+        "heightPlaceholder": "Auto",
+        "fitLabel": "Ajuste",
+        "positionLabel": "Posição",
+        "aspectRatioLabel": "Proporção",
+        "insertButton": "Inserir",
+        "fit": {
+          "contain": "Conter",
+          "cover": "Cobrir",
+          "fill": "Preencher",
+          "none": "Nenhum",
+          "scaleDown": "Reduzir"
+        },
+        "position": {
+          "center": "Centro",
+          "top": "Topo",
+          "bottom": "Base",
+          "left": "Esquerda",
+          "right": "Direita",
+          "topLeft": "Topo esquerda",
+          "topRight": "Topo direita",
+          "bottomLeft": "Base esquerda",
+          "bottomRight": "Base direita"
+        },
+        "aspectRatio": {
+          "auto": "Auto",
+          "square": "1:1",
+          "wide": "16:9",
+          "classic": "4:3",
+          "portrait": "3:4"
+        }
+      }
+    },
     "paths": {
       "title": "Trilhas de Aprendizado",
       "new": "Nova trilha de aprendizado",
