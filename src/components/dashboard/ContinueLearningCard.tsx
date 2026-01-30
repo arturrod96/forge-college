@@ -16,11 +16,15 @@ import { useTranslation } from 'react-i18next';
 import { LoadingCard } from '@/components/ui/loading-states';
 import { EmptyState } from '@/components/ui/empty-state';
 import { BookOpen } from 'lucide-react';
+import { getCourseTitleWithLocalizations } from '@/lib/localization';
 
 interface RecentCourse {
   id: string;
   title: string;
+  title_en?: string | null;
+  title_pt_br?: string | null;
   description: string;
+  course_localizations?: { locale: string; title: string | null }[] | null;
 }
 
 type ContinueLearningCardProps = {
@@ -30,7 +34,7 @@ type ContinueLearningCardProps = {
 export function ContinueLearningCard({ className }: ContinueLearningCardProps) {
   const { user } = useAuth();
   const supabase = useMemo(() => createClientBrowser(), []);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [recentCourse, setRecentCourse] = useState<RecentCourse | null>(null);
 
   const { isLoading } = useQuery({
@@ -49,7 +53,7 @@ export function ContinueLearningCard({ className }: ContinueLearningCardProps) {
 
       const { data: lessonData, error: lessonError } = await supabase
         .from('lessons')
-        .select('modules(courses(id, title, description))')
+        .select('modules(courses(id, title, title_en, title_pt_br, description, course_localizations(locale, title)))')
         .eq('id', progressData.lesson_id)
         .single();
       if (lessonError || !lessonData) return null;
@@ -63,7 +67,10 @@ export function ContinueLearningCard({ className }: ContinueLearningCardProps) {
       const course: RecentCourse = {
         id: courseEntry.id,
         title: courseEntry.title,
+        title_en: courseEntry.title_en ?? undefined,
+        title_pt_br: courseEntry.title_pt_br ?? undefined,
         description: courseEntry.description,
+        course_localizations: (courseEntry as { course_localizations?: { locale: string; title: string | null }[] }).course_localizations ?? undefined,
       };
       setRecentCourse(course);
       return course;
@@ -104,7 +111,7 @@ export function ContinueLearningCard({ className }: ContinueLearningCardProps) {
       variant="gradient"
       size="lg"
       className={className}
-      aria-label={t('dashboard.continueLearning.ariaLabel', { course: recentCourse.title })}
+      aria-label={t('dashboard.continueLearning.ariaLabel', { course: getCourseTitleWithLocalizations(recentCourse, recentCourse.course_localizations, i18n.language) })}
     >
       <EnhancedCardHeader>
         <EnhancedCardTitle size="lg">
@@ -114,7 +121,7 @@ export function ContinueLearningCard({ className }: ContinueLearningCardProps) {
           {t('dashboard.continueLearning.subtitle')}
         </EnhancedCardDescription>
         <p className="text-xl font-semibold pt-2 text-foreground">
-          {recentCourse.title}
+          {getCourseTitleWithLocalizations(recentCourse, recentCourse.course_localizations, i18n.language)}
         </p>
       </EnhancedCardHeader>
       <EnhancedCardContent>
@@ -123,7 +130,7 @@ export function ContinueLearningCard({ className }: ContinueLearningCardProps) {
             size="lg"
             withGradient
             className="w-full md:w-auto"
-            aria-label={t('common.buttons.continueLearning') + ' - ' + recentCourse.title}
+            aria-label={t('common.buttons.continueLearning') + ' - ' + getCourseTitleWithLocalizations(recentCourse, recentCourse.course_localizations, i18n.language)}
           >
             {t('common.buttons.continueLearning')}
           </EnhancedButton>

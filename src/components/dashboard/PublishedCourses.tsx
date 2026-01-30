@@ -14,6 +14,7 @@ import { ContentSearch, FilterPopover, type StatusFilterValue, type ProgressFilt
 import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { toast } from 'sonner';
 import { HoverEffectGrid } from '@/components/ui/card-hover-effect';
+import { getCourseTitleWithLocalizations, getDescriptionFromLocalizations, getTitleFromLocalizations } from '@/lib/localization';
 
 interface Course {
   id: string;
@@ -43,11 +44,12 @@ type PublishedCoursesProps = {
 };
 
 export function PublishedCourses({ limit, className, showSearch = true }: PublishedCoursesProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const supabase = useMemo(() => createClientBrowser(), []);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const locale = i18n.language || 'pt-BR';
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>('all');
   const [progressFilter, setProgressFilter] = useState<ProgressFilterValue[]>([]);
@@ -56,31 +58,40 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
   const [leavingWaitlistId, setLeavingWaitlistId] = useState<string | null>(null);
   const [hoveredWaitlistCourseId, setHoveredWaitlistCourseId] = useState<string | null>(null);
 
-  // Fetch courses
+  // Fetch courses with localizations for title/description by locale
   const { data: courses = [], isLoading: isLoadingCourses } = useQuery<Course[]>({
-    queryKey: ['publishedCourses'],
+    queryKey: ['publishedCourses', locale],
     staleTime: 60_000,
     refetchOnWindowFocus: false,
     queryFn: async (): Promise<Course[]> => {
       const { data, error } = await supabase
         .from('courses')
-        .select('id, title, description, slug, duration_minutes, thumbnail_url, order, status, is_published, modules(id, title, order)')
+        .select('id, title, description, slug, duration_minutes, thumbnail_url, order, status, is_published, course_localizations(locale, title, description), modules(id, title, order, module_localizations(locale, title))')
         .eq('is_published', true)
         .order('order', { ascending: true });
       if (error) throw error;
-      
+
       return (data || []).map((course: any) => {
+        const courseLocs = course.course_localizations;
         const modules = (course.modules || [])
           .map((m: any) => ({
             id: m.id,
-            title: m.title,
+            title: getTitleFromLocalizations(m.module_localizations, locale, m.title),
             order: m.order ?? 0,
           }))
           .filter((m: any) => m.id && m.title)
           .sort((a: any, b: any) => a.order - b.order);
 
         return {
-          ...course,
+          id: course.id,
+          title: getCourseTitleWithLocalizations({ title: course.title }, courseLocs, locale),
+          description: getDescriptionFromLocalizations(courseLocs ?? [], locale, course.description) || course.description || '',
+          slug: course.slug,
+          duration_minutes: course.duration_minutes,
+          thumbnail_url: course.thumbnail_url,
+          order: course.order,
+          status: course.status,
+          is_published: course.is_published,
           modules,
         };
       });

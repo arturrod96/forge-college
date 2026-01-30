@@ -10,6 +10,8 @@ import { useAuth } from '@/hooks/useOAuth';
 import { useEffect, useState } from 'react';
 import { createClientBrowser } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
+import { getCourseTitleWithLocalizations } from '@/lib/localization';
 
 interface Props {
   course: Course;
@@ -32,6 +34,7 @@ export function CourseTableOfContents({
   minimal = false
 }: Props) {
   const { user } = useAuth();
+  const { i18n } = useTranslation();
   const [progress, setProgress] = useState<LessonProgress>({});
   const supabase = createClientBrowser();
 
@@ -92,7 +95,7 @@ export function CourseTableOfContents({
       {/* Only show header if not minimal */}
       {!minimal && (
         <div className="mb-3 px-1">
-          <h2 className="text-base font-semibold text-gray-900 dark:text-white">{course.title}</h2>
+          <h2 className="text-base font-semibold text-gray-900 dark:text-white">{getCourseTitleWithLocalizations(course, course.course_localizations, i18n.language)}</h2>
           {course.description && (
             <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{course.description}</p>
           )}

@@ -108,13 +108,20 @@
     "course": "Course",
     "path": "Path",
     "myProfile": "My Profile",
-    "page": "Page"
+    "page": "Page",
+    "exit": "Exit"
   },
   "learningPaths": {
     "title": "Learning Paths",
     "subtitle": "Browse and explore all available learning paths",
     "emptyNoMatch": "No learning paths match your filters",
     "emptyNoData": "No learning paths available"
+  },
+  "learningMode": {
+    "title": "Learning Mode",
+    "focus": "Focus",
+    "learn": "Learn",
+    "build": "Build"
   },
   "courses": {
     "title": "Courses",
@@ -442,7 +449,16 @@
     "loginToTrack": "You need to be logged in to track progress",
     "progressSaveFailed": "Failed to save progress",
     "lessonCompleted": "Lesson marked as completed!",
-    "completionError": "Error marking lesson as completed"
+    "completionError": "Error marking lesson as completed",
+    "video": {
+      "invalidUrl": "Invalid video URL",
+      "invalidUrlHint": "Please provide a valid YouTube URL. Supported formats:",
+      "loading": "Loading video...",
+      "loadError": "Error loading video",
+      "loadErrorHint": "Could not load the video. Check the URL and your connection.",
+      "tryAgain": "Try again",
+      "playerOptimized": "Player optimized for learning"
+    }
   },
   "aiInstructor": {
     "title": "AI Instructor",

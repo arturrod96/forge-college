@@ -17,17 +17,22 @@ import { useState, useMemo } from 'react';
 import { ContentSearch, FilterPopover, type StatusFilterValue, type SortOption, type ProgressFilterValue } from '@/components/filters';
 import { HoverEffectGrid } from '@/components/ui/card-hover-effect';
 import { toast } from 'sonner';
+import { getTitleFromLocalizations } from '@/lib/localization';
 
 type FormationRow = Tables<'formations'>['Row'];
 type FormationPathRow = Tables<'formation_paths'>['Row'];
 type LearningPathSummary = Pick<Tables<'learning_paths'>['Row'], 'id' | 'title'>;
 
+type FormationLocalization = { locale: string; title: string | null };
+type LearningPathLocalization = { locale: string; title: string | null };
+
 type FormationQueryRow = FormationRow & {
+  formation_localizations?: FormationLocalization[] | null;
   formation_paths?: Array<
     Pick<FormationPathRow, 'order'> & {
-      learning_paths: LearningPathSummary | null
+      learning_paths: (LearningPathSummary & { learning_path_localizations?: LearningPathLocalization[] | null }) | null;
     }
-  > | null
+  > | null;
 };
 
 interface FormationCardModel {
@@ -86,8 +91,9 @@ type FormationsListProps = {
 // }
 
 export function FormationsList({ limit, className }: FormationsListProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
+  const locale = i18n.language || 'pt-BR';
   const supabase = createClientBrowser();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>('all');
@@ -108,7 +114,7 @@ export function FormationsList({ limit, className }: FormationsListProps) {
   // });
 
   const { data: formations = [], isLoading } = useQuery<FormationCardModel[]>({
-    queryKey: ['formations', user?.id],
+    queryKey: ['formations', user?.id, locale],
     enabled: true,
     staleTime: 60_000,
     refetchOnWindowFocus: false,
@@ -118,9 +124,10 @@ export function FormationsList({ limit, className }: FormationsListProps) {
         .from('formations')
         .select(`
           id, title, description, thumbnail_url, created_at, status,
+          formation_localizations(locale, title),
           formation_paths(
             order,
-            learning_paths(id, title)
+            learning_paths(id, title, learning_path_localizations(locale, title))
           )
         `)
         .in('status', ['published', 'coming_soon'])
@@ -212,12 +219,14 @@ export function FormationsList({ limit, className }: FormationsListProps) {
       }
 
       return rows.map((formation) => {
+        const formationLoc = (formation as FormationQueryRow).formation_localizations;
         const paths = (formation.formation_paths ?? [])
           .map((fp) => {
             if (!fp.learning_paths) return null;
+            const lp = fp.learning_paths as { id: string; title: string; learning_path_localizations?: LearningPathLocalization[] | null };
             return {
-              id: fp.learning_paths.id,
-              title: fp.learning_paths.title,
+              id: lp.id,
+              title: getTitleFromLocalizations(lp.learning_path_localizations, locale, lp.title),
               order: fp.order ?? 0,
             };
           })
@@ -226,7 +235,7 @@ export function FormationsList({ limit, className }: FormationsListProps) {
 
         return {
           id: formation.id,
-          title: formation.title,
+          title: getTitleFromLocalizations(formationLoc, locale, formation.title),
           description: formation.description,
           thumbnail_url: formation.thumbnail_url,
           status: formation.status,

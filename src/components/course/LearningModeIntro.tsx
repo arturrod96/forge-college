@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
     onComplete: () => void;
 }
 
 export function LearningModeIntro({ onComplete }: Props) {
+    const { t } = useTranslation();
     const [stage, setStage] = useState<'enter' | 'show' | 'exit'>('enter');
 
     useEffect(() => {
@@ -71,7 +73,7 @@ export function LearningModeIntro({ onComplete }: Props) {
                 style={{ transitionDelay: stage === 'enter' ? '0ms' : '200ms' }}
             >
                 <p className="text-forge-dark/90 text-base sm:text-lg font-medium tracking-wider uppercase">
-                    Learning Mode
+                    {t('learningMode.title')}
                 </p>
                 <div
                     className={`
@@ -81,11 +83,11 @@ export function LearningModeIntro({ onComplete }: Props) {
           `}
                     style={{ transitionDelay: '400ms' }}
                 >
-                    <span>Focus</span>
+                    <span>{t('learningMode.focus')}</span>
                     <span className="w-1 h-1 rounded-full bg-forge-orange/60" />
-                    <span>Learn</span>
+                    <span>{t('learningMode.learn')}</span>
                     <span className="w-1 h-1 rounded-full bg-forge-orange/60" />
-                    <span>Build</span>
+                    <span>{t('learningMode.build')}</span>
                 </div>
             </div>
 

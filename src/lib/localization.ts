@@ -114,3 +114,106 @@ export function ensureLocaleMap<TRow>(
 export function getDefaultLocale(locales: LocaleRow[]) {
   return locales.find((locale) => locale.is_default)?.code ?? DEFAULT_LOCALE
 }
+
+/** Course (or similar) with optional localized titles */
+export type TitleI18n = {
+  title: string
+  title_en?: string | null
+  title_pt_br?: string | null
+}
+
+/**
+ * Returns the title in the best available language for the given locale.
+ * Prefers title_en when locale is en, title_pt_br when pt; otherwise falls back to title.
+ */
+export function getCourseTitleByLocale(entity: TitleI18n, locale: string): string {
+  const code = (locale || '').split('-')[0].toLowerCase()
+  if (code === 'en' && entity.title_en?.trim()) return entity.title_en.trim()
+  if (code === 'pt' && entity.title_pt_br?.trim()) return entity.title_pt_br.trim()
+  return entity.title?.trim() ?? ''
+}
+
+/** Localization row with locale and title (e.g. from course_localizations) */
+export type LocalizationTitleRow = { locale: string; title: string | null }
+
+/**
+ * Returns the course title for the given locale.
+ * Prefers title from course_localizations (admin "Localized content"), then title_en/title_pt_br, then title.
+ */
+export function getCourseTitleWithLocalizations(
+  entity: TitleI18n,
+  localizations: LocalizationTitleRow[] | null | undefined,
+  locale: string
+): string {
+  const want = (locale || '').trim()
+  if (want && Array.isArray(localizations)) {
+    const exact = localizations.find((r) => r.locale === want && r.title?.trim())
+    if (exact?.title?.trim()) return exact.title.trim()
+    const lang = want.split('-')[0].toLowerCase()
+    const byLang = localizations.find((r) => r.locale?.toLowerCase().startsWith(lang) && r.title?.trim())
+    if (byLang?.title?.trim()) return byLang.title.trim()
+  }
+  return getCourseTitleByLocale(entity, locale)
+}
+
+/**
+ * Returns the title for the given locale from a list of localization rows (e.g. formation_localizations, learning_path_localizations).
+ * Falls back to baseTitle when no matching localization is found.
+ */
+export function getTitleFromLocalizations(
+  localizations: LocalizationTitleRow[] | null | undefined,
+  locale: string,
+  baseTitle: string
+): string {
+  const want = (locale || '').trim()
+  if (!want || !Array.isArray(localizations)) return baseTitle?.trim() ?? ''
+  const exact = localizations.find((r) => r.locale === want && r.title?.trim())
+  if (exact?.title?.trim()) return exact.title.trim()
+  const lang = want.split('-')[0].toLowerCase()
+  const byLang = localizations.find((r) => r.locale?.toLowerCase().startsWith(lang) && r.title?.trim())
+  if (byLang?.title?.trim()) return byLang.title.trim()
+  return baseTitle?.trim() ?? ''
+}
+
+/** Localization row with locale, title, and optional description */
+export type LocalizationRowWithDescription = { locale: string; title: string | null; description?: string | null }
+
+/**
+ * Returns the description for the given locale from localization rows. Falls back to baseDescription.
+ */
+export function getDescriptionFromLocalizations(
+  localizations: LocalizationRowWithDescription[] | null | undefined,
+  locale: string,
+  baseDescription: string | null
+): string {
+  const want = (locale || '').trim()
+  if (!want || !Array.isArray(localizations)) return baseDescription?.trim() ?? ''
+  const exact = localizations.find((r) => r.locale === want && (r.description?.trim() ?? r.title?.trim()))
+  if (exact?.description?.trim()) return exact.description.trim()
+  const lang = want.split('-')[0].toLowerCase()
+  const byLang = localizations.find((r) => r.locale?.toLowerCase().startsWith(lang) && r.description?.trim())
+  if (byLang?.description?.trim()) return byLang.description.trim()
+  return baseDescription?.trim() ?? ''
+}
+
+/** Localization row with locale and content (e.g. lesson_localizations) */
+export type LocalizationRowWithContent = { locale: string; title?: string | null; content?: unknown }
+
+/**
+ * Returns the content for the given locale from localization rows (e.g. lesson_localizations).
+ * Falls back to baseContent when no matching localization is found.
+ */
+export function getContentFromLocalizations(
+  localizations: LocalizationRowWithContent[] | null | undefined,
+  locale: string,
+  baseContent: unknown
+): unknown {
+  const want = (locale || '').trim()
+  if (!want || !Array.isArray(localizations)) return baseContent
+  const exact = localizations.find((r) => r.locale === want && r.content != null)
+  if (exact?.content != null) return exact.content
+  const lang = want.split('-')[0].toLowerCase()
+  const byLang = localizations.find((r) => r.locale?.toLowerCase().startsWith(lang) && r.content != null)
+  if (byLang?.content != null) return byLang.content
+  return baseContent
+}
