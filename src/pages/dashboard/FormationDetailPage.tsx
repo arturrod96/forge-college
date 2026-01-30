@@ -10,6 +10,7 @@ import { toast } from 'sonner'
 import { ArrowLeft, BookMarked, Users, Clock, CircleCheckBig, CirclePlay, Layers3, CheckCircle, Flame, TrendingUp } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
+import { getTitleFromLocalizations, getCourseTitleWithLocalizations, getDescriptionFromLocalizations } from '@/lib/localization'
 import * as R from '@/routes/paths'
 import type { Tables } from '@/types/supabase'
 import type { PostgrestError } from '@supabase/supabase-js'
@@ -49,7 +50,8 @@ export default function FormationDetailPage() {
   const supabase = useMemo(() => createClientBrowser(), [])
   const queryClient = useQueryClient()
   const { user } = useAuth()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const locale = i18n.language || 'pt-BR'
 
   const {
     data: formation,
@@ -57,7 +59,7 @@ export default function FormationDetailPage() {
     isError,
     error,
   } = useQuery<FormationDetail>({
-    queryKey: ['formation-detail', formationId, user?.id],
+    queryKey: ['formation-detail', formationId, user?.id, locale],
     enabled: Boolean(formationId),
     queryFn: async () => {
       if (!formationId) throw new Error('Formation not found')
@@ -66,9 +68,10 @@ export default function FormationDetailPage() {
         .from('formations')
         .select(`
           id, title, description, thumbnail_url, created_at, published_at, status,
+          formation_localizations(locale, title, description),
           formation_paths(
             order,
-            learning_paths(id, title, status, courses(id, title, order))
+            learning_paths(id, title, status, learning_path_localizations(locale, title), courses(id, title, order, course_localizations(locale, title)))
           )
         `)
         .eq('id', formationId)
@@ -81,26 +84,41 @@ export default function FormationDetailPage() {
       type LearningPathRow = Tables<'learning_paths'>['Row']
 
       type FormationDetailQueryRow = FormationRow & {
+        formation_localizations?: { locale: string; title: string | null; description?: string | null }[] | null
         formation_paths?: Array<
           Pick<FormationPathRow, 'order'> & {
-            learning_paths: Pick<LearningPathRow, 'id' | 'title' | 'status'> | null
+            learning_paths: (Pick<LearningPathRow, 'id' | 'title' | 'status'> & {
+              learning_path_localizations?: { locale: string; title: string | null }[] | null
+              courses?: Array<{ id: string; title: string; order?: number; course_localizations?: { locale: string; title: string | null }[] | null }>
+            }) | null
           }
         > | null
       }
 
       const formationRow = data as FormationDetailQueryRow
+      const formationLoc = formationRow.formation_localizations
 
       const paths: FormationPathItem[] = (formationRow.formation_paths ?? [])
         .map((fp) => {
           if (!fp.learning_paths) return null
-          const lp = fp.learning_paths as { id: string; title: string; status: string; courses?: Array<{ id: string; title: string; order?: number }> }
+          const lp = fp.learning_paths as {
+            id: string
+            title: string
+            status: string
+            learning_path_localizations?: { locale: string; title: string | null }[] | null
+            courses?: Array<{ id: string; title: string; order?: number; course_localizations?: { locale: string; title: string | null }[] | null }>
+          }
           const courses = (lp.courses || [])
-            .map((c) => ({ id: c.id, title: c.title, order: c.order ?? 0 }))
+            .map((c) => ({
+              id: c.id,
+              title: getCourseTitleWithLocalizations({ title: c.title }, c.course_localizations, locale),
+              order: c.order ?? 0,
+            }))
             .filter((c) => c.id && c.title)
             .sort((a, b) => a.order - b.order)
           return {
             id: lp.id,
-            title: lp.title,
+            title: getTitleFromLocalizations(lp.learning_path_localizations, locale, lp.title),
             order: fp.order ?? 0,
             status: lp.status as FormationPathItem['status'],
             courses,
@@ -225,8 +243,8 @@ export default function FormationDetailPage() {
 
       return {
         id: formationRow.id,
-        title: formationRow.title,
-        description: formationRow.description,
+        title: getTitleFromLocalizations(formationLoc, locale, formationRow.title),
+        description: getDescriptionFromLocalizations(formationLoc ?? [], locale, formationRow.description) || (formationRow.description ?? null),
         thumbnail_url: formationRow.thumbnail_url,
         created_at: formationRow.created_at,
         published_at: formationRow.published_at,

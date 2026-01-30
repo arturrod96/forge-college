@@ -244,7 +244,7 @@ export default function LessonAIChat(props: Props) {
           className="flex gap-2"
         >
           <Input
-            placeholder="Ask me about this lesson..."
+            placeholder={t('aiInstructor.placeholder')}
             value={input}
             onChange={(e) => setInput(e.target.value)}
           />

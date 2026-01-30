@@ -9,6 +9,7 @@ import { DASHBOARD_LEARN_COURSE, DASHBOARD_EXPLORE } from '@/routes/paths';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, BookMarked, Folder, CirclePlay, Flame, CheckCircle, CircleCheckBig } from 'lucide-react';
+import { getTitleFromLocalizations, getDescriptionFromLocalizations, getCourseTitleWithLocalizations } from '@/lib/localization';
 
 interface ModuleSummary {
   id: string;
@@ -39,41 +40,44 @@ export default function PathOverview() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const supabase = createClientBrowser();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language || 'pt-BR';
 
   const { data, isLoading, error } = useQuery<{
     path: LearningPathDetail;
     isEnrolled: boolean;
     courseProgress: Record<string, CourseProgressStatus>;
   } | null>({
-    queryKey: ['pathOverview', pathId, user?.id],
+    queryKey: ['pathOverview', pathId, user?.id, locale],
     enabled: Boolean(pathId),
     queryFn: async () => {
-      // Load path + courses with modules and lessons (for progress)
+      // Load path + courses with modules and lessons (for progress) and localizations
       const { data: pathData, error: pathError } = await supabase
         .from('learning_paths')
         .select(
-          'id, title, description, courses(id, title, description, thumbnail_url, order, modules(id, title, order, lessons(id)))'
+          'id, title, description, learning_path_localizations(locale, title, description), courses(id, title, description, thumbnail_url, order, course_localizations(locale, title, description), modules(id, title, order, lessons(id)))'
         )
         .eq('id', pathId)
         .single();
       if (pathError) throw pathError;
 
       const rawCourses = (pathData.courses || []).slice().sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0));
+      const pathLocs = (pathData as { learning_path_localizations?: { locale: string; title: string | null; description?: string | null }[] }).learning_path_localizations;
 
       const path: LearningPathDetail = {
         id: pathData.id,
-        title: pathData.title,
-        description: pathData.description,
+        title: getTitleFromLocalizations(pathLocs, locale, pathData.title),
+        description: getDescriptionFromLocalizations(pathLocs, locale, pathData.description),
         courses: rawCourses.map((c: any) => {
           const modules = (c.modules || [])
             .map((m: any) => ({ id: m.id, title: m.title, order: m.order ?? 0 }))
             .filter((m: any) => m.id && m.title)
             .sort((a: any, b: any) => a.order - b.order);
+          const courseLocs = c.course_localizations;
           return {
             id: c.id,
-            title: c.title,
-            description: c.description ?? null,
+            title: getCourseTitleWithLocalizations({ title: c.title }, courseLocs, locale),
+            description: getDescriptionFromLocalizations(courseLocs ?? [], locale, c.description ?? null) || null,
             thumbnail_url: c.thumbnail_url ?? null,
             modules,
           };

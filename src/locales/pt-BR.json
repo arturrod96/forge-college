@@ -108,13 +108,20 @@
     "course": "Curso",
     "path": "Trilha",
     "myProfile": "Meu Perfil",
-    "page": "Página"
+    "page": "Página",
+    "exit": "Sair"
   },
   "learningPaths": {
     "title": "Trilhas de Aprendizado",
     "subtitle": "Navegue e explore todas as trilhas de aprendizado disponíveis",
     "emptyNoMatch": "Nenhuma trilha corresponde aos filtros",
     "emptyNoData": "Nenhuma trilha disponível"
+  },
+  "learningMode": {
+    "title": "Modo de Aprendizado",
+    "focus": "Foco",
+    "learn": "Aprenda",
+    "build": "Construa"
   },
   "courses": {
     "title": "Cursos",
@@ -441,7 +448,16 @@
     "loginToTrack": "Você precisa estar logado para acompanhar o progresso",
     "progressSaveFailed": "Falha ao salvar progresso",
     "lessonCompleted": "Lição marcada como concluída!",
-    "completionError": "Erro ao marcar lição como concluída"
+    "completionError": "Erro ao marcar lição como concluída",
+    "video": {
+      "invalidUrl": "URL de vídeo inválida",
+      "invalidUrlHint": "Por favor, forneça uma URL válida do YouTube. Formatos suportados:",
+      "loading": "Carregando vídeo...",
+      "loadError": "Erro ao carregar vídeo",
+      "loadErrorHint": "Não foi possível carregar o vídeo. Verifique a URL e sua conexão.",
+      "tryAgain": "Tentar novamente",
+      "playerOptimized": "Player otimizado para experiência de aprendizado"
+    }
   },
   "aiInstructor": {
     "title": "Instrutor de IA",

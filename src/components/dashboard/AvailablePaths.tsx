@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { LoadingGrid } from '@/components/ui/loading-states';
 import { ContentSearch, FilterPopover, type StatusFilterValue, type SortOption, type ProgressFilterValue } from '@/components/filters';
-import { pickPublishedLocalization, DEFAULT_LOCALE } from '@/lib/localization';
+import { pickPublishedLocalization, getCourseTitleWithLocalizations, DEFAULT_LOCALE } from '@/lib/localization';
 import { cn } from '@/lib/utils';
 import type { Tables } from '@/types/supabase';
 import { HoverEffectGrid } from '@/components/ui/card-hover-effect';
@@ -35,8 +35,9 @@ interface LearningPath {
   }>;
 }
 
+type CourseWithLoc = { id: string; title: string; order: number; course_localizations?: { locale: string; title: string | null }[] | null };
 type LearningPathRow = Tables<'learning_paths'> & {
-  courses: Array<{ id: string; title: string; order: number }> | null;
+  courses: CourseWithLoc[] | null;
   learning_path_localizations: LearningPathLocalization[] | null;
 };
 
@@ -76,7 +77,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
             title,
             description,
             status,
-            courses(id, title, order),
+            courses(id, title, order, course_localizations(locale, title)),
             learning_path_localizations(*)
           `
         )
@@ -177,15 +178,15 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
           DEFAULT_LOCALE
         );
 
-        // Process courses
+        // Process courses (use localized title when available)
         const courses = (path.courses || [])
-          .map((c: any) => ({
+          .map((c: CourseWithLoc) => ({
             id: c.id,
-            title: c.title,
+            title: getCourseTitleWithLocalizations({ title: c.title }, c.course_localizations, resolvedLocale),
             order: c.order ?? 0,
           }))
-          .filter((c: any) => c.id && c.title)
-          .sort((a: any, b: any) => a.order - b.order);
+          .filter((c) => c.id && c.title)
+          .sort((a, b) => a.order - b.order);
 
         return {
           id: path.id,

@@ -14,6 +14,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/u
 import { toast } from 'sonner';
 import { Check, ChevronDown, Flame, MessageCircle, Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getCourseTitleWithLocalizations, getTitleFromLocalizations, getContentFromLocalizations } from '@/lib/localization';
 
 type LessonType = 'text' | 'video' | 'quiz';
 
@@ -32,11 +33,16 @@ export interface Module {
   projects: ModuleProject[];
 }
 
+export type CourseLocalizationRow = { locale: string; title: string | null };
+
 export interface Course {
   id: string;
   title: string;
+  title_en?: string | null;
+  title_pt_br?: string | null;
   description: string;
   modules: Module[];
+  course_localizations?: CourseLocalizationRow[] | null;
 }
 
 type DashboardOutletContext = { setHeaderBreadcrumb: (node: ReactNode | null) => void };
@@ -61,21 +67,23 @@ export default function CourseView() {
   const queryClient = useQueryClient();
   const { setHeaderBreadcrumb } = useOutletContext<DashboardOutletContext>();
   const { user } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const lessonIdParam = searchParams.get('lessonId');
   const moduleIdParam = searchParams.get('moduleId');
 
+  const locale = i18n.language || 'pt-BR';
   const { data: course, isLoading } = useQuery<Course | null>({
-    queryKey: ['courseView', courseId],
+    queryKey: ['courseView', courseId, locale],
     enabled: Boolean(courseId),
     queryFn: async () => {
       const { data: courseData, error } = await supabase
         .from('courses')
         .select(`
-          id, title, description,
+          id, title, title_en, title_pt_br, description,
+          course_localizations(locale, title),
           modules:modules(id, title, order,
-            lessons:lessons(id, title, content, lesson_type, order, xp_value),
+            lessons:lessons(id, title, content, lesson_type, order, xp_value, lesson_localizations(locale, title, content)),
             projects:module_projects(id, title, description, xp_value, is_active, created_at)
           )
         `)
@@ -90,6 +98,7 @@ export default function CourseView() {
         lesson_type: LessonType;
         order: number | null;
         xp_value: number | null;
+        lesson_localizations?: { locale: string; title: string | null; content?: unknown }[] | null;
       };
 
       type SupabaseProject = {
@@ -118,10 +127,14 @@ export default function CourseView() {
 
       const typedCourse = courseData as SupabaseCourse;
 
+      const typedWithLoc = typedCourse as { course_localizations?: { locale: string; title: string | null }[] | null };
       const normalized: Course = {
         id: typedCourse.id,
         title: typedCourse.title,
+        title_en: (typedCourse as { title_en?: string | null }).title_en ?? undefined,
+        title_pt_br: (typedCourse as { title_pt_br?: string | null }).title_pt_br ?? undefined,
         description: typedCourse.description,
+        course_localizations: typedWithLoc.course_localizations ?? undefined,
         modules: (typedCourse.modules ?? [])
           .slice()
           .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
@@ -131,13 +144,16 @@ export default function CourseView() {
             lessons: (module.lessons ?? [])
               .slice()
               .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-              .map((lesson) => ({
-                id: lesson.id,
-                title: lesson.title,
-                content: lesson.content,
-                lesson_type: lesson.lesson_type,
-                xp_value: lesson.xp_value ?? 0,
-              })),
+              .map((lesson) => {
+                const lessonLoc = (lesson as SupabaseLesson).lesson_localizations;
+                return {
+                  id: lesson.id,
+                  title: getTitleFromLocalizations(lessonLoc, locale, lesson.title),
+                  content: getContentFromLocalizations(lessonLoc, locale, lesson.content),
+                  lesson_type: lesson.lesson_type,
+                  xp_value: lesson.xp_value ?? 0,
+                };
+              }),
             projects: (module.projects ?? [])
               .slice()
               .filter((project) => project.is_active ?? true)
@@ -440,7 +456,7 @@ export default function CourseView() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              <span className="hidden sm:inline">Exit</span>
+              <span className="hidden sm:inline">{t('nav.exit')}</span>
             </Link>
           </div>
 
@@ -451,7 +467,7 @@ export default function CourseView() {
               className="group flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors max-w-xs sm:max-w-md"
             >
               <span className="text-sm font-medium text-forge-dark truncate">
-                {currentLesson?.title || course.title}
+                {currentLesson?.title || getCourseTitleWithLocalizations(course, course.course_localizations, i18n.language)}
               </span>
               <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-forge-orange transition-colors flex-shrink-0" />
             </button>
@@ -562,7 +578,7 @@ export default function CourseView() {
           {/* AI Chat Sidebar - Fixed (Desktop only) */}
           <aside className="hidden xl:flex xl:flex-col w-80 flex-shrink-0 border-l bg-white sticky top-14 h-[calc(100svh-56px)]">
             <LessonAIChat
-              courseTitle={course?.title}
+              courseTitle={course ? getCourseTitleWithLocalizations(course, course.course_localizations, i18n.language) : undefined}
               lessonTitle={currentLesson?.title}
               lessonType={currentLesson?.lesson_type}
               lessonContent={currentLesson?.content}
@@ -590,7 +606,7 @@ export default function CourseView() {
             </DrawerHeader>
             <div className="flex-1 overflow-hidden">
               <LessonAIChat
-                courseTitle={course?.title}
+                courseTitle={course ? getCourseTitleWithLocalizations(course, course.course_localizations, i18n.language) : undefined}
                 lessonTitle={currentLesson?.title}
                 lessonType={currentLesson?.lesson_type}
                 lessonContent={currentLesson?.content}

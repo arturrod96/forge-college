@@ -71,6 +71,34 @@ If you need to perform admin operations server-side, use the service role key:
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkZWJsYXZucnJub3lxaXZ5ZHNnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDQ5ODEzOCwiZXhwIjoyMDcwMDc0MTM4fQ.mjKmBSSXebmVpv_R1dswP-WuamkrOZvFxnbgmzXqaos
 ```
 
+## Applying migrations
+
+You can apply migrations in two ways.
+
+### Option A: Supabase Dashboard (SQL Editor)
+
+1. Open [Supabase Dashboard](https://supabase.com/dashboard) and select your project.
+2. In the left sidebar, go to **SQL Editor**.
+3. Click **New query**.
+4. Paste the contents of the migration file (e.g. from `supabase/migrations/20251130120000_add_course_title_i18n.sql`).
+5. Click **Run** (or press Ctrl+Enter).
+6. Confirm that the query ran successfully (no errors in the result panel).
+
+### Option B: Supabase CLI
+
+If you use the [Supabase CLI](https://supabase.com/docs/guides/cli) and have linked the project:
+
+```bash
+# From the project root
+npx supabase db push
+```
+
+This applies all pending migrations in `supabase/migrations/` to the linked remote database.
+
+To link a project first: `npx supabase link --project-ref <your-project-ref>` (the ref is in the project URL, e.g. `fdeblavnrrnoyqivydsg`).
+
+---
+
 ## Database Schema
 
 The application expects the following tables:

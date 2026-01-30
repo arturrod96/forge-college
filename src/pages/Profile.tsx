@@ -82,6 +82,12 @@ export default function Profile() {
     [t]
   );
 
+  // Same source as sidebar: localStorage + i18n, normalized to our two options
+  const currentAppLocale =
+    (typeof window !== 'undefined' ? localStorage.getItem('forge:appLocale') : null) || i18n.language || 'pt-BR';
+  const normalizedLocale =
+    currentAppLocale.toLowerCase().startsWith('pt') ? 'pt-BR' : 'en-US';
+
   // Load profile on component mount
   useEffect(() => {
     loadProfile();
@@ -97,6 +103,7 @@ export default function Profile() {
         data.email = user.email;
       }
 
+      // Use stored preference for profile state; do NOT override app language when opening Profile
       const preferredLanguage = (
         data.communicationLanguage ||
         (i18n.language as StudentProfile['communicationLanguage']) ||
@@ -104,11 +111,6 @@ export default function Profile() {
       ) as StudentProfile['communicationLanguage'];
 
       data.communicationLanguage = preferredLanguage;
-
-      if (preferredLanguage !== i18n.language) {
-        i18n.changeLanguage(preferredLanguage);
-      }
-
       setProfile(data);
       setHasChanges(false);
     } catch (error) {
@@ -154,7 +156,12 @@ export default function Profile() {
 
     try {
       setSaving(true);
-      await updateProfile(profile);
+      const profileToSave = {
+        ...profile,
+        communicationLanguage: normalizedLocale as StudentProfile['communicationLanguage'],
+      };
+      await updateProfile(profileToSave);
+      setProfile(profileToSave);
       setErrors({});
       setHasChanges(false);
       toast({
@@ -189,6 +196,9 @@ export default function Profile() {
   const handleCommunicationLanguageChange = (locale: StudentProfile['communicationLanguage']) => {
     updateField('communicationLanguage', locale);
     i18n.changeLanguage(locale);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('forge:appLocale', locale);
+    }
   };
 
   const isValidUrl = (url: string): boolean => {
@@ -223,7 +233,6 @@ export default function Profile() {
   const sidebarDisplayName =
     (profile.fullName && profile.fullName.trim().length > 0 ? profile.fullName : user?.user_metadata?.full_name) ??
     t('profile.sidebar.anonymousUser');
-  const sidebarLocale = profile.communicationLanguage;
   const sidebarAvatar = (user?.user_metadata?.avatar_url as string | undefined) ?? null;
 
   return (
@@ -250,10 +259,6 @@ export default function Profile() {
           <ProfileSidebar
             activeTab={activeTab}
             onTabChange={setActiveTab}
-            selectedLocale={sidebarLocale}
-            onLocaleChange={(locale) =>
-              handleCommunicationLanguageChange(locale as StudentProfile['communicationLanguage'])
-            }
             fullName={sidebarDisplayName}
             email={profile.email}
             avatarUrl={sidebarAvatar}
@@ -337,7 +342,7 @@ export default function Profile() {
                     <div className="relative">
                       <Languages className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <Select
-                        value={profile.communicationLanguage}
+                        value={normalizedLocale}
                         onValueChange={(value) =>
                           handleCommunicationLanguageChange(value as StudentProfile['communicationLanguage'])
                         }
