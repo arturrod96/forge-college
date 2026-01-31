@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { createClientBrowser } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
-import { GraduationCap, Layers3, Star, CircleCheckBig, Clock, CirclePlay, Flame, CheckCircle } from 'lucide-react';
+import { GraduationCap, Layers3, Star, CircleCheckBig, Clock, CirclePlay, Flame, CheckCircle, Bell } from 'lucide-react';
 import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
@@ -464,11 +464,11 @@ export function FormationsList({ limit, className }: FormationsListProps) {
             <Card
               key={formation.id}
               className={cn(
-              "relative overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[480px] flex flex-col group",
+              "relative rounded-lg hover:shadow-lg transition-shadow h-full min-h-[480px] flex flex-col group",
               isComingSoon && "opacity-70 cursor-not-allowed"
             )}>
-              {/* Thumbnail or placeholder */}
-              <div className="h-48 flex items-center justify-center relative" style={{ backgroundColor: isComingSoon ? '#4a5a4a' : '#303b2e' }}>
+              {/* Thumbnail - overflow-hidden only here so card shadow is not clipped */}
+              <div className="h-48 flex items-center justify-center relative overflow-hidden rounded-t-lg" style={{ backgroundColor: isComingSoon ? '#4a5a4a' : '#303b2e' }}>
                 {formation.thumbnail_url ? (
                   <img 
                     src={formation.thumbnail_url} 
@@ -510,16 +510,19 @@ export function FormationsList({ limit, className }: FormationsListProps) {
                 )}
               </div>
 
-              <CardHeader className="flex-1 min-h-0 flex flex-col">
+              <CardHeader className="space-y-1.5 p-6 flex-1 min-h-0 flex flex-col">
                 <div className="space-y-2">
-                  <CardTitle className="flex items-center gap-2 text-xl">
+                  <CardTitle className="font-semibold tracking-tight text-xl">
                     {formation.title}
                   </CardTitle>
+                  <p className="text-[13px] text-muted-foreground line-clamp-3">
+                    {formation.description?.trim() || t('formationDetail.descriptionFallback')}
+                  </p>
                 </div>
               </CardHeader>
 
-              <CardContent className="space-y-4">
-                {/* Stats */}
+              <CardContent className="p-6 pt-0 space-y-4">
+                {/* Count + Learning paths preview (same pattern as course card: count, label, list) */}
                 <div className="flex items-center gap-4 text-sm text-gray-600">
                   <div className="flex items-center gap-1">
                     <Layers3 className="h-4 w-4" />
@@ -527,7 +530,6 @@ export function FormationsList({ limit, className }: FormationsListProps) {
                   </div>
                 </div>
 
-                {/* Learning paths preview */}
                 {formation.paths && formation.paths.length > 0 && (
                   <div className="space-y-2">
                     <h4 className="font-medium text-sm text-gray-900">{t('formations.learningPathsLabel')}</h4>
@@ -574,6 +576,20 @@ export function FormationsList({ limit, className }: FormationsListProps) {
                         </div>
                       )
                     )}
+                  </div>
+                )}
+                {formation.status === 'coming_soon' && (
+                  <div className="mt-4">
+                    <Link to={R.DASHBOARD_FORMATION_DETAIL(formation.id)} className="block">
+                      <EnhancedButton
+                        variant="outline"
+                        size="sm"
+                        className="w-full border-forge-orange text-forge-orange hover:bg-forge-orange/5 hover:border-forge-orange bg-white"
+                      >
+                        <Bell className="h-4 w-4 mr-2" />
+                        {t('courses.notifyMe')}
+                      </EnhancedButton>
+                    </Link>
                   </div>
                 )}
               </CardContent>

@@ -5,9 +5,10 @@ import { createClientBrowser } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useOAuth'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { EnhancedButton } from '@/components/ui/enhanced-button'
+
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import { ArrowLeft, BookMarked, Users, Clock, CircleCheckBig, CirclePlay, Layers3, CheckCircle, Flame, TrendingUp } from 'lucide-react'
+import { ArrowLeft, BookMarked, Users, Clock, CircleCheckBig, CirclePlay, Layers3, GraduationCap, CheckCircle, Flame, Bell, Check } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { getTitleFromLocalizations, getCourseTitleWithLocalizations, getDescriptionFromLocalizations } from '@/lib/localization'
@@ -20,6 +21,7 @@ type PathProgressStatus = 'not_started' | 'in_progress' | 'completed'
 type FormationPathItem = {
   id: string
   title: string
+  description: string
   order: number
   status: 'draft' | 'published' | 'coming_soon'
   courses: Array<{ id: string; title: string; order: number }>
@@ -71,7 +73,7 @@ export default function FormationDetailPage() {
           formation_localizations(locale, title, description),
           formation_paths(
             order,
-            learning_paths(id, title, status, learning_path_localizations(locale, title), courses(id, title, order, course_localizations(locale, title)))
+            learning_paths(id, title, description, status, learning_path_localizations(locale, title, description), courses(id, title, order, course_localizations(locale, title)))
           )
         `)
         .eq('id', formationId)
@@ -104,8 +106,9 @@ export default function FormationDetailPage() {
           const lp = fp.learning_paths as {
             id: string
             title: string
+            description?: string | null
             status: string
-            learning_path_localizations?: { locale: string; title: string | null }[] | null
+            learning_path_localizations?: { locale: string; title: string | null; description?: string | null }[] | null
             courses?: Array<{ id: string; title: string; order?: number; course_localizations?: { locale: string; title: string | null }[] | null }>
           }
           const courses = (lp.courses || [])
@@ -116,9 +119,19 @@ export default function FormationDetailPage() {
             }))
             .filter((c) => c.id && c.title)
             .sort((a, b) => a.order - b.order)
+          const description =
+            getDescriptionFromLocalizations(
+              lp.learning_path_localizations ?? [],
+              locale,
+              lp.description ?? null
+            ) ||
+            (lp.learning_path_localizations ?? []).find((r) => r.description?.trim())?.description?.trim() ||
+            (lp.description ?? '').trim() ||
+            ''
           return {
             id: lp.id,
             title: getTitleFromLocalizations(lp.learning_path_localizations, locale, lp.title),
+            description,
             order: fp.order ?? 0,
             status: lp.status as FormationPathItem['status'],
             courses,
@@ -391,6 +404,7 @@ export default function FormationDetailPage() {
   const completedCount = completedPaths.length
   const inProgressCount = inProgressPaths.length
   const progressPercentage = totalPaths > 0 ? Math.round((completedCount / totalPaths) * 100) : 0
+  const totalCoursesCount = formation.paths.reduce((acc, p) => acc + (p.courses?.length ?? 0), 0)
 
   // Helper to render a path card
   const renderPathCard = (path: FormationPathItem) => {
@@ -405,13 +419,13 @@ export default function FormationDetailPage() {
       <Card
         key={path.id}
         className={cn(
-          'relative rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[480px] flex flex-col group',
+          'relative rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-lg transition-shadow h-full min-h-[480px] flex flex-col group',
           (pathIsComingSoon || pathIsDraft) && 'opacity-70 cursor-not-allowed'
         )}
       >
-        {/* Thumbnail */}
+        {/* Thumbnail - overflow-hidden only here so card shadow is not clipped */}
         <div
-          className="h-48 flex items-center justify-center relative"
+          className="h-48 flex items-center justify-center relative overflow-hidden rounded-t-lg"
           style={{ backgroundColor: pathIsComingSoon || pathIsDraft ? '#4a5a4a' : '#303b2e' }}
         >
           <Layers3 className="h-16 w-16 text-forge-orange" />
@@ -454,15 +468,18 @@ export default function FormationDetailPage() {
           )}
         </div>
 
-        <CardHeader className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="space-y-1.5 p-6 flex-1 min-h-0 flex flex-col">
           <div className="space-y-2">
-            <CardTitle className="flex items-center gap-2 text-xl">
+            <CardTitle className="font-semibold tracking-tight text-xl">
               {path.title}
             </CardTitle>
+            <p className="text-[13px] text-muted-foreground line-clamp-3">
+              {path.description || t('dashboard.pathOverview.descriptionFallback')}
+            </p>
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="p-6 pt-0 space-y-4">
           {/* Stats */}
           <div className="flex items-center gap-4 text-sm text-gray-600">
             <div className="flex items-center gap-1">
@@ -527,11 +544,37 @@ export default function FormationDetailPage() {
           )}
           {(pathIsComingSoon || pathIsDraft) && (
             <div className="mt-4">
-              <EnhancedButton variant="ghost" className="w-full" disabled>
-                {pathIsComingSoon
-                  ? t('filters.statusOptions.coming_soon')
-                  : t('formationDetail.notYetPublished')}
-              </EnhancedButton>
+              {formation.isUserOnWaitlist ? (
+                <EnhancedButton
+                  variant="outline"
+                  className="w-full border-forge-orange text-forge-orange hover:bg-forge-orange/5 hover:border-forge-orange bg-white"
+                  size="sm"
+                  disabled
+                >
+                  <Check className="h-4 w-4 mr-2" />
+                  {t('courses.onWaitlist')}
+                </EnhancedButton>
+              ) : (
+                <EnhancedButton
+                  variant="outline"
+                  className="w-full border-forge-orange text-forge-orange hover:bg-forge-orange/5 hover:border-forge-orange bg-white"
+                  size="sm"
+                  onClick={() => joinWaitingListMutation.mutate()}
+                  disabled={!user || joinWaitingListMutation.isPending}
+                >
+                  {joinWaitingListMutation.isPending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                      {t('formationDetail.joining')}
+                    </>
+                  ) : (
+                    <>
+                      <Bell className="h-4 w-4 mr-2" />
+                      {t('courses.notifyMe')}
+                    </>
+                  )}
+                </EnhancedButton>
+              )}
             </div>
           )}
         </CardContent>
@@ -545,102 +588,124 @@ export default function FormationDetailPage() {
         <Link to={R.DASHBOARD_FORMATIONS} className="inline-flex items-center gap-2 text-sm text-forge-orange hover:underline">
           <ArrowLeft className="h-4 w-4" /> {t('formationDetail.backToFormations')}
         </Link>
-        <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-start">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-3xl font-bold text-forge-dark">{formation.title}</h1>
-              <Badge
-                variant={isComingSoon ? 'coming-soon' : formationEnrolled && formation.status === 'published' ? 'enrolled' : formation.status === 'published' ? 'available' : 'outline'}
-                icon={formationEnrolled && formation.status === 'published' ? CirclePlay : formation.status === 'published' ? CircleCheckBig : undefined}
-                iconPosition="left"
-              >
-                {isComingSoon ? t('filters.statusOptions.coming_soon') : formationEnrolled && formation.status === 'published' ? t('dashboard.enrolled') : formation.status === 'published' ? t('filters.statusOptions.available') : t('filters.statusOptions.draft')}
-              </Badge>
-            </div>
-            <p className="text-forge-gray max-w-2xl">
-              {formation.description || t('formationDetail.descriptionFallback')}
-            </p>
-            <div className="flex flex-wrap items-center gap-3 text-sm text-forge-gray">
-              <span className="inline-flex items-center gap-1"><Layers3 className="h-4 w-4" />{t('formationDetail.learningPathsCount', { count: formation.paths.length })}</span>
-              {isComingSoon && (
-                <span className="inline-flex items-center gap-1"><Users className="h-4 w-4" />{formation.waitingListCount} {t('formationDetail.onWaitingList')}</span>
-              )}
-            </div>
-          </div>
-          <div className="flex flex-col gap-2">
-            {isComingSoon ? (
-              <>
-                <EnhancedButton
-                  onClick={() => joinWaitingListMutation.mutate()}
-                  disabled={joinDisabled || !user}
-                  className="min-w-[220px]"
-                  variant={formation.isUserOnWaitlist ? 'outline' : 'primary'}
+
+        {/* Career track header - Forge dark card */}
+        <div className="relative overflow-hidden rounded-xl bg-forge-dark-900 text-forge-cream-50 shadow-lg">
+          <div className="relative z-10 flex flex-col gap-4 p-6 sm:p-8 md:flex-row md:items-start md:justify-between">
+            <div className="space-y-3 md:max-w-[65%]">
+              <p className="text-xs font-semibold uppercase tracking-wider text-forge-dark-300">
+                {t('formationDetail.careerTrackLabel')}
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-3xl font-bold tracking-tight text-forge-cream-50 sm:text-4xl">
+                    {formation.title}
+                  </h1>
+                </div>
+                <Badge
+                  variant={isComingSoon ? 'coming-soon' : formationEnrolled && formation.status === 'published' ? 'enrolled' : formation.status === 'published' ? 'available' : 'outline'}
+                  icon={formationEnrolled && formation.status === 'published' ? CirclePlay : formation.status === 'published' ? CircleCheckBig : undefined}
+                  iconPosition="left"
                 >
-                  {formation.isUserOnWaitlist
-                    ? t('formationDetail.onWaitlist')
-                    : joinWaitingListMutation.isPending
-                      ? t('formationDetail.joining')
-                      : user
-                        ? t('formationDetail.joinWaitlist')
-                        : t('formationDetail.signInToJoin')}
-                </EnhancedButton>
-                {!user && (
-                  <p className="text-xs text-muted-foreground text-right">
-                    You must be signed in to join the waiting list.
-                  </p>
+                  {isComingSoon ? t('filters.statusOptions.coming_soon') : formationEnrolled && formation.status === 'published' ? t('dashboard.enrolled') : formation.status === 'published' ? t('filters.statusOptions.available') : t('filters.statusOptions.draft')}
+                </Badge>
+              </div>
+
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
+                {isComingSoon ? (
+                  <>
+                    <EnhancedButton
+                      onClick={() => joinWaitingListMutation.mutate()}
+                      disabled={joinDisabled || !user}
+                      className="min-w-[200px] bg-forge-orange px-6 py-3 font-semibold text-white hover:bg-forge-orange-400 focus:ring-forge-orange focus:ring-offset-2 focus:ring-offset-forge-dark-900"
+                      variant="outline"
+                    >
+                      {formation.isUserOnWaitlist
+                        ? t('formationDetail.onWaitlist')
+                        : joinWaitingListMutation.isPending
+                          ? t('formationDetail.joining')
+                          : user
+                            ? t('formationDetail.joinWaitlist')
+                            : t('formationDetail.signInToJoin')}
+                    </EnhancedButton>
+                    {!user && (
+                      <p className="text-xs text-forge-dark-300">
+                        {t('formationDetail.mustSignInToJoinWaitlist')}
+                      </p>
+                    )}
+                  </>
+                ) : firstPublishedPath ? (
+                  <Link to={R.DASHBOARD_LEARN_PATH(firstPublishedPath.id)}>
+                    <span className="inline-flex min-w-[200px] items-center justify-center rounded-md bg-forge-orange px-6 py-3 font-semibold text-white transition-colors hover:bg-forge-orange-400 focus:outline-none focus:ring-2 focus:ring-forge-orange focus:ring-offset-2 focus:ring-offset-forge-dark-900">
+                      {firstPathEnrolled ? t('formationDetail.continueFormation') : t('formationDetail.startLearning')}
+                    </span>
+                  </Link>
+                ) : (
+                  <span className="inline-flex min-w-[200px] cursor-not-allowed items-center justify-center rounded-md border border-forge-dark-500 bg-forge-dark-700/50 px-6 py-3 font-semibold text-forge-dark-300">
+                    {t('formationDetail.pathsComingSoon')}
+                  </span>
                 )}
-                <p className="text-xs text-muted-foreground max-w-xs">
-                  We will notify you as soon as this formation opens for enrollment.
-                </p>
-              </>
-            ) : firstPublishedPath ? (
-              <Link to={R.DASHBOARD_LEARN_PATH(firstPublishedPath.id)}>
-                <EnhancedButton className="min-w-[220px]" withGradient>
-                  {firstPathEnrolled ? t('common.buttons.continue') : t('formationDetail.startLearning')}
-                </EnhancedButton>
-              </Link>
-            ) : (
-              <EnhancedButton className="min-w-[220px]" variant="outline" disabled>
-                {t('formationDetail.pathsComingSoon')}
-              </EnhancedButton>
-            )}
+              </div>
+
+              {/* Stats row */}
+              <div className="flex flex-wrap items-center gap-4 text-sm text-forge-dark-300">
+                <span className="inline-flex items-center gap-1.5">
+                  <Layers3 className="h-4 w-4 text-forge-orange" />
+                  {t('formationDetail.learningPathsCount', { count: formation.paths.length })}
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <BookMarked className="h-4 w-4 text-forge-orange" />
+                  {t('formationDetail.totalCourses', { count: totalCoursesCount })}
+                </span>
+                {isComingSoon && formation.waitingListCount > 0 && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <Users className="h-4 w-4 text-forge-orange" />
+                    {formation.waitingListCount} {t('formationDetail.participants')} {t('formationDetail.onWaitingList')}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Decorative badge / icon on the right */}
+            <div className="absolute right-4 top-4 hidden h-24 w-24 md:right-8 md:top-8 md:flex md:h-28 md:w-28 items-center justify-center rounded-full border-2 border-forge-orange/40 bg-forge-dark-700/80">
+              <GraduationCap className="h-10 w-10 text-forge-orange md:h-12 md:w-12" />
+            </div>
           </div>
+
+          {/* Formation progress section - distinct background, only when enrolled */}
+          {formationEnrolled && (
+            <div className="rounded-b-xl bg-forge-dark-800 px-6 py-4 text-forge-cream-50 sm:px-8 sm:py-5">
+              <p className="text-xs font-semibold uppercase tracking-wider text-forge-cream-200">
+                {t('formationDetail.formationProgress')}
+              </p>
+              <p className="mt-1 text-sm text-forge-cream-200">
+                {t('formationDetail.pathsCompleted', { completed: completedCount, total: totalPaths })}
+              </p>
+              <div className="mt-3 flex items-center gap-3">
+                <div className="h-2 flex-1 overflow-hidden rounded-full bg-forge-dark-600">
+                  <div
+                    className="h-full rounded-full bg-forge-orange transition-all duration-500"
+                    style={{ width: `${progressPercentage}%` }}
+                  />
+                </div>
+                <span className="text-sm font-medium text-forge-cream-300 tabular-nums">
+                  {progressPercentage}%
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Description below the card - same width as header card above, aligned with header inner padding */}
+        <div className="w-full space-y-2 pl-6 sm:pl-8">
+          <h2 className="text-lg font-semibold text-forge-dark">
+            {t('formationDetail.formationDescriptionTitle')}
+          </h2>
+          <p className="text-forge-gray w-full text-sm leading-relaxed sm:text-base">
+            {formation.description || t('formationDetail.descriptionFallback')}
+          </p>
         </div>
       </div>
-
-      {/* Progress Overview - only show if user has enrolled in at least one path */}
-      {formationEnrolled && (
-        <section className="space-y-4">
-          <Card className="bg-gradient-to-r from-forge-cream/50 to-white border-forge-cream/70">
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center justify-center h-16 w-16 rounded-full bg-forge-orange/10">
-                    <TrendingUp className="h-8 w-8 text-forge-orange" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-forge-dark">{t('formationDetail.formationProgress')}</h3>
-                    <p className="text-sm text-forge-gray">
-                      {t('formationDetail.pathsCompleted', { completed: completedCount, total: totalPaths })}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-full md:w-48 bg-gray-200 rounded-full h-3">
-                    <div
-                      className="bg-forge-orange h-3 rounded-full transition-all duration-500"
-                      style={{ width: `${progressPercentage}%` }}
-                    />
-                  </div>
-                  <span className="text-lg font-bold text-forge-orange whitespace-nowrap">
-                    {progressPercentage}%
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </section>
-      )}
 
       {/* In Progress Paths */}
       {inProgressPaths.length > 0 && (

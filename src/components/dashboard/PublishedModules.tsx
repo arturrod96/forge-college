@@ -312,9 +312,9 @@ export function PublishedModules({ limit, className, showSearch = true }: Publis
                         to={`${DASHBOARD_LEARN_COURSE(module.course_id)}?${query}`}
                         className="block rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-forge-orange/60"
                       >
-                        <Card className="relative rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[200px] flex flex-col cursor-pointer">
-                          {/* Thumbnail */}
-                          <div className="h-48 flex items-center justify-center relative" style={{ backgroundColor: '#303b2e' }}>
+                        <Card className="relative rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-lg transition-shadow h-full min-h-[200px] flex flex-col cursor-pointer">
+                          {/* Thumbnail - overflow-hidden only here so card shadow is not clipped */}
+                          <div className="h-48 flex items-center justify-center relative overflow-hidden rounded-t-lg" style={{ backgroundColor: '#303b2e' }}>
                             <Folder className="h-16 w-16 text-forge-orange" />
                             
                             {/* Badge sobre a thumbnail */}

@@ -528,12 +528,12 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
             const card = (
               <Card
                 className={[
-                    'relative rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[480px] flex flex-col group',
+                    'relative rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-lg transition-shadow h-full min-h-[480px] flex flex-col group',
                     isAvailable ? 'cursor-pointer' : 'opacity-70 cursor-not-allowed',
                   ].join(' ')}
                 >
-                {/* Thumbnail */}
-                <div className="h-48 flex items-center justify-center relative" style={{ backgroundColor: !isAvailable ? '#4a5a4a' : '#303b2e' }}>
+                {/* Thumbnail - overflow-hidden only here so card shadow is not clipped */}
+                <div className="h-48 flex items-center justify-center relative overflow-hidden rounded-t-lg" style={{ backgroundColor: !isAvailable ? '#4a5a4a' : '#303b2e' }}>
                   {course.thumbnail_url ? (
                     <img
                       src={course.thumbnail_url}
@@ -574,17 +574,18 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
                     </div>
                   )}
                 </div>
-                <CardHeader className="flex-1 min-h-0 flex flex-col space-y-2">
-                  <CardTitle className="flex items-start gap-2 text-forge-dark tracking-normal text-lg md:text-xl leading-tight line-clamp-2 break-words flex-1">
-                    <BookMarked className="h-4 w-4 mt-0.5 text-forge-orange shrink-0" />
-                    <span>{course.title}</span>
-                  </CardTitle>
-                  <CardDescription className="text-[13px] text-forge-gray line-clamp-3 min-h-[3.75rem]">
-                    {course.description || t('courses.descriptionFallback')}
-                  </CardDescription>
+                <CardHeader className="space-y-1.5 p-6 flex-1 min-h-0 flex flex-col">
+                  <div className="space-y-2">
+                    <CardTitle className="font-semibold tracking-tight text-xl">
+                      {course.title}
+                    </CardTitle>
+                    <CardDescription className="text-[13px] text-forge-gray line-clamp-3 min-h-[3.75rem]">
+                      {course.description || t('courses.descriptionFallback')}
+                    </CardDescription>
+                  </div>
                 </CardHeader>
-                <CardContent className="space-y-4 mt-auto">
-                  {/* Stats */}
+                <CardContent className="p-6 pt-0 space-y-4 mt-auto">
+                  {/* Count + Modules preview (same pattern as formation/path cards) */}
                   <div className="flex items-center gap-4 text-sm text-gray-600">
                     <div className="flex items-center gap-1">
                       <Folder className="h-4 w-4" />
@@ -598,7 +599,6 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
                     )}
                   </div>
 
-                  {/* Modules preview */}
                   {course.modules && course.modules.length > 0 && (
                     <div className="space-y-2">
                       <h4 className="font-medium text-sm text-gray-900">{t('courses.modulesLabel')}</h4>
@@ -639,7 +639,7 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
                         onMouseEnter={() => setHoveredWaitlistCourseId(course.id)}
                         onMouseLeave={() => setHoveredWaitlistCourseId(null)}
                         disabled={leavingWaitlistId === course.id}
-                        className="w-full text-sm py-2"
+                        className="w-full text-sm py-2 border-forge-orange text-forge-orange hover:bg-forge-orange/5 hover:border-forge-orange bg-white"
                         variant="outline"
                         size="sm"
                       >
@@ -664,7 +664,7 @@ export function PublishedCourses({ limit, className, showSearch = true }: Publis
                       <EnhancedButton
                         onClick={() => handleJoinWaitlist(course.id)}
                         disabled={joiningWaitlistId === course.id}
-                        className="w-full text-sm py-2"
+                        className="w-full text-sm py-2 border-forge-orange text-forge-orange hover:bg-forge-orange/5 hover:border-forge-orange bg-white"
                         variant="outline"
                         size="sm"
                       >

@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { LoadingGrid } from '@/components/ui/loading-states';
 import { ContentSearch, FilterPopover, type StatusFilterValue, type SortOption, type ProgressFilterValue } from '@/components/filters';
-import { pickPublishedLocalization, getCourseTitleWithLocalizations, DEFAULT_LOCALE } from '@/lib/localization';
+import { pickPublishedLocalization, getCourseTitleWithLocalizations, getDescriptionFromLocalizations, DEFAULT_LOCALE } from '@/lib/localization';
 import { cn } from '@/lib/utils';
 import type { Tables } from '@/types/supabase';
 import { HoverEffectGrid } from '@/components/ui/card-hover-effect';
@@ -78,7 +78,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
             description,
             status,
             courses(id, title, order, course_localizations(locale, title)),
-            learning_path_localizations(*)
+            learning_path_localizations(locale, title, description, is_published)
           `
         )
         .in('status', ['published', 'coming_soon']);
@@ -188,10 +188,26 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
           .filter((c) => c.id && c.title)
           .sort((a, b) => a.order - b.order);
 
+        const localizations = path.learning_path_localizations ?? [];
+        const descByLocale = getDescriptionFromLocalizations(
+          localizations,
+          resolvedLocale,
+          path.description ?? null
+        );
+        const descFromAnyLoc = localizations.find(
+          (r: { description?: string | null }) => r.description?.trim()
+        )?.description?.trim();
+        const description =
+          (localization?.description ?? '').trim() ||
+          descByLocale ||
+          descFromAnyLoc ||
+          (path.description ?? '').trim() ||
+          '';
+
         return {
           id: path.id,
           title: localization?.title ?? path.title,
-          description: localization?.description ?? path.description ?? '',
+          description,
           status: path.status,
           isEnrolled: enrolledPaths.includes(path.id),
           isOnWaitlist: waitlistedPaths.includes(path.id),
@@ -563,13 +579,13 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
               <Card
                 key={path.id}
                 className={cn(
-                  'relative overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[480px] flex flex-col group',
+                  'relative rounded-lg hover:shadow-lg transition-shadow h-full min-h-[480px] flex flex-col group',
                   isComingSoon && 'opacity-70 cursor-not-allowed'
                 )}
               >
-                {/* Thumbnail - same pattern as FormationsList */}
+                {/* Thumbnail - overflow-hidden only here so card shadow is not clipped */}
                 <div
-                  className="h-48 flex items-center justify-center relative"
+                  className="h-48 flex items-center justify-center relative overflow-hidden rounded-t-lg"
                   style={{ backgroundColor: isComingSoon ? '#4a5a4a' : '#303b2e' }}
                 >
                   <Layers3 className="h-16 w-16 text-forge-orange" />
@@ -612,16 +628,19 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
                     )}
                 </div>
 
-                <CardHeader className="flex-1 min-h-0 flex flex-col">
+                <CardHeader className="space-y-1.5 p-6 flex-1 min-h-0 flex flex-col">
                   <div className="space-y-2">
-                    <CardTitle className="flex items-center gap-2 text-xl">
+                    <CardTitle className="font-semibold tracking-tight text-xl">
                       {path.title}
                     </CardTitle>
+                    <p className="text-[13px] text-muted-foreground line-clamp-3">
+                      {path.description?.trim() || t('dashboard.pathOverview.descriptionFallback')}
+                    </p>
                   </div>
                 </CardHeader>
 
-                <CardContent className="space-y-4">
-                  {/* Stats */}
+                <CardContent className="p-6 pt-0 space-y-4">
+                  {/* Count + Courses preview (same pattern: count, label, list) */}
                   <div className="flex items-center gap-4 text-sm text-gray-600">
                     <div className="flex items-center gap-1">
                       <BookMarked className="h-4 w-4" />
@@ -629,7 +648,6 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
                     </div>
                   </div>
 
-                  {/* Courses preview */}
                   {courses.length > 0 && (
                     <div className="space-y-2">
                       <h4 className="font-medium text-sm text-gray-900">
@@ -691,7 +709,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
                           onMouseEnter={() => setHoveredWaitlistPathId(path.id)}
                           onMouseLeave={() => setHoveredWaitlistPathId(null)}
                           disabled={leavingWaitlistId === path.id}
-                          className="w-full"
+                          className="w-full border-forge-orange text-forge-orange hover:bg-forge-orange/5 hover:border-forge-orange bg-white"
                           variant="outline"
                           size="sm"
                         >
@@ -716,7 +734,7 @@ export function AvailablePaths({ limit, className }: AvailablePathsProps) {
                         <EnhancedButton
                           onClick={() => handleJoinWaitlist(path.id)}
                           disabled={joiningWaitlistId === path.id}
-                          className="w-full"
+                          className="w-full border-forge-orange text-forge-orange hover:bg-forge-orange/5 hover:border-forge-orange bg-white"
                           variant="outline"
                           size="sm"
                         >

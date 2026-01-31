@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { DASHBOARD_LEARN_COURSE, DASHBOARD_EXPLORE } from '@/routes/paths';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, BookMarked, Folder, CirclePlay, Flame, CheckCircle, CircleCheckBig } from 'lucide-react';
+import { ArrowLeft, BookMarked, Folder, CirclePlay, Flame, CheckCircle, CircleCheckBig, Layers3 } from 'lucide-react';
 import { getTitleFromLocalizations, getDescriptionFromLocalizations, getCourseTitleWithLocalizations } from '@/lib/localization';
 
 interface ModuleSummary {
@@ -226,6 +226,18 @@ export default function PathOverview() {
 
   const { path, isEnrolled, courseProgress = {} } = data;
 
+  // Path progress when enrolled (completed courses / total courses)
+  const totalCourses = path.courses.length;
+  const completedCoursesCount = Object.values(courseProgress).filter((s) => s === 'completed').length;
+  const pathProgressPercentage = totalCourses > 0 ? Math.round((completedCoursesCount / totalCourses) * 100) : 0;
+
+  // Group courses by status (same pattern as FormationDetailPage path sections)
+  const inProgressCourses = path.courses.filter((c) => courseProgress[c.id] === 'in_progress');
+  const completedCoursesList = path.courses.filter((c) => courseProgress[c.id] === 'completed');
+  const availableCoursesList = path.courses.filter(
+    (c) => courseProgress[c.id] !== 'in_progress' && courseProgress[c.id] !== 'completed'
+  );
+
   const continueUrl =
     nextLesson
       ? `${DASHBOARD_LEARN_COURSE(nextLesson.courseId)}?lessonId=${nextLesson.lessonId}&moduleId=${nextLesson.moduleId}`
@@ -233,181 +245,246 @@ export default function PathOverview() {
         ? DASHBOARD_LEARN_COURSE(path.courses[0].id)
         : '#';
 
+  const renderCourseCard = (course: CourseSummary) => {
+    const isInProgress = courseProgress[course.id] === 'in_progress';
+    const isCompleted = courseProgress[course.id] === 'completed';
+    const modules = course.modules || [];
+    return (
+      <Link
+        key={course.id}
+        to={DASHBOARD_LEARN_COURSE(course.id)}
+        className="block h-full rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      >
+        <Card className="relative rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-lg transition-shadow h-full min-h-[480px] flex flex-col group cursor-pointer">
+          <div
+            className="h-48 flex items-center justify-center relative overflow-hidden rounded-t-lg"
+            style={{ backgroundColor: '#303b2e' }}
+          >
+            {course.thumbnail_url ? (
+              <img src={course.thumbnail_url} alt={course.title} className="w-full h-full object-cover" />
+            ) : (
+              <BookMarked className="h-16 w-16 text-forge-orange" />
+            )}
+            {isInProgress && (
+              <div className="absolute top-2 right-2 z-10">
+                <Badge variant="enrolled" size="sm" icon={CirclePlay} iconPosition="left">
+                  {t('dashboard.enrolled')}
+                </Badge>
+              </div>
+            )}
+            {isCompleted && (
+              <div className="absolute top-2 right-2 z-10">
+                <Badge variant="success" size="sm" icon={Flame} iconPosition="left">
+                  {t('filters.progressOptions.completed')}
+                </Badge>
+              </div>
+            )}
+            {!isInProgress && !isCompleted && isEnrolled && (
+              <div className="absolute top-2 right-2 z-10">
+                <Badge variant="default" size="sm" icon={CheckCircle} iconPosition="left">
+                  {t('filters.statusOptions.available')}
+                </Badge>
+              </div>
+            )}
+          </div>
+          <CardHeader className="space-y-1.5 p-6 flex-1 min-h-0 flex flex-col">
+            <div className="space-y-2">
+              <CardTitle className="font-semibold tracking-tight text-xl">
+                {course.title}
+              </CardTitle>
+              <CardDescription className="text-[13px] text-forge-gray line-clamp-3 min-h-[3.75rem]">
+                {course.description || t('courses.descriptionFallback')}
+              </CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6 pt-0 space-y-4 mt-auto">
+            <div className="flex items-center gap-4 text-sm text-gray-600">
+              <div className="flex items-center gap-1">
+                <Folder className="h-4 w-4" />
+                {t('courses.modules', { count: modules.length })}
+              </div>
+            </div>
+            {modules.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm text-gray-900">{t('courses.modulesLabel')}</h4>
+                <div className="space-y-1">
+                  {modules.slice(0, 3).map((module, index) => (
+                    <div key={module.id} className="flex items-center gap-2 text-xs text-gray-600">
+                      <span className="text-forge-orange font-medium">{index + 1}.</span>
+                      <span className="truncate">{module.title}</span>
+                    </div>
+                  ))}
+                  {modules.length > 3 && (
+                    <div className="text-xs text-gray-500">
+                      {t('courses.moreModules', { count: modules.length - 3 })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            <EnhancedButton
+              className="w-full text-sm py-2"
+              size="sm"
+              withGradient
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                navigate(DASHBOARD_LEARN_COURSE(course.id));
+              }}
+            >
+              {isInProgress ? t('common.buttons.continueLearning') : t('courses.startCourse')}
+            </EnhancedButton>
+          </CardContent>
+        </Card>
+      </Link>
+    );
+  };
+
   return (
     <div className="space-y-8">
       <div className="space-y-4">
         <Link to={DASHBOARD_EXPLORE} className="inline-flex items-center gap-2 text-sm text-forge-orange hover:underline">
           <ArrowLeft className="h-4 w-4" /> {t('dashboard.pathOverview.backToPaths')}
         </Link>
-        <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-start">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-3xl font-bold text-forge-dark">{path.title}</h1>
-              <Badge
-                variant={isEnrolled ? 'enrolled' : 'available'}
-                icon={isEnrolled ? CirclePlay : CircleCheckBig}
-                iconPosition="left"
-              >
-                {isEnrolled ? t('dashboard.enrolled') : t('filters.statusOptions.available')}
-              </Badge>
+
+        {/* Learning path header - same pattern as FormationDetailPage */}
+        <div className="relative overflow-hidden rounded-xl bg-forge-dark-900 text-forge-cream-50 shadow-lg">
+          <div className="relative z-10 flex flex-col gap-4 p-6 sm:p-8 md:flex-row md:items-start md:justify-between">
+            <div className="space-y-3 md:max-w-[65%]">
+              <p className="text-xs font-semibold uppercase tracking-wider text-forge-dark-300">
+                {t('dashboard.pathOverview.learningPathLabel')}
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-3xl font-bold tracking-tight text-forge-cream-50 sm:text-4xl">
+                    {path.title}
+                  </h1>
+                </div>
+                <Badge
+                  variant={isEnrolled ? 'enrolled' : 'available'}
+                  icon={isEnrolled ? CirclePlay : CircleCheckBig}
+                  iconPosition="left"
+                >
+                  {isEnrolled ? t('dashboard.enrolled') : t('filters.statusOptions.available')}
+                </Badge>
+              </div>
+
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
+                {!isEnrolled ? (
+                  <EnhancedButton
+                    onClick={() => enrollMutation.mutate()}
+                    disabled={!user || enrollMutation.isPending}
+                    className="min-w-[200px] bg-forge-orange px-6 py-3 font-semibold text-white hover:bg-forge-orange-400 focus:ring-forge-orange focus:ring-offset-2 focus:ring-offset-forge-dark-900"
+                    variant="outline"
+                  >
+                    {enrollMutation.isPending ? t('dashboard.enrolling') : t('dashboard.enroll')}
+                  </EnhancedButton>
+                ) : (
+                  <Link to={continueUrl}>
+                    <span className="inline-flex min-w-[200px] items-center justify-center rounded-md bg-forge-orange px-6 py-3 font-semibold text-white transition-colors hover:bg-forge-orange-400 focus:outline-none focus:ring-2 focus:ring-forge-orange focus:ring-offset-2 focus:ring-offset-forge-dark-900">
+                      {t('dashboard.pathOverview.continue')}
+                    </span>
+                  </Link>
+                )}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-4 text-sm text-forge-dark-300">
+                <span className="inline-flex items-center gap-1.5">
+                  <BookMarked className="h-4 w-4 text-forge-orange" />
+                  {t('dashboard.availablePaths.courses', { count: totalCourses })}
+                </span>
+              </div>
             </div>
-            <p className="text-forge-gray max-w-2xl">
-              {path.description || t('dashboard.pathOverview.descriptionFallback')}
-            </p>
-            <div className="flex flex-wrap items-center gap-3 text-sm text-forge-gray">
-              <span className="inline-flex items-center gap-1">
-                <BookMarked className="h-4 w-4" />
-                {t('dashboard.availablePaths.courses', { count: path.courses.length })}
-              </span>
+
+            <div className="absolute right-4 top-4 hidden h-24 w-24 md:right-8 md:top-8 md:flex md:h-28 md:w-28 items-center justify-center rounded-full border-2 border-forge-orange/40 bg-forge-dark-700/80">
+              <Layers3 className="h-10 w-10 text-forge-orange md:h-12 md:w-12" />
             </div>
           </div>
-          <div className="flex flex-col gap-2">
-            {!isEnrolled ? (
-              <EnhancedButton
-                onClick={() => enrollMutation.mutate()}
-                disabled={!user || enrollMutation.isPending}
-                className="min-w-[220px]"
-                withGradient
-              >
-                {enrollMutation.isPending ? t('dashboard.enrolling') : t('dashboard.enroll')}
-              </EnhancedButton>
-            ) : (
-              <Link to={continueUrl}>
-                <EnhancedButton className="min-w-[220px]" withGradient>
-                  {t('dashboard.pathOverview.continue')}
-                </EnhancedButton>
-              </Link>
-            )}
-          </div>
+
+          {isEnrolled && (
+            <div className="rounded-b-xl bg-forge-dark-800 px-6 py-4 text-forge-cream-50 sm:px-8 sm:py-5">
+              <p className="text-xs font-semibold uppercase tracking-wider text-forge-cream-200">
+                {t('dashboard.pathOverview.pathProgress')}
+              </p>
+              <p className="mt-1 text-sm text-forge-cream-200">
+                {t('dashboard.pathOverview.coursesCompleted', { completed: completedCoursesCount, total: totalCourses })}
+              </p>
+              <div className="mt-3 flex items-center gap-3">
+                <div className="h-2 flex-1 overflow-hidden rounded-full bg-forge-dark-600">
+                  <div
+                    className="h-full rounded-full bg-forge-orange transition-all duration-500"
+                    style={{ width: `${pathProgressPercentage}%` }}
+                  />
+                </div>
+                <span className="text-sm font-medium text-forge-cream-300 tabular-nums">
+                  {pathProgressPercentage}%
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="w-full space-y-2 pl-6 sm:pl-8">
+          <h2 className="text-lg font-semibold text-forge-dark">
+            {t('dashboard.pathOverview.pathDescriptionTitle')}
+          </h2>
+          <p className="text-forge-gray w-full text-sm leading-relaxed sm:text-base">
+            {path.description || t('dashboard.pathOverview.descriptionFallback')}
+          </p>
         </div>
       </div>
 
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-forge-dark">{t('dashboard.pathOverview.courses')}</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 items-stretch">
-          {path.courses.map((course) => {
-            const isInProgress = courseProgress[course.id] === 'in_progress';
-            const isCompleted = courseProgress[course.id] === 'completed';
-            const modules = course.modules || [];
-
-            const card = (
-              <Card
-                className="relative rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[480px] flex flex-col group cursor-pointer"
-              >
-                {/* Thumbnail */}
-                <div
-                  className="h-48 flex items-center justify-center relative"
-                  style={{ backgroundColor: '#303b2e' }}
-                >
-                  {course.thumbnail_url ? (
-                    <img
-                      src={course.thumbnail_url}
-                      alt={course.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <BookMarked className="h-16 w-16 text-forge-orange" />
-                  )}
-
-                  {/* Badges */}
-                  {isInProgress && (
-                    <div className="absolute top-2 right-2 z-10">
-                      <Badge variant="enrolled" size="sm" icon={CirclePlay} iconPosition="left">
-                        {t('dashboard.enrolled')}
-                      </Badge>
-                    </div>
-                  )}
-                  {isCompleted && (
-                    <div className="absolute top-2 right-2 z-10">
-                      <Badge variant="success" size="sm" icon={Flame} iconPosition="left">
-                        {t('filters.progressOptions.completed')}
-                      </Badge>
-                    </div>
-                  )}
-                  {!isInProgress && !isCompleted && isEnrolled && (
-                    <div className="absolute top-2 right-2 z-10">
-                      <Badge variant="default" size="sm" icon={CheckCircle} iconPosition="left">
-                        {t('filters.statusOptions.available')}
-                      </Badge>
-                    </div>
-                  )}
-                </div>
-
-                <CardHeader className="flex-1 min-h-0 flex flex-col space-y-2 p-6">
-                  <CardTitle className="flex items-start gap-2 text-forge-dark tracking-normal text-lg md:text-xl leading-tight line-clamp-2 break-words flex-1">
-                    <BookMarked className="h-4 w-4 mt-0.5 text-forge-orange shrink-0" />
-                    <span>{course.title}</span>
-                  </CardTitle>
-                  <CardDescription className="text-[13px] text-forge-gray line-clamp-3 min-h-[3.75rem]">
-                    {course.description || t('courses.descriptionFallback')}
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className="p-6 pt-0 space-y-4 mt-auto">
-                  {/* Stats */}
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <div className="flex items-center gap-1">
-                      <Folder className="h-4 w-4" />
-                      {t('courses.modules', { count: modules.length })}
-                    </div>
-                  </div>
-
-                  {/* Modules preview */}
-                  {modules.length > 0 && (
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-sm text-gray-900">
-                        {t('courses.modulesLabel')}
-                      </h4>
-                      <div className="space-y-1">
-                        {modules.slice(0, 3).map((module, index) => (
-                          <div
-                            key={module.id}
-                            className="flex items-center gap-2 text-xs text-gray-600"
-                          >
-                            <span className="text-forge-orange font-medium">{index + 1}.</span>
-                            <span className="truncate">{module.title}</span>
-                          </div>
-                        ))}
-                        {modules.length > 3 && (
-                          <div className="text-xs text-gray-500">
-                            {t('courses.moreModules', { count: modules.length - 3 })}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Action button */}
-                  <EnhancedButton
-                    className="w-full text-sm py-2"
-                    size="sm"
-                    withGradient
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      navigate(DASHBOARD_LEARN_COURSE(course.id));
-                    }}
-                  >
-                    {isInProgress
-                      ? t('common.buttons.continueLearning')
-                      : t('courses.startCourse')}
-                  </EnhancedButton>
-                </CardContent>
-              </Card>
-            );
-
-            return (
-              <Link
-                key={course.id}
-                to={DASHBOARD_LEARN_COURSE(course.id)}
-                className="block h-full rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              >
-                {card}
-              </Link>
-            );
-          })}
-        </div>
-      </section>
+      {/* Course sections by status (same pattern as FormationDetailPage: In Progress / Completed / Available) */}
+      {isEnrolled ? (
+        <>
+          {inProgressCourses.length > 0 && (
+            <section className="space-y-4">
+              <div className="flex items-center gap-2">
+                <CirclePlay className="h-5 w-5 text-forge-orange" />
+                <h2 className="text-xl font-semibold text-forge-dark">{t('dashboard.pathOverview.inProgressCourses')}</h2>
+                <Badge variant="outline" className="ml-2">{inProgressCourses.length}</Badge>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 items-stretch">
+                {inProgressCourses.map((course) => renderCourseCard(course))}
+              </div>
+            </section>
+          )}
+          {completedCoursesList.length > 0 && (
+            <section className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Flame className="h-5 w-5 text-green-600" />
+                <h2 className="text-xl font-semibold text-forge-dark">{t('dashboard.pathOverview.completedCourses')}</h2>
+                <Badge variant="success" className="ml-2">{completedCoursesList.length}</Badge>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 items-stretch">
+                {completedCoursesList.map((course) => renderCourseCard(course))}
+              </div>
+            </section>
+          )}
+          {availableCoursesList.length > 0 && (
+            <section className="space-y-4">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-blue-600" />
+                <h2 className="text-xl font-semibold text-forge-dark">{t('dashboard.pathOverview.availableCourses')}</h2>
+                <Badge variant="default" className="ml-2">{availableCoursesList.length}</Badge>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 items-stretch">
+                {availableCoursesList.map((course) => renderCourseCard(course))}
+              </div>
+            </section>
+          )}
+        </>
+      ) : (
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-semibold text-forge-dark">{t('dashboard.pathOverview.courses')}</h2>
+            <Badge variant="outline" className="ml-2">{path.courses.length}</Badge>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 items-stretch">
+            {path.courses.map((course) => renderCourseCard(course))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
