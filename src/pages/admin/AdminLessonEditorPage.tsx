@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClientBrowser } from '@/lib/supabase'
 import { RichTextEditor } from '@/components/admin/RichTextEditor'
+import { transformGoogleDriveImageUrlsInHtml } from '@/lib/sanitizeHtml'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, Save, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -154,7 +155,7 @@ export default function AdminLessonEditorPage() {
       <div className="flex-1 overflow-hidden">
         <div className="h-full max-w-5xl mx-auto bg-white shadow-sm my-4 rounded-lg overflow-hidden border">
            <RichTextEditor
-             value={content}
+             value={transformGoogleDriveImageUrlsInHtml(content)}
              onChange={setContent}
              placeholder="Start writing your lesson content..."
              hideFullScreen // Hide fullscreen button since we are already in a full page

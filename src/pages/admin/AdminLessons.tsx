@@ -25,6 +25,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { RichTextEditor } from '@/components/admin/RichTextEditor'
+import { transformGoogleDriveImageUrlsInHtml } from '@/lib/sanitizeHtml'
 import { LocalizationTabs } from '@/components/admin/LocalizationTabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
@@ -303,7 +304,7 @@ export default function AdminLessons() {
           <div className="space-y-2">
             <FormLabel className="text-sm font-medium text-forge-dark">Rich text content</FormLabel>
             <RichTextEditor
-              value={draft.richText}
+              value={transformGoogleDriveImageUrlsInHtml(draft.richText ?? '')}
               onChange={(value) =>
                 updateLocalizationDraft(locale, (previous) => ({
                   ...previous,

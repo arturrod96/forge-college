@@ -148,10 +148,32 @@ function getGoogleDriveFileId(raw: string): string | null {
  * Since 2024, uc?export=view returns 403; thumbnail endpoint works for embedding.
  * Format: https://drive.google.com/thumbnail?id=FILE_ID&sz=w1000
  */
-function toDirectGoogleDriveImageUrl(raw: string): string | null {
+export function toDirectGoogleDriveImageUrl(raw: string): string | null {
   const fileId = getGoogleDriveFileId(raw)
   if (!fileId) return null
   return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`
+}
+
+/**
+ * Replaces Google Drive view URLs in img src with thumbnail URLs so images display in editors.
+ * Use when loading lesson content into the admin Rich Text Editor.
+ */
+export function transformGoogleDriveImageUrlsInHtml(html: string): string {
+  if (!html || typeof document === 'undefined' || typeof DOMParser === 'undefined') return html
+  try {
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(html, 'text/html')
+    doc.querySelectorAll('img[src]').forEach((img) => {
+      const src = img.getAttribute('src')
+      if (src) {
+        const direct = toDirectGoogleDriveImageUrl(src)
+        if (direct) img.setAttribute('src', direct)
+      }
+    })
+    return doc.body.innerHTML
+  } catch {
+    return html
+  }
 }
 
 function unwrapElement(el: Element) {
