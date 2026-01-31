@@ -41,6 +41,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useTranslation } from 'react-i18next'
+import { toDirectGoogleDriveImageUrl } from '@/lib/sanitizeHtml'
 
 type ObjectFit = 'contain' | 'cover' | 'fill' | 'none' | 'scale-down'
 
@@ -408,11 +409,13 @@ export function RichTextEditor({ value, onChange, placeholder, hideFullScreen, o
   const insertImageByUrl = () => {
     if (!imageUrl.trim()) return
 
+    const resolvedSrc = toDirectGoogleDriveImageUrl(imageUrl.trim()) || imageUrl.trim()
+
     editor
       .chain()
       .focus()
       .setImage({
-        src: imageUrl.trim(),
+        src: resolvedSrc,
         alt: imageAlt.trim() || null,
         width: toPx(imageWidth),
         height: toPx(imageHeight),
