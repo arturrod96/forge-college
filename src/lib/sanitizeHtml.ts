@@ -118,6 +118,42 @@ function isSafeIframeSrc(raw: string): boolean {
   }
 }
 
+/**
+ * Extracts Google Drive file ID from various URL formats.
+ * Supports: /file/d/FILE_ID/view, /open?id=FILE_ID, /thumbnail?id=FILE_ID
+ */
+function getGoogleDriveFileId(raw: string): string | null {
+  const value = raw.trim()
+  if (!value) return null
+  try {
+    const url = new URL(value, 'https://example.com')
+    const host = url.hostname.toLowerCase()
+    if (host !== 'drive.google.com') return null
+    const path = url.pathname
+    const search = url.searchParams
+    // /file/d/FILE_ID/view
+    const fileMatch = path.match(/^\/file\/d\/([a-zA-Z0-9_-]+)(?:\/view)?\/?$/i)
+    if (fileMatch) return fileMatch[1]
+    // /open?id=FILE_ID or /thumbnail?id=FILE_ID
+    const id = search.get('id')
+    if (id && /^[a-zA-Z0-9_-]+$/.test(id)) return id
+    return null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Converts Google Drive sharing URLs to thumbnail URL that works in <img src>.
+ * Since 2024, uc?export=view returns 403; thumbnail endpoint works for embedding.
+ * Format: https://drive.google.com/thumbnail?id=FILE_ID&sz=w1000
+ */
+function toDirectGoogleDriveImageUrl(raw: string): string | null {
+  const fileId = getGoogleDriveFileId(raw)
+  if (!fileId) return null
+  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`
+}
+
 function unwrapElement(el: Element) {
   const parent = el.parentNode
   if (!parent) return
@@ -157,6 +193,14 @@ function sanitizeAttributes(el: Element) {
           el.remove()
           return
         }
+      } else if (tag === 'img') {
+        if (!isSafeUrl(value, 'src')) {
+          el.removeAttribute(attr.name)
+          continue
+        }
+        // Convert Google Drive view URLs to direct image URLs so the image displays
+        const directUrl = toDirectGoogleDriveImageUrl(value)
+        if (directUrl) el.setAttribute('src', directUrl)
       } else if (!isSafeUrl(value, 'src')) {
         el.removeAttribute(attr.name)
         continue
