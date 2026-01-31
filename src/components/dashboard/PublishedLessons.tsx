@@ -318,13 +318,13 @@ export function PublishedLessons({ limit, className, showSearch = true, showFilt
                     const card = (
                       <Card
                         className={[
-                          'relative rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-lg transition-shadow h-full min-h-[200px] flex flex-col',
+                          'relative rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-lg transition-shadow h-full min-h-[200px] flex flex-col',
                           courseId ? 'cursor-pointer' : 'opacity-70 cursor-not-allowed',
                           isInProgress ? 'ring-2 ring-forge-orange/30' : '',
                         ].join(' ')}
                       >
-                        {/* Thumbnail */}
-                        <div className="h-48 flex items-center justify-center relative" style={{ backgroundColor: '#303b2e' }}>
+                        {/* Thumbnail - overflow-hidden only here so card shadow is not clipped */}
+                        <div className="h-48 flex items-center justify-center relative overflow-hidden rounded-t-lg" style={{ backgroundColor: '#303b2e' }}>
                           <Icon className="h-16 w-16 text-forge-orange" />
                           
                           {/* Badge sobre a thumbnail */}

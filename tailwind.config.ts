@@ -79,6 +79,9 @@ export default {
 						900: '#69655c',
 						DEFAULT: '#F5F2E8',
 					},
+					// Formation card (dashboard) - dark green + off-white text
+					formationFg: '#F8F8F8',
+					formationBg: '#2C352E',
 					// Gray scale
 					gray: {
 						50: '#f9f9f9',
@@ -209,13 +212,13 @@ export default {
 				'gradient-info': 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)',
 				'gradient-error': 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)',
 
-				// Soft gradients (for cards/backgrounds) - Forge palette
-				'gradient-soft-blue': 'linear-gradient(to bottom right, #aabcb6, #aabcb6)', // Same as green-visible
-				'gradient-soft-green': 'linear-gradient(to bottom right, #aabcb6, #aabcb6)', // Same as green-visible
-				'gradient-soft-yellow': 'linear-gradient(to bottom right, #aabcb6, #aabcb6)', // Same as green-visible
-				'gradient-soft-purple': 'linear-gradient(to bottom right, #aabcb6, #aabcb6)', // Same as green-visible
+				// Soft gradients (for cards/backgrounds) - Formation pattern: dark muted green
+				'gradient-soft-green-visible': 'linear-gradient(to bottom right, #2C352E, #252d26)',
+				'gradient-soft-green': 'linear-gradient(to bottom right, #2C352E, #252d26)',
+				'gradient-soft-yellow': 'linear-gradient(to bottom right, #2C352E, #2d3328)',
+				'gradient-soft-blue': 'linear-gradient(to bottom right, #2C352E, #282d35)',
+				'gradient-soft-purple': 'linear-gradient(to bottom right, #2C352E, #2d2835)',
 				'gradient-soft-orange': 'linear-gradient(to bottom right, #fff7ed, #ffedd5)',
-				'gradient-soft-green-visible': 'linear-gradient(to bottom right, #aabcb6, #aabcb6)', // Custom green color
 
 				// Shimmer effect for loading states
 				'shimmer': 'linear-gradient(to right, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%)',

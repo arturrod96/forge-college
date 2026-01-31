@@ -117,10 +117,10 @@ export function ContinueLearningCard({ className }: ContinueLearningCardProps) {
         <EnhancedCardTitle size="lg">
           {t('dashboard.continueLearning.title')}
         </EnhancedCardTitle>
-        <EnhancedCardDescription size="md">
+        <EnhancedCardDescription size="md" className="text-forge-cream-200/90">
           {t('dashboard.continueLearning.subtitle')}
         </EnhancedCardDescription>
-        <p className="text-xl font-semibold pt-2 text-foreground">
+        <p className="text-xl font-semibold pt-2 text-forge-formationFg">
           {getCourseTitleWithLocalizations(recentCourse, recentCourse.course_localizations, i18n.language)}
         </p>
       </EnhancedCardHeader>

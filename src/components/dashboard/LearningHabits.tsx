@@ -109,17 +109,20 @@ export function LearningHabits({ className }: LearningHabitsProps) {
         {/* Streak */}
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-sm text-gray-600">{t('dashboard.learningHabits.currentStreak')}</div>
-            <div className="text-2xl font-semibold">{streakText}</div>
+            <div className="text-sm text-forge-cream-200/90">{t('dashboard.learningHabits.currentStreak')}</div>
+            <div className="text-2xl font-semibold text-forge-formationFg">{streakText}</div>
           </div>
         </div>
 
         {/* Weekly goal */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <div className="text-sm text-gray-600">{t('dashboard.learningHabits.weeklyGoal')}</div>
+            <div className="text-sm text-forge-cream-200/90">{t('dashboard.learningHabits.weeklyGoal')}</div>
           </div>
-          <Progress value={Math.min(100, (streakDays / 7) * 100)} />
+          <Progress
+            value={Math.min(100, (streakDays / 7) * 100)}
+            className="!bg-[#505050] [&>*]:!bg-forge-orange-600"
+          />
         </div>
 
         {/* 7-day mini series */}
@@ -127,7 +130,7 @@ export function LearningHabits({ className }: LearningHabitsProps) {
           {weekSeries.map((v, idx) => (
             <div key={idx} className="flex flex-col items-center gap-1">
               <div
-                className="w-6 rounded bg-forge-orange-600 shadow-sm"
+                className="w-6 rounded bg-forge-orange-600/90 shadow-sm"
                 style={{ height: Math.max(6, Math.min(28, v * 8)) }}
                 title={t('dashboard.learningHabits.completions', { count: v })}
               />

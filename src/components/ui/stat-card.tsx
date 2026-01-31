@@ -149,15 +149,32 @@ const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
           <div className="flex items-start justify-between">
             {/* Left side: Label and Value */}
             <div className="space-y-1 flex-1">
-              <p className={cn("font-medium text-forge-dark-700", labelSizes[size || "md"])}>
+              <p
+                className={cn(
+                  "font-medium",
+                  labelSizes[size || "md"],
+                  variant === "gradient" ? "text-forge-cream-200/90" : "text-forge-dark-700"
+                )}
+              >
                 {label}
               </p>
-              <p className={cn(valueSizes[size || "md"], "tracking-tight")}>
+              <p
+                className={cn(
+                  valueSizes[size || "md"],
+                  "tracking-tight",
+                  variant === "gradient" ? "text-forge-formationFg" : ""
+                )}
+              >
                 {value}
               </p>
 
               {description && (
-                <p className="text-xs text-muted-foreground mt-1">
+                <p
+                  className={cn(
+                    "text-xs mt-1",
+                    variant === "gradient" ? "text-forge-cream-200/80" : "text-muted-foreground"
+                  )}
+                >
                   {description}
                 </p>
               )}
@@ -182,7 +199,14 @@ const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
                     {trend.value}
                   </span>
                   {trend.label && (
-                    <span className="text-xs text-muted-foreground">{trend.label}</span>
+                    <span
+                      className={cn(
+                        "text-xs",
+                        variant === "gradient" ? "text-forge-cream-200/80" : "text-muted-foreground"
+                      )}
+                    >
+                      {trend.label}
+                    </span>
                   )}
                 </div>
               )}
@@ -192,7 +216,8 @@ const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
             {Icon && (
               <div
                 className={cn(
-                  "rounded-full p-2 bg-background/50",
+                  "rounded-full p-2",
+                  variant === "gradient" ? "bg-white/10" : "bg-background/50",
                   iconSizes[size || "md"]
                 )}
               >
